@@ -1,0 +1,264 @@
+import express from "express";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import pino from "pino";
+
+type AuthMode = "noauth" | "oauth2" | "mixed";
+
+type SuccessEnvelope<T> = {
+  ok: true;
+  data: T;
+  meta: {
+    requestId: string;
+    auth: AuthMode;
+    warnings: string[];
+    rateLimit?: {
+      remaining?: number;
+      resetSeconds?: number;
+    };
+    pagination?: {
+      nextCursor?: string | null;
+    };
+  };
+};
+
+type ErrorEnvelope = {
+  ok: false;
+  error: {
+    code: string;
+    message: string;
+    retryable: boolean;
+    details?: Record<string, unknown>;
+  };
+  meta: {
+    requestId: string;
+    auth: AuthMode;
+    warnings: string[];
+  };
+};
+
+const envSchema = z.object({
+  PORT: z.coerce.number().int().positive().default(3000),
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
+  MCP_SERVER_NAME: z.string().min(1).default("replace-me-mcp-server"),
+  MCP_SERVER_VERSION: z.string().min(1).default("0.1.0"),
+  MCP_AUTH_MODE: z.enum(["noauth", "oauth2", "mixed"]).default("noauth"),
+  UPSTREAM_BASE_URL: z.string().url(),
+  UPSTREAM_API_KEY: z.string().min(1).optional()
+});
+
+const env = envSchema.parse(process.env);
+const logger = pino({ level: env.LOG_LEVEL });
+
+const SearchInputSchema = z.object({
+  query: z.string().min(1).max(200),
+  limit: z.number().int().min(1).max(25).default(10),
+  cursor: z.string().optional()
+});
+
+const SearchOutputSchema = z.object({
+  items: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      snippet: z.string()
+    })
+  ),
+  nextCursor: z.string().nullable().optional()
+});
+
+function ensureAuthorized(toolName: string, authMode: AuthMode): void {
+  if (authMode === "noauth") {
+    return;
+  }
+
+  // TODO: Replace with real auth verification.
+  throw new Error(`Tool ${toolName} requires authentication that has not been implemented yet.`);
+}
+
+function success<T>(
+  requestId: string,
+  auth: AuthMode,
+  data: T,
+  extra?: Partial<SuccessEnvelope<T>["meta"]>
+): SuccessEnvelope<T> {
+  return {
+    ok: true,
+    data,
+    meta: {
+      requestId,
+      auth,
+      warnings: extra?.warnings ?? [],
+      rateLimit: extra?.rateLimit,
+      pagination: extra?.pagination
+    }
+  };
+}
+
+function failure(
+  requestId: string,
+  auth: AuthMode,
+  code: string,
+  message: string,
+  retryable = false,
+  details?: Record<string, unknown>
+): ErrorEnvelope {
+  return {
+    ok: false,
+    error: {
+      code,
+      message,
+      retryable,
+      details
+    },
+    meta: {
+      requestId,
+      auth,
+      warnings: []
+    }
+  };
+}
+
+async function searchUpstream(input: z.infer<typeof SearchInputSchema>) {
+  // TODO: Replace with the real upstream call.
+  // Keep upstream access narrow and avoid hidden writes.
+  return SearchOutputSchema.parse({
+    items: [
+      {
+        id: "doc_001",
+        title: `Result for ${input.query}`,
+        snippet: "Replace this placeholder with real upstream data."
+      }
+    ],
+    nextCursor: null
+  });
+}
+
+function buildServer() {
+  const server = new McpServer({
+    name: env.MCP_SERVER_NAME,
+    version: env.MCP_SERVER_VERSION
+  });
+
+  server.registerTool(
+    "search_records",
+    {
+      title: "Search records",
+      description:
+        "Use this when you need to search upstream records without changing state. This tool is read-only and returns a normalized structured result.",
+      inputSchema: SearchInputSchema.shape,
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true
+      }
+    },
+    async (rawInput) => {
+      const requestId = randomUUID();
+      const auth = env.MCP_AUTH_MODE;
+
+      try {
+        const input = SearchInputSchema.parse(rawInput);
+        ensureAuthorized("search_records", auth);
+
+        const data = await searchUpstream(input);
+        const envelope = success(requestId, auth, data, {
+          pagination: { nextCursor: data.nextCursor ?? null }
+        });
+
+        logger.info({ requestId, tool: "search_records", auth, query: input.query }, "tool success");
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Returned ${data.items.length} result(s) for "${input.query}".`
+            }
+          ],
+          structuredContent: envelope
+        };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unknown tool error";
+        const envelope = failure(requestId, auth, "TOOL_EXECUTION_FAILED", message, false);
+
+        logger.error({ requestId, tool: "search_records", auth, error }, "tool failure");
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `search_records failed: ${message}`
+            }
+          ],
+          structuredContent: envelope,
+          isError: true
+        };
+      }
+    }
+  );
+
+  return server;
+}
+
+async function main() {
+  const app = express();
+  app.use(express.json({ limit: "1mb" }));
+
+  app.get("/healthz", (_req, res) => {
+    res.json({
+      ok: true,
+      name: env.MCP_SERVER_NAME,
+      version: env.MCP_SERVER_VERSION,
+      authMode: env.MCP_AUTH_MODE
+    });
+  });
+
+  app.post("/mcp", async (req, res) => {
+    const requestId = randomUUID();
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: () => randomUUID()
+    });
+
+    res.setHeader("x-request-id", requestId);
+
+    transport.onerror = (error) => {
+      logger.error({ requestId, error }, "transport error");
+    };
+
+    transport.onclose = () => {
+      logger.info({ requestId }, "transport closed");
+    };
+
+    const server = buildServer();
+
+    try {
+      await server.connect(transport);
+      await transport.handleRequest(req, res, req.body);
+    } catch (error) {
+      logger.error({ requestId, error }, "request failure");
+      if (!res.headersSent) {
+        res.status(500).json(
+          failure(requestId, env.MCP_AUTH_MODE, "INTERNAL_ERROR", "Unhandled MCP request failure", true)
+        );
+      }
+    }
+  });
+
+  app.listen(env.PORT, () => {
+    logger.info(
+      {
+        port: env.PORT,
+        authMode: env.MCP_AUTH_MODE,
+        server: env.MCP_SERVER_NAME
+      },
+      "remote MCP server listening"
+    );
+  });
+}
+
+main().catch((error) => {
+  logger.fatal({ error }, "fatal startup error");
+  process.exit(1);
+});

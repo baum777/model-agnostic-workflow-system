@@ -1,0 +1,59 @@
+Tool Name: <tool_name>
+
+Purpose:
+<one sentence boundary>
+
+Description:
+Use this when <caller intent>. <State clearly whether the tool is read-only, write-capable, or destructive.>
+
+Classification:
+<read | write | destructive>
+
+Annotations:
+- readOnlyHint: <true|false>
+- destructiveHint: <true|false>
+- idempotentHint: <true|false>
+- openWorldHint: <true|false or omit if unsupported>
+
+Auth:
+- mode: <noauth | oauth2 | mixed>
+- executes_as: <user token | service identity | hybrid>
+- required_scopes_or_permissions: <list>
+
+Inputs:
+- schema: <JSON Schema or equivalent>
+- defaults: <explicit defaults only>
+- validation_rules:
+  - <rule>
+  - <rule>
+
+Outputs:
+- schema: <JSON Schema or equivalent>
+- normalized_result_shape:
+  - success_envelope: <yes|no>
+  - error_envelope: <yes|no>
+  - pagination: <cursor|offset|none>
+  - warnings: <yes|no>
+
+Side Effects:
+- external_read: <yes|no>
+- external_write: <yes|no>
+- sends_messages_or_triggers_jobs: <yes|no>
+- destructive_behavior: <none or explicit description>
+
+Rate Limits And Caching:
+- upstream_limit_notes: <notes>
+- cacheable: <yes|no>
+- cache_ttl_seconds: <number or none>
+
+Failure Modes:
+- <validation failure>
+- <auth failure>
+- <upstream failure>
+- <internal failure>
+
+Acceptance Checks:
+- <The description matches the real behavior.>
+- <The schema rejects malformed inputs.>
+- <The output contract is explicit and stable.>
+- <Hidden writes are impossible.>
