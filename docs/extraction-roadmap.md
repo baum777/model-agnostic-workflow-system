@@ -1,6 +1,11 @@
 # Extraction Roadmap
 
-This repository is currently in the first safe extraction slice.
+Class: archive.
+Use rule: read as historical context only; do not use it to decide current authority or enforcement.
+
+Status: historical planning note.
+
+This document records the first safe extraction slice and deferred candidates. It is preserved for context only; it is not a live authority source.
 
 ## Completed in This Slice
 
@@ -36,3 +41,8 @@ This repository is currently in the first safe extraction slice.
 ## Exit Criteria for the Roadmap
 
 The extraction is ready to leave staging when a second repository can adopt the shared core with only overlay files and no manual edits to shared assets.
+
+## Use Rule
+
+If you need current authority, use [docs/architecture.md](C:/workspace/main_projects/codex-workflow-core/docs/architecture.md) and [docs/authority-matrix.md](C:/workspace/main_projects/codex-workflow-core/docs/authority-matrix.md).
+- This class label is logical only; it does not imply a physical archive directory.

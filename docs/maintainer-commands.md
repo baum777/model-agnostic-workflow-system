@@ -1,6 +1,6 @@
 # Maintainer Commands
 
-These commands keep consumer linkage explicit and reproducible.
+Operational command appendix. For hierarchy and rules, see [docs/architecture.md](C:/workspace/main_projects/codex-workflow-core/docs/architecture.md) and [docs/usage.md](C:/workspace/main_projects/codex-workflow-core/docs/usage.md).
 
 ## Refresh a Consumer Lock
 

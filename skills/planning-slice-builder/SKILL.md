@@ -14,13 +14,18 @@ status: extracted
 
 ## Trigger
 
-Use this skill when a request is too broad to execute safely in one pass.
+Use this skill when a request is broad enough that one safe implementation pass needs bounded waves, dependencies, and gates.
 
 ## When Not To Use
 
 - Do not use for trivial edits.
 - Do not use when an implementation plan is already locked.
 - Do not use to widen scope.
+
+## Non-Goals
+- This skill does not choose test coverage in detail.
+- This skill does not perform failure analysis or patch strategy selection.
+- This skill does not write the final implementation or review.
 
 ## Workflow
 

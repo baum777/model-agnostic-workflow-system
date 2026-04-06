@@ -1,6 +1,6 @@
 ---
 name: workflow-core-router
-description: Route non-trivial requests into the correct workflow artifact shape (spec, handover, architecture map, checklist, runbook, or implementation plan) with explicit gates.
+description: Repo-local control-plane skill that selects the primary workflow artifact shape (spec, handover, architecture map, checklist, runbook, or implementation plan) with explicit gates.
 version: 1.0.0
 classification: local-only
 requires_repo_inputs: false
@@ -13,11 +13,16 @@ status: active
 # Workflow Core Router
 
 ## Trigger
-Use this skill when task scope, artifact shape, or execution path is non-trivial.
+Use this skill when task scope, artifact shape, or execution path is non-trivial and the repo-local primary artifact shape must be chosen first.
 
 ## When Not To Use
 - Do not use for small obvious edits with a single direct implementation path.
 - Do not use when a required artifact type is already explicitly requested and scoped.
+
+## Non-Goals
+- This skill does not author the final artifact.
+- This skill does not choose implementation details inside the selected shape.
+- This skill does not act as a general planner or cross-repo router.
 
 ## Expected Inputs
 - objective and requested outcome

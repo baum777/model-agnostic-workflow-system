@@ -1,6 +1,9 @@
 # Shared Core Overview
 
-`codex-workflow-core` is the authoritative versioned shared-core repository for the Codex workflow package.
+Class: derived.
+Use rule: read as a summary only; do not use it to decide authority or enforcement status.
+
+This page is a summary only. For canonical authority, read [docs/architecture.md](C:/workspace/main_projects/codex-workflow-core/docs/architecture.md) and [docs/authority-matrix.md](C:/workspace/main_projects/codex-workflow-core/docs/authority-matrix.md); for operator flow, read [docs/usage.md](C:/workspace/main_projects/codex-workflow-core/docs/usage.md).
 
 ## Scope
 
@@ -17,18 +20,11 @@ This shared core is limited to reusable workflow assets:
 
 The shared core does not own repo-specific governance, evidence logs, or runtime assumptions.
 Consumer repositories must supply those through a local overlay.
+- This is a logical class label only; there is no physical derived-docs directory in the current repo layout.
 
-## Intended Use
-
-- consume the shared core as a versioned local source
-- keep the overlay explicit and local
-- validate the shared core before each adoption or update
-
-## First Extraction Slice
-
-This repository currently contains the reusable core slice plus two parameterized examples:
+## Current Slice
 
 - `repo-intake-sot-mapper`
 - `runtime-policy-auditor`
 
-That is intentional: consumer repositories should pin the version and fingerprint before adopting updates, then supply the declared local input contracts for any shared-with-local-inputs skill they enable.
+That slice is intentional: consumer repositories should pin the version and fingerprint before adopting updates, then supply the declared local input contracts for any shared-with-local-inputs skill they enable.

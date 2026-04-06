@@ -14,13 +14,18 @@ status: extracted
 
 ## Trigger
 
-Use this skill after a change is implemented and verified, or when a handoff needs an operator summary.
+Use this skill after a change is implemented and verified, or when a handoff needs an operator summary grounded in actual evidence.
 
 ## When Not To Use
 
 - Do not use before the change exists.
 - Do not use to replace a real test or gate result.
 - Do not use to inflate confidence without evidence.
+
+## Non-Goals
+- This skill does not pre-decide the change or implementation plan.
+- This skill does not create release narrative or stakeholder marketing copy.
+- This skill does not replace validation or verification work.
 
 ## Workflow
 

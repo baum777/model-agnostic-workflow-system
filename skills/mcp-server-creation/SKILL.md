@@ -14,7 +14,7 @@ status: extracted
 
 ## Trigger
 
-Use this skill when the task is to design, scaffold, refine, or review a remote MCP server.
+Use this skill when the task is specifically to design, scaffold, refine, or review a remote MCP server.
 
 Use it for:
 
@@ -30,6 +30,11 @@ Use it for:
 - Do not use when the user needs product brainstorming but has no concrete server goal yet.
 - Do not use to hide destructive behavior inside read-only tools.
 - Do not claim production readiness if auth, validation, observability, or testing are still placeholders.
+
+## Non-Goals
+- This skill does not design non-MCP apps or local-only scripts.
+- This skill does not mix read-only and destructive behavior behind one ambiguous tool.
+- This skill does not declare a scaffold production-ready without verified auth, validation, logging, and tests.
 
 ## Expected Inputs
 

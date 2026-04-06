@@ -1,6 +1,11 @@
 # Eval Baseline
 
-This baseline defines a minimal non-code evaluation loop for iterative instruction and skill tuning.
+Class: derived.
+Use rule: read as evidence derived from current docs and validators; do not use it as governance.
+
+Status: derived evidence baseline.
+
+This file records minimal non-code evaluation cases derived from the current docs and validator expectations. It is not a governance source.
 
 ## Eval targets
 
@@ -41,6 +46,10 @@ Rules:
 - attach command output for validator-backed checks
 - unresolved tests must be recorded as `BLOCKED`, never `PASS`
 - include timestamp, evaluator, and repo revision context
+
+## Refresh Rule
+
+If canonical docs or validators change, regenerate this baseline instead of treating the old cases as current truth.
 
 ## Future automation candidates
 

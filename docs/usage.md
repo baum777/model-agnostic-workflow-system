@@ -1,36 +1,26 @@
 # Usage
 
-Use the shared core as a local, materialized package boundary inside a consumer repository.
+Class: operational.
+Use rule: start here for operator flow, then jump to the canonical docs it references; do not treat this page as the source of truth.
 
-## Typical Flow
+Operational entrypoint for consumer adoption and maintainer work.
 
-1. Read the repo overlay contract.
-2. Read `docs/authority-matrix.md` to confirm claim status (`implemented`, `contract-only`, `planned`, `missing`, `unclear`) before relying on a surface.
-3. Initialize or refresh the consumer overlay.
-4. If the consumer uses `repo-intake-sot-mapper`, validate `.codex/repo-intake-inputs.json` before mapping the repo.
-5. If the consumer uses `runtime-policy-auditor`, validate `.codex/runtime-policy-inputs.json` before auditing runtime policy.
-6. Use the planning and review skills for bounded work.
-7. Keep write operations approval-gated.
-8. Validate before merge or rollout.
+## Start Here
 
-## Preferred Entry Points
+1. Read [docs/architecture.md](C:/workspace/main_projects/codex-workflow-core/docs/architecture.md).
+2. Read [docs/authority-matrix.md](C:/workspace/main_projects/codex-workflow-core/docs/authority-matrix.md).
+3. Read [docs/repo-overlay-contract.md](C:/workspace/main_projects/codex-workflow-core/docs/repo-overlay-contract.md) when the task touches shared versus local boundaries.
+4. Use [docs/validation-checklist.md](C:/workspace/main_projects/codex-workflow-core/docs/validation-checklist.md) for gates, not for canonical rules.
 
-- `docs/overview.md`
-- `docs/adoption-playbook.md`
-- `docs/repo-overlay-contract.md`
-- `docs/consumer-rollout-playbook.md`
-- `docs/lock-model.md`
-- `docs/maintainer-commands.md`
-- `docs/shared-with-local-inputs.md`
-- `docs/authority-matrix.md`
-- `docs/eval-baseline.md`
-- `scripts/tools/validate-shared-core-package.mjs`
-- `scripts/tools/calculate-package-fingerprint.mjs`
-- `scripts/tools/validate-runtime-policy-input-contract.mjs`
+## Choose The Operational Doc
 
-## Catalog Status Rule
+- First-time adoption: [docs/adoption-playbook.md](C:/workspace/main_projects/codex-workflow-core/docs/adoption-playbook.md)
+- Existing consumer refresh or rollout: [docs/consumer-rollout-playbook.md](C:/workspace/main_projects/codex-workflow-core/docs/consumer-rollout-playbook.md)
+- Exact maintainer commands: [docs/maintainer-commands.md](C:/workspace/main_projects/codex-workflow-core/docs/maintainer-commands.md)
 
-Interpret `docs/tool-contracts/catalog.json` using this fail-closed rule:
+## Operational Rules
 
-- only `implementationStatus: real` with an `entrypoint` should be treated as runnable
-- `implementationStatus: contract` and `implementationStatus: stub` are non-runnable declarations
+- If a step depends on a validator or script, cite the script path.
+- If a guide repeats canonical text, defer to the canonical file instead of copying it here.
+- Treat [docs/overview.md](C:/workspace/main_projects/codex-workflow-core/docs/overview.md) as summary only and [docs/eval-baseline.md](C:/workspace/main_projects/codex-workflow-core/docs/eval-baseline.md) as derived evidence, not authority.
+- This class model is logical only; it does not imply physical subdirectories in the repo.

@@ -14,13 +14,18 @@ status: extracted
 
 ## Trigger
 
-Use this skill when a change needs explicit verification coverage before implementation or merge.
+Use this skill when a change needs explicit verification coverage before implementation or merge, and the verification plan must be spelled out.
 
 ## When Not To Use
 
 - Do not use for pure documentation edits with no runtime impact.
 - Do not use when the test scope is already fixed and fully enumerated.
 - Do not use to create tests unrelated to the request.
+
+## Non-Goals
+- This skill does not perform failure analysis or pick a patch strategy.
+- This skill does not implement tests or code changes.
+- This skill does not replace planning-slice or review workflows.
 
 ## Workflow
 

@@ -14,13 +14,18 @@ status: extracted
 
 ## Trigger
 
-Use this skill when a design, change, or workflow needs explicit failure analysis.
+Use this skill when a design, change, or workflow needs explicit failure analysis before implementation or approval.
 
 ## When Not To Use
 
 - Do not use for pure summarization with no risk analysis.
 - Do not use to invent threats without an actual system context.
 - Do not use to replace implementation or testing.
+
+## Non-Goals
+- This skill does not create the test matrix.
+- This skill does not choose the patch strategy or implementation slice.
+- This skill does not replace implementation or testing.
 
 ## Workflow
 

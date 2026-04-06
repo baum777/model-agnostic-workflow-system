@@ -1,26 +1,65 @@
-# Architecture
+# Documentation Architecture Charter
 
-The shared core is split into two layers:
+Class: canonical.
+Use rule: read this first for documentation hierarchy, class definitions, merge rules, and update rules; treat it as logical structure only, not a physical directory map.
 
-## Shared Core
+This file is the canonical documentation operating charter for the repository.
+It is prose authority, not script-enforced truth. When a validator or script disagrees with this file, the validator or script is the enforcement surface and [docs/authority-matrix.md](C:/workspace/main_projects/codex-workflow-core/docs/authority-matrix.md) records the claim status.
 
-- reusable workflow skills
-- reusable templates and examples
-- reusable helper scripts
-- shared tool contracts
-- shared validation logic
-- shared-with-local-inputs skills with explicit consumer-owned contracts
+## Objective
 
-## Local Overlay
+Define how repository docs are classified, where authority lives, and how updates merge without duplicating truth.
 
-- repository-specific governance
-- canonical source maps
-- evidence logs
-- deployment assumptions
-- local-only wrappers or skills
-- consumer-local input contracts for shared-with-local-inputs skills
+## Authority Tiers
 
-## Boundary Rule
+| Tier | Class | Meaning | Examples |
+| --- | --- | --- | --- |
+| 0 | enforced | Script- or validator-backed truth. This is the highest executable authority. | `scripts/tools/validate-shared-core-package.mjs`, `scripts/tools/validate-shared-core-scaffold.mjs`, `scripts/tools/validate-consumer-linkage.mjs` |
+| 1 | canonical | Normative repo docs that define policy, contracts, and architecture. | `AGENTS.md`, `docs/authority-matrix.md`, `docs/compatibility.md`, `docs/lock-model.md`, `docs/repo-overlay-contract.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/tool-contracts/catalog.json` |
+| 2 | operational | Runbooks, usage guides, command references, and checklists that depend on canonical rules. | `docs/usage.md`, `docs/adoption-playbook.md`, `docs/consumer-rollout-playbook.md`, `docs/maintainer-commands.md`, `docs/validation-checklist.md` |
+| 3 | derived | Summaries, baselines, examples, and templates that explain or demonstrate current practice. | `docs/overview.md`, `docs/eval-baseline.md`, `templates/codex-workflow/*`, `examples/codex-workflow/*` |
+| 4 | archive | Historical or frozen planning records. | `docs/extraction-roadmap.md`, `CHANGELOG.md` |
 
-Shared assets stay generic.
-Local overlays stay explicit and repository-owned.
+## Current Repo Shape
+
+- Root governance: `AGENTS.md`
+- Front door: `README.md`
+- Canonical docs: `docs/authority-matrix.md`, `docs/architecture.md`, `docs/compatibility.md`, `docs/lock-model.md`, `docs/repo-overlay-contract.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/tool-contracts/catalog.json`
+- Operational docs: `docs/usage.md`, `docs/adoption-playbook.md`, `docs/consumer-rollout-playbook.md`, `docs/maintainer-commands.md`, `docs/validation-checklist.md`
+- Derived docs and support surfaces: `docs/overview.md`, `docs/eval-baseline.md`, `templates/codex-workflow/*`, `examples/codex-workflow/*`
+- Archive: `docs/extraction-roadmap.md`, `CHANGELOG.md`
+- Enforcement surfaces: `scripts/tools/*`
+- Logical class model only: the repo does not currently use physical `canonical/`, `operational/`, `derived/`, or `archive` subdirectories.
+
+## Skill Topology
+
+- Shared exported skills live in `skills/`. They are reusable, versioned, and safe to mirror into consumers when their boundaries remain generic and explicit.
+- Contract-bound skills still live in `skills/` when the only repo-specific dependency is an explicit local input contract. The boundary is the declared contract, not the directory name.
+- Repo-local control-plane skills live in `.agents/skills/`. They govern routing, reuse-vs-create policy, and other repo-specific meta-decisions only.
+- Docs and contracts are the home for truth declarations, authority rules, and input-contract surfaces. If a workflow mainly declares scope, authority, or local input shape, keep it in docs/contracts instead of promoting it to a skill.
+- The skill class model is logical only; it does not imply a physical directory split beyond the current repository layout.
+
+## Merge and Update Rules
+
+1. Keep one canonical home per rule or contract.
+2. If two files describe the same normative rule, merge that rule into the canonical file and leave the secondary file as a pointer or short appendix.
+3. Operational docs may summarize flows, but they must point back to the canonical rule instead of redefining it.
+4. Derived docs may restate current practice only if they are labeled derived and link back to the canonical source.
+5. Archive docs are append-only except for factual corrections.
+6. If enforcement changes, update the validator or script and the canonical doc in the same slice.
+7. If a new doc is needed, justify it only when no existing canonical file can absorb the rule without becoming mixed-purpose.
+8. If authority is unclear, fail closed and record the ambiguity in [docs/authority-matrix.md](C:/workspace/main_projects/codex-workflow-core/docs/authority-matrix.md).
+
+## Enforcement Relationship
+
+- If a rule is script-enforced, cite the script path instead of restating the rule as if prose were sufficient.
+- If no enforcing surface exists, mark the claim as `contract-only`, `planned`, `missing`, or `unclear` in [docs/authority-matrix.md](C:/workspace/main_projects/codex-workflow-core/docs/authority-matrix.md).
+- Do not label derived or archive material as current truth.
+
+## Naming And Layout
+
+- Canonical files should use direct nouns for the thing they govern.
+- Operational files should use action-oriented names for flows and checklists.
+- Derived files should signal summary, example, or baseline.
+- Archive files should signal history, roadmap, or changelog.
+- Physical path moves are deferred until validator-pinned references are updated.

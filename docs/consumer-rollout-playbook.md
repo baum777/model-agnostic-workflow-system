@@ -1,39 +1,22 @@
 # Consumer Rollout Playbook
 
-This is the repeatable adoption path for a new consumer repository.
+Use this playbook after a consumer overlay already exists.
 
-## 1. Initialize
+## Scope
 
-- confirm the consumer repo is a safe candidate
-- run `npm run init-consumer -- --consumer <repo-path>` from the standalone shared-core repo
-- commit the generated overlay files in the consumer repo
-- if the consumer adopts `repo-intake-sot-mapper`, add `.codex/repo-intake-inputs.json` before validation and keep it repo-local
-- if the consumer adopts `runtime-policy-auditor`, add `.codex/runtime-policy-inputs.json` before validation and keep it repo-local
+- refresh the consumer lock after shared-core updates
+- validate consumer linkage
+- validate any adopted local input contracts
 
-## 2. Refresh
+## Flow
 
-- run `npm run refresh-lock -- --consumer <repo-path>` after any shared-core release or fingerprint change
-- review the manifest diff before merging
+1. Refresh the lock when the shared-core version or fingerprint changes.
+2. Validate consumer linkage.
+3. Validate local input contracts for adopted shared-with-local-inputs skills.
+4. Review the manifest diff before merge or rollout.
 
-## 3. Validate
+## Notes
 
-- run `npm run validate-consumer -- --consumer <repo-path>`
-- run `npm run validate-input-contract -- --contract <repo-path>/.codex/repo-intake-inputs.json` for consumers that adopt `repo-intake-sot-mapper`
-- run `npm run validate-runtime-policy-input-contract -- --contract <repo-path>/.codex/runtime-policy-inputs.json` for consumers that adopt `runtime-policy-auditor`
-- use the consumer repo's local wrapper if one exists
-
-## 4. Roll Back
-
-- if the standalone shared-core is unavailable, a consumer may temporarily point back to the UNITERA compatibility mirror only for emergency continuity
-- treat that fallback as transitional only
-
-## 5. Shared vs Local Boundaries
-
-Shared-core owns generic workflow assets.
-The consumer owns repo policy, canonical sources, local evidence, and environment assumptions.
-Shared-with-local-inputs skills add a consumer-local contract under `.codex/` so the shared skill can stay generic without guessing at repo truth.
-
-## 6. Compatible Updates
-
-A compatible update changes the shared-core package without breaking the consumer overlay contract.
-A breaking update requires a lock refresh, a manifest review, and usually a consumer overlay adjustment.
+- Rollback behavior is consumer-specific; do not infer live-readiness from this document.
+- Exact commands live in [docs/maintainer-commands.md](C:/workspace/main_projects/codex-workflow-core/docs/maintainer-commands.md).
+- Canonical boundary rules live in [docs/architecture.md](C:/workspace/main_projects/codex-workflow-core/docs/architecture.md) and [docs/repo-overlay-contract.md](C:/workspace/main_projects/codex-workflow-core/docs/repo-overlay-contract.md).

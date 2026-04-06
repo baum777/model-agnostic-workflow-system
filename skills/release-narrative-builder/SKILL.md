@@ -14,13 +14,18 @@ status: extracted
 
 ## Trigger
 
-Use this skill when a change needs a stakeholder-friendly release or handover summary.
+Use this skill when a completed change needs a stakeholder-friendly release or handover summary.
 
 ## When Not To Use
 
 - Do not use before the change is real.
 - Do not use to speculate about value without evidence.
 - Do not use to replace a review or test summary.
+
+## Non-Goals
+- This skill does not perform evidence review or verification.
+- This skill does not replace the post-implementation review writer.
+- This skill does not describe unmerged or hypothetical changes as landed.
 
 ## Workflow
 

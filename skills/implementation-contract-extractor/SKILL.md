@@ -14,13 +14,19 @@ status: extracted
 
 ## Trigger
 
-Use this skill when a source artifact needs to become implementation requirements.
+Use this skill when a source artifact or linked canonical docs need to become implementation requirements.
 
 ## When Not To Use
 
 - Do not use on raw brainstorming without an anchor artifact.
 - Do not use when the implementation contract already exists.
 - Do not use to widen scope beyond the source artifact.
+
+## Non-Goals
+- This skill does not do planning-slice decomposition.
+- This skill does not do test planning.
+- This skill does not do post-implementation review writing.
+- This skill does not execute or prescribe the full implementation itself.
 
 ## Workflow
 

@@ -15,7 +15,7 @@ input_contract_path: .codex/repo-intake-inputs.json
 
 ## Trigger
 
-Use this skill when you need to map a repository before changing it and the consumer repo has supplied the declared local input contract.
+Use this skill when the consumer repo has supplied the declared local input contract and you need to map repository truth from declared canonical sources before changing it.
 
 ## When Not To Use
 
@@ -23,6 +23,12 @@ Use this skill when you need to map a repository before changing it and the cons
 - Do not use when the consumer repo has not supplied `.codex/repo-intake-inputs.json`.
 - Do not use when the repo-specific canonical sources are already fully mapped for the task.
 - Do not use as a substitute for implementation planning.
+
+## Non-Goals
+- This skill does not infer hidden truth outside the declared local contract.
+- This skill does not replace generic planning or implementation design.
+- This skill does not convert into a generic repo scanner.
+- This skill does not proceed when required local inputs are absent.
 
 ## Workflow
 

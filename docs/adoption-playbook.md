@@ -1,35 +1,28 @@
 # Adoption Playbook
 
-Use this playbook when adopting the shared core in a new repository.
+Use this playbook for first-time consumer setup.
 
-## Steps
+## Scope
 
-1. Create the repo-local overlay files.
-2. Pin a specific shared-core version.
-3. Materialize the shared core into local paths.
-4. Fill in repo-specific canonical sources and runtime assumptions.
-5. Run the shared-core validator and the repo-local validator.
-6. Only then enable the package in Codex.
+- initialize a consumer overlay
+- pin the shared-core version and fingerprint
+- add consumer-local input contracts only for adopted shared-with-local-inputs skills
 
-## Required Overlay Files
+## Canonical Inputs
 
-- `AGENTS.md`
-- `docs/repo-specific-canonical-sources.md`
-- `.codex/workflow.overlay.json`
-- `.codex/workflow.lock.json`
-- any repo-specific skill or script overrides
+- [docs/repo-overlay-contract.md](C:/workspace/main_projects/codex-workflow-core/docs/repo-overlay-contract.md)
+- [docs/shared-with-local-inputs.md](C:/workspace/main_projects/codex-workflow-core/docs/shared-with-local-inputs.md)
+- [docs/repo-intake-skill-contract.md](C:/workspace/main_projects/codex-workflow-core/docs/repo-intake-skill-contract.md)
+- [docs/runtime-policy-skill-contract.md](C:/workspace/main_projects/codex-workflow-core/docs/runtime-policy-skill-contract.md)
+- [docs/validation-checklist.md](C:/workspace/main_projects/codex-workflow-core/docs/validation-checklist.md)
 
-## Adoption Rules
+## Minimal Flow
 
-- Keep consumer-owned policy local.
-- Do not edit the shared core directly from the consumer repo.
-- Treat a failing overlay validation as a hard stop.
-- Prefer a pinned snapshot over a floating dependency.
+1. Initialize the consumer overlay from the shared core.
+2. Fill in consumer-local canonical sources and only the contracts the consumer actually adopts.
+3. Validate the overlay and stop on missing or invalid local input files.
 
-## Rollout Order
+## Notes
 
-1. read-only skills
-2. validation helpers
-3. review summaries
-4. write-gated operations
-5. deploy-readiness checks
+- Do not treat this playbook as the source of truth for authority claims; use [docs/architecture.md](C:/workspace/main_projects/codex-workflow-core/docs/architecture.md) and [docs/authority-matrix.md](C:/workspace/main_projects/codex-workflow-core/docs/authority-matrix.md).
+- Exact commands live in [docs/maintainer-commands.md](C:/workspace/main_projects/codex-workflow-core/docs/maintainer-commands.md).

@@ -14,13 +14,18 @@ status: extracted
 
 ## Trigger
 
-Use this skill when a change request could be solved by several levels of intervention.
+Use this skill when a change request could be solved by several levels of intervention and the smallest safe intervention size must be chosen.
 
 ## When Not To Use
 
 - Do not use when the patch size is already mandated.
 - Do not use to justify a rewrite without evidence.
 - Do not use to skip the simplest viable fix.
+
+## Non-Goals
+- This skill does not plan the whole task.
+- This skill does not write tests or review evidence.
+- This skill does not choose feature scope.
 
 ## Workflow
 

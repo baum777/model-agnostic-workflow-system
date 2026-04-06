@@ -1,6 +1,9 @@
 # Authority Matrix
 
-This file is the canonical authority map for governance and capability claims in `codex-workflow-core`.
+Class: canonical.
+Use rule: read this as the compact claim/status ledger; use it to separate doc class from enforcement status and to see which surfaces are canonical, operational, derived, or archive.
+
+This file is the canonical authority map for governance, capability, and documentation claims in `codex-workflow-core`.
 
 Status values:
 
@@ -10,17 +13,39 @@ Status values:
 - `missing`: no enforcing surface observed
 - `unclear`: conflicting or incomplete authority signals
 
-| claim | authority | status | evidence note |
-| --- | --- | --- | --- |
-| shared-core package and plugin parity | `scripts/tools/validate-shared-core-package.mjs` | implemented | validates package metadata, plugin name/version/skills path |
-| shared scaffold required files, skill metadata, and section markers | `scripts/tools/validate-shared-core-scaffold.mjs` | implemented | validates required files/dirs and shared skill contract sections |
-| consumer linkage correctness and adopted skill existence | `scripts/tools/validate-consumer-linkage.mjs` | implemented | validates shared source, version/fingerprint, overlay files, adopted skills |
-| repo-intake local contract gating | `scripts/tools/validate-local-input-contract.mjs` | implemented | fail-closed on missing/invalid `.codex/repo-intake-inputs.json` |
-| runtime-policy local contract gating | `scripts/tools/validate-runtime-policy-input-contract.mjs` | implemented | fail-closed on missing/invalid `.codex/runtime-policy-inputs.json` |
-| workflow artifact routing logic | `.agents/skills/workflow-core-router/SKILL.md` | contract-only | routing rules are defined in instruction text, not script-validated |
-| root governance/output contract | `AGENTS.md` | contract-only | policy and output contract are instruction-level |
-| tool catalog field/schema integrity | `scripts/tools/validate-shared-core-scaffold.mjs` + `docs/tool-contracts/catalog.json` | implemented | validates tool count and required per-tool fields |
-| per-tool runtime executability checks for full catalog | none observed | missing | no validator currently checks every tool entrypoint resolves and runs |
-| contract and stub catalog entries | `docs/tool-contracts/catalog.json` | contract-only / planned | non-runnable declaration surfaces by status |
-| `.codex/shared-core-map.json` requirement | `docs/validation-checklist.md` vs `scripts/tools/validate-shared-core-scaffold.mjs` | unclear | checklist wording can imply required; validator treats as conditional if present |
-| `paper-to-live-readiness-reviewer`, `journal-to-learning-extractor` | `scripts/tools/init-consumer-overlay.mjs` | planned | listed as deferred consumer skills; manifests absent in `skills/` |
+For documentation surfaces, doc class and enforcement status are different fields. Class says what the doc is; enforcement status says whether a script or validator backs the claim.
+For non-document surfaces, doc class is `n/a` and surface kind carries the distinction.
+Skill surfaces are classified separately as `shared-exported-skill`, `contract-bound-skill`, or `repo-local-control-skill`.
+
+| surface | surface kind | doc class | enforcement status | authority / enforcement path | note |
+| --- | --- | --- | --- | --- | --- |
+| `README.md` | doc | canonical | prose-only | canonical front door by repo convention | shortest practical entrypoint |
+| `AGENTS.md` | doc | canonical | prose-only | canonical root operating contract by repo convention | root governance surface |
+| `docs/architecture.md` | doc | canonical | prose-only | canonical docs charter by repo convention | defines tiers, merge rules, update rules, and skill topology |
+| `docs/authority-matrix.md` | doc | canonical | prose-only | canonical authority ledger by repo convention | records claim status and evidence across surfaces |
+| `docs/usage.md` | doc | operational | prose-only | operational hub | links outward instead of redefining canon |
+| `docs/adoption-playbook.md` | doc | operational | prose-only | operational guidance | first-time setup only |
+| `docs/consumer-rollout-playbook.md` | doc | operational | prose-only | operational guidance | existing consumer refresh and rollout only |
+| `docs/maintainer-commands.md` | doc | operational | prose-only | operational guidance | command appendix only |
+| `docs/validation-checklist.md` | doc | operational | partly enforced | gates reference scripts and validators | conditional items remain conditional |
+| `docs/overview.md` | doc | derived | prose-only | summary only | should not be read as governing text |
+| `docs/eval-baseline.md` | doc | derived | prose-only | derived evidence baseline | not a governance source |
+| `docs/extraction-roadmap.md` | doc | archive | prose-only | historical planning record | not live authority |
+| `CHANGELOG.md` | doc | archive | prose-only | release history | historical record only |
+| `docs/tool-contracts/catalog.json` | config | n/a | partly enforced | catalog schema validated by scaffold script | non-runnable entries remain explicit |
+| `scripts/tools/validate-shared-core-package.mjs` | validator | n/a | implemented | package and plugin validator | validates package metadata, plugin name/version/skills path |
+| `scripts/tools/validate-shared-core-scaffold.mjs` | validator | n/a | implemented | scaffold validator | validates required files/dirs and shared skill contract sections |
+| `scripts/tools/validate-consumer-linkage.mjs` | validator | n/a | implemented | linkage validator | validates shared source, version/fingerprint, overlay files, adopted skills |
+| `scripts/tools/validate-local-input-contract.mjs` | validator | n/a | implemented | contract validator | fail-closed on missing/invalid `.codex/repo-intake-inputs.json` |
+| `scripts/tools/validate-runtime-policy-input-contract.mjs` | validator | n/a | implemented | contract validator | fail-closed on missing/invalid `.codex/runtime-policy-inputs.json` |
+| `skills/implementation-contract-extractor/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/implementation-contract-extractor/SKILL.md` | generic contract extraction primitive |
+| `skills/mcp-server-creation/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/mcp-server-creation/SKILL.md` | broad scaffold/initializer; keep triggers narrow |
+| `skills/patch-strategy-designer/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/patch-strategy-designer/SKILL.md` | smallest-safe-change selector |
+| `skills/planning-slice-builder/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/planning-slice-builder/SKILL.md` | implementation-wave planner |
+| `skills/post-implementation-review-writer/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/post-implementation-review-writer/SKILL.md` | evidence-grounded review writer |
+| `skills/release-narrative-builder/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/release-narrative-builder/SKILL.md` | stakeholder narrative writer |
+| `skills/repo-intake-sot-mapper/SKILL.md` | contract-bound-skill | n/a | extracted | `skills/repo-intake-sot-mapper/SKILL.md` + `.codex/repo-intake-inputs.json` | requires the declared repo-intake contract |
+| `skills/runtime-policy-auditor/SKILL.md` | contract-bound-skill | n/a | extracted | `skills/runtime-policy-auditor/SKILL.md` + `.codex/runtime-policy-inputs.json` | requires the declared runtime-policy contract |
+| `skills/test-matrix-builder/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/test-matrix-builder/SKILL.md` | verification coverage planner |
+| `.agents/skills/workflow-core-router/SKILL.md` | repo-local-control-skill | n/a | active | `.agents/skills/workflow-core-router/SKILL.md` | selects the primary artifact shape only |
+| `.agents/skills/skill-creator-orchestrator/SKILL.md` | repo-local-control-skill | n/a | active | `.agents/skills/skill-creator-orchestrator/SKILL.md` | governs reuse, extension, or creation only |

@@ -1,6 +1,6 @@
 ---
 name: skill-creator-orchestrator
-description: Create or refine concise reusable skills for recurring repository workflows without bloating always-on instructions.
+description: Repo-local control-plane skill that decides reuse, extend, or create for recurring skills without bloating always-on instructions.
 version: 1.0.0
 classification: local-only
 requires_repo_inputs: false
@@ -13,12 +13,17 @@ status: active
 # Skill Creator Orchestrator
 
 ## Trigger
-Use this skill when a workflow repeats and current skills/contracts do not cover it cleanly.
+Use this skill when a workflow repeats and current skills/contracts do not cover it cleanly, and the repo-local reuse-versus-create decision must be made first.
 
 ## When Not To Use
 - Do not create a skill for one-off tasks.
 - Do not create a skill when an existing shared/local skill already covers the need.
 - Do not create a skill to bypass unclear requirements; resolve scope first.
+
+## Non-Goals
+- This skill does not plan the underlying task.
+- This skill does not author the final skill content beyond lifecycle guidance.
+- This skill does not manage repository-specific overlays.
 
 ## Create-Skill Criteria
 Create or refine a skill when at least one is true:
