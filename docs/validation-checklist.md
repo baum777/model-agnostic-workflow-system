@@ -1,5 +1,7 @@
 # Shared Core Validation Checklist
 
+## Repo-local mandatory checks
+
 - [ ] `codex-workflow-core/package.json` exists
 - [ ] `codex-workflow-core/package.json` declares version `0.1.4`
 - [ ] `codex-workflow-core/CHANGELOG.md` contains the release entry for `0.1.4`
@@ -20,6 +22,9 @@
 - [ ] Shared skill frontmatter includes the required metadata fields
 - [ ] `repo-intake-sot-mapper` declares `input_contract_path` and a `## Local Inputs` section
 - [ ] `runtime-policy-auditor` declares `input_contract_path`, `## Local Inputs`, and `## Non-Goals`
-- [ ] `/.codex/shared-core-map.json` is valid JSON
-- [ ] The map file classifies shared, local, contract-only, and deferred assets explicitly
 - [ ] The local repo package still validates after the scaffold is added
+
+## Conditional checks (consumer-context or optional surfaces)
+
+- [ ] If `/.codex/shared-core-map.json` is present, it is valid JSON
+- [ ] If `/.codex/shared-core-map.json` is present, it classifies shared, local, contract-only, and deferred assets explicitly

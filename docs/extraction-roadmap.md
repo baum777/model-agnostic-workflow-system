@@ -10,6 +10,9 @@ This repository is currently in the first safe extraction slice.
 - mirrored generic examples and templates
 - mirrored safe skills
 - shared-core validator
+- `repo-intake-sot-mapper` extracted as `shared-with-local-inputs`
+- `runtime-policy-auditor` extracted as `shared-with-local-inputs`
+- local input contract validators for repo-intake and runtime-policy
 
 ## Next Candidate Slice
 
@@ -20,12 +23,15 @@ This repository is currently in the first safe extraction slice.
 
 ## Deferred Assets
 
-- repo intake mapping
-- runtime policy auditing
 - paper-to-live readiness review
 - journal-to-learning extraction
 - repo-local canonical source maps
 - repo-local evidence logs
+
+## Planned-But-Unimplemented Shared Skills
+
+- `paper-to-live-readiness-reviewer` (referenced as deferred in consumer overlay bootstrap, not present in `skills/`)
+- `journal-to-learning-extractor` (referenced as deferred in consumer overlay bootstrap, not present in `skills/`)
 
 ## Exit Criteria for the Roadmap
 
