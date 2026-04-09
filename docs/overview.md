@@ -15,6 +15,8 @@ This shared core is limited to reusable workflow assets:
 - generic helper scripts
 - shared validation expectations
 - parameterized skills that rely on explicit consumer-local input contracts
+- a neutral core registry and provider capability matrix under `contracts/`
+- provider adapter scaffolds under `providers/`
 
 ## Boundary
 
@@ -26,5 +28,6 @@ Consumer repositories must supply those through a local overlay.
 
 - `repo-intake-sot-mapper`
 - `runtime-policy-auditor`
+- the provider-neutral registry snapshot in `contracts/core-registry.json`
 
 That slice is intentional: consumer repositories should pin the version and fingerprint before adopting updates, then supply the declared local input contracts for any shared-with-local-inputs skill they enable.

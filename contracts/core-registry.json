@@ -1,0 +1,952 @@
+{
+  "schemaVersion": "1.0.0",
+  "core": {
+    "name": "agent-workflow-core",
+    "status": "provider-neutral",
+    "sourcePackage": {
+      "name": "codex-workflow-core",
+      "version": "0.2.0"
+    },
+    "compatibilityExports": [
+      {
+        "provider": "codex",
+        "packageName": "codex-workflow-core",
+        "manifestPath": ".codex-plugin/plugin.json",
+        "status": "compatibility-export"
+      }
+    ]
+  },
+  "skills": [
+    {
+      "name": "failure-mode-enumerator",
+      "sourcePath": "skills/failure-mode-enumerator/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "allow",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "FAILURE MODES",
+        "ABUSE PATHS",
+        "RACE CONDITIONS",
+        "RECOVERY",
+        "OPEN QUESTIONS"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "implementation-contract-extractor",
+      "sourcePath": "skills/implementation-contract-extractor/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "allow",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "CONTRACTS",
+        "INVARIANTS",
+        "EDGE CASES",
+        "TESTS",
+        "OPEN QUESTIONS"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "mcp-server-creation",
+      "sourcePath": "skills/mcp-server-creation/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": false,
+      "status": "extracted",
+      "approvalMode": "approval-required",
+      "subagentPolicy": "allow",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "MCP server architecture brief",
+        "tool inventory with Use this when... descriptions",
+        "JSON schemas for each tool input and output",
+        "starter server implementation scaffold",
+        ".env.example or equivalent environment template",
+        "testing checklist",
+        "deployment checklist",
+        "usage examples"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "patch-strategy-designer",
+      "sourcePath": "skills/patch-strategy-designer/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "allow",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "STRATEGY",
+        "WHY THIS SIZE",
+        "RISKS",
+        "NEXT ACTIONS"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "planning-slice-builder",
+      "sourcePath": "skills/planning-slice-builder/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "allow",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "IMPLEMENTATION WAVES",
+        "DEPENDENCIES",
+        "NON-GOALS",
+        "RISKS",
+        "ACCEPTANCE CRITERIA",
+        "NEXT ACTIONS"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "post-implementation-review-writer",
+      "sourcePath": "skills/post-implementation-review-writer/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "allow",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "FINDINGS",
+        "RISKS",
+        "TESTS",
+        "ROLLBACK",
+        "FOLLOW-UP"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "release-narrative-builder",
+      "sourcePath": "skills/release-narrative-builder/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "allow",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "RELEASE NOTES",
+        "HIGHLIGHTS",
+        "OPERATIONAL NOTES",
+        "FOLLOW-UP"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "repo-intake-sot-mapper",
+      "sourcePath": "skills/repo-intake-sot-mapper/SKILL.md",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "forbid",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "CANONICAL SOURCES",
+        "ENTRYPOINTS",
+        "RISKS",
+        "TEST SURFACES",
+        "GAPS",
+        "NEXT ACTIONS"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "runtime-policy-auditor",
+      "sourcePath": "skills/runtime-policy-auditor/SKILL.md",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "forbid",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "POLICY SURFACES",
+        "CONTROL SURFACES",
+        "KILL SWITCH / STOP CONDITIONS",
+        "APPROVAL BOUNDARIES",
+        "MODE / POSTURE SEMANTICS",
+        "FAIL-CLOSED EXPECTATIONS",
+        "GAPS / AMBIGUITIES",
+        "NON-GOALS",
+        "NEXT ACTIONS"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "test-matrix-builder",
+      "sourcePath": "skills/test-matrix-builder/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "allow",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "TEST MATRIX",
+        "FIXTURES",
+        "FAILURE PATHS",
+        "ROLLBACK CHECKS",
+        "OPEN GAPS"
+      ],
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    }
+  ],
+  "tools": [
+    {
+      "name": "repo-structure-scanner",
+      "purpose": "Scan a repository and summarize canonical docs, entrypoints, and high-risk surfaces.",
+      "inputs": [
+        {
+          "name": "root",
+          "type": "path",
+          "required": false,
+          "description": "Repository root to scan."
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "required": false,
+          "description": "Emit JSON instead of text."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "inventory",
+          "type": "json",
+          "description": "Directory, file, and skill inventory."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Exit non-zero on missing paths or parse errors.",
+      "exampleInvocation": "node scripts/tools/repo-structure-scanner.mjs --json",
+      "implementationStatus": "helper-only",
+      "sourcePath": "scripts/tools/repo-structure-scanner.mjs",
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "git-diff-explainer",
+      "purpose": "Summarize a git diff in operator language with file-level change signals.",
+      "inputs": [
+        {
+          "name": "cached",
+          "type": "boolean",
+          "required": false,
+          "description": "Use staged diff."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "diffSummary",
+          "type": "text",
+          "description": "Changed files and diff stats."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Exit non-zero if git is unavailable.",
+      "exampleInvocation": "node scripts/tools/git-diff-explainer.mjs --cached",
+      "implementationStatus": "helper-only",
+      "sourcePath": "scripts/tools/git-diff-explainer.mjs",
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "symbol-dependency-tracer",
+      "purpose": "Trace a symbol or contract through the repository to show dependency boundaries.",
+      "inputs": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "required": true,
+          "description": "Symbol or contract name."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "trace",
+          "type": "markdown",
+          "description": "Trace report."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Return a contract-level stub if deep analysis is unavailable.",
+      "exampleInvocation": "contract-only; use repo search plus local analysis scripts",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "structured-plan-generator",
+      "purpose": "Turn a broad request into bounded implementation waves and gates.",
+      "inputs": [
+        {
+          "name": "request",
+          "type": "markdown",
+          "required": true,
+          "description": "Change request or goal."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "plan",
+          "type": "markdown",
+          "description": "Wave-based implementation plan."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Return a structured plan or a blocker list; never invent unknown repo facts.",
+      "exampleInvocation": "Use $planning-slice-builder to split the request into waves.",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "patch-applicator-with-review-gate",
+      "purpose": "Alias of approval-gated-write-executor. Apply a patch only after an explicit review gate has been satisfied.",
+      "inputs": [
+        {
+          "name": "target",
+          "type": "path",
+          "required": true,
+          "description": "File or directory to update."
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "required": true,
+          "description": "New file content or patch payload."
+        },
+        {
+          "name": "approved",
+          "type": "boolean",
+          "required": true,
+          "description": "Explicit approval flag."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "writeReceipt",
+          "type": "json",
+          "description": "Write confirmation with resolved target path."
+        }
+      ],
+      "sideEffects": "writes files only when approved",
+      "approvalRequirement": "required",
+      "failureBehavior": "Refuse writes when approval is missing or the target escapes the repo root.",
+      "exampleInvocation": "node scripts/tools/approval-gated-write-executor.mjs --target docs/example.md --approved --content '...'",
+      "implementationStatus": "runnable",
+      "sourcePath": "scripts/tools/approval-gated-write-executor.mjs",
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "premerge-gate-runner",
+      "purpose": "Run deterministic premerge gates for package and repo changes.",
+      "inputs": [
+        {
+          "name": "strict",
+          "type": "boolean",
+          "required": false,
+          "description": "Fail on warnings too."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "gateResult",
+          "type": "markdown",
+          "description": "PASS/FAIL gate summary."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Return non-zero if validation or diff checks fail.",
+      "exampleInvocation": "contract-only; no runnable implementation is present in scripts/tools",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "regression-comparator",
+      "purpose": "Compare two artifacts, diffs, or outputs and summarize regressions.",
+      "inputs": [
+        {
+          "name": "left",
+          "type": "path",
+          "required": true,
+          "description": "Baseline artifact."
+        },
+        {
+          "name": "right",
+          "type": "path",
+          "required": true,
+          "description": "Candidate artifact."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "comparison",
+          "type": "markdown",
+          "description": "Regression summary and deltas."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Stub out if the two artifacts cannot be parsed consistently.",
+      "exampleInvocation": "contract-only; use diff and validation scripts as needed",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "env-secret-validator",
+      "purpose": "Verify required runtime environment variables are present and not obvious placeholders.",
+      "inputs": [
+        {
+          "name": "vars",
+          "type": "string[]",
+          "required": true,
+          "description": "Environment variable names."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "validation",
+          "type": "json",
+          "description": "Per-variable presence and placeholder status."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Exit non-zero when required variables are missing or unsafe.",
+      "exampleInvocation": "contract-only; no runnable implementation is present in scripts/tools",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "pr-review-assembler",
+      "purpose": "Assemble a PR review payload from diff, tests, risks, and follow-up items.",
+      "inputs": [
+        {
+          "name": "diff",
+          "type": "markdown",
+          "required": true,
+          "description": "Diff summary or raw patch."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "review",
+          "type": "markdown",
+          "description": "Operator-grade review assembly."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Return a structured review stub if the diff is incomplete.",
+      "exampleInvocation": "Use $post-implementation-review-writer to synthesize the PR review.",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "issue-to-task-sync",
+      "purpose": "Convert issues or notes into task packets with scope, ownership, and acceptance criteria.",
+      "inputs": [
+        {
+          "name": "issue",
+          "type": "markdown",
+          "required": true,
+          "description": "Issue text or summary."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "taskPacket",
+          "type": "markdown",
+          "description": "Task packet ready for implementation."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Return a conservative packet when issue detail is incomplete.",
+      "exampleInvocation": "contract-only; use planning skills to finalize the packet",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "log-journal-query",
+      "purpose": "Query logs, journals, and prior runs for prior decisions and learned constraints.",
+      "inputs": [
+        {
+          "name": "query",
+          "type": "string",
+          "required": true,
+          "description": "Search terms or query."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "matches",
+          "type": "markdown",
+          "description": "Relevant log and journal excerpts."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Return no matches instead of guessing if evidence is absent.",
+      "exampleInvocation": "contract-only; no runnable implementation is present in scripts/tools",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "spec-compliance-checker",
+      "purpose": "Check a file or artifact against required headings, phrases, or markers.",
+      "inputs": [
+        {
+          "name": "file",
+          "type": "path",
+          "required": true,
+          "description": "File to inspect."
+        },
+        {
+          "name": "mustContain",
+          "type": "string[]",
+          "required": true,
+          "description": "Required headings or markers."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "compliance",
+          "type": "json",
+          "description": "Pass/fail report with missing markers."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Fail closed when the file is unreadable or missing required markers.",
+      "exampleInvocation": "node scripts/tools/spec-compliance-checker.mjs --file skills/repo-intake-sot-mapper/SKILL.md --must-contain Trigger,Workflow,Output",
+      "implementationStatus": "validator-backed",
+      "sourcePath": "scripts/tools/spec-compliance-checker.mjs",
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "deploy-readiness-gate",
+      "purpose": "Check whether a change is ready for guarded live deployment or release promotion.",
+      "inputs": [
+        {
+          "name": "mode",
+          "type": "string",
+          "required": false,
+          "description": "Deployment context such as local, staging, or production."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "readiness",
+          "type": "markdown",
+          "description": "Readiness verdict and blockers."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Return BLOCKED until required gates and validations pass.",
+      "exampleInvocation": "contract-only; no runnable implementation is present in scripts/tools",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "staging-prod-context-switcher",
+      "purpose": "Switch operator context between staging and production assumptions without changing code.",
+      "inputs": [
+        {
+          "name": "context",
+          "type": "string",
+          "required": true,
+          "description": "Requested runtime context."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "contextProfile",
+          "type": "markdown",
+          "description": "Context assumptions and safety notes."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Refuse to infer production state without explicit evidence.",
+      "exampleInvocation": "contract-only; use readiness checks and environment validation first",
+      "implementationStatus": "stub",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "tool-namespace-loader",
+      "purpose": "Load and list the supported tool namespace and available tool contracts.",
+      "inputs": [
+        {
+          "name": "catalog",
+          "type": "path",
+          "required": false,
+          "description": "Tool catalog path."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "namespace",
+          "type": "json",
+          "description": "List of available tools and statuses."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Exit non-zero if the catalog is missing or malformed.",
+      "exampleInvocation": "contract-only; no runnable implementation is present in scripts/tools",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    },
+    {
+      "name": "approval-gated-write-executor",
+      "purpose": "Perform an approved write operation only after an explicit gate has been satisfied.",
+      "inputs": [
+        {
+          "name": "target",
+          "type": "path",
+          "required": true,
+          "description": "Target file to write."
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "required": true,
+          "description": "File content to persist."
+        },
+        {
+          "name": "approved",
+          "type": "boolean",
+          "required": true,
+          "description": "Explicit approval flag."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "receipt",
+          "type": "json",
+          "description": "Write receipt with resolved path and byte count."
+        }
+      ],
+      "sideEffects": "writes files only when approved",
+      "approvalRequirement": "required",
+      "failureBehavior": "Refuse to write if approval is missing or the path escapes the repo root.",
+      "exampleInvocation": "node scripts/tools/approval-gated-write-executor.mjs --target docs/example.md --approved --content 'example'",
+      "implementationStatus": "runnable",
+      "sourcePath": "scripts/tools/approval-gated-write-executor.mjs",
+      "providerCompatibility": {
+        "openai": "adapter",
+        "anthropic": "adapter",
+        "qwen": "adapter",
+        "kimi": "adapter",
+        "codex": "compatibility-export"
+      }
+    }
+  ],
+  "providers": [
+    {
+      "name": "openai",
+      "aliases": [
+        "codex",
+        "gpt"
+      ],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "native",
+      "mcp": "adapter",
+      "subagents": "native",
+      "packaging": [
+        "responses-api",
+        "agents-sdk",
+        "chatkit",
+        "plugin-export"
+      ],
+      "notes": "Codex remains a compatibility export, not the canonical source of truth."
+    },
+    {
+      "name": "anthropic",
+      "aliases": [
+        "claude"
+      ],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "adapter",
+      "mcp": "native",
+      "subagents": "adapter",
+      "packaging": [
+        "claude-code",
+        "claude-desktop",
+        "mcp"
+      ],
+      "notes": "Use provider adapters to compile prompt and tool bundles."
+    },
+    {
+      "name": "qwen",
+      "aliases": [
+        "qwen-code",
+        "qwen-agent"
+      ],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "adapter",
+      "mcp": "native",
+      "subagents": "adapter",
+      "packaging": [
+        "qwen-code",
+        "qwen-agent",
+        "mcp"
+      ],
+      "notes": "Treat trust and tool filtering as adapter responsibilities."
+    },
+    {
+      "name": "kimi",
+      "aliases": [
+        "kimi-k2.5",
+        "moonshot"
+      ],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "adapter",
+      "mcp": "adapter",
+      "subagents": "adapter",
+      "packaging": [
+        "openai-compatible-api",
+        "tool-calls"
+      ],
+      "notes": "Use schema validation in the core; keep JSON mode assumptions narrow."
+    },
+    {
+      "name": "codex",
+      "aliases": [
+        "openai-codex"
+      ],
+      "skillPackaging": "compatibility-export",
+      "toolUse": "native",
+      "structuredOutputs": "native",
+      "mcp": "native",
+      "subagents": "native",
+      "packaging": [
+        "codex-plugin",
+        "codex-workflow-core"
+      ],
+      "notes": "Compatibility export for the current package surface."
+    }
+  ]
+}

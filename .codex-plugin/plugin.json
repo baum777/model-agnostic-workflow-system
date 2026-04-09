@@ -1,12 +1,12 @@
 {
   "name": "codex-workflow-core",
-  "version": "0.1.4",
-  "description": "Standalone authoritative shared-core Codex workflow package.",
+  "version": "0.2.0",
+  "description": "Provider-neutral shared-core Codex workflow compatibility export.",
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex Workflow Core",
-    "shortDescription": "Versioned shared-core Codex workflow package",
-    "longDescription": "Reusable skills, tool contracts, templates, examples, and helper scripts for governed planning, implementation, review, and readiness flows.",
+    "shortDescription": "Provider-neutral shared-core workflow package",
+    "longDescription": "Reusable skills, tool contracts, templates, examples, helper scripts, and provider adapter scaffolds for governed planning, implementation, review, and readiness flows.",
     "developerName": "Codex Workflow Core",
     "category": "Productivity",
     "defaultPrompt": [

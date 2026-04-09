@@ -33,9 +33,15 @@ Tool surfaces in this matrix use `runnable`, `validator-backed`, `helper-only`, 
 | `docs/eval-baseline.md` | doc | derived | prose-only | derived evidence baseline | not a governance source |
 | `docs/extraction-roadmap.md` | doc | archive | prose-only | historical planning record | not live authority |
 | `CHANGELOG.md` | doc | archive | prose-only | release history | historical record only |
-| `docs/tool-contracts/catalog.json` | config surface | n/a | partly enforced | tool catalog with runnable/helper-only/validator-backed/contract-only/stub labels | non-runnable entries remain explicit; duplicate write executor is labeled as an alias |
+| `docs/tool-contracts/catalog.json` | config surface | n/a | partly enforced | tool catalog with runnable/helper-only/validator-backed/contract-only/stub labels | compatibility export for the current Codex-oriented tool catalog |
+| `contracts/core-registry.json` | config surface | n/a | validator-backed | `scripts/tools/build-neutral-core-registry.mjs` + `scripts/tools/validate-provider-neutral-core.mjs` | neutral registry snapshot for skills, tools, and providers |
+| `contracts/provider-capabilities.json` | config surface | n/a | validator-backed | `scripts/tools/validate-provider-neutral-core.mjs` | provider capability matrix consumed by the neutral registry builder |
+| `providers/README.md` | doc | operational | prose-only | provider adapter index | adapter boundary, not canonical truth |
 | `scripts/tools/validate-shared-core-package.mjs` | validator | n/a | validator-backed | package and plugin validator | validates package metadata, plugin name/version/skills path |
 | `scripts/tools/validate-shared-core-scaffold.mjs` | validator | n/a | validator-backed | scaffold validator | validates required files/dirs and shared skill contract sections |
+| `scripts/tools/build-neutral-core-registry.mjs` | helper-script | n/a | helper-only | neutral registry generator | writes or prints the provider-neutral registry snapshot |
+| `scripts/tools/validate-provider-neutral-core.mjs` | validator | n/a | validator-backed | neutral registry validator | checks registry, provider scaffolds, and capability profiles |
+| `scripts/tools/validate-repo-surface.mjs` | validator | n/a | validator-backed | repo-surface validator | combined package and provider-neutral validation entrypoint |
 | `scripts/tools/validate-consumer-linkage.mjs` | validator | n/a | validator-backed | linkage validator | validates shared source, version/fingerprint, overlay files, adopted skills |
 | `scripts/tools/validate-local-input-contract.mjs` | validator | n/a | validator-backed | contract validator | fail-closed on missing/invalid `.codex/repo-intake-inputs.json` |
 | `scripts/tools/validate-runtime-policy-input-contract.mjs` | validator | n/a | validator-backed | contract validator | fail-closed on missing/invalid `.codex/runtime-policy-inputs.json` |

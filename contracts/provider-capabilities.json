@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.0.0",
+  "providers": [
+    {
+      "name": "openai",
+      "aliases": [
+        "codex",
+        "gpt"
+      ],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "native",
+      "mcp": "adapter",
+      "subagents": "native",
+      "packaging": [
+        "responses-api",
+        "agents-sdk",
+        "chatkit",
+        "plugin-export"
+      ],
+      "notes": "Codex remains a compatibility export, not the canonical source of truth."
+    },
+    {
+      "name": "anthropic",
+      "aliases": [
+        "claude"
+      ],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "adapter",
+      "mcp": "native",
+      "subagents": "adapter",
+      "packaging": [
+        "claude-code",
+        "claude-desktop",
+        "mcp"
+      ],
+      "notes": "Use provider adapters to compile prompt and tool bundles."
+    },
+    {
+      "name": "qwen",
+      "aliases": [
+        "qwen-code",
+        "qwen-agent"
+      ],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "adapter",
+      "mcp": "native",
+      "subagents": "adapter",
+      "packaging": [
+        "qwen-code",
+        "qwen-agent",
+        "mcp"
+      ],
+      "notes": "Treat trust and tool filtering as adapter responsibilities."
+    },
+    {
+      "name": "kimi",
+      "aliases": [
+        "kimi-k2.5",
+        "moonshot"
+      ],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "adapter",
+      "mcp": "adapter",
+      "subagents": "adapter",
+      "packaging": [
+        "openai-compatible-api",
+        "tool-calls"
+      ],
+      "notes": "Use schema validation in the core; keep JSON mode assumptions narrow."
+    },
+    {
+      "name": "codex",
+      "aliases": [
+        "openai-codex"
+      ],
+      "skillPackaging": "compatibility-export",
+      "toolUse": "native",
+      "structuredOutputs": "native",
+      "mcp": "native",
+      "subagents": "native",
+      "packaging": [
+        "codex-plugin",
+        "codex-workflow-core"
+      ],
+      "notes": "Compatibility export for the current package surface."
+    }
+  ]
+}

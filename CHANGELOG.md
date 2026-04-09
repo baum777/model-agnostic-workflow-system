@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 - 2026-04-09
+
+- Introduced provider-neutral contracts and provider adapter scaffolds.
+- Added a generated neutral core registry and provider capability matrix.
+- Kept the Codex package surface as a compatibility export while the shared core evolves.
+
 ## 0.1.4 - 2026-03-29
 
 - Parameterized runtime-policy-auditor as the second shared-with-local-inputs skill.

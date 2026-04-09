@@ -9,8 +9,10 @@ Operational entrypoint for consumer adoption and maintainer work.
 
 1. Read [docs/architecture.md](C:/workspace/main_projects/codex-workflow-core/docs/architecture.md).
 2. Read [docs/authority-matrix.md](C:/workspace/main_projects/codex-workflow-core/docs/authority-matrix.md).
-3. Read [docs/repo-overlay-contract.md](C:/workspace/main_projects/codex-workflow-core/docs/repo-overlay-contract.md) when the task touches shared versus local boundaries.
-4. Use [docs/validation-checklist.md](C:/workspace/main_projects/codex-workflow-core/docs/validation-checklist.md) for gates, not for canonical rules.
+3. Read [contracts/README.md](C:/workspace/main_projects/codex-workflow-core/contracts/README.md) when the task touches the neutral registry or capability matrix.
+4. Read [providers/README.md](C:/workspace/main_projects/codex-workflow-core/providers/README.md) when the task touches provider-specific packaging or export boundaries.
+5. Read [docs/repo-overlay-contract.md](C:/workspace/main_projects/codex-workflow-core/docs/repo-overlay-contract.md) when the task touches shared versus local boundaries.
+6. Use [docs/validation-checklist.md](C:/workspace/main_projects/codex-workflow-core/docs/validation-checklist.md) for gates, not for canonical rules.
 
 ## Choose The Operational Doc
 
@@ -22,5 +24,5 @@ Operational entrypoint for consumer adoption and maintainer work.
 
 - If a step depends on a validator or script, cite the script path.
 - If a guide repeats canonical text, defer to the canonical file instead of copying it here.
-- Treat [docs/overview.md](C:/workspace/main_projects/codex-workflow-core/docs/overview.md) as summary only and [docs/eval-baseline.md](C:/workspace/main_projects/codex-workflow-core/docs/eval-baseline.md) as derived evidence, not authority.
+- Treat [docs/overview.md](C:/workspace/main_projects/codex-workflow-core/docs/overview.md) as summary only, [docs/eval-baseline.md](C:/workspace/main_projects/codex-workflow-core/docs/eval-baseline.md) as derived evidence, and `contracts/core-registry.json` as the machine-readable neutral registry snapshot.
 - This class model is logical only; it does not imply physical subdirectories in the repo.

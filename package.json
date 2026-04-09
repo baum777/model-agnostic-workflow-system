@@ -1,12 +1,14 @@
 {
   "name": "codex-workflow-core",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "private": true,
-  "description": "Shared-core scaffold for reusable Codex workflow assets.",
+  "description": "Provider-neutral shared-core scaffold with Codex compatibility export.",
   "type": "module",
   "scripts": {
-    "validate": "node scripts/tools/validate-shared-core-package.mjs",
-    "check": "node scripts/tools/validate-shared-core-package.mjs",
+    "validate": "node scripts/tools/validate-repo-surface.mjs",
+    "check": "node scripts/tools/validate-repo-surface.mjs",
+    "build-registry": "node scripts/tools/build-neutral-core-registry.mjs --write",
+    "validate-neutral": "node scripts/tools/validate-provider-neutral-core.mjs",
     "fingerprint": "node scripts/tools/calculate-package-fingerprint.mjs",
     "refresh-lock": "node scripts/tools/refresh-consumer-lock.mjs",
     "validate-consumer": "node scripts/tools/validate-consumer-linkage.mjs",

@@ -304,25 +304,14 @@ If anything is placeholder-only, mark it as placeholder-only.
 
 Produce as many of these as the task warrants:
 
-- MCP server architecture brief
-- tool inventory with `Use this when...` descriptions
-- JSON schemas for each tool input and output
-- starter server implementation scaffold
-- `.env.example` or equivalent environment template
-- testing checklist
-- deployment checklist
-- usage examples
-
-Use the bundled templates and examples in this skill folder:
-
-- `templates/server.ts.template`
-- `templates/tool-definition.template`
-- `templates/package.json.template`
-- `templates/tsconfig.json.template`
-- `templates/env.example.template`
-- `examples/minimal-readonly-mcp-server.md`
-- `examples/mixed-auth-mcp-server.md`
-- `checklists/review-checklist.md`
+- `MCP server architecture brief`
+- `tool inventory with Use this when... descriptions`
+- `JSON schemas for each tool input and output`
+- `starter server implementation scaffold`
+- `.env.example or equivalent environment template`
+- `testing checklist`
+- `deployment checklist`
+- `usage examples`
 
 ## Guardrails
 

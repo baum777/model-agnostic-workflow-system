@@ -25,6 +25,18 @@ Every shared-core skill must declare:
 - `owner`
 - `status`
 
+## Provider-Neutral Registry
+
+The repository now carries a machine-readable registry in `contracts/core-registry.json`.
+That registry is the canonical snapshot for:
+
+- core identity and compatibility exports
+- provider-neutral skill records
+- tool contract records
+- provider capability profiles
+
+The compatibility export in `docs/tool-contracts/catalog.json` remains available for current Codex-oriented consumers, but it is now a compatibility view rather than the only registry surface.
+
 Recommended values:
 
 - `classification`: `shared` or `shared-with-local-inputs`

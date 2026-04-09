@@ -10,13 +10,16 @@ This is an operational gate, not the canonical authority source.
 These items are expected to be backed by scripts or validators.
 
 - [ ] `codex-workflow-core/package.json` exists
-- [ ] `codex-workflow-core/package.json` declares version `0.1.4`
-- [ ] `codex-workflow-core/CHANGELOG.md` contains the release entry for `0.1.4`
+- [ ] `codex-workflow-core/package.json` declares the current provider-neutral package version
+- [ ] `codex-workflow-core/CHANGELOG.md` contains the release entry for the current package version
 - [ ] `codex-workflow-core/.codex-plugin/plugin.json` exists and matches the package version
 - [ ] `codex-workflow-core/docs/architecture.md` defines the documentation authority model
 - [ ] `codex-workflow-core/docs/authority-matrix.md` records claim status and evidence notes
 - [ ] `codex-workflow-core/docs/usage.md` exists as the operational entrypoint
 - [ ] `codex-workflow-core/docs/` contains the canonical docs, operational docs, derived docs, and archive docs
+- [ ] `codex-workflow-core/contracts/core-registry.json` exists and validates
+- [ ] `codex-workflow-core/contracts/provider-capabilities.json` exists and validates
+- [ ] `codex-workflow-core/providers/` contains the provider adapter scaffolds
 - [ ] `codex-workflow-core/skills/` contains the mirrored shared skills
 - [ ] `codex-workflow-core/skills/repo-intake-sot-mapper/SKILL.md` is classified as `shared-with-local-inputs`
 - [ ] `codex-workflow-core/skills/runtime-policy-auditor/SKILL.md` is classified as `shared-with-local-inputs`
@@ -28,6 +31,9 @@ These items are expected to be backed by scripts or validators.
 - [ ] `codex-workflow-core/scripts/tools/` contains the shared validation scripts
 - [ ] `codex-workflow-core/scripts/tools/validate-local-input-contract.mjs` validates consumer-local contracts
 - [ ] `codex-workflow-core/scripts/tools/validate-runtime-policy-input-contract.mjs` validates runtime-policy contracts
+- [ ] `codex-workflow-core/scripts/tools/build-neutral-core-registry.mjs` can regenerate the neutral registry snapshot
+- [ ] `codex-workflow-core/scripts/tools/validate-provider-neutral-core.mjs` validates the neutral registry and provider scaffolds
+- [ ] `codex-workflow-core/scripts/tools/validate-repo-surface.mjs` combines package and neutral-core validation
 - [ ] `codex-workflow-core/scripts/tools/calculate-package-fingerprint.mjs` produces a stable fingerprint
 - [ ] Shared skill frontmatter includes the required metadata fields
 - [ ] `repo-intake-sot-mapper` declares `input_contract_path` and a `## Local Inputs` section

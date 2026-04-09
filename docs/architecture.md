@@ -25,6 +25,8 @@ Define how repository docs are classified, where authority lives, and how update
 - Root governance: `AGENTS.md`
 - Front door: `README.md`
 - Canonical docs: `docs/authority-matrix.md`, `docs/architecture.md`, `docs/compatibility.md`, `docs/lock-model.md`, `docs/repo-overlay-contract.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/tool-contracts/catalog.json`
+- Machine-readable neutral registry: `contracts/core-registry.json`, `contracts/provider-capabilities.json`
+- Provider adapter scaffolds: `providers/`
 - Operational docs: `docs/usage.md`, `docs/adoption-playbook.md`, `docs/consumer-rollout-playbook.md`, `docs/maintainer-commands.md`, `docs/validation-checklist.md`
 - Derived docs and support surfaces: `docs/overview.md`, `docs/eval-baseline.md`, `templates/codex-workflow/*`, `examples/codex-workflow/*`
 - Archive: `docs/extraction-roadmap.md`, `CHANGELOG.md`
@@ -35,6 +37,7 @@ Define how repository docs are classified, where authority lives, and how update
 
 - Shared exported skills live in `skills/`. They are reusable, versioned, and safe to mirror into consumers when their boundaries remain generic and explicit.
 - Contract-bound skills still live in `skills/` when the only repo-specific dependency is an explicit local input contract. The boundary is the declared contract, not the directory name.
+- Provider-specific packaging and prompt compilation live in `providers/` and adapt the shared core without redefining it.
 - Repo-local control-plane skills live in `.agents/skills/`. They govern routing, reuse-vs-create policy, and other repo-specific meta-decisions only.
 - Docs and contracts are the home for truth declarations, authority rules, and input-contract surfaces. If a workflow mainly declares scope, authority, or local input shape, keep it in docs/contracts instead of promoting it to a skill.
 - The skill class model is logical only; it does not imply a physical directory split beyond the current repository layout.
