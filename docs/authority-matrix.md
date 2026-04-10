@@ -87,5 +87,6 @@ Tool surfaces in this matrix use `runnable`, `validator-backed`, `helper-only`, 
 | `skills/repo-intake-sot-mapper/SKILL.md` | contract-bound-skill | n/a | extracted | `skills/repo-intake-sot-mapper/SKILL.md` + `.codex/repo-intake-inputs.json` | requires the declared repo-intake contract |
 | `skills/runtime-policy-auditor/SKILL.md` | contract-bound-skill | n/a | extracted | `skills/runtime-policy-auditor/SKILL.md` + `.codex/runtime-policy-inputs.json` | requires the declared runtime-policy contract |
 | `skills/test-matrix-builder/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/test-matrix-builder/SKILL.md` | verification coverage planner |
+| `skills/vercel-deployment/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/vercel-deployment/SKILL.md` | Vercel deployment workflow skill for Next.js/Node repos; guidance only, not enforcement-backed |
 | `.agents/skills/workflow-core-router/SKILL.md` | repo-local-control-skill | n/a | active | `.agents/skills/workflow-core-router/SKILL.md` | selects the primary artifact shape only |
 | `.agents/skills/skill-creator-orchestrator/SKILL.md` | repo-local-control-skill | n/a | active | `.agents/skills/skill-creator-orchestrator/SKILL.md` | governs reuse, extension, or creation only |

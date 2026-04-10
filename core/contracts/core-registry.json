@@ -800,6 +800,49 @@
         "kimi-k2.5": "compatibility-export",
         "moonshot": "compatibility-export"
       }
+    },
+    {
+      "name": "vercel-deployment",
+      "portableIdentity": null,
+      "sourcePath": "skills/vercel-deployment/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": false,
+      "status": "extracted",
+      "approvalMode": "approval-required",
+      "subagentPolicy": "allow",
+      "requiredTools": [],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "OBSERVED TRUTH",
+        "ENV INVENTORY",
+        "DEPLOYMENT GATES",
+        "NEXT ACTION",
+        "OPEN GAPS"
+      ],
+      "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
+      "providerProjections": null,
+      "evalScaffold": null,
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      }
     }
   ],
   "tools": [
