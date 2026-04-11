@@ -759,6 +759,71 @@
       }
     },
     {
+      "name": "supabase-deployment",
+      "portableIdentity": "core.supabase-deployment",
+      "sourcePath": "core/skills/supabase-deployment/SKILL.md",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": false,
+      "status": "extracted",
+      "approvalMode": "approval-required",
+      "subagentPolicy": "forbid",
+      "requiredTools": [
+        "supabase",
+        "repo-audit",
+        "readiness-check",
+        "test-matrix-builder"
+      ],
+      "optionalTools": [
+        "failure-mode-enumerator",
+        "patch-strategy-designer"
+      ],
+      "outputHeadings": [
+        "SUMMARY",
+        "OBSERVED TRUTH",
+        "ENV INVENTORY",
+        "GATES",
+        "EXECUTION SEQUENCE",
+        "VERIFICATION",
+        "ROLLBACK",
+        "OPEN GAPS"
+      ],
+      "outputContractId": "supabase-deploy-runbook-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      },
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      }
+    },
+    {
       "name": "test-matrix-builder",
       "portableIdentity": null,
       "sourcePath": "skills/test-matrix-builder/SKILL.md",

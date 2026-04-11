@@ -7,22 +7,23 @@ import { parseSkillFrontmatter, readJson, repoRoot } from './_shared.mjs';
 const allowedClassifications = new Set(['shared', 'shared-with-local-inputs', 'local-only', 'contract-only', 'deferred']);
 const requiredSkillSections = ['## Trigger', '## When Not To Use', '## Workflow', '## Output', '## Quality Checks'];
 const requiredSkillFields = ['name', 'description', 'version', 'classification', 'requires_repo_inputs', 'produces_structured_output', 'safe_to_auto_run', 'owner', 'status'];
-const requiredSkills = [
-  'repo-intake-sot-mapper',
-  'runtime-policy-auditor',
-  'planning-slice-builder',
-  'implementation-contract-extractor',
+  const requiredSkills = [
+    'repo-intake-sot-mapper',
+    'runtime-policy-auditor',
+    'planning-slice-builder',
+    'implementation-contract-extractor',
   'test-matrix-builder',
   'post-implementation-review-writer',
   'patch-strategy-designer',
   'failure-mode-enumerator',
   'release-narrative-builder',
-  'repo-audit',
-  'readiness-check',
-  'migration-planner',
-  'research-synthesis',
-  'long-document-to-knowledge-asset'
-];
+    'repo-audit',
+    'readiness-check',
+    'supabase-deployment',
+    'migration-planner',
+    'research-synthesis',
+    'long-document-to-knowledge-asset'
+  ];
 
 function resolveCoreRoot(baseRoot) {
   const directPackageJson = path.join(baseRoot, 'package.json');

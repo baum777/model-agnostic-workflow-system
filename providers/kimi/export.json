@@ -632,6 +632,59 @@
       "providerProjections": null
     },
     {
+      "name": "supabase-deployment",
+      "sourcePath": "core/skills/supabase-deployment/SKILL.md",
+      "classification": "shared-with-local-inputs",
+      "exportMode": "adapter",
+      "outputHeadings": [
+        "SUMMARY",
+        "OBSERVED TRUTH",
+        "ENV INVENTORY",
+        "GATES",
+        "EXECUTION SEQUENCE",
+        "VERIFICATION",
+        "ROLLBACK",
+        "OPEN GAPS"
+      ],
+      "requiresRepoInputs": true,
+      "safeToAutoRun": false,
+      "approvalMode": "approval-required",
+      "subagentPolicy": "forbid",
+      "requiredTools": [
+        "supabase",
+        "repo-audit",
+        "readiness-check",
+        "test-matrix-builder"
+      ],
+      "optionalTools": [
+        "failure-mode-enumerator",
+        "patch-strategy-designer"
+      ],
+      "outputContractId": "supabase-deploy-runbook-v1",
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      },
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      }
+    },
+    {
       "name": "test-matrix-builder",
       "sourcePath": "skills/test-matrix-builder/SKILL.md",
       "classification": "shared",

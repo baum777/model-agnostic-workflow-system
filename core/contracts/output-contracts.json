@@ -106,7 +106,30 @@
         "Do not drop unresolved ambiguities."
       ],
       "failure_or_partial_completion_behavior": "If the source document is incomplete or malformed, return a partial asset map with the missing segments called out."
+    },
+    {
+      "contract_id": "supabase-deploy-runbook-v1",
+      "skill": "supabase-deployment",
+      "required_sections": [
+        "SUMMARY",
+        "OBSERVED TRUTH",
+        "ENV INVENTORY",
+        "GATES",
+        "EXECUTION SEQUENCE",
+        "VERIFICATION",
+        "ROLLBACK",
+        "OPEN GAPS"
+      ],
+      "optional_sections": [
+        "COMMANDS",
+        "NOTES"
+      ],
+      "validation_notes": [
+        "Do not claim remote deploy success without linked-project evidence and remote verification.",
+        "Separate preview, staging, and production evidence explicitly.",
+        "Fail closed when project binding, secret inventory, or migration order cannot be proven."
+      ],
+      "failure_or_partial_completion_behavior": "If deployment evidence is missing or contradictory, return BLOCKED and enumerate the missing project, environment, or verification paths."
     }
   ]
 }
-

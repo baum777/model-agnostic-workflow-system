@@ -66,6 +66,40 @@
       }
     },
     {
+      "name": "supabase-deployment",
+      "portableIdentity": "core.supabase-deployment",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "approvalMode": "approval-required",
+      "requiredTools": [
+        "supabase",
+        "repo-audit",
+        "readiness-check",
+        "test-matrix-builder"
+      ],
+      "optionalTools": [
+        "failure-mode-enumerator",
+        "patch-strategy-designer"
+      ],
+      "outputContractId": "supabase-deploy-runbook-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
       "name": "migration-planner",
       "portableIdentity": "core.migration-planner",
       "classification": "shared",
