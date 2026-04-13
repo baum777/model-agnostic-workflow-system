@@ -7,6 +7,8 @@
   "scripts": {
     "validate": "node scripts/tools/validate-repo-surface.mjs",
     "check": "node scripts/tools/validate-repo-surface.mjs",
+    "snake:dev": "node scripts/tools/serve-snake.mjs",
+    "snake:test": "node --test examples/snake/snake.test.mjs",
     "build-registry": "node scripts/tools/build-neutral-core-registry.mjs --write",
     "build-exports": "node scripts/tools/build-provider-exports.mjs --write",
     "validate-neutral": "node scripts/tools/validate-provider-neutral-core.mjs",

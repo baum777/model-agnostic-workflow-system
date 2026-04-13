@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snake</title>
+    <link rel="stylesheet" href="./snake.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel" aria-labelledby="title">
+        <div class="header">
+          <div>
+            <p class="eyebrow">Classic arcade</p>
+            <h1 id="title">Snake</h1>
+          </div>
+          <button id="restart" type="button" class="button">Restart</button>
+        </div>
+
+        <div class="status-row" aria-live="polite">
+          <p>Score: <span id="score">0</span></p>
+          <p id="status">Use arrows or WASD to start.</p>
+        </div>
+
+        <canvas id="board" width="400" height="400" aria-label="Snake game board"></canvas>
+
+        <p class="hint">Arrow keys or WASD. Restart with the button or R.</p>
+
+        <div class="touch-controls" aria-label="Touch controls">
+          <div></div>
+          <button type="button" data-direction="up" aria-label="Move up">Up</button>
+          <div></div>
+          <button type="button" data-direction="left" aria-label="Move left">Left</button>
+          <button type="button" data-direction="down" aria-label="Move down">Down</button>
+          <button type="button" data-direction="right" aria-label="Move right">Right</button>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./snake.mjs"></script>
+  </body>
+</html>
+
