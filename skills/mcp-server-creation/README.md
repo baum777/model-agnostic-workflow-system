@@ -30,3 +30,9 @@ The skill should produce:
 - a server scaffold
 - environment notes
 - a test and deployment checklist
+
+## Discord Fetch Example
+
+For a read-only Discord v1 starter, see the derived template bundle at:
+
+- [templates/discord-fetch-mcp/](templates/discord-fetch-mcp/)

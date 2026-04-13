@@ -1,0 +1,15 @@
+[mcp_servers.discord_fetch]
+command = "node"
+args = ["./dist/index.js"]
+cwd = "."
+env_vars = [
+  "DISCORD_BOT_TOKEN",
+  "DISCORD_API_BASE",
+  "ALLOWED_GUILD_IDS",
+  "MAX_THREADS_PER_CALL",
+  "MAX_MESSAGES_PER_CALL",
+  "ENABLE_SQLITE_CACHE",
+  "SQLITE_PATH",
+  "LOG_LEVEL",
+  "EXPORT_DEFAULT_MESSAGE_LIMIT"
+]
