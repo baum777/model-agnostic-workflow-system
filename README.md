@@ -15,10 +15,13 @@ Observed repo surfaces:
 - `.agents/skills/` repo-local control-plane skills
 - `contracts/` neutral registries and compatibility mirrors
 - `providers/` canonical adapter exports and compatibility mirrors
+- `docs/` documentation hierarchy and contracts
+- `evals/` certification fixtures and checks
 - `scripts/tools/` validators and deterministic helper scripts
 - `templates/` shared workflow templates
 - `examples/` shared workflow examples
 - `.codex-plugin/plugin.json` Codex compatibility manifest
+- `docs/README.md` docs index for the repository documentation hierarchy
 
 ## Purpose
 
@@ -33,6 +36,7 @@ Observed repo surfaces:
 
 ## Start Here
 
+- [docs/README.md](C:/workspace/main_projects/codex-workflow-core/docs/README.md)
 - [core/README.md](C:/workspace/main_projects/codex-workflow-core/core/README.md)
 - [docs/architecture.md](C:/workspace/main_projects/codex-workflow-core/docs/architecture.md)
 - [docs/authority-matrix.md](C:/workspace/main_projects/codex-workflow-core/docs/authority-matrix.md)
@@ -45,6 +49,7 @@ Observed repo surfaces:
 - [AGENTS.md](C:/workspace/main_projects/codex-workflow-core/AGENTS.md)
 - [contracts/README.md](C:/workspace/main_projects/codex-workflow-core/contracts/README.md)
 - [providers/README.md](C:/workspace/main_projects/codex-workflow-core/providers/README.md)
+- [evals/README.md](C:/workspace/main_projects/codex-workflow-core/evals/README.md)
 
 ## Operational Commands
 

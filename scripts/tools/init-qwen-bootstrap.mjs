@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { exists, repoRoot, writeText } from './_shared.mjs';
+import { exists, listFilesRecursive, repoRoot, writeText } from './_shared.mjs';
 
 function parseArgs(argv) {
   const args = { consumer: process.cwd() };
@@ -20,33 +20,10 @@ function normalize(filePath) {
   return path.resolve(filePath).replace(/\\/g, '/');
 }
 
-function assertInsideRoot(rootPath, targetPath, label) {
-  const root = path.resolve(rootPath);
-  const target = path.resolve(targetPath);
-  const relative = path.relative(root, target);
-  if (relative.startsWith('..') || path.isAbsolute(relative)) {
-    throw new Error(`${label} must stay inside ${normalize(root)}.`);
-  }
-}
-
-function collectFiles(rootPath, relativeBase = rootPath, output = []) {
-  for (const entry of fs.readdirSync(rootPath, { withFileTypes: true })) {
-    const fullPath = path.join(rootPath, entry.name);
-    const relativePath = path.relative(relativeBase, fullPath).replace(/\\/g, '/');
-    if (entry.isDirectory()) {
-      collectFiles(fullPath, relativeBase, output);
-    } else {
-      output.push({ fullPath, relativePath });
-    }
-  }
-  return output;
-}
-
-function writeBootstrapTree({ templateRoot, consumerRoot }) {
+function copyTemplateTree({ templateRoot, consumerRoot }) {
   const generatedFiles = [];
-  for (const entry of collectFiles(templateRoot)) {
+  for (const entry of listFilesRecursive(templateRoot)) {
     const targetPath = path.join(consumerRoot, entry.relativePath);
-    assertInsideRoot(consumerRoot, targetPath, `Target path for ${entry.relativePath}`);
     writeText(targetPath, fs.readFileSync(entry.fullPath, 'utf8'));
     generatedFiles.push(entry.relativePath);
   }
@@ -55,11 +32,16 @@ function writeBootstrapTree({ templateRoot, consumerRoot }) {
 
 function initQwenBootstrap({ sourceRoot, consumerRoot }) {
   const templateRoot = path.join(sourceRoot, 'templates', 'qwen-bootstrap');
+  const bootstrapRoot = path.join(consumerRoot, '.qwen');
+
   if (!exists(templateRoot)) {
     throw new Error(`Missing Qwen bootstrap template pack: ${normalize(templateRoot)}.`);
   }
+  if (exists(bootstrapRoot)) {
+    throw new Error(`Refusing to initialize Qwen bootstrap because ${normalize(bootstrapRoot)} already exists. Re-run is not automatic and overwrite is disabled.`);
+  }
 
-  const generatedFiles = writeBootstrapTree({ templateRoot, consumerRoot });
+  const generatedFiles = copyTemplateTree({ templateRoot, consumerRoot });
 
   return {
     ok: true,
