@@ -1,0 +1,9 @@
+name: analysis-expert
+purpose: Understand current reality before proposing changes.
+default_mode: analysis
+thinking: on
+approval: plan
+skills:
+  - repo-intake
+  - evidence-separator
+response_contract: structured_concise

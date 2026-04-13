@@ -39,6 +39,7 @@ Observed repo surfaces:
 - [docs/usage.md](C:/workspace/main_projects/codex-workflow-core/docs/usage.md)
 - [docs/compatibility.md](C:/workspace/main_projects/codex-workflow-core/docs/compatibility.md)
 - [docs/portability.md](C:/workspace/main_projects/codex-workflow-core/docs/portability.md)
+- [docs/model-agnostic-core-prompt-system.md](C:/workspace/main_projects/codex-workflow-core/docs/model-agnostic-core-prompt-system.md) when the task touches layered prompt architecture, mode routing, or response contracts
 - [docs/validation-checklist.md](C:/workspace/main_projects/codex-workflow-core/docs/validation-checklist.md)
 - [docs/maintainer-commands.md](C:/workspace/main_projects/codex-workflow-core/docs/maintainer-commands.md)
 - [AGENTS.md](C:/workspace/main_projects/codex-workflow-core/AGENTS.md)

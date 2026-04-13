@@ -31,6 +31,7 @@ Tool surfaces in this matrix use `runnable`, `validator-backed`, `helper-only`, 
 | `docs/validation-checklist.md` | doc | operational | partly enforced | gates reference scripts and validators | conditional items remain conditional |
 | `docs/portability.md` | doc | canonical | prose-only | portability charter | explains core/provider/compatibility boundaries |
 | `docs/provider-capability-matrix.md` | doc | canonical | prose-only | provider capability charter | names canonical providers and aliases |
+| `docs/model-agnostic-core-prompt-system.md` | doc | canonical | prose-only | layered prompt-core spec | target-state blueprint; runtime split is planned, not yet wired |
 | `docs/authoring-guides.md` | doc | operational | prose-only | authoring guide | explains how to author skills, tools, exports, and eval fixtures |
 | `docs/overview.md` | doc | derived | prose-only | summary only | should not be read as governing text |
 | `docs/qwen-3-6-intro.md` | doc | derived | prose-only | reviewed guide for Qwen prompt and workflow design | external product claims are not repo-verified |
@@ -76,6 +77,8 @@ Tool surfaces in this matrix use `runnable`, `validator-backed`, `helper-only`, 
 | `scripts/tools/spec-compliance-checker.mjs` | validator | n/a | validator-backed | `scripts/tools/spec-compliance-checker.mjs` | heading/marker compliance checker; real validator-like CLI; not package-script surfaced |
 | `scripts/tools/approval-gated-write-executor.mjs` | runnable-tool | n/a | runnable | `scripts/tools/approval-gated-write-executor.mjs` | canonical write surface; catalog alias exists under `patch-applicator-with-review-gate` |
 | `scripts/tools/init-consumer-overlay.mjs` | initializer/scaffold-script | n/a | runnable | `package.json` `init-consumer` → `scripts/tools/init-consumer-overlay.mjs` | consumer overlay initializer; scaffold-oriented command wrapper |
+| `scripts/tools/init-qwen-bootstrap.mjs` | initializer/scaffold-script | n/a | runnable | `package.json` `init-qwen-bootstrap` → `scripts/tools/init-qwen-bootstrap.mjs` | consumer-local Qwen bootstrap initializer |
+| `scripts/tools/validate-qwen-bootstrap.mjs` | validator | n/a | validator-backed | `package.json` `validate-qwen-bootstrap` → `scripts/tools/validate-qwen-bootstrap.mjs` | validates the consumer-local `.qwen/extensions/cheikh-core` scaffold |
 | `scripts/tools/refresh-consumer-lock.mjs` | helper-script | n/a | helper-only | `package.json` `refresh-lock` → `scripts/tools/refresh-consumer-lock.mjs` | maintenance helper, not user-facing |
 | `scripts/tools/calculate-package-fingerprint.mjs` | helper-script | n/a | helper-only | `package.json` `fingerprint` → `scripts/tools/calculate-package-fingerprint.mjs` | support utility, not a user-facing tool |
 | `scripts/tools/repo-structure-scanner.mjs` | helper-script | n/a | helper-only | `package.json` `scan` → `scripts/tools/repo-structure-scanner.mjs` | analysis helper, not a product tool |

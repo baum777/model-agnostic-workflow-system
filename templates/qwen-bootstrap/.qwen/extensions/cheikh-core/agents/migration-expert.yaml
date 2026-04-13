@@ -1,0 +1,9 @@
+name: migration-expert
+purpose: Convert prompt or workflow systems into modular Qwen-native structures.
+default_mode: migration
+thinking: on
+approval: plan
+skills:
+  - migration-architect
+  - prompt-skill-designer
+response_contract: structured_concise

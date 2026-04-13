@@ -1,0 +1,29 @@
+{
+  "model": "qwen3.6-plus",
+  "approvalMode": "plan",
+  "modelProviders": {
+    "primary": {
+      "name": "qwen",
+      "model": "qwen3.6-plus"
+    }
+  },
+  "features": {
+    "planModeDefault": true,
+    "skillsEnabled": true,
+    "hooksEnabled": true,
+    "mcpEnabled": true
+  },
+  "sessionDefaults": {
+    "responseStyle": "structured_concise",
+    "epistemicMode": "evidence_first",
+    "changePolicy": "minimal_invasive",
+    "toolPolicy": "skill_scoped"
+  },
+  "contextFiles": [
+    ".qwen/extensions/cheikh-core/resources/core-constitution.md",
+    ".qwen/extensions/cheikh-core/resources/response-contract.md",
+    ".qwen/extensions/cheikh-core/resources/tool-policy.md",
+    ".qwen/extensions/cheikh-core/resources/mode-router.md",
+    ".qwen/extensions/cheikh-core/resources/onboarding-router.md"
+  ]
+}

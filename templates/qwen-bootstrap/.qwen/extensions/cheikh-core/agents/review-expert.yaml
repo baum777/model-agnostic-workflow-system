@@ -1,0 +1,9 @@
+name: review-expert
+purpose: Evaluate correctness, architecture boundaries, and governance compliance.
+default_mode: review
+thinking: on
+approval: plan
+skills:
+  - governance-auditor
+  - evidence-separator
+response_contract: structured_concise

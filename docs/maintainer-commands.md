@@ -66,6 +66,14 @@ npm run validate-runtime-policy-input-contract -- --contract C:/workspace/main_p
 
 Confirms that `runtime-policy-auditor` only reads the runtime policy surfaces the consumer repo explicitly declared.
 
+## Validate a Qwen Bootstrap Overlay (validator-backed)
+
+```bash
+npm run validate-qwen-bootstrap -- --consumer C:/workspace/main_projects/dotBot/bobbyExecute
+```
+
+Checks the generated `.qwen` scaffold for the expected settings, extension manifest, resources, agent specs, and skill manifests.
+
 ## Initialize a Consumer Overlay (initializer/scaffold)
 
 ```bash
@@ -73,6 +81,14 @@ npm run init-consumer -- --consumer C:/workspace/main_projects/dotBot/bobbyExecu
 ```
 
 Creates the minimal overlay files and a local validator wrapper if they do not already exist.
+
+## Initialize a Qwen Bootstrap Overlay (initializer/scaffold)
+
+```bash
+npm run init-qwen-bootstrap -- --consumer C:/workspace/main_projects/dotBot/bobbyExecute
+```
+
+Creates the consumer-local `.qwen/extensions/cheikh-core` scaffold from the shared template pack.
 
 ## When to Use These Commands
 
@@ -85,3 +101,5 @@ Creates the minimal overlay files and a local validator wrapper if they do not a
 - use `init-consumer` for the first initializer/scaffold pass in a new repository
 - use `validate-input-contract` whenever a consumer adopts `repo-intake-sot-mapper`
 - use `validate-runtime-policy-input-contract` whenever a consumer adopts `runtime-policy-auditor`
+- use `init-qwen-bootstrap` when a consumer needs the Qwen skill-tree overlay scaffold
+- use `validate-qwen-bootstrap` after generating or editing the consumer-local Qwen scaffold

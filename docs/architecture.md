@@ -15,7 +15,7 @@ Define how repository docs are classified, where authority lives, and how update
 | Tier | Class | Meaning | Examples |
 | --- | --- | --- | --- |
 | 0 | enforced | Script- or validator-backed truth. This is the highest executable authority. | `scripts/tools/validate-shared-core-package.mjs`, `scripts/tools/validate-shared-core-scaffold.mjs`, `scripts/tools/validate-consumer-linkage.mjs` |
-| 1 | canonical | Normative repo docs that define policy, contracts, and architecture. | `AGENTS.md`, `docs/authority-matrix.md`, `docs/compatibility.md`, `docs/lock-model.md`, `docs/repo-overlay-contract.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/tool-contracts/catalog.json`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `core/README.md`, `core/contracts/README.md` |
+| 1 | canonical | Normative repo docs that define policy, contracts, and architecture. | `AGENTS.md`, `docs/authority-matrix.md`, `docs/compatibility.md`, `docs/lock-model.md`, `docs/repo-overlay-contract.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/tool-contracts/catalog.json`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `docs/model-agnostic-core-prompt-system.md`, `core/README.md`, `core/contracts/README.md` |
 | 2 | operational | Runbooks, usage guides, command references, checklists, and authoring guides that depend on canonical rules. | `docs/usage.md`, `docs/adoption-playbook.md`, `docs/consumer-rollout-playbook.md`, `docs/maintainer-commands.md`, `docs/validation-checklist.md`, `docs/authoring-guides.md` |
 | 3 | derived | Summaries, baselines, examples, and templates that explain or demonstrate current practice. | `docs/overview.md`, `docs/eval-baseline.md`, `templates/codex-workflow/*`, `examples/codex-workflow/*` |
 | 4 | archive | Historical or frozen planning records. | `docs/extraction-roadmap.md`, `CHANGELOG.md` |
@@ -24,7 +24,7 @@ Define how repository docs are classified, where authority lives, and how update
 
 - Root governance: `AGENTS.md`
 - Front door: `README.md`
-- Canonical docs: `docs/authority-matrix.md`, `docs/architecture.md`, `docs/compatibility.md`, `docs/lock-model.md`, `docs/repo-overlay-contract.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/tool-contracts/catalog.json`, `docs/portability.md`, `docs/provider-capability-matrix.md`
+- Canonical docs: `docs/authority-matrix.md`, `docs/architecture.md`, `docs/compatibility.md`, `docs/lock-model.md`, `docs/repo-overlay-contract.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/tool-contracts/catalog.json`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `docs/model-agnostic-core-prompt-system.md`
 - Machine-readable neutral registry: `core/contracts/core-registry.json`, `core/contracts/provider-capabilities.json`
 - Portable core slice: `core/`
 - Provider adapter scaffolds: `providers/`

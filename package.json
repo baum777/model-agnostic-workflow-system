@@ -17,6 +17,8 @@
     "validate-input-contract": "node scripts/tools/validate-local-input-contract.mjs",
     "validate-runtime-policy-input-contract": "node scripts/tools/validate-runtime-policy-input-contract.mjs",
     "init-consumer": "node scripts/tools/init-consumer-overlay.mjs",
+    "init-qwen-bootstrap": "node scripts/tools/init-qwen-bootstrap.mjs",
+    "validate-qwen-bootstrap": "node scripts/tools/validate-qwen-bootstrap.mjs",
     "scan": "node scripts/tools/repo-structure-scanner.mjs",
     "diff": "node scripts/tools/git-diff-explainer.mjs"
   }

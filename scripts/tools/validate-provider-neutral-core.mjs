@@ -48,6 +48,70 @@ function providerCapabilities(root) {
   return { providers: [] };
 }
 
+const qwenCapabilityMarkers = [
+  'Qwen3.6-Plus',
+  '/think',
+  '/no_think',
+  '1M token',
+  '1,000 calls/day',
+  'enable_thinking',
+  'modelProviders'
+];
+
+const canonicalQwenSurfacePaths = [
+  'docs/architecture.md',
+  'docs/authority-matrix.md',
+  'docs/compatibility.md',
+  'docs/lock-model.md',
+  'docs/model-agnostic-core-prompt-system.md',
+  'docs/repo-overlay-contract.md',
+  'docs/shared-with-local-inputs.md',
+  'docs/repo-intake-skill-contract.md',
+  'docs/runtime-policy-skill-contract.md',
+  'docs/tool-contracts/catalog.json',
+  'docs/portability.md',
+  'docs/provider-capability-matrix.md',
+  'core/README.md',
+  'core/contracts/README.md',
+  'core/contracts/core-registry.json',
+  'core/contracts/provider-capabilities.json'
+];
+
+function validateQwenBoundaryHygiene(root) {
+  const issues = [];
+  const derivedGuidePath = path.join(root, 'docs', 'qwen-3-6-intro.md');
+
+  if (!fs.existsSync(derivedGuidePath)) {
+    issues.push('Missing derived Qwen guide: docs/qwen-3-6-intro.md');
+    return issues;
+  }
+
+  const derivedGuide = fs.readFileSync(derivedGuidePath, 'utf8');
+  if (!derivedGuide.includes('Class: derived.')) {
+    issues.push('docs/qwen-3-6-intro.md must declare Class: derived.');
+  }
+  if (!derivedGuide.includes('External / Unverified')) {
+    issues.push('docs/qwen-3-6-intro.md must contain External / Unverified.');
+  }
+
+  for (const relativePath of canonicalQwenSurfacePaths) {
+    const absolutePath = path.join(root, relativePath);
+    if (!fs.existsSync(absolutePath)) {
+      issues.push(`Missing canonical surface: ${relativePath}`);
+      continue;
+    }
+
+    const content = fs.readFileSync(absolutePath, 'utf8');
+    for (const marker of qwenCapabilityMarkers) {
+      if (content.includes(marker)) {
+        issues.push(`Canonical surface ${relativePath} must not contain external Qwen capability marker: ${marker}`);
+      }
+    }
+  }
+
+  return issues;
+}
+
 function validateProviderNeutralCore(baseRoot = repoRoot()) {
   const root = baseRoot;
   const issues = [];
@@ -207,6 +271,8 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
   if (!Array.isArray(committedRegistry.tools) || committedRegistry.tools.length === 0) {
     issues.push('Registry tools must be a non-empty array.');
   }
+
+  issues.push(...validateQwenBoundaryHygiene(root));
 
   for (const skill of committedRegistry.skills || []) {
     if (typeof skill.sourcePath !== 'string' || skill.sourcePath.trim() === '') {

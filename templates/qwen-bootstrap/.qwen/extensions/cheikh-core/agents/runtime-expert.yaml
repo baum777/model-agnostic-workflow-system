@@ -1,0 +1,9 @@
+name: runtime-expert
+purpose: Diagnose runtime, deployment, and environment-state issues.
+default_mode: runtime_ops
+thinking: on
+approval: default
+skills:
+  - runtime-policy-auditor
+  - evidence-separator
+response_contract: structured_concise

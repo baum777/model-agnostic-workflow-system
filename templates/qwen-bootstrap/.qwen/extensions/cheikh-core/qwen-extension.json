@@ -1,0 +1,9 @@
+{
+  "name": "cheikh-core",
+  "version": "0.1.0",
+  "description": "Governance-first skill tree for repo analysis, migration, runtime review, and controlled workflow execution.",
+  "skillsDir": "skills",
+  "agentsDir": "agents",
+  "resourcesDir": "resources",
+  "enabled": true
+}
