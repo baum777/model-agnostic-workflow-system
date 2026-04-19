@@ -14,6 +14,7 @@ status: active
 
 ## Trigger
 Use this skill when a workflow repeats and current skills/contracts do not cover it cleanly, and the repo-local reuse-versus-create decision must be made first.
+Use `skill-tool-mcp-builder` first when the request has not yet been classified into skill, tool, MCP, extend, or docs-only work.
 
 ## When Not To Use
 - Do not create a skill for one-off tasks.
@@ -24,6 +25,7 @@ Use this skill when a workflow repeats and current skills/contracts do not cover
 - This skill does not plan the underlying task.
 - This skill does not author the final skill content beyond lifecycle guidance.
 - This skill does not manage repository-specific overlays.
+- This skill does not decide whether the request should become a skill, tool, MCP surface, or docs-only change.
 
 ## Create-Skill Criteria
 Create or refine a skill when at least one is true:
@@ -42,17 +44,18 @@ Create or refine a skill when at least one is true:
 
 ## Workflow
 1. Inventory existing coverage in `skills/`, `.agents/skills/`, `docs/`, and `scripts/tools/`.
-2. Decide reuse vs extension vs net-new skill.
-3. Define the skill contract:
+2. If the request is not yet classified, route it to `skill-tool-mcp-builder` first.
+3. If the builder returns `new skill` or `extend existing surface` for a skill path, decide reuse vs extension vs net-new skill.
+4. Define the skill contract:
    - description
    - trigger conditions
    - when not to use
    - step sequence
    - output contract
    - done criteria
-4. Keep wording operational and deterministic.
-5. Validate that AGENTS only keeps routing and invariant rules; move repeatable depth into the skill.
-6. Add or update `SKILL.md` in one bounded folder.
+5. Keep wording operational and deterministic.
+6. Validate that AGENTS only keeps routing and invariant rules; move repeatable depth into the skill.
+7. Add or update `SKILL.md` in one bounded folder.
 
 ## Output Contract
 - `DECISION` (reuse, extend, or create)

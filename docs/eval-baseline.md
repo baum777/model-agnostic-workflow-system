@@ -26,6 +26,7 @@ This file records minimal non-code evaluation cases derived from the current doc
 | `RB-006` | output-shape compliance | `post-implementation-review-writer` output | required headings present |
 | `RB-007` | observed/inferred/recommendation separation | audit-style synthesis prompt | claims are labeled as observed, inferred, or recommendation |
 | `RB-008` | contract-status honesty | mention a `contract` or `stub` tool | tool is labeled non-runnable |
+| `RB-009` | surface-decision coverage | `skill-tool-mcp-builder` loose-input cases | each case has an expected decision packet and normalized observed output comparison |
 
 ## Pass/fail criteria
 
@@ -34,6 +35,7 @@ This file records minimal non-code evaluation cases derived from the current doc
 - routing correctness tests (`RB-001`, `RB-002`) must not contradict router rules
 - separation test (`RB-007`) fails if inferential claims are presented as observed
 - contract-status test (`RB-008`) fails if non-real tools are described as runnable
+- surface-decision test (`RB-009`) fails if a category is missing, a case is malformed, the observed output cannot be normalized, or the normalized packet diverges from the expected packet
 
 ## Evidence format
 

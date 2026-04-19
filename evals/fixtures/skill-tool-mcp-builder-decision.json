@@ -1,0 +1,151 @@
+{
+  "id": "skill-tool-mcp-builder-decision",
+  "kind": "surface-decision",
+  "blocking": true,
+  "target": {
+    "name": "skill-tool-mcp-builder"
+  },
+  "expectations": {
+    "categories": [
+      "new skill",
+      "new tool",
+      "new MCP surface",
+      "extend existing surface",
+      "router/contracts/docs-only change",
+      "no justified reusable surface"
+    ],
+    "minimumCases": {
+      "positive": 3,
+      "negative": 2,
+      "borderline": 2
+    }
+  },
+  "cases": [
+    {
+      "id": "surface-decision-01",
+      "class": "positive",
+      "request": "Create a reusable workflow that turns loose repo-intake notes into a handoff packet for another agent.",
+      "context": "Repeated operator task with stable output headings and explainable steps, but no existing narrow skill covers the exact workflow.",
+      "expectedDecision": "new skill",
+      "expectedDecisionPacket": {
+        "decision": "new skill",
+        "confidence": "high",
+        "reasoning_basis": "repeatable_workflow",
+        "tie_break_rule": "none",
+        "recommended_repo_action": "create_skill",
+        "placement": "canonical/shared-core",
+        "followup_required": true,
+        "reject_reason": null
+      },
+      "observedDecisionOutput": "{\"decision\":\"new skill\",\"confidence\":\"high\",\"reasoning_basis\":\"repeatable_workflow\",\"tie_break_rule\":\"none\",\"recommended_repo_action\":\"create_skill\",\"placement\":\"canonical/shared-core\",\"followup_required\":true,\"reject_reason\":null}"
+    },
+    {
+      "id": "surface-decision-02",
+      "class": "positive",
+      "request": "Build a deterministic script that compares the generated registry snapshot against the committed one and fails on drift.",
+      "context": "The request is executable and check-like, with explicit inputs and outputs.",
+      "expectedDecision": "new tool",
+      "expectedDecisionPacket": {
+        "decision": "new tool",
+        "confidence": "high",
+        "reasoning_basis": "deterministic_tooling",
+        "tie_break_rule": "none",
+        "recommended_repo_action": "create_tool",
+        "placement": "canonical/shared-core",
+        "followup_required": true,
+        "reject_reason": null
+      },
+      "observedDecisionOutput": "{\"decision\":\"new tool\",\"confidence\":\"high\",\"reasoning_basis\":\"deterministic_tooling\",\"tie_break_rule\":\"none\",\"recommended_repo_action\":\"create_tool\",\"placement\":\"canonical/shared-core\",\"followup_required\":true,\"reject_reason\":null}"
+    },
+    {
+      "id": "surface-decision-03",
+      "class": "positive",
+      "request": "Expose an authenticated remote service that lets another repo query canonical state and invoke approved actions.",
+      "context": "The request needs transport, auth, and a remote tool boundary rather than a local workflow skill.",
+      "expectedDecision": "new MCP surface",
+      "expectedDecisionPacket": {
+        "decision": "new MCP surface",
+        "confidence": "medium",
+        "reasoning_basis": "remote_protocol_boundary",
+        "tie_break_rule": "none",
+        "recommended_repo_action": "create_mcp_surface",
+        "placement": "external MCP boundary",
+        "followup_required": true,
+        "reject_reason": null
+      },
+      "observedDecisionOutput": "{\"decision\":\"new MCP surface\",\"confidence\":\"medium\",\"reasoning_basis\":\"remote_protocol_boundary\",\"tie_break_rule\":\"none\",\"recommended_repo_action\":\"create_mcp_surface\",\"placement\":\"external MCP boundary\",\"followup_required\":true,\"reject_reason\":null}"
+    },
+    {
+      "id": "surface-decision-04",
+      "class": "negative",
+      "request": "I am not sure what I need yet, but maybe make something for workflow stuff.",
+      "context": "The request is vague, one-off, and does not justify a reusable surface.",
+      "expectedDecision": "no justified reusable surface",
+      "expectedDecisionPacket": {
+        "decision": "no justified reusable surface",
+        "confidence": "low",
+        "reasoning_basis": "insufficient_evidence",
+        "tie_break_rule": "fail_closed_on_missing_evidence",
+        "recommended_repo_action": "reject_new_surface",
+        "placement": "none",
+        "followup_required": false,
+        "reject_reason": "Request is too vague to justify a reusable surface."
+      },
+      "observedDecisionOutput": "{\"decision\":\"no justified reusable surface\",\"confidence\":\"low\",\"reasoning_basis\":\"insufficient_evidence\",\"tie_break_rule\":\"fail_closed_on_missing_evidence\",\"recommended_repo_action\":\"reject_new_surface\",\"placement\":\"none\",\"followup_required\":false,\"reject_reason\":\"Request is too vague to justify a reusable surface.\"}"
+    },
+    {
+      "id": "surface-decision-05",
+      "class": "negative",
+      "request": "Rename the router labels and update the authority docs so surface selection is separated from artifact-shape routing.",
+      "context": "This is a routing/authority/documentation adjustment, not new execution capability.",
+      "expectedDecision": "router/contracts/docs-only change",
+      "expectedDecisionPacket": {
+        "decision": "router/contracts/docs-only change",
+        "confidence": "medium",
+        "reasoning_basis": "authority_or_metadata_only",
+        "tie_break_rule": "prefer_metadata_or_authority_only",
+        "recommended_repo_action": "update_router_contracts_docs",
+        "placement": "docs/router/contracts",
+        "followup_required": true,
+        "reject_reason": null
+      },
+      "observedDecisionOutput": "{\"decision\":\"router/contracts/docs-only change\",\"confidence\":\"medium\",\"reasoning_basis\":\"authority_or_metadata_only\",\"tie_break_rule\":\"prefer_metadata_or_authority_only\",\"recommended_repo_action\":\"update_router_contracts_docs\",\"placement\":\"docs/router/contracts\",\"followup_required\":true,\"reject_reason\":null}"
+    },
+    {
+      "id": "surface-decision-06",
+      "class": "borderline",
+      "request": "Add a narrow repo-audit branch to include lockfile drift and diff stats rather than introducing a new workflow.",
+      "context": "The request is close to existing repo-audit and validation coverage, so extension should win over creation.",
+      "expectedDecision": "extend existing surface",
+      "expectedDecisionPacket": {
+        "decision": "extend existing surface",
+        "confidence": "medium",
+        "reasoning_basis": "nearest_existing_coverage",
+        "tie_break_rule": "prefer_extension_over_creation",
+        "recommended_repo_action": "extend_existing_surface",
+        "placement": "canonical/shared-core",
+        "followup_required": true,
+        "reject_reason": null
+      },
+      "observedDecisionOutput": "{\"decision\":\"extend existing surface\",\"confidence\":\"medium\",\"reasoning_basis\":\"nearest_existing_coverage\",\"tie_break_rule\":\"prefer_extension_over_creation\",\"recommended_repo_action\":\"extend_existing_surface\",\"placement\":\"canonical/shared-core\",\"followup_required\":true,\"reject_reason\":null}"
+    },
+    {
+      "id": "surface-decision-07",
+      "class": "borderline",
+      "request": "Create a helper for repo structure and diff summarization, but only if it can be absorbed by the current scanner and diff explainer surfaces.",
+      "context": "The request is ambiguous, but the nearest coverage already exists and should be extended rather than duplicated.",
+      "expectedDecision": "extend existing surface",
+      "expectedDecisionPacket": {
+        "decision": "extend existing surface",
+        "confidence": "medium",
+        "reasoning_basis": "nearest_existing_coverage",
+        "tie_break_rule": "prefer_extension_over_creation",
+        "recommended_repo_action": "extend_existing_surface",
+        "placement": "canonical/shared-core",
+        "followup_required": true,
+        "reject_reason": null
+      },
+      "observedDecisionOutput": "{\"decision\":\"extend existing surface\",\"confidence\":\"medium\",\"reasoning_basis\":\"nearest_existing_coverage\",\"tie_break_rule\":\"prefer_extension_over_creation\",\"recommended_repo_action\":\"extend_existing_surface\",\"placement\":\"canonical/shared-core\",\"followup_required\":true,\"reject_reason\":null}"
+    }
+  ]
+}

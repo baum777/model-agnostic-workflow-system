@@ -103,6 +103,7 @@ flowchart LR
 - Contract-bound skills still live in `skills/` when the only repo-specific dependency is an explicit local input contract. The boundary is the declared contract, not the directory name.
 - Canonical provider-specific packaging and prompt compilation live in `providers/openai-codex/`, `providers/anthropic-claude/`, `providers/qwen-code/`, and `providers/kimi-k2_5/`. Legacy provider directories remain compatibility mirrors.
 - Repo-local control-plane skills live in `.agents/skills/`. They govern routing, reuse-vs-create policy, and other repo-specific meta-decisions only.
+- `skill-tool-mcp-builder` is the repo-local control-plane skill that classifies loose requests into surface type decisions before deeper routing or creation work happens.
 - Docs and contracts are the home for truth declarations, authority rules, and input-contract surfaces. If a workflow mainly declares scope, authority, or local input shape, keep it in docs/contracts instead of promoting it to a skill.
 - The skill class model is logical only; it does not imply a physical directory split beyond the current repository layout.
 

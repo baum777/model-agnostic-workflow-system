@@ -68,6 +68,357 @@ function sameJson(left, right) {
   return JSON.stringify(left, null, 2) === JSON.stringify(right, null, 2);
 }
 
+const surfaceDecisionCategories = [
+  'new skill',
+  'new tool',
+  'new MCP surface',
+  'extend existing surface',
+  'router/contracts/docs-only change',
+  'no justified reusable surface'
+];
+
+const surfaceDecisionCaseTypes = new Set(['positive', 'negative', 'borderline']);
+const surfaceDecisionPacketFields = [
+  'decision',
+  'confidence',
+  'reasoning_basis',
+  'tie_break_rule',
+  'recommended_repo_action',
+  'placement',
+  'followup_required',
+  'reject_reason'
+];
+const surfaceDecisionConfidenceValues = new Set(['high', 'medium', 'low']);
+const surfaceDecisionReasoningBasisValues = new Set([
+  'repeatable_workflow',
+  'deterministic_tooling',
+  'remote_protocol_boundary',
+  'nearest_existing_coverage',
+  'authority_or_metadata_only',
+  'insufficient_evidence'
+]);
+const surfaceDecisionTieBreakValues = new Set([
+  'none',
+  'prefer_extension_over_creation',
+  'prefer_metadata_or_authority_only',
+  'fail_closed_on_missing_evidence'
+]);
+const surfaceDecisionRepoActionValues = new Set([
+  'create_skill',
+  'create_tool',
+  'create_mcp_surface',
+  'extend_existing_surface',
+  'update_router_contracts_docs',
+  'reject_new_surface'
+]);
+const surfaceDecisionPlacementValues = new Set([
+  'canonical/shared-core',
+  'repo-local-control-plane',
+  'compatibility-only',
+  'docs/router/contracts',
+  'external MCP boundary',
+  'none'
+]);
+const surfaceDecisionMapping = new Map([
+  ['new skill', { action: 'create_skill', placement: 'canonical/shared-core' }],
+  ['new tool', { action: 'create_tool', placement: 'canonical/shared-core' }],
+  ['new MCP surface', { action: 'create_mcp_surface', placement: 'external MCP boundary' }],
+  ['extend existing surface', { action: 'extend_existing_surface', placement: 'canonical/shared-core' }],
+  ['router/contracts/docs-only change', { action: 'update_router_contracts_docs', placement: 'docs/router/contracts' }],
+  ['no justified reusable surface', { action: 'reject_new_surface', placement: 'none' }]
+]);
+
+function loadSkillText(root, skillPath) {
+  const absolutePath = path.join(root, skillPath);
+  if (!fs.existsSync(absolutePath)) {
+    return null;
+  }
+  return fs.readFileSync(absolutePath, 'utf8');
+}
+
+function parseSurfaceDecisionOutput(rawOutput) {
+  if (typeof rawOutput === 'object' && rawOutput !== null && !Array.isArray(rawOutput)) {
+    return rawOutput;
+  }
+  if (typeof rawOutput !== 'string') {
+    return null;
+  }
+
+  const trimmed = rawOutput.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const fenced = trimmed.match(/^```(?:json)?\s*\n([\s\S]*?)\n```$/i);
+  const candidate = fenced ? fenced[1].trim() : trimmed;
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeSurfaceDecisionPacket(rawOutput) {
+  const parsed = parseSurfaceDecisionOutput(rawOutput);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return {
+      passed: false,
+      issues: ['Surface-decision output must be a JSON object or JSON string.']
+    };
+  }
+
+  const keys = Object.keys(parsed);
+  const issues = [];
+  for (const key of surfaceDecisionPacketFields) {
+    if (!(key in parsed)) {
+      issues.push(`Surface-decision output is missing ${key}.`);
+    }
+  }
+  for (const key of keys) {
+    if (!surfaceDecisionPacketFields.includes(key)) {
+      issues.push(`Surface-decision output has unsupported field ${key}.`);
+    }
+  }
+
+  if (issues.length > 0) {
+    return {
+      passed: false,
+      issues
+    };
+  }
+
+  const canonical = {};
+  for (const key of surfaceDecisionPacketFields) {
+    canonical[key] = parsed[key];
+  }
+
+  return {
+    passed: true,
+    packet: canonical,
+    issues: []
+  };
+}
+
+function validateDecisionPacket(root, fixture, caseEntry, skillText) {
+  const result = {
+    passed: true,
+    issues: []
+  };
+
+  for (const field of surfaceDecisionPacketFields) {
+    if (!skillText.includes(field)) {
+      result.passed = false;
+      result.issues.push(`Builder skill does not declare decision packet field ${field}.`);
+    }
+  }
+  if (!skillText.includes('## Decision Packet')) {
+    result.passed = false;
+    result.issues.push('Builder skill does not declare a Decision Packet section.');
+  }
+  for (const category of surfaceDecisionCategories) {
+    if (!skillText.includes(category)) {
+      result.passed = false;
+      result.issues.push(`Builder skill does not declare category ${category}.`);
+    }
+  }
+  for (const token of ['prefer_extension_over_creation', 'prefer_metadata_or_authority_only', 'fail_closed_on_missing_evidence']) {
+    if (!skillText.includes(token)) {
+      result.passed = false;
+      result.issues.push(`Builder skill does not declare tie-break rule ${token}.`);
+    }
+  }
+
+  const packet = caseEntry.expectedDecisionPacket;
+  if (!packet || typeof packet !== 'object' || Array.isArray(packet)) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} is missing expectedDecisionPacket.`);
+    return result;
+  }
+
+  const packetKeys = Object.keys(packet);
+  for (const key of surfaceDecisionPacketFields) {
+    if (!(key in packet)) {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${caseEntry.id} expectedDecisionPacket is missing ${key}.`);
+    }
+  }
+  for (const key of packetKeys) {
+    if (!surfaceDecisionPacketFields.includes(key)) {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${caseEntry.id} expectedDecisionPacket has unsupported field ${key}.`);
+    }
+  }
+
+  if (packet.decision !== caseEntry.expectedDecision) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} decision ${packet.decision} does not match expectedDecision ${caseEntry.expectedDecision}.`);
+  }
+  if (!surfaceDecisionCategories.includes(packet.decision)) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} uses unsupported decision ${packet.decision}.`);
+  }
+  if (!surfaceDecisionConfidenceValues.has(packet.confidence)) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} has invalid confidence ${packet.confidence}.`);
+  }
+  if (!surfaceDecisionReasoningBasisValues.has(packet.reasoning_basis)) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} has invalid reasoning_basis ${packet.reasoning_basis}.`);
+  }
+  if (!surfaceDecisionTieBreakValues.has(packet.tie_break_rule)) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} has invalid tie_break_rule ${packet.tie_break_rule}.`);
+  }
+  if (!surfaceDecisionRepoActionValues.has(packet.recommended_repo_action)) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} has invalid recommended_repo_action ${packet.recommended_repo_action}.`);
+  }
+  if (!surfaceDecisionPlacementValues.has(packet.placement)) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} has invalid placement ${packet.placement}.`);
+  }
+  if (typeof packet.followup_required !== 'boolean') {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} followup_required must be boolean.`);
+  }
+
+  const expectedMapping = surfaceDecisionMapping.get(packet.decision);
+  if (expectedMapping) {
+    if (packet.recommended_repo_action !== expectedMapping.action) {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${caseEntry.id} recommended_repo_action ${packet.recommended_repo_action} does not match decision ${packet.decision}.`);
+    }
+    if (packet.placement !== expectedMapping.placement) {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${caseEntry.id} placement ${packet.placement} does not match decision ${packet.decision}.`);
+    }
+  }
+
+  if (caseEntry.class === 'borderline' && packet.tie_break_rule === 'none') {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} must carry a tie-break rule for borderline classification.`);
+  }
+  if (packet.decision === 'no justified reusable surface') {
+    if (typeof packet.reject_reason !== 'string' || packet.reject_reason.trim() === '') {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${caseEntry.id} must provide reject_reason for a rejected surface.`);
+    }
+    if (packet.followup_required !== false) {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${caseEntry.id} must set followup_required to false when rejecting a surface.`);
+    }
+  } else if (packet.reject_reason !== null) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} reject_reason must be null for non-reject decisions.`);
+  }
+
+  const observedSource = caseEntry.observedDecisionOutput ?? caseEntry.observedDecisionPacket;
+  const normalizedObserved = normalizeSurfaceDecisionPacket(observedSource);
+  if (!normalizedObserved.passed) {
+    result.passed = false;
+    result.issues.push(...normalizedObserved.issues.map((issue) => `Surface-decision case ${caseEntry.id} ${issue}`));
+  } else if (!sameJson(normalizedObserved.packet, packet)) {
+    result.passed = false;
+    result.issues.push(`Surface-decision case ${caseEntry.id} normalized observed decision packet does not match expectedDecisionPacket.`);
+  }
+
+  return result;
+}
+
+function evaluateSurfaceDecision(root, fixture) {
+  const result = {
+    passed: true,
+    issues: []
+  };
+
+  const targetName = fixture.target?.name;
+  if (!targetName) {
+    result.passed = false;
+    result.issues.push('Fixture missing target.name.');
+    return result;
+  }
+
+  const skillPath = path.join('.agents', 'skills', targetName, 'SKILL.md');
+  const skillText = loadSkillText(root, skillPath);
+  if (!skillText) {
+    result.passed = false;
+    result.issues.push(`Missing builder skill: ${skillPath}`);
+    return result;
+  }
+
+  const cases = Array.isArray(fixture.cases) ? fixture.cases : [];
+  if (cases.length === 0) {
+    result.passed = false;
+    result.issues.push('Surface-decision fixture must contain cases.');
+    return result;
+  }
+
+  const seenIds = new Set();
+  const classCounts = { positive: 0, negative: 0, borderline: 0 };
+  const categoryCounts = new Map();
+  const minimumCases = fixture.expectations?.minimumCases || { positive: 2, negative: 2, borderline: 2 };
+
+  for (const entry of cases) {
+    if (!entry || typeof entry !== 'object') {
+      result.passed = false;
+      result.issues.push('Surface-decision cases must be objects.');
+      continue;
+    }
+
+    if (typeof entry.id !== 'string' || entry.id.trim() === '') {
+      result.passed = false;
+      result.issues.push('Surface-decision case missing id.');
+      continue;
+    }
+    if (seenIds.has(entry.id)) {
+      result.passed = false;
+      result.issues.push(`Duplicate surface-decision case id: ${entry.id}.`);
+    }
+    seenIds.add(entry.id);
+
+    if (!surfaceDecisionCaseTypes.has(entry.class)) {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${entry.id} has invalid class ${entry.class}.`);
+    } else {
+      classCounts[entry.class] += 1;
+    }
+
+    if (typeof entry.request !== 'string' || entry.request.trim() === '') {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${entry.id} is missing request text.`);
+    }
+    if (typeof entry.expectedDecision !== 'string' || entry.expectedDecision.trim() === '') {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${entry.id} is missing expectedDecision.`);
+    } else if (!surfaceDecisionCategories.includes(entry.expectedDecision)) {
+      result.passed = false;
+      result.issues.push(`Surface-decision case ${entry.id} uses unsupported expectedDecision ${entry.expectedDecision}.`);
+    } else {
+      categoryCounts.set(entry.expectedDecision, (categoryCounts.get(entry.expectedDecision) || 0) + 1);
+    }
+
+    const packetCheck = validateDecisionPacket(root, fixture, entry, skillText);
+    result.passed = result.passed && packetCheck.passed;
+    result.issues.push(...packetCheck.issues);
+  }
+
+  for (const [className, minimum] of Object.entries(minimumCases)) {
+    if ((classCounts[className] || 0) < minimum) {
+      result.passed = false;
+      result.issues.push(`Surface-decision fixture needs at least ${minimum} ${className} cases.`);
+    }
+  }
+
+  for (const category of surfaceDecisionCategories) {
+    if ((categoryCounts.get(category) || 0) === 0) {
+      result.passed = false;
+      result.issues.push(`Surface-decision fixture does not cover category ${category}.`);
+    }
+  }
+
+  return result;
+}
+
 function evaluateToolSelection(registry, fixture) {
   const result = {
     passed: true,
@@ -194,6 +545,10 @@ function evaluateFixture(root, registry, providerExports, fixture) {
         result.issues.push(`Skill ${targetName} subagentPolicy is ${skill.subagentPolicy}, expected ${fixture.expectations.subagentPolicy}.`);
       }
     }
+  } else if (fixture.kind === 'surface-decision') {
+    const check = evaluateSurfaceDecision(root, fixture);
+    result.passed = check.passed;
+    result.issues.push(...check.issues);
   } else {
     result.passed = false;
     result.issues.push(`Unsupported eval kind: ${fixture.kind}`);

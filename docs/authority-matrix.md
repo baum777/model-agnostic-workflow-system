@@ -100,4 +100,5 @@ The generated `.qwen` scaffold is a consumer-local operating overlay. It is not 
 | `skills/test-matrix-builder/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/test-matrix-builder/SKILL.md` | verification coverage planner |
 | `skills/vercel-deployment/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/vercel-deployment/SKILL.md` | Vercel deployment workflow skill for Next.js/Node repos; guidance only, not enforcement-backed |
 | `.agents/skills/workflow-core-router/SKILL.md` | repo-local-control-skill | n/a | active | `.agents/skills/workflow-core-router/SKILL.md` | selects the primary artifact shape only |
+| `.agents/skills/skill-tool-mcp-builder/SKILL.md` | repo-local-control-skill | n/a | active | `.agents/skills/skill-tool-mcp-builder/SKILL.md` | classifies loose requests into surface type decisions only |
 | `.agents/skills/skill-creator-orchestrator/SKILL.md` | repo-local-control-skill | n/a | active | `.agents/skills/skill-creator-orchestrator/SKILL.md` | governs reuse, extension, or creation only |

@@ -2,6 +2,7 @@
   "schemaVersion": "1.0.0",
   "suite": "provider-neutral-certification",
   "fixtures": [
+    "fixtures/skill-tool-mcp-builder-decision.json",
     "fixtures/routing-skill-parity.json",
     "fixtures/schema-contract.json",
     "fixtures/core-routing.json",
