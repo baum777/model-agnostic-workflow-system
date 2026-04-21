@@ -9,6 +9,12 @@ Portable skill slice.
 - `supabase-deployment`
 - `migration-planner`
 - `research-synthesis`
+- `ui-to-backend-contract-extractor`
+- `source-conflict-resolver`
+- `spec-to-task-breakdown`
+- `incident-runbook-composer`
+- `multi-audience-summarizer`
+- `tradeoff-matrix-builder`
 - `long-document-to-knowledge-asset`
 - `ui-ux-composition`
 

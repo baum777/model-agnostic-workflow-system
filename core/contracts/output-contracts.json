@@ -115,6 +115,155 @@
       "failure_or_partial_completion_behavior": "If sources are insufficient, return a conservative synthesis with explicit gaps."
     },
     {
+      "contract_id": "ui-to-backend-contract-report-v1",
+      "skill": "ui-to-backend-contract-extractor",
+      "required_sections": [
+        "SUMMARY",
+        "UI EVIDENCE INPUT",
+        "STATE ASSUMPTIONS",
+        "EVENT / ACTION SURFACES",
+        "BACKEND / API EXPECTATIONS",
+        "VALIDATION / CONSTRAINT NOTES",
+        "OPEN QUESTIONS / AMBIGUITIES",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "TRACEABILITY MAP",
+        "RISKY CONTRACT EDGES"
+      ],
+      "validation_notes": [
+        "Contract expectations must be derived from explicit UI evidence or marked as inference.",
+        "Do not drift into UI critique or backend implementation review.",
+        "Unresolved ambiguities must remain open rather than normalized away."
+      ],
+      "failure_or_partial_completion_behavior": "If UI evidence is incomplete or contradictory, return BLOCKED and list missing interaction/state evidence."
+    },
+    {
+      "contract_id": "source-conflict-resolution-report-v1",
+      "skill": "source-conflict-resolver",
+      "required_sections": [
+        "SUMMARY",
+        "SOURCE SET",
+        "AGREED FACTS",
+        "CONFLICTING CLAIMS",
+        "EVIDENCE WEIGHTING / CONFIDENCE",
+        "RECOMMENDED CANONICAL INTERPRETATION",
+        "UNRESOLVED CONFLICTS",
+        "REQUIRED FOLLOW-UP",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "ESCALATION PATH",
+        "AUTHORITY TIER NOTES"
+      ],
+      "validation_notes": [
+        "Separate evidence, interpretation, and recommendation explicitly.",
+        "Do not overclaim conflict resolution when contradictions remain unresolved.",
+        "Confidence weighting must be grounded in provenance and evidence quality."
+      ],
+      "failure_or_partial_completion_behavior": "If contradiction resolution is underdetermined, return BLOCKED and preserve unresolved conflicts explicitly."
+    },
+    {
+      "contract_id": "spec-to-task-breakdown-v1",
+      "skill": "spec-to-task-breakdown",
+      "required_sections": [
+        "SUMMARY",
+        "SOURCE SPEC CONTEXT",
+        "SPEC-TO-TASK TRACEABILITY",
+        "TASK SLICES",
+        "DEPENDENCIES",
+        "ASSUMPTIONS",
+        "BLOCKERS",
+        "VALIDATION TARGETS",
+        "SUGGESTED SEQUENCING",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "NON-GOALS",
+        "DEFERRED ITEMS"
+      ],
+      "validation_notes": [
+        "Every task slice must map back to a source-spec clause.",
+        "Keep scope on operationalization, not broad planning narratives.",
+        "Ambiguous clauses must be tracked as blockers or unresolved assumptions."
+      ],
+      "failure_or_partial_completion_behavior": "If the source spec cannot be operationalized safely, return BLOCKED and identify non-operationalizable clauses."
+    },
+    {
+      "contract_id": "incident-runbook-v1",
+      "skill": "incident-runbook-composer",
+      "required_sections": [
+        "SUMMARY",
+        "TRIGGER CONDITIONS",
+        "DIAGNOSIS CUES",
+        "IMMEDIATE ACTIONS",
+        "CONTAINMENT STEPS",
+        "ESCALATION CONDITIONS",
+        "RECOVERY STEPS",
+        "POST-INCIDENT FOLLOW-UP",
+        "OPEN GAPS",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "COMMAND CHECKLIST",
+        "OWNER HANDOFF NOTES"
+      ],
+      "validation_notes": [
+        "Runbook steps must be action-oriented and condition-gated.",
+        "Do not collapse into incident summary prose without response sequencing.",
+        "When evidence is incomplete, fail closed and expose open gaps explicitly."
+      ],
+      "failure_or_partial_completion_behavior": "If incident evidence is insufficient for safe runbook composition, return BLOCKED and enumerate missing operational signals."
+    },
+    {
+      "contract_id": "multi-audience-summary-v1",
+      "skill": "multi-audience-summarizer",
+      "required_sections": [
+        "SUMMARY",
+        "SOURCE FINDINGS",
+        "REQUESTED AUDIENCE MODES",
+        "MODE BRIEFS",
+        "CROSS-MODE CONSISTENCY CHECK",
+        "ASSUMPTIONS AND GAPS",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "MODE EXCLUSIONS",
+        "TRACEABILITY NOTES"
+      ],
+      "validation_notes": [
+        "All mode briefs must preserve the same factual core from source findings.",
+        "Unsupported audience requests must be explicitly rejected as BLOCKED.",
+        "No mode brief may introduce option-ranking claims or decision-authority language."
+      ],
+      "failure_or_partial_completion_behavior": "If source findings are incomplete or audience modes are unsupported, return BLOCKED and enumerate missing inputs or allowed modes."
+    },
+    {
+      "contract_id": "tradeoff-matrix-report-v1",
+      "skill": "tradeoff-matrix-builder",
+      "required_sections": [
+        "SUMMARY",
+        "DECISION QUESTION",
+        "OPTIONS UNDER REVIEW",
+        "CRITERIA AND WEIGHTS",
+        "TRADEOFF MATRIX",
+        "SENSITIVITY AND SCENARIO NOTES",
+        "RECOMMENDATION",
+        "ASSUMPTIONS AND GAPS",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "SCORING METHOD",
+        "COUNTERFACTUAL OPTION"
+      ],
+      "validation_notes": [
+        "Option scoring must cite explicit evidence or state assumptions.",
+        "Recommendation must preserve tradeoff transparency and uncertainty markers.",
+        "Sensitivity notes must identify which criteria can change the ranking."
+      ],
+      "failure_or_partial_completion_behavior": "If options, criteria, or evidence are incomplete, return BLOCKED and list the missing decision inputs."
+    },
+    {
       "contract_id": "knowledge-asset-transform-v1",
       "skill": "long-document-to-knowledge-asset",
       "required_sections": [

@@ -35,7 +35,7 @@ The design must stay portable across Qwen, GPT, Claude, and other tool-capable r
 - `docs/architecture.md` and `docs/authority-matrix.md` already define repo authority, doc class, and enforcement status.
 - `core/skills/`, `skills/`, `.agents/skills/`, `core/contracts/`, `contracts/`, `providers/`, `scripts/tools/`, and `docs/tool-contracts/catalog.json` already provide reusable skills, contracts, adapters, and validators.
 - `repo-intake-sot-mapper` and `runtime-policy-auditor` already implement the shared-with-local-inputs pattern.
-- `planning-slice-builder`, `patch-strategy-designer`, `test-matrix-builder`, `implementation-contract-extractor`, `repo-audit`, `readiness-check`, `migration-planner`, and `research-synthesis` already cover major planning, review, and validation primitives.
+- `planning-slice-builder`, `patch-strategy-designer`, `test-matrix-builder`, `implementation-contract-extractor`, `repo-audit`, `readiness-check`, `migration-planner`, `research-synthesis`, `ui-to-backend-contract-extractor`, `source-conflict-resolver`, `spec-to-task-breakdown`, `incident-runbook-composer`, `multi-audience-summarizer`, and `tradeoff-matrix-builder` already cover major planning, extraction, comparison, summarization, review, and validation primitives.
 - `docs/model-agnostic-core-prompt-system.md` is the new canonical prompt-system spec introduced in this slice.
 - `.codex/shared-core-map.json` was not present in the inspected repo.
 - `codex-workflow-migration.md` was not present in the inspected repo.

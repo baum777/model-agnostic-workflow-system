@@ -157,6 +157,177 @@
       }
     },
     {
+      "name": "ui-to-backend-contract-extractor",
+      "portableIdentity": "core.ui-to-backend-contract-extractor",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker"
+      ],
+      "outputContractId": "ui-to-backend-contract-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "source-conflict-resolver",
+      "portableIdentity": "core.source-conflict-resolver",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer"
+      ],
+      "outputContractId": "source-conflict-resolution-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "spec-to-task-breakdown",
+      "portableIdentity": "core.spec-to-task-breakdown",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "planning-slice-builder",
+        "patch-strategy-designer",
+        "test-matrix-builder"
+      ],
+      "outputContractId": "spec-to-task-breakdown-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "incident-runbook-composer",
+      "portableIdentity": "core.incident-runbook-composer",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "failure-mode-enumerator",
+        "readiness-check",
+        "test-matrix-builder"
+      ],
+      "outputContractId": "incident-runbook-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "multi-audience-summarizer",
+      "portableIdentity": "core.multi-audience-summarizer",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker"
+      ],
+      "outputContractId": "multi-audience-summary-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "tradeoff-matrix-builder",
+      "portableIdentity": "core.tradeoff-matrix-builder",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker"
+      ],
+      "outputContractId": "tradeoff-matrix-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
       "name": "long-document-to-knowledge-asset",
       "portableIdentity": "core.long-document-to-knowledge-asset",
       "classification": "shared",

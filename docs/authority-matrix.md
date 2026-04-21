@@ -67,6 +67,12 @@ The generated `.qwen` scaffold is a consumer-local operating overlay. It is not 
 | `core/skills/neon-db-setup/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable Neon Postgres setup and validation skill |
 | `core/skills/migration-planner/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable migration planning skill |
 | `core/skills/research-synthesis/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable research synthesis skill |
+| `core/skills/ui-to-backend-contract-extractor/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable extraction skill deriving backend/API/state contracts from UI evidence |
+| `core/skills/source-conflict-resolver/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable fail-closed conflict resolver across contradictory truth surfaces |
+| `core/skills/spec-to-task-breakdown/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable spec operationalization skill with explicit task traceability |
+| `core/skills/incident-runbook-composer/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable action-oriented incident and recovery runbook composition skill |
+| `core/skills/multi-audience-summarizer/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable audience-bounded summarization skill from one findings body |
+| `core/skills/tradeoff-matrix-builder/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable structured tradeoff comparison skill for options, paths, and architectures |
 | `core/skills/long-document-to-knowledge-asset/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable document-to-asset skill |
 | `core/skills/ui-ux-composition/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | canonical operational skill surface for the UI/UX composition branch |
 | `providers/README.md` | doc | operational | prose-only | provider adapter index | adapter boundary, not canonical truth |
