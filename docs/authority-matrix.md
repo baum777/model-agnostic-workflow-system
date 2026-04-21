@@ -74,7 +74,8 @@ The generated `.qwen` scaffold is a consumer-local operating overlay. It is not 
 | `core/skills/multi-audience-summarizer/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable audience-bounded summarization skill from one findings body |
 | `core/skills/tradeoff-matrix-builder/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable structured tradeoff comparison skill for options, paths, and architectures |
 | `core/skills/long-document-to-knowledge-asset/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable document-to-asset skill |
-| `core/skills/ui-ux-composition/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | canonical operational skill surface for the UI/UX composition branch |
+| `core/skills/ui-ux-composition/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | canonical operational skill surface for UI/UX composition plus semantic visual/layout/color/typography posture and bounded golden-ratio guidance |
+| `core/skills/static-vs-dynamic-rendering-advisor/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | bounded rendering-posture advisor for `static`, server-rendered dynamic, and hydration decisions |
 | `providers/README.md` | doc | operational | prose-only | provider adapter index | adapter boundary, not canonical truth |
 | `scripts/tools/validate-shared-core-package.mjs` | validator | n/a | validator-backed | package and plugin validator | validates package metadata, plugin name/version/skills path |
 | `scripts/tools/validate-shared-core-scaffold.mjs` | validator | n/a | validator-backed | scaffold validator | validates required files/dirs and shared skill contract sections |

@@ -6,6 +6,7 @@ import { buildNeutralCoreRegistry } from './build-neutral-core-registry.mjs';
 import { buildProviderExports } from './build-provider-exports.mjs';
 import { readJson, repoRoot } from './_shared.mjs';
 import { evaluateSemanticLayoutDecisionsFixture } from './eval-semantic-layout-decisions.mjs';
+import { evaluateStaticVsDynamicRenderingAdvisorFixture } from './eval-static-vs-dynamic-rendering-advisor.mjs';
 
 function normalize(filePath) {
   return path.resolve(filePath).replace(/\\/g, '/');
@@ -773,6 +774,10 @@ function evaluateFixture(root, registry, providerExports, fixture) {
     result.issues.push(...check.issues);
   } else if (fixture.kind === 'semantic-layout') {
     const check = evaluateSemanticLayoutDecisionsFixture(fixture);
+    result.passed = check.passed;
+    result.issues.push(...check.issues);
+  } else if (fixture.kind === 'rendering-posture') {
+    const check = evaluateStaticVsDynamicRenderingAdvisorFixture(fixture);
     result.passed = check.passed;
     result.issues.push(...check.issues);
   } else {

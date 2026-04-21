@@ -29,3 +29,6 @@ This bundle organizes the branch into readable internal layers for composition, 
 - Canonical truth lives in the branch charter and shared-core authority docs.
 - The module docs are advisory and internal.
 - Tool contracts remain contract-only until a real runtime surface exists.
+- Semantic-design outputs stay deterministic where tooling exists (`scripts/tools` semantic-design commands).
+- Golden-ratio guidance is bounded and subordinate to semantic clarity, accessibility, responsiveness, and readability.
+- Rendering posture decisions (`static` vs server-rendered dynamic vs hydration) are outside this bundle and belong to `static-vs-dynamic-rendering-advisor`.

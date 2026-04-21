@@ -1006,6 +1006,68 @@
       }
     },
     {
+      "name": "static-vs-dynamic-rendering-advisor",
+      "portableIdentity": "core.static-vs-dynamic-rendering-advisor",
+      "sourcePath": "core/skills/static-vs-dynamic-rendering-advisor/SKILL.md",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "approvalMode": "read-only",
+      "subagentPolicy": "allow",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker"
+      ],
+      "optionalTools": [],
+      "outputHeadings": [
+        "SUMMARY",
+        "RENDERING DECISION SCOPE",
+        "REGION CLASSIFICATION",
+        "STATIC SUITABILITY",
+        "SERVER-RENDERED DYNAMIC SUITABILITY",
+        "CLIENT INTERACTIVITY / HYDRATION NEED",
+        "PERFORMANCE AND VOLATILITY TRADEOFFS",
+        "MAINTAINABILITY NOTES",
+        "ASSUMPTIONS AND GAPS",
+        "NEXT ACTIONS"
+      ],
+      "outputContractId": "static-vs-dynamic-rendering-advisor-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      },
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      }
+    },
+    {
       "name": "supabase-deployment",
       "portableIdentity": "core.supabase-deployment",
       "sourcePath": "core/skills/supabase-deployment/SKILL.md",

@@ -67,9 +67,37 @@
         "The required fields must always appear and stay branch-specific.",
         "Result-type-specific sections are optional and must not replace the required fields.",
         "Audit mode is descriptive, structural, token, and text-based only in v1.",
+        "Semantic visual-direction/layout/color/typography posture guidance must remain evidence-bounded, not brand-strategy claims.",
+        "Golden-ratio guidance is macro-only and must be subordinate to semantic clarity, accessibility, responsiveness, readability, and implementation practicality.",
         "Native screenshot, DOM-runtime, and computed-style truth claims are not supported."
       ],
       "failure_or_partial_completion_behavior": "If required fields are missing or the output overclaims unsupported visual-runtime truth, return BLOCKED and name the missing or overclaimed fields."
+    },
+    {
+      "contract_id": "static-vs-dynamic-rendering-advisor-v1",
+      "skill": "static-vs-dynamic-rendering-advisor",
+      "required_sections": [
+        "SUMMARY",
+        "RENDERING DECISION SCOPE",
+        "REGION CLASSIFICATION",
+        "STATIC SUITABILITY",
+        "SERVER-RENDERED DYNAMIC SUITABILITY",
+        "CLIENT INTERACTIVITY / HYDRATION NEED",
+        "PERFORMANCE AND VOLATILITY TRADEOFFS",
+        "MAINTAINABILITY NOTES",
+        "ASSUMPTIONS AND GAPS",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "CACHING POSTURE NOTES",
+        "SEO/INDEXABILITY NOTES"
+      ],
+      "validation_notes": [
+        "Rendering posture recommendations must be region-scoped and evidence-backed.",
+        "Default to simpler posture when volatility and interactivity signals do not justify complexity.",
+        "Do not drift into infrastructure architecture or framework-specific implementation details."
+      ],
+      "failure_or_partial_completion_behavior": "If volatility, interaction, or UX constraints are missing, return BLOCKED with explicit evidence gaps by region."
     },
     {
       "contract_id": "migration-plan-v1",

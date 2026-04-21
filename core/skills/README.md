@@ -17,6 +17,7 @@ Portable skill slice.
 - `tradeoff-matrix-builder`
 - `long-document-to-knowledge-asset`
 - `ui-ux-composition`
+- `static-vs-dynamic-rendering-advisor`
 
 ## Compatibility Rule
 

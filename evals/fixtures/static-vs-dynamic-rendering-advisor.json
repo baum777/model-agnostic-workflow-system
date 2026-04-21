@@ -1,0 +1,76 @@
+{
+  "id": "static-vs-dynamic-rendering-advisor",
+  "kind": "rendering-posture",
+  "blocking": true,
+  "target": {
+    "name": "static-vs-dynamic-rendering-advisor"
+  },
+  "cases": [
+    {
+      "id": "rendering-01-static-docs-region",
+      "description": "Stable, read-only docs body should stay static.",
+      "input": {
+        "region": "docs-body",
+        "volatility": "stable",
+        "interaction": "none",
+        "freshness": "build-time"
+      },
+      "expected": {
+        "posture": "static",
+        "tradeoffTags": [
+          "performance:high",
+          "maintainability:high"
+        ]
+      }
+    },
+    {
+      "id": "rendering-02-server-dynamic-market-panel",
+      "description": "Request-time market panel with light interaction should be server-rendered dynamic.",
+      "input": {
+        "region": "market-panel",
+        "volatility": "request-time",
+        "interaction": "light",
+        "freshness": "request-time"
+      },
+      "expected": {
+        "posture": "server-rendered-dynamic",
+        "tradeoffTags": [
+          "performance:moderate",
+          "maintainability:moderate",
+          "freshness:high"
+        ]
+      }
+    },
+    {
+      "id": "rendering-03-hydrated-analytics-workbench",
+      "description": "High-interaction analytics workbench needs hydration.",
+      "input": {
+        "region": "analytics-workbench",
+        "volatility": "periodic",
+        "interaction": "high",
+        "freshness": "near-real-time"
+      },
+      "expected": {
+        "posture": "hydrated-interactive",
+        "tradeoffTags": [
+          "performance:variable",
+          "maintainability:lower",
+          "freshness:high"
+        ]
+      }
+    },
+    {
+      "id": "rendering-04-fail-closed-ambiguous",
+      "description": "Missing volatility evidence must fail closed instead of forcing a rendering posture.",
+      "input": {
+        "region": "unknown-region",
+        "interaction": "light",
+        "freshness": "periodic"
+      },
+      "expected": {
+        "blocked": true,
+        "blockerCode": "missing-volatility"
+      }
+    }
+  ]
+}

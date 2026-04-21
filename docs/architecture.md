@@ -99,6 +99,8 @@ flowchart LR
 
 - Portable exported skills live in `core/skills/`. They are reusable, versioned, and safe to project into provider bundles when their boundaries remain generic and explicit.
 - `core/skills/ui-ux-composition/` is the canonical operational skill surface for the UI/UX composition branch.
+- The `ui-ux-composition` branch explicitly includes semantic visual direction, semantic layout posture, semantic color posture, tone-aware typography posture, and bounded golden-ratio heuristics.
+- `core/skills/static-vs-dynamic-rendering-advisor/` is a bounded sibling skill for rendering posture advice (`static`, server-rendered dynamic, hydration) and is separate from visual composition authority.
 - Legacy shared exported skills live in `skills/` as compatibility surfaces until the migration is complete.
 - Contract-bound skills still live in `skills/` when the only repo-specific dependency is an explicit local input contract. The boundary is the declared contract, not the directory name.
 - Canonical provider-specific packaging and prompt compilation live in `providers/openai-codex/`, `providers/anthropic-claude/`, `providers/qwen-code/`, and `providers/kimi-k2_5/`. Legacy provider directories remain compatibility mirrors.

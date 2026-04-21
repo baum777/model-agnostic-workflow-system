@@ -14,6 +14,7 @@
     "fixtures/approval-boundary.json",
     "fixtures/provider-parity.json",
     "fixtures/failure-mode.json",
-    "fixtures/semantic-layout-decisions.json"
+    "fixtures/semantic-layout-decisions.json",
+    "fixtures/static-vs-dynamic-rendering-advisor.json"
   ]
 }
