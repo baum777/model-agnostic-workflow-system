@@ -11,6 +11,7 @@ Executable certification checks live here.
 - provider parity checks for shared skill output contracts
 - failure-mode checks for contract-bound skills
 - surface-decision checks for the repo-local `skill-tool-mcp-builder`, using normalized observed decision packets
+- skill-routing checks for single-skill, multi-step, and false-positive routing outcomes, using normalized route packets
 - core portable skill eval scaffolding under `evals/fixtures/core-*.json`
 
 ## Gate Rule

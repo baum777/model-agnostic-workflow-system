@@ -1,0 +1,69 @@
+{
+  "id": "skill-routing",
+  "kind": "skill-routing",
+  "blocking": true,
+  "target": {
+    "name": "workflow-core-router"
+  },
+  "expectations": {
+    "minimumCases": {
+      "single-skill": 1,
+      "multi-step": 1,
+      "false-positive": 1
+    }
+  },
+  "cases": [
+    {
+      "id": "skill-routing-01",
+      "class": "single-skill",
+      "request": "Derive backend/API/state contract expectations from explicit UI interaction flows.",
+      "expectedRoute": {
+        "route_type": "single-skill",
+        "primary_skill": "ui-to-backend-contract-extractor",
+        "skill_chain": [
+          "ui-to-backend-contract-extractor"
+        ],
+        "new_skill_creation_allowed": false,
+        "overlap_guard": "enforced-existing-surface",
+        "confidence": "high",
+        "notes": "UI-evidence anchored contract extraction maps directly to an existing canonical skill."
+      },
+      "observedRouteOutput": "{\"route_type\":\"single-skill\",\"primary_skill\":\"ui-to-backend-contract-extractor\",\"skill_chain\":[\"ui-to-backend-contract-extractor\"],\"new_skill_creation_allowed\":false,\"overlap_guard\":\"enforced-existing-surface\",\"confidence\":\"high\",\"notes\":\"UI-evidence anchored contract extraction maps directly to an existing canonical skill.\"}"
+    },
+    {
+      "id": "skill-routing-02",
+      "class": "multi-step",
+      "request": "Extract backend contracts from UI behavior and then break the resulting spec into execution slices with dependencies.",
+      "expectedRoute": {
+        "route_type": "multi-step",
+        "primary_skill": "ui-to-backend-contract-extractor",
+        "skill_chain": [
+          "ui-to-backend-contract-extractor",
+          "spec-to-task-breakdown"
+        ],
+        "new_skill_creation_allowed": false,
+        "overlap_guard": "enforced-existing-surface",
+        "confidence": "medium",
+        "notes": "This request requires extraction first, then operational breakdown."
+      },
+      "observedRouteOutput": "{\"route_type\":\"multi-step\",\"primary_skill\":\"ui-to-backend-contract-extractor\",\"skill_chain\":[\"ui-to-backend-contract-extractor\",\"spec-to-task-breakdown\"],\"new_skill_creation_allowed\":false,\"overlap_guard\":\"enforced-existing-surface\",\"confidence\":\"medium\",\"notes\":\"This request requires extraction first, then operational breakdown.\"}"
+    },
+    {
+      "id": "skill-routing-03",
+      "class": "false-positive",
+      "request": "We need a new skill to split an existing specification into concrete execution tasks and sequencing.",
+      "expectedRoute": {
+        "route_type": "single-skill",
+        "primary_skill": "spec-to-task-breakdown",
+        "skill_chain": [
+          "spec-to-task-breakdown"
+        ],
+        "new_skill_creation_allowed": false,
+        "overlap_guard": "prevent-unnecessary-skill-creation",
+        "confidence": "high",
+        "notes": "Request maps to an existing canonical skill and should explicitly block unnecessary new skill creation."
+      },
+      "observedRouteOutput": "{\"route_type\":\"single-skill\",\"primary_skill\":\"spec-to-task-breakdown\",\"skill_chain\":[\"spec-to-task-breakdown\"],\"new_skill_creation_allowed\":false,\"overlap_guard\":\"prevent-unnecessary-skill-creation\",\"confidence\":\"high\",\"notes\":\"Request maps to an existing canonical skill and should explicitly block unnecessary new skill creation.\"}"
+    }
+  ]
+}

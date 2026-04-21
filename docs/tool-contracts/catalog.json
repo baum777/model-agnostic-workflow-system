@@ -397,6 +397,117 @@
       "implementationStatus": "contract-only"
     },
     {
+      "name": "detect-skill-overlap",
+      "purpose": "Detect potential near-duplicate skills, weak sibling boundaries, naming collisions, and routing ambiguity risk using heuristic similarity checks.",
+      "inputs": [
+        {
+          "name": "include_agents",
+          "type": "boolean",
+          "required": false,
+          "description": "Include .agents/skills in analysis scope."
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "required": false,
+          "description": "Emit JSON output."
+        },
+        {
+          "name": "name_threshold",
+          "type": "number",
+          "required": false,
+          "description": "Near-name duplicate threshold."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "overlapReport",
+          "type": "json",
+          "description": "Heuristic overlap findings with severity and evidence."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Returns non-zero when high-severity overlap findings are present.",
+      "exampleInvocation": "node scripts/tools/detect-skill-overlap.mjs --json",
+      "implementationStatus": "helper-only",
+      "entrypoint": "scripts/tools/detect-skill-overlap.mjs"
+    },
+    {
+      "name": "lint-skill-contracts",
+      "purpose": "Validate skill files against required contract sections and frontmatter, with warning-level guidance for boundary clarity.",
+      "inputs": [
+        {
+          "name": "include_agents",
+          "type": "boolean",
+          "required": false,
+          "description": "Include .agents/skills in lint scope."
+        },
+        {
+          "name": "strict_core_warnings",
+          "type": "boolean",
+          "required": false,
+          "description": "Treat core warning checks as errors."
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "required": false,
+          "description": "Emit JSON output."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "lintReport",
+          "type": "json",
+          "description": "Per-file contract findings with error/warning severity."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Returns non-zero when contract errors are detected.",
+      "exampleInvocation": "node scripts/tools/lint-skill-contracts.mjs --json",
+      "implementationStatus": "validator-backed",
+      "entrypoint": "scripts/tools/lint-skill-contracts.mjs"
+    },
+    {
+      "name": "analyze-skill-tree-coverage",
+      "purpose": "Classify skills by capability family and report weak coverage or overconcentration areas using deterministic keyword rules.",
+      "inputs": [
+        {
+          "name": "include_agents",
+          "type": "boolean",
+          "required": false,
+          "description": "Include .agents/skills in analysis scope."
+        },
+        {
+          "name": "overconcentration_ratio",
+          "type": "number",
+          "required": false,
+          "description": "Family ratio threshold for overconcentration detection."
+        },
+        {
+          "name": "json",
+          "type": "boolean",
+          "required": false,
+          "description": "Emit JSON output."
+        }
+      ],
+      "outputs": [
+        {
+          "name": "coverageReport",
+          "type": "json",
+          "description": "Family counts, weak coverage flags, and advisory expansion priorities."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Returns zero with advisory findings; this analysis does not assert taxonomy certainty.",
+      "exampleInvocation": "node scripts/tools/analyze-skill-tree-coverage.mjs --json",
+      "implementationStatus": "helper-only",
+      "entrypoint": "scripts/tools/analyze-skill-tree-coverage.mjs"
+    },
+    {
       "name": "approval-gated-write-executor",
       "purpose": "Perform an approved write operation only after an explicit gate has been satisfied.",
       "inputs": [

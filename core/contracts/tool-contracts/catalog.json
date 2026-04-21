@@ -181,7 +181,8 @@
       "schema": {
         "type": "object",
         "properties": {
-          "suite": { "type": "string" }
+          "suite": { "type": "string" },
+          "kind": { "type": "string" }
         },
         "additionalProperties": false
       },
@@ -195,6 +196,86 @@
         "kimi-k2_5"
       ],
       "routing_hints": [
+        "readiness-check"
+      ]
+    },
+    {
+      "tool_name": "detect-skill-overlap",
+      "intent_class": "read-only overlap analysis",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "include_agents": { "type": "boolean" },
+          "json": { "type": "boolean" },
+          "name_threshold": { "type": "number" },
+          "boundary_threshold": { "type": "number" },
+          "ambiguity_threshold": { "type": "number" }
+        },
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "providers": [
+        "openai-codex",
+        "anthropic-claude",
+        "qwen-code",
+        "kimi-k2_5"
+      ],
+      "routing_hints": [
+        "repo-audit",
+        "migration-planner"
+      ]
+    },
+    {
+      "tool_name": "lint-skill-contracts",
+      "intent_class": "read-only skill-contract validation",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "include_agents": { "type": "boolean" },
+          "json": { "type": "boolean" },
+          "strict_core_warnings": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "providers": [
+        "openai-codex",
+        "anthropic-claude",
+        "qwen-code",
+        "kimi-k2_5"
+      ],
+      "routing_hints": [
+        "readiness-check",
+        "repo-audit"
+      ]
+    },
+    {
+      "tool_name": "analyze-skill-tree-coverage",
+      "intent_class": "read-only skill-tree coverage analysis",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "include_agents": { "type": "boolean" },
+          "json": { "type": "boolean" },
+          "overconcentration_ratio": { "type": "number" }
+        },
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "providers": [
+        "openai-codex",
+        "anthropic-claude",
+        "qwen-code",
+        "kimi-k2_5"
+      ],
+      "routing_hints": [
+        "migration-planner",
         "readiness-check"
       ]
     },

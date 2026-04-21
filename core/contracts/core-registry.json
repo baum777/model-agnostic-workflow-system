@@ -1548,6 +1548,64 @@
       }
     },
     {
+      "tool_name": "analyze-skill-tree-coverage",
+      "intent_class": "read-only skill-tree coverage analysis",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "include_agents": {
+            "type": "boolean"
+          },
+          "json": {
+            "type": "boolean"
+          },
+          "overconcentration_ratio": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "providers": [
+        "openai-codex",
+        "anthropic-claude",
+        "qwen-code",
+        "kimi-k2_5"
+      ],
+      "routing_hints": [
+        "migration-planner",
+        "readiness-check"
+      ],
+      "name": "analyze-skill-tree-coverage",
+      "purpose": null,
+      "inputs": [],
+      "outputs": [],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "unspecified",
+      "exampleInvocation": null,
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      }
+    },
+    {
       "tool_name": "approval-gated-write-executor",
       "intent_class": "mutating write executor",
       "schema": {
@@ -1742,6 +1800,70 @@
       "approvalRequirement": "none",
       "failureBehavior": "Return BLOCKED until required gates and validations pass.",
       "exampleInvocation": "contract-only; no runnable implementation is present in scripts/tools",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      }
+    },
+    {
+      "tool_name": "detect-skill-overlap",
+      "intent_class": "read-only overlap analysis",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "include_agents": {
+            "type": "boolean"
+          },
+          "json": {
+            "type": "boolean"
+          },
+          "name_threshold": {
+            "type": "number"
+          },
+          "boundary_threshold": {
+            "type": "number"
+          },
+          "ambiguity_threshold": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "providers": [
+        "openai-codex",
+        "anthropic-claude",
+        "qwen-code",
+        "kimi-k2_5"
+      ],
+      "routing_hints": [
+        "repo-audit",
+        "migration-planner"
+      ],
+      "name": "detect-skill-overlap",
+      "purpose": null,
+      "inputs": [],
+      "outputs": [],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "unspecified",
+      "exampleInvocation": null,
       "implementationStatus": "contract-only",
       "sourcePath": null,
       "providerCompatibility": {
@@ -2014,6 +2136,64 @@
       "approvalRequirement": "none",
       "failureBehavior": "Return a conservative packet when issue detail is incomplete.",
       "exampleInvocation": "contract-only; use planning skills to finalize the packet",
+      "implementationStatus": "contract-only",
+      "sourcePath": null,
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      }
+    },
+    {
+      "tool_name": "lint-skill-contracts",
+      "intent_class": "read-only skill-contract validation",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "include_agents": {
+            "type": "boolean"
+          },
+          "json": {
+            "type": "boolean"
+          },
+          "strict_core_warnings": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "providers": [
+        "openai-codex",
+        "anthropic-claude",
+        "qwen-code",
+        "kimi-k2_5"
+      ],
+      "routing_hints": [
+        "readiness-check",
+        "repo-audit"
+      ],
+      "name": "lint-skill-contracts",
+      "purpose": null,
+      "inputs": [],
+      "outputs": [],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "unspecified",
+      "exampleInvocation": null,
       "implementationStatus": "contract-only",
       "sourcePath": null,
       "providerCompatibility": {
@@ -2568,6 +2748,9 @@
         "type": "object",
         "properties": {
           "suite": {
+            "type": "string"
+          },
+          "kind": {
             "type": "string"
           }
         },

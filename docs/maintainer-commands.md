@@ -45,6 +45,14 @@ npm run eval
 
 Runs the deterministic certification fixtures in `evals/` against the generated registry and provider export bundles.
 
+## Run Skill Routing Eval Slice (validator-backed)
+
+```bash
+npm run eval:skill-routing
+```
+
+Runs only the `kind: "skill-routing"` certification fixtures.
+
 ## Validate a Consumer (validator-backed)
 
 ```bash
@@ -85,6 +93,30 @@ npm run validate-qwen-bootstrap -- --consumer <consumer-root>
 
 Checks the consumer-local `.qwen` scaffold for required settings, extension manifest fields, resource files, agent contracts, skill contracts, and broken references.
 
+## Detect Skill Overlap (helper-only)
+
+```bash
+npm run detect-skill-overlap
+```
+
+Reports heuristic overlap, near-duplicates, naming collisions, and routing ambiguity risk across `core/skills` and `skills`.
+
+## Lint Skill Contracts (validator-backed)
+
+```bash
+npm run lint-skill-contracts
+```
+
+Checks skill files for required contract sections and frontmatter fields, then reports warnings for missing purpose/inputs/boundary clarity.
+
+## Analyze Skill-Tree Coverage (helper-only)
+
+```bash
+npm run analyze-skill-tree-coverage
+```
+
+Classifies current skills into capability families and reports weak or overconcentrated coverage as advisory analysis.
+
 ## Initialize a Consumer Overlay (initializer/scaffold)
 
 ```bash
@@ -108,9 +140,13 @@ Creates the consumer-local `.qwen` scaffold from the shared template pack. Re-ru
 - use `build-registry` when `core/skills/`, `skills/`, `core/contracts/tool-contracts/catalog.json`, or provider capability profiles change
 - use `build-exports` when canonical provider adapter scaffolds or provider capability profiles change
 - use `eval` when certification fixtures, registry semantics, or provider export bundles change
+- use `eval:skill-routing` when routing precision or overlap-avoidance behavior is changed
 - use `validate-neutral` after changing the neutral registry, provider scaffolds, or adapter boundary docs
 - use `init-consumer` for the first initializer/scaffold pass in a new repository
 - use `validate-input-contract` whenever a consumer adopts `repo-intake-sot-mapper`
 - use `validate-runtime-policy-input-contract` whenever a consumer adopts `runtime-policy-auditor`
+- use `detect-skill-overlap` to inspect potential near-duplicate or ambiguous sibling skill boundaries
+- use `lint-skill-contracts` to validate contract shape consistency across skill files
+- use `analyze-skill-tree-coverage` to inspect advisory family coverage and concentration
 - use `init-qwen-bootstrap` for the first consumer-local Qwen scaffold pass only
 - use `validate-qwen-bootstrap` after generating or editing the consumer-local Qwen scaffold

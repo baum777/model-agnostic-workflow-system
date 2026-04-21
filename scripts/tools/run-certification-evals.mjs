@@ -10,6 +10,26 @@ function normalize(filePath) {
   return path.resolve(filePath).replace(/\\/g, '/');
 }
 
+function parseRunnerArgs(argv) {
+  const args = {
+    kinds: null
+  };
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const value = argv[index];
+    if (value === '--kind' && argv[index + 1]) {
+      const rawKinds = argv[index + 1];
+      args.kinds = rawKinds
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+      index += 1;
+    }
+  }
+
+  return args;
+}
+
 function loadEvalCatalog(root) {
   const catalogPath = path.join(root, 'evals', 'catalog.json');
   if (!fs.existsSync(catalogPath)) {
@@ -128,6 +148,19 @@ const surfaceDecisionMapping = new Map([
   ['no justified reusable surface', { action: 'reject_new_surface', placement: 'none' }]
 ]);
 
+const skillRoutingClasses = new Set(['single-skill', 'multi-step', 'false-positive']);
+const routePacketFields = [
+  'route_type',
+  'primary_skill',
+  'skill_chain',
+  'new_skill_creation_allowed',
+  'overlap_guard',
+  'confidence',
+  'notes'
+];
+const routeTypeValues = new Set(['single-skill', 'multi-step']);
+const routeConfidenceValues = new Set(['high', 'medium', 'low']);
+
 function loadSkillText(root, skillPath) {
   const absolutePath = path.join(root, skillPath);
   if (!fs.existsSync(absolutePath)) {
@@ -137,6 +170,28 @@ function loadSkillText(root, skillPath) {
 }
 
 function parseSurfaceDecisionOutput(rawOutput) {
+  if (typeof rawOutput === 'object' && rawOutput !== null && !Array.isArray(rawOutput)) {
+    return rawOutput;
+  }
+  if (typeof rawOutput !== 'string') {
+    return null;
+  }
+
+  const trimmed = rawOutput.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const fenced = trimmed.match(/^```(?:json)?\s*\n([\s\S]*?)\n```$/i);
+  const candidate = fenced ? fenced[1].trim() : trimmed;
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    return null;
+  }
+}
+
+function parseGenericJsonPayload(rawOutput) {
   if (typeof rawOutput === 'object' && rawOutput !== null && !Array.isArray(rawOutput)) {
     return rawOutput;
   }
@@ -419,6 +474,168 @@ function evaluateSurfaceDecision(root, fixture) {
   return result;
 }
 
+function normalizeRoutePacket(rawOutput) {
+  const parsed = parseGenericJsonPayload(rawOutput);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return {
+      passed: false,
+      issues: ['Route output must be a JSON object or JSON string.']
+    };
+  }
+
+  const issues = [];
+  for (const field of routePacketFields) {
+    if (!(field in parsed)) {
+      issues.push(`Route packet is missing ${field}.`);
+    }
+  }
+  for (const key of Object.keys(parsed)) {
+    if (!routePacketFields.includes(key)) {
+      issues.push(`Route packet has unsupported field ${key}.`);
+    }
+  }
+
+  if (issues.length > 0) {
+    return { passed: false, issues };
+  }
+
+  const packet = {
+    route_type: parsed.route_type,
+    primary_skill: parsed.primary_skill,
+    skill_chain: Array.isArray(parsed.skill_chain) ? parsed.skill_chain : null,
+    new_skill_creation_allowed: parsed.new_skill_creation_allowed,
+    overlap_guard: parsed.overlap_guard,
+    confidence: parsed.confidence,
+    notes: parsed.notes
+  };
+
+  if (!routeTypeValues.has(packet.route_type)) {
+    issues.push(`Invalid route_type ${packet.route_type}.`);
+  }
+  if (typeof packet.primary_skill !== 'string' || packet.primary_skill.trim() === '') {
+    issues.push('primary_skill must be a non-empty string.');
+  }
+  if (!Array.isArray(packet.skill_chain) || packet.skill_chain.length === 0 || packet.skill_chain.some((entry) => typeof entry !== 'string' || entry.trim() === '')) {
+    issues.push('skill_chain must be a non-empty array of skill names.');
+  }
+  if (typeof packet.new_skill_creation_allowed !== 'boolean') {
+    issues.push('new_skill_creation_allowed must be a boolean.');
+  }
+  if (typeof packet.overlap_guard !== 'string' || packet.overlap_guard.trim() === '') {
+    issues.push('overlap_guard must be a non-empty string.');
+  }
+  if (!routeConfidenceValues.has(packet.confidence)) {
+    issues.push(`Invalid confidence ${packet.confidence}.`);
+  }
+  if (typeof packet.notes !== 'string') {
+    issues.push('notes must be a string.');
+  }
+
+  if (packet.route_type === 'single-skill' && packet.skill_chain.length !== 1) {
+    issues.push('single-skill route_type must use exactly one entry in skill_chain.');
+  }
+  if (packet.route_type === 'multi-step' && packet.skill_chain.length < 2) {
+    issues.push('multi-step route_type must use at least two entries in skill_chain.');
+  }
+  if (packet.skill_chain[0] !== packet.primary_skill) {
+    issues.push('primary_skill must match the first skill_chain entry.');
+  }
+
+  if (issues.length > 0) {
+    return { passed: false, issues };
+  }
+  return {
+    passed: true,
+    packet,
+    issues: []
+  };
+}
+
+function evaluateSkillRouting(_root, fixture) {
+  const result = {
+    passed: true,
+    issues: []
+  };
+
+  const cases = Array.isArray(fixture.cases) ? fixture.cases : [];
+  if (cases.length === 0) {
+    result.passed = false;
+    result.issues.push('skill-routing fixture must contain cases.');
+    return result;
+  }
+
+  const classCounts = {
+    'single-skill': 0,
+    'multi-step': 0,
+    'false-positive': 0
+  };
+  const minimumCases = fixture.expectations?.minimumCases || classCounts;
+  const seenIds = new Set();
+
+  for (const caseEntry of cases) {
+    if (!caseEntry || typeof caseEntry !== 'object') {
+      result.passed = false;
+      result.issues.push('skill-routing cases must be objects.');
+      continue;
+    }
+    if (typeof caseEntry.id !== 'string' || caseEntry.id.trim() === '') {
+      result.passed = false;
+      result.issues.push('skill-routing case missing id.');
+      continue;
+    }
+    if (seenIds.has(caseEntry.id)) {
+      result.passed = false;
+      result.issues.push(`Duplicate skill-routing case id: ${caseEntry.id}.`);
+    }
+    seenIds.add(caseEntry.id);
+
+    if (!skillRoutingClasses.has(caseEntry.class)) {
+      result.passed = false;
+      result.issues.push(`skill-routing case ${caseEntry.id} has invalid class ${caseEntry.class}.`);
+    } else {
+      classCounts[caseEntry.class] += 1;
+    }
+
+    if (typeof caseEntry.request !== 'string' || caseEntry.request.trim() === '') {
+      result.passed = false;
+      result.issues.push(`skill-routing case ${caseEntry.id} is missing request text.`);
+    }
+
+    const expectedRoute = normalizeRoutePacket(caseEntry.expectedRoute);
+    if (!expectedRoute.passed) {
+      result.passed = false;
+      result.issues.push(...expectedRoute.issues.map((issue) => `skill-routing case ${caseEntry.id} expectedRoute ${issue}`));
+      continue;
+    }
+
+    const observedRoute = normalizeRoutePacket(caseEntry.observedRouteOutput);
+    if (!observedRoute.passed) {
+      result.passed = false;
+      result.issues.push(...observedRoute.issues.map((issue) => `skill-routing case ${caseEntry.id} observedRouteOutput ${issue}`));
+      continue;
+    }
+
+    if (!sameJson(expectedRoute.packet, observedRoute.packet)) {
+      result.passed = false;
+      result.issues.push(`skill-routing case ${caseEntry.id} normalized observed route does not match expectedRoute.`);
+    }
+
+    if (caseEntry.class === 'false-positive' && expectedRoute.packet.new_skill_creation_allowed !== false) {
+      result.passed = false;
+      result.issues.push(`skill-routing case ${caseEntry.id} must set new_skill_creation_allowed to false.`);
+    }
+  }
+
+  for (const [className, minimum] of Object.entries(minimumCases)) {
+    if ((classCounts[className] || 0) < minimum) {
+      result.passed = false;
+      result.issues.push(`skill-routing fixture needs at least ${minimum} ${className} case(s).`);
+    }
+  }
+
+  return result;
+}
+
 function evaluateToolSelection(registry, fixture) {
   const result = {
     passed: true,
@@ -549,6 +766,10 @@ function evaluateFixture(root, registry, providerExports, fixture) {
     const check = evaluateSurfaceDecision(root, fixture);
     result.passed = check.passed;
     result.issues.push(...check.issues);
+  } else if (fixture.kind === 'skill-routing') {
+    const check = evaluateSkillRouting(root, fixture);
+    result.passed = check.passed;
+    result.issues.push(...check.issues);
   } else {
     result.passed = false;
     result.issues.push(`Unsupported eval kind: ${fixture.kind}`);
@@ -557,13 +778,33 @@ function evaluateFixture(root, registry, providerExports, fixture) {
   return result;
 }
 
-function runCertificationEvals(baseRoot = repoRoot()) {
+function runCertificationEvals(baseRoot = repoRoot(), options = {}) {
   const root = baseRoot;
   const catalog = loadEvalCatalog(root);
   const registry = buildNeutralCoreRegistry(root);
   const providerExports = loadProviderExports(root);
   const fixtures = loadEvalFixtures(root, catalog);
-  const results = fixtures.map((fixture) => evaluateFixture(root, registry, providerExports, fixture));
+  const requestedKinds = Array.isArray(options.kinds) && options.kinds.length > 0 ? new Set(options.kinds) : null;
+  const selectedFixtures = requestedKinds
+    ? fixtures.filter((fixture) => requestedKinds.has(String(fixture.kind)))
+    : fixtures;
+  if (requestedKinds && selectedFixtures.length === 0) {
+    return {
+      ok: false,
+      root: normalize(root),
+      suite: catalog.suite || 'provider-neutral-certification',
+      total: 0,
+      passed: 0,
+      failed: 0,
+      blockingFailures: 1,
+      filters: {
+        kinds: [...requestedKinds]
+      },
+      results: [],
+      issues: ['No eval fixtures matched the requested --kind filter.']
+    };
+  }
+  const results = selectedFixtures.map((fixture) => evaluateFixture(root, registry, providerExports, fixture));
   const passed = results.filter((result) => result.passed).length;
   const failed = results.length - passed;
   const blockingFailures = results.filter((result) => !result.passed && result.blocking).length;
@@ -576,6 +817,7 @@ function runCertificationEvals(baseRoot = repoRoot()) {
     passed,
     failed,
     blockingFailures,
+    filters: requestedKinds ? { kinds: [...requestedKinds] } : null,
     results
   };
 }
@@ -583,7 +825,8 @@ function runCertificationEvals(baseRoot = repoRoot()) {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
-  const result = runCertificationEvals();
+  const args = parseRunnerArgs(process.argv.slice(2));
+  const result = runCertificationEvals(repoRoot(), args);
   console.log(JSON.stringify(result, null, 2));
   process.exit(result.ok ? 0 : 1);
 }
