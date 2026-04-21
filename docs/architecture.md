@@ -15,7 +15,7 @@ Define how repository docs are classified, where authority lives, and how update
 | Tier | Class | Meaning | Examples |
 | --- | --- | --- | --- |
 | 0 | enforced | Script- or validator-backed truth. This is the highest executable authority. | `scripts/tools/validate-shared-core-package.mjs`, `scripts/tools/validate-shared-core-scaffold.mjs`, `scripts/tools/validate-consumer-linkage.mjs` |
-| 1 | canonical | Normative repo docs that define policy, contracts, and architecture. | `AGENTS.md`, `docs/authority-matrix.md`, `docs/compatibility.md`, `docs/lock-model.md`, `docs/repo-overlay-contract.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/tool-contracts/catalog.json`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `core/README.md`, `core/contracts/README.md` |
+| 1 | canonical | Normative repo docs that define policy, contracts, and architecture. | `AGENTS.md`, `WORKFLOW.md`, `docs/authority-matrix.md`, `docs/compatibility.md`, `docs/governance/source-hierarchy.md`, `docs/lock-model.md`, `docs/mcp/policy.md`, `docs/repo-overlay-contract.md`, `docs/secret-handling.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `core/README.md`, `core/contracts/README.md` |
 | 2 | operational | Runbooks, usage guides, command references, checklists, and authoring guides that depend on canonical rules. | `docs/README.md`, `docs/usage.md`, `docs/adoption-playbook.md`, `docs/consumer-rollout-playbook.md`, `docs/maintainer-commands.md`, `docs/validation-checklist.md`, `docs/authoring-guides.md`, `evals/README.md` |
 | 3 | derived | Summaries, baselines, examples, and templates that explain or demonstrate current practice. | `docs/overview.md`, `docs/eval-baseline.md`, `templates/codex-workflow/*`, `examples/codex-workflow/*` |
 | 4 | archive | Historical or frozen planning records. | `docs/extraction-roadmap.md`, `CHANGELOG.md` |
@@ -23,10 +23,14 @@ Define how repository docs are classified, where authority lives, and how update
 ## Current Repo Shape
 
 - Root governance: `AGENTS.md`
+- Root workflow entry: `WORKFLOW.md`
 - Front door: `README.md`
 - Docs index: `docs/README.md`
-- Canonical docs: `docs/authority-matrix.md`, `docs/architecture.md`, `docs/compatibility.md`, `docs/lock-model.md`, `docs/repo-overlay-contract.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/tool-contracts/catalog.json`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `docs/ui-ux-composition-branch.md`
+- Canonical docs: `docs/authority-matrix.md`, `docs/architecture.md`, `docs/compatibility.md`, `docs/governance/source-hierarchy.md`, `docs/lock-model.md`, `docs/mcp/policy.md`, `docs/repo-overlay-contract.md`, `docs/secret-handling.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `docs/ui-ux-composition-branch.md`
+- Canonical machine-readable tool catalog: `core/contracts/tool-contracts/catalog.json`
+- Compatibility/export tool catalog: `docs/tool-contracts/catalog.json`
 - Machine-readable neutral registry: `core/contracts/core-registry.json`, `core/contracts/provider-capabilities.json`
+- Machine-readable policy surfaces: `policies/secret-classes.yaml`, `policies/tool-capabilities.yaml`
 - Portable core slice: `core/`
 - Provider adapter scaffolds: `providers/`
 - Operational docs: `docs/README.md`, `docs/usage.md`, `docs/adoption-playbook.md`, `docs/consumer-rollout-playbook.md`, `docs/maintainer-commands.md`, `docs/validation-checklist.md`, `docs/authoring-guides.md`, `evals/README.md`
@@ -41,8 +45,11 @@ Define how repository docs are classified, where authority lives, and how update
 ```mermaid
 flowchart TD
   ROOT["README.md"] --> INDEX["docs/README.md"]
+  ROOT --> WORKFLOW["WORKFLOW.md"]
   INDEX --> ARCH["docs/architecture.md"]
   INDEX --> AUTH["docs/authority-matrix.md"]
+  INDEX --> HIER["docs/governance/source-hierarchy.md"]
+  INDEX --> MCP["docs/mcp/policy.md"]
   INDEX --> USAGE["docs/usage.md"]
   ARCH --> CANON["Canonical docs"]
   ARCH --> OPS["Operational docs"]
@@ -56,6 +63,7 @@ flowchart TD
 ```mermaid
 flowchart LR
   GOVERNANCE["AGENTS.md"] --> ROOT["README.md"]
+  GOVERNANCE --> WORKFLOW["WORKFLOW.md"]
   ROOT --> INDEX["docs/README.md"]
 
   subgraph Reusable["Reusable core"]
@@ -80,11 +88,15 @@ flowchart LR
   subgraph Docs["Documentation surfaces"]
     ARCH_DOC["docs/architecture.md"]
     AUTH_DOC["docs/authority-matrix.md"]
+    HIER_DOC["docs/governance/source-hierarchy.md"]
+    MCP_DOC["docs/mcp/policy.md"]
     USAGE_DOC["docs/usage.md"]
   end
 
   INDEX --> ARCH_DOC
   INDEX --> AUTH_DOC
+  INDEX --> HIER_DOC
+  INDEX --> MCP_DOC
   INDEX --> USAGE_DOC
   ARCH_DOC --> CORE
   ARCH_DOC --> CORE_CONTRACTS
@@ -109,6 +121,25 @@ flowchart LR
 - Docs and contracts are the home for truth declarations, authority rules, and input-contract surfaces. If a workflow mainly declares scope, authority, or local input shape, keep it in docs/contracts instead of promoting it to a skill.
 - The skill class model is logical only; it does not imply a physical directory split beyond the current repository layout.
 
+## Phase 1 Overlay Mapping
+
+- The full model-agnostic workflow spec is adopted here as an overlay on the current canonical repo layout.
+- Root workflow entry and authority order live in `WORKFLOW.md`, `docs/governance/source-hierarchy.md`, and `docs/mcp/policy.md`, not in a second spec-shaped directory tree.
+- Canonical machine-readable workflow/tool/provider truth remains under `core/contracts/`.
+- Compatibility mirrors remain explicit in `skills/`, `contracts/`, legacy `providers/*`, and `docs/tool-contracts/catalog.json`.
+- Validator-backed enforcement remains under `scripts/tools/`; prose docs must not imply runtime or validator maturity that the scripts do not prove.
+
+## Capability Maturity Labels
+
+When a doc in this repo describes capability maturity, it should distinguish:
+
+- `prose-governed`
+- `contract-backed`
+- `validator-backed`
+- `runtime-implemented`
+
+These labels describe maturity only. They do not replace the claim-status ledger in `docs/authority-matrix.md`.
+
 ## Merge and Update Rules
 
 1. Keep one canonical home per rule or contract.
@@ -119,6 +150,8 @@ flowchart LR
 6. If enforcement changes, update the validator or script and the canonical doc in the same slice.
 7. If a new doc is needed, justify it only when no existing canonical file can absorb the rule without becoming mixed-purpose.
 8. If authority is unclear, fail closed and record the ambiguity in [authority-matrix.md](authority-matrix.md).
+9. Secret-handling rules live in [secret-handling.md](secret-handling.md) plus the policy files under `policies/`; provider exports may project those rules but must not redefine them.
+10. Treat `core/contracts/tool-contracts/catalog.json` as the canonical machine-readable tool catalog and `docs/tool-contracts/catalog.json` as compatibility/export only.
 
 ## Enforcement Relationship
 

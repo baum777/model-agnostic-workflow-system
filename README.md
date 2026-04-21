@@ -35,6 +35,7 @@ Zielgruppen:
 3. Provider Exports: generierte provider-spezifische Bundles unter `providers/<provider>/export.json`.
 4. Governance + Authority: dokumentierte Klassen- und Claim-Logik in `docs/architecture.md` und `docs/authority-matrix.md`.
 5. Enforcement/Gates: Validatoren und Evals in `scripts/tools/` und `evals/`.
+6. Workflow Entry: root workflow guidance in `WORKFLOW.md` plus repo-lokale Routing-Skills unter `.agents/skills/`.
 
 Wichtig: Das Klassenmodell (canonical/operational/derived/archive) ist logisch; es impliziert keine physische Verzeichnisaufteilung nach diesen Klassen.
 
@@ -85,8 +86,11 @@ Wichtig: Das Klassenmodell (canonical/operational/derived/archive) ist logisch; 
 Normative Orientierung:
 
 - Root Operating Contract: `AGENTS.md`
+- Root Workflow Contract: `WORKFLOW.md`
 - Docs-Hierarchie/Regeln: `docs/architecture.md`
 - Claim-/Status-Ledger: `docs/authority-matrix.md`
+- Source Hierarchy: `docs/governance/source-hierarchy.md`
+- MCP Boundary Policy: `docs/mcp/policy.md`
 
 Doc-Klassen:
 
@@ -101,6 +105,15 @@ Eine canonical Aussage ist nicht automatisch script-enforced. Enforced Truth lie
 Praktische Regel:
 
 - Bei Konflikt zwischen Prosa und Validator-Verhalten gilt die Enforcement-Surface; Status wird in der Authority-Matrix transparent gemacht.
+
+Capability-Maturity-Labels:
+
+- `prose-governed`
+- `contract-backed`
+- `validator-backed`
+- `runtime-implemented`
+
+Diese Labels beschreiben Reifegrad, nicht die Claim-Status-Werte der Authority-Matrix.
 
 ## Portable Core vs Compatibility Mirrors vs Provider Exports
 
@@ -118,6 +131,8 @@ Boundary-Regel:
 - Shared-Semantik aendert man im Core.
 - Provider-spezifische Packaging-Projektion gehoert in `providers/`.
 - Rueckwaertskompatibilitaet bleibt explizit als Mirror markiert.
+- `core/contracts/tool-contracts/catalog.json` ist der kanonische machine-readable Tool-Katalog.
+- `docs/tool-contracts/catalog.json` bleibt eine explizite compatibility/export surface und ist keine zweite kanonische Tool-Wahrheit.
 
 ## Validation, Registry-Build, Export-Build und Evals
 
@@ -156,11 +171,14 @@ Render/A11y-Modi:
 
 1. `README.md` (diese Front Door)
 2. `AGENTS.md`
-3. `docs/architecture.md`
-4. `docs/authority-matrix.md`
-5. `docs/usage.md`
-6. `docs/maintainer-commands.md`
-7. `docs/validation-checklist.md`
+3. `WORKFLOW.md`
+4. `docs/architecture.md`
+5. `docs/authority-matrix.md`
+6. `docs/governance/source-hierarchy.md`
+7. `docs/mcp/policy.md`
+8. `docs/usage.md`
+9. `docs/maintainer-commands.md`
+10. `docs/validation-checklist.md`
 
 ### Fuer Consumer-Repositories
 
@@ -196,8 +214,11 @@ Render/A11y-Modi:
 Core Navigation:
 
 - `docs/README.md`
+- `WORKFLOW.md`
 - `docs/architecture.md`
 - `docs/authority-matrix.md`
+- `docs/governance/source-hierarchy.md`
+- `docs/mcp/policy.md`
 - `docs/usage.md`
 - `core/README.md`
 - `core/contracts/README.md`
@@ -209,6 +230,8 @@ Boundary-spezifisch:
 
 - Portability: `docs/portability.md`
 - Compatibility: `docs/compatibility.md`
+- Source Hierarchy: `docs/governance/source-hierarchy.md`
+- MCP Policy: `docs/mcp/policy.md`
 - Overlay-Trennung: `docs/repo-overlay-contract.md`
 - Maintainer-Befehle: `docs/maintainer-commands.md`
 
@@ -217,3 +240,4 @@ Boundary-spezifisch:
 - Neue Regeln/Authority nicht parallel an mehreren Stellen normativ definieren.
 - Bei neuen oder geaenderten Shared-Semantics immer Core + Validation + relevante Docs gemeinsam aktualisieren.
 - Claims zu Readiness/Coverage nur treffen, wenn sie artifact- oder validator-basiert belegt sind.
+- Die Phase-1-Spec-Adoption ist ein Overlay auf die aktuelle kanonische Repo-Struktur, nicht die Uebernahme eines zweiten illustrativen Verzeichnisbaums.

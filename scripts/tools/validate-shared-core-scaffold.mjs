@@ -7,11 +7,11 @@ import { parseSkillFrontmatter, readJson, repoRoot } from './_shared.mjs';
 const allowedClassifications = new Set(['shared', 'shared-with-local-inputs', 'local-only', 'contract-only', 'deferred']);
 const requiredSkillSections = ['## Trigger', '## When Not To Use', '## Workflow', '## Output', '## Quality Checks'];
 const requiredSkillFields = ['name', 'description', 'version', 'classification', 'requires_repo_inputs', 'produces_structured_output', 'safe_to_auto_run', 'owner', 'status'];
-  const requiredSkills = [
-    'repo-intake-sot-mapper',
-    'runtime-policy-auditor',
-    'planning-slice-builder',
-    'implementation-contract-extractor',
+const requiredSkills = [
+  'repo-intake-sot-mapper',
+  'runtime-policy-auditor',
+  'planning-slice-builder',
+  'implementation-contract-extractor',
   'test-matrix-builder',
   'post-implementation-review-writer',
   'patch-strategy-designer',
@@ -22,8 +22,42 @@ const requiredSkillFields = ['name', 'description', 'version', 'classification',
     'supabase-deployment',
     'migration-planner',
     'research-synthesis',
-    'long-document-to-knowledge-asset'
-  ];
+    'long-document-to-knowledge-asset',
+    'secret-boundary-audit'
+];
+
+const requiredDocMarkers = new Map([
+  [
+    'WORKFLOW.md',
+    [
+      '## Workflow Classes',
+      '## Standard Phase Order',
+      '## Routing Rules',
+      '## Validation Posture',
+      '## Stop Conditions',
+      '## Handoff And Reporting Expectations'
+    ]
+  ],
+  [
+    'docs/governance/source-hierarchy.md',
+    [
+      '## Authority Order',
+      '## Source Classes',
+      '## Conflict Handling',
+      '## Evidence Versus Authority'
+    ]
+  ],
+  [
+    'docs/mcp/policy.md',
+    [
+      '## MCP Modes',
+      '## Non-Authority Rule',
+      '## Adapter Requirements',
+      '## Fail-Closed Behavior',
+      '## Current Implementation Status'
+    ]
+  ]
+]);
 
 function resolveCoreRoot(baseRoot) {
   const directPackageJson = path.join(baseRoot, 'package.json');
@@ -48,6 +82,7 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
 
   const requiredFiles = [
     'README.md',
+    'WORKFLOW.md',
     'package.json',
     'CHANGELOG.md',
     'core/README.md',
@@ -63,6 +98,9 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
     'docs/overview.md',
     'docs/usage.md',
     'docs/architecture.md',
+    'docs/governance/source-hierarchy.md',
+    'docs/mcp/policy.md',
+    'docs/secret-handling.md',
     'docs/compatibility.md',
     'docs/adoption-playbook.md',
     'docs/repo-overlay-contract.md',
@@ -97,6 +135,8 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
     'providers/kimi/export.json',
     'providers/codex/README.md',
     'providers/codex/export.json',
+    'policies/secret-classes.yaml',
+    'policies/tool-capabilities.yaml',
     'scripts/tools/_shared.mjs',
     'scripts/tools/build-neutral-core-registry.mjs',
     'scripts/tools/repo-structure-scanner.mjs',
@@ -104,6 +144,8 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
     'scripts/tools/spec-compliance-checker.mjs',
     'scripts/tools/approval-gated-write-executor.mjs',
     'scripts/tools/validate-provider-neutral-core.mjs',
+    'scripts/tools/validate-secret-boundaries.mjs',
+    'scripts/tools/scan-secrets.mjs',
     'scripts/tools/validate-repo-surface.mjs',
     'scripts/tools/validate-local-input-contract.mjs',
     'scripts/tools/validate-runtime-policy-input-contract.mjs',
@@ -125,7 +167,10 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
     'core/overlays',
     'core/skills',
     'docs',
+    'docs/governance',
+    'docs/mcp',
     'contracts',
+    'policies',
     'skills',
     'scripts/tools',
     'providers',
@@ -150,6 +195,20 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
   for (const dir of requiredDirs) {
     if (!fs.existsSync(path.join(root, dir))) {
       issues.push(`Missing required directory: ${dir}`);
+    }
+  }
+
+  for (const [relativePath, markers] of requiredDocMarkers.entries()) {
+    const absolutePath = path.join(root, relativePath);
+    if (!fs.existsSync(absolutePath)) {
+      continue;
+    }
+
+    const content = fs.readFileSync(absolutePath, 'utf8');
+    for (const marker of markers) {
+      if (!content.includes(marker)) {
+        issues.push(`${relativePath} is missing required section ${marker}.`);
+      }
     }
   }
 

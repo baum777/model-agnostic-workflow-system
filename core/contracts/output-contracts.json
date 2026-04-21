@@ -2,6 +2,31 @@
   "schemaVersion": "1.0.0",
   "contracts": [
     {
+      "contract_id": "workflow-plan-v1",
+      "skill": "planning-slice-builder",
+      "required_sections": [
+        "SUMMARY",
+        "WORKFLOW CLASS",
+        "AUTHORITY SOURCES",
+        "ROUTING DECISION",
+        "IMPLEMENTATION PHASES",
+        "VALIDATION POSTURE",
+        "STOP CONDITIONS",
+        "GAPS",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "NON-GOALS",
+        "HANDOFF NOTES"
+      ],
+      "validation_notes": [
+        "Separate prose-governed, contract-backed, validator-backed, and runtime-implemented capability claims where maturity matters.",
+        "Authority sources must cite exact repo paths or explicitly identify the bounded task spec.",
+        "Stop conditions and validation posture must be explicit rather than implied."
+      ],
+      "failure_or_partial_completion_behavior": "If authority sources are conflicting or the required validation posture cannot be determined, return BLOCKED and enumerate the unresolved sources or gates."
+    },
+    {
       "contract_id": "repo-audit-report-v1",
       "skill": "repo-audit",
       "required_sections": [
@@ -311,6 +336,28 @@
         "Do not drop unresolved ambiguities."
       ],
       "failure_or_partial_completion_behavior": "If the source document is incomplete or malformed, return a partial asset map with the missing segments called out."
+    },
+    {
+      "contract_id": "secret-boundary-audit-report-v1",
+      "skill": "secret-boundary-audit",
+      "required_sections": [
+        "SUMMARY",
+        "OBSERVED SECRET SURFACES",
+        "BOUNDARY CLASSIFICATION",
+        "EXPOSURE RISKS",
+        "ROTATION AND INCIDENT GAPS",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "TRACEABILITY",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Each finding must cite an exact file path or explicit missing surface.",
+        "Implemented, advisory-only, missing, and inferred controls must remain distinct.",
+        "Do not claim redaction, memory, or provider-switch safety without concrete evidence."
+      ],
+      "failure_or_partial_completion_behavior": "If secret-boundary evidence is missing or contradictory, return BLOCKED and enumerate the unresolved surfaces."
     },
     {
       "contract_id": "supabase-deploy-runbook-v1",

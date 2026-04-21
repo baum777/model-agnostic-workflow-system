@@ -18,15 +18,27 @@ For non-document surfaces, doc class is `n/a` and surface kind carries the disti
 Skill surfaces are classified separately as `shared-exported-skill`, `contract-bound-skill`, or `repo-local-control-skill`.
 Tool surfaces in this matrix use `runnable`, `validator-backed`, `helper-only`, `contract-only`, `stub`, or `planned` in the enforcement status column. Documentation surfaces keep their prose/status language.
 
+Capability maturity labels used in prose docs are:
+
+- `prose-governed`
+- `contract-backed`
+- `validator-backed`
+- `runtime-implemented`
+
+These labels describe maturity and evidence shape. They do not replace the claim-status values in this matrix.
+
 The generated `.qwen` scaffold is a consumer-local operating overlay. It is not shared-core authority and not a repo-global enforcement plane. The Qwen bootstrap validator checks bootstrap integrity only; it does not assert canonical runtime truth.
 
 | surface | surface kind | doc class | enforcement status | authority / enforcement path | note |
 | --- | --- | --- | --- | --- | --- |
 | `README.md` | doc | canonical | prose-only | canonical front door by repo convention | shortest practical entrypoint; points to the docs index |
+| `WORKFLOW.md` | doc | canonical | prose-only | canonical root workflow contract by repo convention | workflow taxonomy, routing, validation posture, stop conditions, and reporting expectations |
 | `docs/README.md` | doc | operational | prose-only | docs navigation hub | index only; links to canonical and operational docs |
 | `AGENTS.md` | doc | canonical | prose-only | canonical root operating contract by repo convention | root governance surface |
 | `docs/architecture.md` | doc | canonical | prose-only | canonical docs charter by repo convention | defines tiers, merge rules, update rules, and skill topology |
 | `docs/authority-matrix.md` | doc | canonical | prose-only | canonical authority ledger by repo convention | records claim status and evidence across surfaces |
+| `docs/governance/source-hierarchy.md` | doc | canonical | prose-only | canonical authority-order document by repo convention | maps governance, workflow, skill, tool, MCP, and inference order |
+| `docs/mcp/policy.md` | doc | canonical | prose-only | canonical MCP boundary policy by repo convention | MCP posture, modes, non-authority rule, and fail-closed behavior |
 | `docs/usage.md` | doc | operational | prose-only | operational hub | links outward instead of redefining canon |
 | `docs/ui-ux-composition-branch.md` | doc | canonical | prose-only | canonical UI/UX branch charter | branch authority, status matrix, and contract boundaries |
 | `docs/ui-ux-composition/*` | doc | derived | prose-only | advisory internal branch taxonomy | not a second authority path |
@@ -37,18 +49,21 @@ The generated `.qwen` scaffold is a consumer-local operating overlay. It is not 
 | `docs/validation-checklist.md` | doc | operational | partly enforced | gates reference scripts and validators | conditional items remain conditional |
 | `docs/portability.md` | doc | canonical | prose-only | portability charter | explains core/provider/compatibility boundaries |
 | `docs/provider-capability-matrix.md` | doc | canonical | prose-only | provider capability charter | names canonical providers and aliases |
-| `docs/authoring-guides.md` | doc | operational | prose-only | authoring guide | explains how to author skills, tools, exports, and eval fixtures |
+| `docs/authoring-guides.md` | doc | operational | prose-only | authoring guide | explains how to author skills, tools, exports, eval fixtures, and secret-boundary metadata |
+| `docs/secret-handling.md` | doc | canonical | prose-only | canonical secret-boundary charter | single prose authority for secret classes, redaction, memory, and provider-switch posture |
 | `docs/overview.md` | doc | derived | prose-only | summary only | should not be read as governing text |
 | `docs/eval-baseline.md` | doc | derived | prose-only | derived evidence baseline | not a governance source |
 | `docs/extraction-roadmap.md` | doc | archive | prose-only | historical planning record | not live authority |
 | `CHANGELOG.md` | doc | archive | prose-only | release history | historical record only |
-| `docs/tool-contracts/catalog.json` | config surface | n/a | partly enforced | tool catalog with runnable/helper-only/validator-backed/contract-only/stub labels | compatibility export for the current Codex-oriented tool catalog |
+| `docs/tool-contracts/catalog.json` | config surface | n/a | partly enforced | compatibility/export tool catalog with runnable/helper-only/validator-backed/contract-only/stub labels | compatibility export for the current Codex-oriented tool catalog; not canonical machine-readable tool truth |
 | `core/README.md` | doc | canonical | prose-only | portable core index | boundary and layout for the provider-neutral core slice |
 | `core/contracts/README.md` | doc | canonical | prose-only | canonical contract index | points at the normalized core contract files |
 | `core/contracts/core-registry.json` | config surface | n/a | validator-backed | `scripts/tools/build-neutral-core-registry.mjs` + `scripts/tools/validate-provider-neutral-core.mjs` | canonical neutral registry snapshot for skills, tools, and providers |
-| `core/contracts/provider-capabilities.json` | config surface | n/a | validator-backed | `scripts/tools/validate-provider-neutral-core.mjs` | canonical provider capability matrix consumed by the neutral registry builder |
-| `core/contracts/output-contracts.json` | config surface | n/a | contract-only | portable output contract catalog | normalized output contract metadata for portable skills, including the `ui-ux-composition` branch contract |
-| `core/contracts/tool-contracts/catalog.json` | config surface | n/a | contract-only | portable tool contract catalog | normalized tool contract metadata for portable skills, including the `ui-ux-composition` logical tool entries |
+| `core/contracts/provider-capabilities.json` | config surface | n/a | validator-backed | `scripts/tools/validate-provider-neutral-core.mjs` + `scripts/tools/validate-secret-boundaries.mjs` | canonical provider capability matrix consumed by the neutral registry builder, including secret-boundary projection metadata |
+| `core/contracts/output-contracts.json` | config surface | n/a | contract-only | portable output contract catalog | normalized output contract metadata for portable skills and workflow-plan/report style artifacts |
+| `core/contracts/tool-contracts/catalog.json` | config surface | n/a | validator-backed | `scripts/tools/validate-provider-neutral-core.mjs` + `scripts/tools/validate-secret-boundaries.mjs` | canonical machine-readable tool catalog with explicit secret-boundary metadata |
+| `policies/secret-classes.yaml` | config surface | n/a | validator-backed | `scripts/tools/validate-secret-boundaries.mjs` | machine-readable secret class policy; not a second prose authority |
+| `policies/tool-capabilities.yaml` | config surface | n/a | validator-backed | `scripts/tools/validate-secret-boundaries.mjs` | machine-readable secret-boundary field policy for normalized tool contracts |
 | `contracts/core-registry.json` | config surface | n/a | compatibility mirror | `scripts/tools/build-neutral-core-registry.mjs` + `scripts/tools/validate-provider-neutral-core.mjs` | legacy mirror of the canonical registry |
 | `contracts/provider-capabilities.json` | config surface | n/a | compatibility mirror | `scripts/tools/build-neutral-core-registry.mjs` + `scripts/tools/validate-provider-neutral-core.mjs` | legacy mirror of the canonical provider capability matrix |
 | `evals/catalog.json` | config surface | n/a | validator-backed | `scripts/tools/run-certification-evals.mjs` + `scripts/tools/validate-provider-neutral-core.mjs` | fixture index for deterministic certification checks |
@@ -76,13 +91,20 @@ The generated `.qwen` scaffold is a consumer-local operating overlay. It is not 
 | `core/skills/long-document-to-knowledge-asset/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable document-to-asset skill |
 | `core/skills/ui-ux-composition/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | canonical operational skill surface for UI/UX composition plus semantic visual/layout/color/typography posture and bounded golden-ratio guidance |
 | `core/skills/static-vs-dynamic-rendering-advisor/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | bounded rendering-posture advisor for `static`, server-rendered dynamic, and hydration decisions |
+| `core/skills/secret-boundary-audit/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable audit skill for secret-bearing boundaries, provider switches, trace redaction, and memory persistence |
 | `providers/README.md` | doc | operational | prose-only | provider adapter index | adapter boundary, not canonical truth |
+| `docs/workflows/` | doc surface | n/a | planned | no physical subtree adopted in Phase 1 | workflow canon lives in `WORKFLOW.md` instead of a separate docs subtree |
+| `repo-root mcp/` | repo surface | n/a | missing | no observed canonical top-level MCP directory | MCP canon for this slice lives in `docs/mcp/policy.md` |
+| `repo-root tools/` | repo surface | n/a | missing | no observed canonical top-level tools directory | canonical machine-readable tool truth lives in `core/contracts/tool-contracts/catalog.json` |
+| `repo-root memory/` | repo surface | n/a | planned | no current canonical memory subtree for this repo | continuity remains in docs, contracts, examples, and eval artifacts for now |
 | `scripts/tools/validate-shared-core-package.mjs` | validator | n/a | validator-backed | package and plugin validator | validates package metadata, plugin name/version/skills path |
 | `scripts/tools/validate-shared-core-scaffold.mjs` | validator | n/a | validator-backed | scaffold validator | validates required files/dirs and shared skill contract sections |
 | `scripts/tools/build-neutral-core-registry.mjs` | helper-script | n/a | helper-only | neutral registry generator | writes or prints the provider-neutral registry snapshot |
 | `scripts/tools/build-provider-exports.mjs` | helper-script | n/a | helper-only | provider export generator | writes or prints provider export bundles from the neutral registry |
 | `scripts/tools/run-certification-evals.mjs` | validator | n/a | validator-backed | certification eval runner | runs deterministic fixture-backed certification checks |
 | `scripts/tools/validate-provider-neutral-core.mjs` | validator | n/a | validator-backed | neutral registry validator | checks registry, provider scaffolds, and capability profiles |
+| `scripts/tools/validate-secret-boundaries.mjs` | validator | n/a | validator-backed | secret-boundary validator | checks canonical secret policy presence, normalized tool metadata, and provider security flags |
+| `scripts/tools/scan-secrets.mjs` | validator | n/a | validator-backed | secret leak scanner | scans governed docs, examples, templates, evals, and env-like files for explicit leak patterns |
 | `scripts/tools/validate-repo-surface.mjs` | validator | n/a | validator-backed | repo-surface validator | combined package and provider-neutral validation entrypoint |
 | `scripts/tools/validate-consumer-linkage.mjs` | validator | n/a | validator-backed | linkage validator | validates shared source, version/fingerprint, overlay files, adopted skills |
 | `scripts/tools/validate-local-input-contract.mjs` | validator | n/a | validator-backed | contract validator | fail-closed on missing/invalid `.codex/repo-intake-inputs.json` |
