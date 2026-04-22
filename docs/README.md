@@ -12,6 +12,7 @@ Canonical truth lives in [architecture.md](architecture.md) and [authority-matri
 - [architecture.md](architecture.md)
 - [authority-matrix.md](authority-matrix.md)
 - [governance/source-hierarchy.md](governance/source-hierarchy.md)
+- [governance/external-portfolio-layer-reference.md](governance/external-portfolio-layer-reference.md) for workspace-local portfolio governance boundary
 - [mcp/policy.md](mcp/policy.md)
 - [workflows/README.md](workflows/README.md)
 - [workflows/implementation-and-handoff.md](workflows/implementation-and-handoff.md)
