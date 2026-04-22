@@ -1,33 +1,60 @@
 # Adoption Playbook
 
-Use this playbook for first-time consumer setup.
+Class: operational.
+Use rule: use this playbook for first-time consumer setup; canonical ownership stays in `core/contracts/*`, `core/skills/*`, and `policies/*`.
 
 ## Scope
 
 - initialize a consumer overlay
-- pin the shared-core version and fingerprint
-- add consumer-local input contracts only for adopted shared-with-local-inputs skills
-- initialize the consumer-local Qwen bootstrap only if that overlay is adopted
+- pin shared-core version and fingerprint
+- adopt only required shared skills/contracts
+- keep compatibility surfaces derived and non-authoritative
 
 ## Canonical Inputs
 
 - [repo-overlay-contract.md](repo-overlay-contract.md)
+- [compatibility.md](compatibility.md)
 - [shared-with-local-inputs.md](shared-with-local-inputs.md)
 - [repo-intake-skill-contract.md](repo-intake-skill-contract.md)
 - [runtime-policy-skill-contract.md](runtime-policy-skill-contract.md)
 - [validation-checklist.md](validation-checklist.md)
 
-## Minimal Flow
+## Consumer First-Time Flow
 
-1. Initialize the consumer overlay from the shared core.
-2. Initialize the consumer-local Qwen bootstrap once if the consumer adopts it.
-3. Inspect and customize the local overlay and only the contracts the consumer actually adopts.
-4. Validate the overlay and stop on missing or invalid local input files or Qwen bootstrap contract failures.
-5. Revalidate after each local edit.
+1. Initialize consumer overlay with `npm run init-consumer -- --consumer <consumer-root>`.
+2. Initialize consumer-local Qwen bootstrap only if the consumer explicitly adopts that local overlay.
+3. Customize only consumer-local overlay files and adopted local input contracts.
+4. Validate consumer linkage and adopted input contracts:
+   - `npm run validate-consumer -- --consumer <consumer-root>`
+   - `npm run validate-input-contract -- --contract <consumer-root>/.codex/repo-intake-inputs.json` (if adopted)
+   - `npm run validate-runtime-policy-input-contract -- --contract <consumer-root>/.codex/runtime-policy-inputs.json` (if adopted)
+5. Run shared-core gates before migration handoff:
+   - `npm run validate`
+   - `npm run validate-neutral`
+   - `npm run eval`
+
+## Canonical Versus Compatibility Rule
+
+- Do not import compatibility mirrors as canonical source.
+- Do not copy compatibility docs/contracts into consumer-local canonical truth when canonical shared-core source already exists.
+- If consumer behavior needs extension, update canonical shared-core surfaces first and regenerate projections.
+
+## Handoff Checklist
+
+1. Consumer manifest points to the intended shared-core source/version/fingerprint.
+2. Adopted skills are explicit; deferred skills are explicit.
+3. Local overlay file ownership is explicit.
+4. Validator and eval evidence is attached in handoff notes.
 
 ## Notes
 
-- Do not treat this playbook as the source of truth for authority claims; use [architecture.md](architecture.md) and [authority-matrix.md](authority-matrix.md).
-- Exact commands live in [maintainer-commands.md](maintainer-commands.md).
-- The generated `.qwen` tree is a local overlay. Template updates do not automatically propagate into already initialized consumers.
-- Qwen runtime claims in the bootstrap resources are advisory-only unless the consumer repo adds a concrete enforcement surface.
+- This is an operational playbook; authority boundaries remain in [architecture.md](architecture.md), [authority-matrix.md](authority-matrix.md), and [compatibility.md](compatibility.md).
+- Exact command usage and flags remain in [maintainer-commands.md](maintainer-commands.md).
+- `.qwen` remains consumer-local overlay and not shared-core authority.
+
+## Maturity Posture
+
+- `prose-governed`: first-time adoption and handoff sequence in this playbook.
+- `contract-backed`: consumer manifest and input-contract shapes consumed by validator scripts.
+- `validator-backed`: `validate-consumer-linkage.mjs`, `validate-local-input-contract.mjs`, and `validate-runtime-policy-input-contract.mjs`.
+- `runtime-implemented`: bounded to initializer/validator scripts; no runtime workflow engine or runtime migration plane claimed.

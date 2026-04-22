@@ -104,6 +104,56 @@ const requiredDocMarkers = new Map([
     ]
   ],
   [
+    'docs/compatibility.md',
+    [
+      '## Objective',
+      '## Canonical Versus Compatibility Surfaces',
+      '## Consumer Adoption Rule',
+      '## Bounded Migration And Handoff',
+      '## Validator And Export Linkage',
+      '## Maturity Posture'
+    ]
+  ],
+  [
+    'docs/adoption-playbook.md',
+    [
+      '## Scope',
+      '## Canonical Inputs',
+      '## Consumer First-Time Flow',
+      '## Canonical Versus Compatibility Rule',
+      '## Handoff Checklist',
+      '## Maturity Posture'
+    ]
+  ],
+  [
+    'docs/consumer-rollout-playbook.md',
+    [
+      '## Scope',
+      '## Rollout Flow',
+      '## Compatibility Governance During Rollout',
+      '## Handoff Evidence',
+      '## Maturity Posture'
+    ]
+  ],
+  [
+    'contracts/README.md',
+    [
+      '## Current Surfaces',
+      '## Compatibility Rules',
+      '## Consumer Adoption Rule',
+      '## Required Build And Validation Gate'
+    ]
+  ],
+  [
+    'providers/README.md',
+    [
+      '## Canonical Rule',
+      '## Current Provider Scaffolds',
+      '## Generated Exports',
+      '## Compatibility Governance'
+    ]
+  ],
+  [
     'core/contracts/README.md',
     [
       '## Canonical Files',

@@ -175,6 +175,13 @@ flowchart LR
 - Template/example extension posture is tightened in `templates/codex-workflow/README.md` and `examples/codex-workflow/README.md` so derived operator artifacts remain projections of canonical contracts.
 - Drift prevention for authoring guidance is partly validator-backed through required heading checks in `scripts/tools/validate-shared-core-scaffold.mjs`.
 
+## Phase 8 Overlay Mapping
+
+- Consumer adoption and rollout guidance is tightened in existing operational docs (`README.md`, `docs/README.md`, `docs/adoption-playbook.md`, `docs/consumer-rollout-playbook.md`) with bounded migration/handoff steps.
+- Compatibility governance is tightened in canonical docs (`docs/compatibility.md`) and boundary indexes (`contracts/README.md`, `providers/README.md`) without introducing a second migration framework.
+- Compatibility tool-catalog metadata explicitly marks `docs/tool-contracts/catalog.json` as compatibility/export with canonical source linkage.
+- Drift prevention for consumer/compatibility guidance is strengthened via additional required heading checks in `scripts/tools/validate-shared-core-scaffold.mjs` and compatibility metadata checks in `scripts/tools/validate-provider-neutral-core.mjs`.
+
 ## Capability Maturity Labels
 
 When a doc in this repo describes capability maturity, it should distinguish:

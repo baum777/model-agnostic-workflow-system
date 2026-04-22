@@ -67,7 +67,8 @@ These labels describe maturity only. Claim-status truth still lives in [authorit
 1. Read `../README.md`, then `../WORKFLOW.md`.
 2. Confirm authority boundaries in `architecture.md`, `authority-matrix.md`, and `governance/source-hierarchy.md`.
 3. Use `../core/contracts/README.md` and `../core/skills/README.md` to identify canonical machine-readable ownership.
-4. Run `npm run validate`, `npm run validate-neutral`, and `npm run eval` before trusting a portability or adoption slice.
+4. Follow bounded migration flow in `adoption-playbook.md` (first-time) or `consumer-rollout-playbook.md` (existing consumer).
+5. Run `npm run validate`, `npm run validate-neutral`, and `npm run eval` before trusting a portability or adoption slice.
 
 ## Authoring Quickstart
 
@@ -75,6 +76,13 @@ These labels describe maturity only. Claim-status truth still lives in [authorit
 2. Change canonical contracts/skills first, then regenerate derived registry/exports.
 3. Update templates/examples only as projections of canonical truth.
 4. Keep compatibility/export surfaces explicit and non-authoritative.
+
+## Consumer Migration Quick Links
+
+1. First-time adoption: `adoption-playbook.md`
+2. Existing rollout/handoff: `consumer-rollout-playbook.md`
+3. Canonical-vs-compatibility boundary: `compatibility.md`
+4. Overlay boundary contract: `repo-overlay-contract.md`
 
 ## Rule
 

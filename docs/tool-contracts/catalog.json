@@ -1,6 +1,9 @@
 {
   "name": "model-agnostic-workflow-system-tool-catalog",
   "version": "1.0.0",
+  "surfaceRole": "compatibility-export",
+  "canonicalSourcePath": "core/contracts/tool-contracts/catalog.json",
+  "authoritative": false,
   "tools": [
     {
       "name": "analyze-content-semantics-for-design",

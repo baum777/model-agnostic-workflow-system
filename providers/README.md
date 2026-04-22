@@ -25,5 +25,11 @@ This directory is the provider-specific export boundary for the shared core.
 ## Generated Exports
 
 - `providers/<provider>/export.json` is the generated provider export bundle
-- run `npm run build-exports` to regenerate committed export bundles from `contracts/core-registry.json`
+- run `npm run build-exports` to regenerate committed export bundles from `core/contracts/core-registry.json`
 - run `npm run eval` to validate the committed exports against the certification fixtures
+
+## Compatibility Governance
+
+1. Canonical provider exports are projections of canonical contracts under `core/contracts/*`.
+2. Legacy provider directories are compatibility mirrors and must not become semantic authority.
+3. Provider-specific packaging may differ, but canonical capability/workflow/tool/output ownership remains in shared-core contracts and policies.

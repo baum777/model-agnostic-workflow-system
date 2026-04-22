@@ -184,13 +184,19 @@ Render/A11y-Modi:
 ### Fuer Consumer-Repositories
 
 1. `docs/repo-overlay-contract.md`
-2. `docs/adoption-playbook.md` (erstmalige Adoption)
-3. `docs/consumer-rollout-playbook.md` (bestehender Consumer)
-4. Bei contract-bound Skills:
+2. `docs/compatibility.md`
+3. `docs/adoption-playbook.md` (erstmalige Adoption)
+4. `docs/consumer-rollout-playbook.md` (bestehender Consumer)
+5. Consumer-Linkage/Lock:
+   - `npm run refresh-lock -- --consumer <consumer-root>`
+   - `npm run validate-consumer -- --consumer <consumer-root>`
+   - `npm run validate-input-contract -- --contract <consumer-root>/.codex/repo-intake-inputs.json` (falls adoptiert)
+   - `npm run validate-runtime-policy-input-contract -- --contract <consumer-root>/.codex/runtime-policy-inputs.json` (falls adoptiert)
+6. Bei contract-bound Skills:
    - `docs/shared-with-local-inputs.md`
    - `docs/repo-intake-skill-contract.md`
    - `docs/runtime-policy-skill-contract.md`
-5. Danach: `npm run validate-consumer`
+7. Danach: `npm run validate`, `npm run validate-neutral`, `npm run eval`
 
 ### Fuer Provider-/Adapter-Arbeit
 
@@ -217,6 +223,20 @@ Wichtig:
 - Provider-Exporte bleiben abgeleitete Spiegel und sind keine zweite kanonische Wahrheitsquelle.
 - Compatibility-Surfaces (`contracts/*`, `skills/*`, `docs/tool-contracts/catalog.json`, legacy `providers/*`) bleiben explizit als Kompatibilitaetsschicht markiert.
 - `repo-root memory/` bleibt geplant; dieses Repo claimt weiterhin kein Runtime-Memory-Subsystem.
+
+## Phase-8 Consumer Migration Und Handoff (Bounded)
+
+Downstream-Consumer sollten diesen begrenzten Pfad nutzen:
+
+1. First-time Adoption: `docs/adoption-playbook.md`
+2. Bestehender Consumer-Rollout: `docs/consumer-rollout-playbook.md`
+3. Canonical-vs-Compatibility Boundary: `docs/compatibility.md`
+4. Danach Gate-Lauf: `npm run validate`, `npm run validate-neutral`, `npm run eval`
+
+Regel:
+
+- Canonical Aenderungen starten in `core/contracts/*`, `core/skills/*`, `policies/*`.
+- Mirrors/Exports bleiben abgeleitet (`contracts/*`, legacy `providers/*`, `skills/*`, `docs/tool-contracts/catalog.json`).
 
 ## Beispiele, Templates und lokale Repo-Steuerung
 

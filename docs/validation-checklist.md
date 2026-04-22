@@ -37,6 +37,7 @@ These items are expected to be backed by scripts or validators.
 - [ ] `model-agnostic-workflow-system/providers/<provider>/export.json` files are regenerated from the neutral registry
 - [ ] Provider exports declare canonical `sourceContracts` paths and preserve canonical-vs-compatibility ownership boundaries
 - [ ] Provider exports declare `capabilityOwnership` fields that point to canonical provider capability contracts and projection policy
+- [ ] `docs/tool-contracts/catalog.json` explicitly declares compatibility/export posture and canonical source linkage
 - [ ] `model-agnostic-workflow-system/skills/` contains the mirrored shared skills
 - [ ] `model-agnostic-workflow-system/core/skills/repo-audit/SKILL.md` is present and declares the portable core metadata
 - [ ] `model-agnostic-workflow-system/skills/repo-intake-sot-mapper/SKILL.md` is classified as `shared-with-local-inputs`
@@ -72,6 +73,13 @@ These items are expected to be backed by scripts or validators.
 - [ ] Workflow class coverage declarations (`workflowClassCoverage`, `workflowClassCoverageNotes`, `exampleArtifacts`) remain consistent and file-backed
 - [ ] Exported skills include derived `workflowSupport` metadata that remains consistent with canonical workflow routing
 - [ ] Secret-boundary fixtures pass, including provider-switch re-minimization, trace redaction, and memory rejection cases
+
+## Consumer Adoption And Migration Checks
+
+- [ ] First-time consumer adoption references `docs/adoption-playbook.md` and follows canonical-first ownership
+- [ ] Existing consumer rollout references `docs/consumer-rollout-playbook.md` and includes lock refresh plus linkage validation
+- [ ] Consumer overlay boundaries are explicit via `docs/repo-overlay-contract.md`
+- [ ] Consumer rollout evidence includes version/fingerprint and validator/eval results
 
 ## Authoring Drift Prevention Checks
 

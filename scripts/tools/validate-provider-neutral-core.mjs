@@ -94,6 +94,7 @@ const allowedAdvisoryGatePolicies = new Set(['record-only']);
 const allowedEvidencePolicies = new Set(['all-required-evidence-artifacts-present']);
 const allowedWorkflowCoverageLabels = new Set(['covered', 'partial', 'planned', 'out-of-scope']);
 const allowedProviderCapabilityStates = new Set(['native', 'adapter', 'unsupported']);
+const compatibilityToolCatalogSourcePath = 'core/contracts/tool-contracts/catalog.json';
 const requiredExecutionStatuses = new Set(['proposed', 'drafted', 'applied', 'verified']);
 const requiredValidationOutcomes = new Set(['PASS', 'BLOCKED']);
 const requiredWorkflowRunSummarySections = [
@@ -330,6 +331,22 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
 
   if (!fs.existsSync(toolCatalogPath) && !fs.existsSync(compatibilityToolCatalogPath)) {
     issues.push('Missing tool contract catalog: core/contracts/tool-contracts/catalog.json');
+  }
+  if (fs.existsSync(compatibilityToolCatalogPath)) {
+    try {
+      const compatibilityToolCatalog = readJson(compatibilityToolCatalogPath);
+      if (compatibilityToolCatalog.surfaceRole !== 'compatibility-export') {
+        issues.push('docs/tool-contracts/catalog.json must declare surfaceRole as compatibility-export.');
+      }
+      if (compatibilityToolCatalog.canonicalSourcePath !== compatibilityToolCatalogSourcePath) {
+        issues.push(`docs/tool-contracts/catalog.json must declare canonicalSourcePath as ${compatibilityToolCatalogSourcePath}.`);
+      }
+      if (compatibilityToolCatalog.authoritative !== false) {
+        issues.push('docs/tool-contracts/catalog.json must declare authoritative as false.');
+      }
+    } catch (error) {
+      issues.push(`docs/tool-contracts/catalog.json parse failed: ${error.message}`);
+    }
   }
   if (!fs.existsSync(workflowRoutingPath)) {
     issues.push('Missing workflow routing map: core/contracts/workflow-routing-map.json');

@@ -1,56 +1,62 @@
 # Compatibility
 
-The shared core uses a small compatibility contract so consumer repositories can adopt it without guessing.
+Class: canonical.
+Use rule: use this page to distinguish canonical shared-core ownership from compatibility/export mirrors; update canonical surfaces first.
 
-## Versioning
+## Objective
 
-- Core package version: semver
-- Overlay schema version: semver
-- Skill metadata version: semver
-- Consumer lock metadata: package version plus package fingerprint
+Provide a bounded compatibility contract so consumer repositories can adopt shared core without authority ambiguity.
 
-Breaking changes require a version bump and a compatibility note.
+## Canonical Versus Compatibility Surfaces
 
-## Skill Metadata Standard
+- Canonical machine-readable ownership:
+  - `core/contracts/portable-skill-manifest.json`
+  - `core/contracts/output-contracts.json`
+  - `core/contracts/tool-contracts/catalog.json`
+  - `core/contracts/workflow-routing-map.json`
+  - `core/contracts/core-registry.json`
+  - `core/contracts/provider-capabilities.json`
+- Compatibility/export mirrors:
+  - `contracts/core-registry.json`
+  - `contracts/provider-capabilities.json`
+  - `skills/` mirrors
+  - `providers/openai/`, `providers/anthropic/`, `providers/qwen/`, `providers/kimi/`, `providers/codex/`
+  - `docs/tool-contracts/catalog.json`
 
-Every shared-core skill must declare:
+Compatibility/export surfaces are derived projections and must not become the source of canonical semantics.
 
-- `name`
-- `description`
-- `version`
-- `classification`
-- `requires_repo_inputs`
-- `produces_structured_output`
-- `safe_to_auto_run`
-- `owner`
-- `status`
+## Consumer Adoption Rule
 
-## Provider-Neutral Registry
+1. Adopt canonical surfaces first (`core/contracts/*`, `core/skills/*`, `policies/*`).
+2. Treat compatibility/export surfaces as projections for legacy consumers.
+3. If semantics change, update canonical contracts first, then regenerate mirrors and exports.
+4. Fail closed when canonical and compatibility surfaces drift.
 
-The repository now carries a machine-readable registry in `core/contracts/core-registry.json`.
-That registry is the canonical snapshot for:
+## Bounded Migration And Handoff
 
-- core identity and compatibility exports
-- provider-neutral skill records
-- tool contract records
-- provider capability profiles
+1. First-time consumer setup: `docs/adoption-playbook.md`.
+2. Existing consumer updates: `docs/consumer-rollout-playbook.md`.
+3. Consumer overlay boundaries: `docs/repo-overlay-contract.md`.
+4. Canonical validation gate after adoption or extension:
+   - `npm run validate`
+   - `npm run validate-neutral`
+   - `npm run eval`
 
-The compatibility export in `docs/tool-contracts/catalog.json` remains available for current Codex-oriented consumers, but it is now a compatibility view rather than the only registry surface.
-The canonical tool catalog lives at `core/contracts/tool-contracts/catalog.json` and the canonical output contracts live at `core/contracts/output-contracts.json`.
+## Validator And Export Linkage
 
-Recommended values:
-
-- `classification`: `shared` or `shared-with-local-inputs`
-- `owner`: `model-agnostic-workflow-system`
-- `status`: `extracted`
-
-## Supported Behavior
-
-- read-only analysis is preferred
-- write paths must stay approval-gated
-- output should use stable headings
-- repo-specific context must flow in through explicit overlay inputs
+- Registry projection: `scripts/tools/build-neutral-core-registry.mjs`
+- Provider export projection: `scripts/tools/build-provider-exports.mjs`
+- Canonical/compatibility consistency checks: `scripts/tools/validate-provider-neutral-core.mjs`
+- Scaffold and docs-heading checks: `scripts/tools/validate-shared-core-scaffold.mjs`
+- Repo-level gate: `scripts/tools/validate-repo-surface.mjs`
 
 ## Compatibility Rule
 
-If the shared core needs hidden repo assumptions, the asset is not compatible yet.
+If a change only touches a compatibility surface and not its canonical source, treat it as incomplete and block merge until canonical ownership is updated or the change is rejected.
+
+## Maturity Posture
+
+- `prose-governed`: compatibility boundary and migration/handoff guidance in this file.
+- `contract-backed`: canonical contracts in `core/contracts/*` and compatibility mirrors in `contracts/*`.
+- `validator-backed`: cross-surface checks in `scripts/tools/validate-provider-neutral-core.mjs` and `scripts/tools/validate-shared-core-scaffold.mjs`.
+- `runtime-implemented`: bounded to build/validation/eval scripts and generated artifacts; no runtime workflow engine, memory subsystem, or live MCP mesh is claimed.
