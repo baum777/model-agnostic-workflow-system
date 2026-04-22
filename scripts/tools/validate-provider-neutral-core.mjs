@@ -5,9 +5,18 @@ import { fileURLToPath } from 'node:url';
 import { buildNeutralCoreRegistry } from './build-neutral-core-registry.mjs';
 import { buildProviderExports } from './build-provider-exports.mjs';
 import { parseSkillFrontmatter, readJson, repoRoot } from './_shared.mjs';
+import { validateSecretBoundaries } from './validate-secret-boundaries.mjs';
 
 function normalize(filePath) {
   return path.resolve(filePath).replace(/\\/g, '/');
+}
+
+function sameJson(left, right) {
+  return JSON.stringify(left, null, 2) === JSON.stringify(right, null, 2);
+}
+
+function sortWorkflows(workflows) {
+  return [...workflows].sort((left, right) => String(left.workflowClass || '').localeCompare(String(right.workflowClass || '')));
 }
 
 function readSkillOutputHeadings(skillPath) {
@@ -74,8 +83,108 @@ const canonicalQwenSurfacePaths = [
   'core/README.md',
   'core/contracts/README.md',
   'core/contracts/core-registry.json',
-  'core/contracts/provider-capabilities.json'
+  'core/contracts/provider-capabilities.json',
+  'core/contracts/workflow-routing-map.json'
 ];
+
+const allowedMcpPostures = new Set(['disabled', 'read-only', 'bounded-read-write', 'advisory-external', 'experimental']);
+const allowedMaturityLabels = new Set(['prose-governed', 'contract-backed', 'validator-backed', 'runtime-implemented']);
+const allowedBlockingGatePolicies = new Set(['all-blocking-gates-pass']);
+const allowedAdvisoryGatePolicies = new Set(['record-only']);
+const allowedEvidencePolicies = new Set(['all-required-evidence-artifacts-present']);
+const requiredExecutionStatuses = new Set(['proposed', 'drafted', 'applied', 'verified']);
+const requiredValidationOutcomes = new Set(['PASS', 'BLOCKED']);
+const requiredWorkflowRunSummarySections = [
+  'EXECUTION STATUS',
+  'WRITE EVIDENCE',
+  'POST-WRITE VERIFICATION',
+  'VALIDATION OUTCOME'
+];
+const requiredWorkflowRunSummaryValidationNotes = [
+  'Execution status must be one of proposed, drafted, applied, or verified.',
+  'Validation outcome must be PASS or BLOCKED',
+  'Applied claims require real write evidence',
+  'Verified claims require post-write verification evidence'
+];
+const requiredWorkflowRunSummaryFailureBehavior = [
+  'missing write evidence',
+  'post-write verification evidence',
+  'return BLOCKED'
+];
+const requiredWorkflowTemplateContracts = new Set([
+  'workflow-plan-v1',
+  'workflow-run-summary-v1',
+  'workflow-handoff-summary-v1',
+  'workflow-validation-summary-v1',
+  'workflow-certification-summary-v1'
+]);
+
+function validateWorkflowRunSummaryContract(outputContractCatalog) {
+  const issues = [];
+  const contracts = Array.isArray(outputContractCatalog?.contracts) ? outputContractCatalog.contracts : [];
+  const workflowRunSummary = contracts.find((entry) => entry.contract_id === 'workflow-run-summary-v1');
+  if (!workflowRunSummary) {
+    issues.push('output contract catalog must include workflow-run-summary-v1.');
+    return issues;
+  }
+
+  const requiredSections = new Set(Array.isArray(workflowRunSummary.required_sections) ? workflowRunSummary.required_sections : []);
+  for (const section of requiredWorkflowRunSummarySections) {
+    if (!requiredSections.has(section)) {
+      issues.push(`workflow-run-summary-v1 must include required section ${section}.`);
+    }
+  }
+
+  const validationNotes = Array.isArray(workflowRunSummary.validation_notes) ? workflowRunSummary.validation_notes.join('\n') : '';
+  for (const snippet of requiredWorkflowRunSummaryValidationNotes) {
+    if (!validationNotes.includes(snippet)) {
+      issues.push(`workflow-run-summary-v1 validation_notes must include: ${snippet}`);
+    }
+  }
+
+  const failureBehavior = String(workflowRunSummary.failure_or_partial_completion_behavior || '');
+  for (const snippet of requiredWorkflowRunSummaryFailureBehavior) {
+    if (!failureBehavior.includes(snippet)) {
+      issues.push(`workflow-run-summary-v1 failure behavior must include: ${snippet}`);
+    }
+  }
+
+  for (const status of requiredExecutionStatuses) {
+    if (!validationNotes.includes(status)) {
+      issues.push(`workflow-run-summary-v1 validation_notes must reference execution status ${status}.`);
+    }
+  }
+  for (const outcome of requiredValidationOutcomes) {
+    if (!validationNotes.includes(outcome) && !failureBehavior.includes(outcome)) {
+      issues.push(`workflow-run-summary-v1 must reference validation outcome ${outcome}.`);
+    }
+  }
+
+  return issues;
+}
+
+function validateWorkflowTemplateContractCoverage(outputContractCatalog) {
+  const issues = [];
+  const contracts = Array.isArray(outputContractCatalog?.contracts) ? outputContractCatalog.contracts : [];
+  const contractById = new Map(
+    contracts
+      .filter((entry) => entry && typeof entry.contract_id === 'string')
+      .map((entry) => [entry.contract_id, entry])
+  );
+
+  for (const contractId of requiredWorkflowTemplateContracts) {
+    const contract = contractById.get(contractId);
+    if (!contract) {
+      issues.push(`output contract catalog must include ${contractId}.`);
+      continue;
+    }
+    if (!Array.isArray(contract.recommended_templates) || contract.recommended_templates.length === 0) {
+      issues.push(`${contractId} must declare non-empty recommended_templates.`);
+    }
+  }
+
+  return issues;
+}
 
 function validateQwenBoundaryHygiene(root) {
   const issues = [];
@@ -119,6 +228,8 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
   const compatibilityRegistryPath = path.join(root, 'contracts', 'core-registry.json');
   const providerCapabilitiesPath = path.join(root, 'core', 'contracts', 'provider-capabilities.json');
   const compatibilityProviderCapabilitiesPath = path.join(root, 'contracts', 'provider-capabilities.json');
+  const workflowRoutingPath = path.join(root, 'core', 'contracts', 'workflow-routing-map.json');
+  const outputContractsPath = path.join(root, 'core', 'contracts', 'output-contracts.json');
   const toolCatalogPath = path.join(root, 'core', 'contracts', 'tool-contracts', 'catalog.json');
   const compatibilityToolCatalogPath = path.join(root, 'docs', 'tool-contracts', 'catalog.json');
   const evalCatalogPath = path.join(root, 'evals', 'catalog.json');
@@ -160,6 +271,12 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
   if (!fs.existsSync(toolCatalogPath) && !fs.existsSync(compatibilityToolCatalogPath)) {
     issues.push('Missing tool contract catalog: core/contracts/tool-contracts/catalog.json');
   }
+  if (!fs.existsSync(workflowRoutingPath)) {
+    issues.push('Missing workflow routing map: core/contracts/workflow-routing-map.json');
+  }
+  if (!fs.existsSync(outputContractsPath)) {
+    issues.push('Missing output contract catalog: core/contracts/output-contracts.json');
+  }
   if (!fs.existsSync(evalCatalogPath)) {
     issues.push('Missing certification eval catalog: evals/catalog.json');
   }
@@ -182,6 +299,13 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
     'codex'
   ];
   const generatedProviderExports = new Map(buildProviderExports(root, {}).map(({ provider, export: exportJson }) => [provider, exportJson]));
+  const expectedSourceContracts = {
+    skillManifest: 'core/contracts/portable-skill-manifest.json',
+    outputContracts: 'core/contracts/output-contracts.json',
+    workflowRoutingMap: 'core/contracts/workflow-routing-map.json',
+    toolCatalog: 'core/contracts/tool-contracts/catalog.json',
+    providerCapabilities: 'core/contracts/provider-capabilities.json'
+  };
   for (const provider of providerDirectories) {
     const readmePath = path.join(root, 'providers', provider, 'README.md');
     const exportPath = path.join(root, 'providers', provider, 'export.json');
@@ -193,6 +317,44 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
       continue;
     }
     const committedExport = readJson(exportPath);
+    if (committedExport.sourceRegistry !== 'core/contracts/core-registry.json') {
+      issues.push(`providers/${provider}/export.json must declare sourceRegistry as core/contracts/core-registry.json.`);
+    }
+    for (const [key, expectedPath] of Object.entries(expectedSourceContracts)) {
+      if (committedExport.sourceContracts?.[key] !== expectedPath) {
+        issues.push(`providers/${provider}/export.json must declare sourceContracts.${key} as ${expectedPath}.`);
+      }
+    }
+    if (committedExport.certification?.completionModel !== 'artifact-and-gate-based') {
+      issues.push(`providers/${provider}/export.json must declare certification.completionModel as artifact-and-gate-based.`);
+    }
+    if (committedExport.certification?.blockingSource !== 'workflow.validationPosture.requiredGates') {
+      issues.push(`providers/${provider}/export.json must declare certification.blockingSource as workflow.validationPosture.requiredGates.`);
+    }
+    if (committedExport.certification?.requiredEvidenceSource !== 'workflow.requiredEvidenceArtifacts') {
+      issues.push(`providers/${provider}/export.json must declare certification.requiredEvidenceSource as workflow.requiredEvidenceArtifacts.`);
+    }
+    for (const skill of committedExport.skills || []) {
+      for (const field of ['skillId', 'manifestPath', 'category', 'status', 'maturityLabel', 'mcpPosture', 'toolUsagePosture']) {
+        if (skill[field] == null) {
+          issues.push(`providers/${provider}/export.json skill ${skill.name || '<unnamed>'} is missing ${field}.`);
+        }
+      }
+      if (skill.outputContractId && skill.outputContractPath !== 'core/contracts/output-contracts.json') {
+        issues.push(`providers/${provider}/export.json skill ${skill.name || '<unnamed>'} must declare outputContractPath as core/contracts/output-contracts.json when outputContractId is set.`);
+      }
+      if (skill.outputContractId && skill.toolContractCatalogPath !== 'core/contracts/tool-contracts/catalog.json') {
+        issues.push(`providers/${provider}/export.json skill ${skill.name || '<unnamed>'} must declare toolContractCatalogPath as core/contracts/tool-contracts/catalog.json when outputContractId is set.`);
+      }
+    }
+    for (const workflow of committedExport.workflows || []) {
+      if (!Array.isArray(workflow.requiredEvidenceArtifacts) || workflow.requiredEvidenceArtifacts.length === 0) {
+        issues.push(`providers/${provider}/export.json workflow ${workflow.workflowClass || '<unnamed>'} must declare requiredEvidenceArtifacts.`);
+      }
+      if (!workflow.completionPosture || typeof workflow.completionPosture !== 'object') {
+        issues.push(`providers/${provider}/export.json workflow ${workflow.workflowClass || '<unnamed>'} must declare completionPosture.`);
+      }
+    }
     const providerName = committedExport.canonicalProvider || committedExport.provider || provider;
     const generatedExport = generatedProviderExports.get(providerName);
     if (!generatedExport) {
@@ -265,19 +427,60 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
   if (committedRegistry.core?.status !== 'provider-neutral') {
     issues.push(`core.status must be provider-neutral; found ${committedRegistry.core?.status || '<missing>'}.`);
   }
+  const expectedCanonicalContracts = {
+    skillManifest: 'core/contracts/portable-skill-manifest.json',
+    outputContracts: 'core/contracts/output-contracts.json',
+    workflowRoutingMap: 'core/contracts/workflow-routing-map.json',
+    toolCatalog: 'core/contracts/tool-contracts/catalog.json',
+    providerCapabilities: 'core/contracts/provider-capabilities.json'
+  };
+  for (const [key, expectedPath] of Object.entries(expectedCanonicalContracts)) {
+    if (committedRegistry.core?.canonicalContracts?.[key] !== expectedPath) {
+      issues.push(`core.canonicalContracts.${key} must be ${expectedPath}.`);
+    }
+  }
   if (!Array.isArray(committedRegistry.skills) || committedRegistry.skills.length !== skillNames.size) {
     issues.push(`Registry skill count must match the current skill manifests; found ${Array.isArray(committedRegistry.skills) ? committedRegistry.skills.length : 'invalid'} vs ${skillNames.size}.`);
   }
   if (!Array.isArray(committedRegistry.tools) || committedRegistry.tools.length === 0) {
     issues.push('Registry tools must be a non-empty array.');
   }
+  if (!Array.isArray(committedRegistry.workflows) || committedRegistry.workflows.length === 0) {
+    issues.push('Registry workflows must be a non-empty array.');
+  }
+
+  const secretBoundaryResult = validateSecretBoundaries(root);
+  if (!secretBoundaryResult.ok) {
+    issues.push(...secretBoundaryResult.issues.map((issue) => `secret-boundary: ${issue}`));
+  }
 
   issues.push(...validateQwenBoundaryHygiene(root));
 
+  const outputContractCatalog = fs.existsSync(outputContractsPath) ? readJson(outputContractsPath) : { contracts: [] };
+  issues.push(...validateWorkflowRunSummaryContract(outputContractCatalog));
+  const outputContractIds = new Set((outputContractCatalog.contracts || []).map((entry) => entry.contract_id));
+
   for (const skill of committedRegistry.skills || []) {
+    for (const field of ['skillId', 'skillPath', 'manifestPath', 'category', 'mcpPosture', 'maturityLabel', 'toolUsagePosture']) {
+      if (skill[field] == null || skill[field] === '') {
+        issues.push(`Skill ${skill.name || '<unnamed>'} must declare ${field}.`);
+      }
+    }
+    if (skill.mcpPosture && !allowedMcpPostures.has(skill.mcpPosture)) {
+      issues.push(`Skill ${skill.name} has invalid mcpPosture ${skill.mcpPosture}.`);
+    }
+    if (skill.maturityLabel && !allowedMaturityLabels.has(skill.maturityLabel)) {
+      issues.push(`Skill ${skill.name} has invalid maturityLabel ${skill.maturityLabel}.`);
+    }
     if (typeof skill.sourcePath !== 'string' || skill.sourcePath.trim() === '') {
       issues.push(`Skill ${skill.name || '<unnamed>'} must declare sourcePath.`);
       continue;
+    }
+    if (skill.outputContractId && !outputContractIds.has(skill.outputContractId)) {
+      issues.push(`Skill ${skill.name} references unknown outputContractId ${skill.outputContractId}.`);
+    }
+    if (skill.outputContractId && skill.outputContractPath !== 'core/contracts/output-contracts.json') {
+      issues.push(`Skill ${skill.name} must point outputContractPath to core/contracts/output-contracts.json when outputContractId is set.`);
     }
     if (!fs.existsSync(path.join(root, skill.sourcePath))) {
       issues.push(`Skill sourcePath does not exist: ${skill.sourcePath}`);
@@ -302,6 +505,11 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
     if (!Array.isArray(tool.routing_hints) || tool.routing_hints.length === 0) {
       issues.push(`Tool ${tool.tool_name} must declare routing_hints.`);
     }
+    for (const field of ['requires_secret', 'secret_classes', 'credential_binding', 'raw_secret_exposure', 'model_visible', 'secret_scope', 'environment_scope', 'access_level', 'short_lived_preferred', 'fallback_context_policy', 'trace_redaction', 'memory_persistence']) {
+      if (tool[field] == null) {
+        issues.push(`Tool ${tool.tool_name} must declare secret-boundary field ${field}.`);
+      }
+    }
     if (tool.sourcePath && !fs.existsSync(path.join(root, tool.sourcePath))) {
       issues.push(`Tool ${tool.tool_name} sourcePath does not exist: ${tool.sourcePath}`);
     }
@@ -317,6 +525,139 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
     }
     if (!provider.packaging) {
       issues.push(`Provider ${provider.name} must declare packaging.`);
+    }
+    if (!provider.security || typeof provider.security !== 'object') {
+      issues.push(`Provider ${provider.name} must declare security metadata.`);
+    }
+  }
+
+  if (fs.existsSync(workflowRoutingPath)) {
+    const workflowRouting = readJson(workflowRoutingPath);
+    if (workflowRouting.canonicalOwner !== 'core/contracts/workflow-routing-map.json') {
+      issues.push(`workflow routing canonicalOwner must be core/contracts/workflow-routing-map.json; found ${workflowRouting.canonicalOwner || '<missing>'}.`);
+    }
+    if (!Array.isArray(workflowRouting.workflowClasses) || workflowRouting.workflowClasses.length === 0) {
+      issues.push('core/contracts/workflow-routing-map.json must declare a non-empty workflowClasses array.');
+    }
+    if (workflowRouting.templateRoot !== 'templates/codex-workflow') {
+      issues.push(`workflow routing templateRoot must be templates/codex-workflow; found ${workflowRouting.templateRoot || '<missing>'}.`);
+    } else if (!fs.existsSync(path.join(root, workflowRouting.templateRoot))) {
+      issues.push(`workflow routing templateRoot does not exist: ${workflowRouting.templateRoot}`);
+    }
+    if (!sameJson(sortWorkflows(workflowRouting.workflowClasses || []), sortWorkflows(committedRegistry.workflows || []))) {
+      issues.push('Registry workflows do not match core/contracts/workflow-routing-map.json workflowClasses.');
+    }
+
+    const toolNames = new Set((committedRegistry.tools || []).map((entry) => entry.tool_name));
+    const toolIntents = new Set((committedRegistry.tools || []).map((entry) => entry.intent_class));
+    const skillNameSet = new Set((committedRegistry.skills || []).map((entry) => entry.name));
+
+    for (const workflow of workflowRouting.workflowClasses || []) {
+      if (!workflow || typeof workflow !== 'object') {
+        issues.push('workflowClasses entries must be objects.');
+        continue;
+      }
+      for (const field of ['workflowClass', 'category', 'supportingSkills', 'controlPlaneSkills', 'allowedToolIntents', 'allowedTools', 'mcpPosture', 'validationPosture', 'expectedOutputContracts', 'requiredEvidenceArtifacts', 'completionPosture', 'maturityLabel']) {
+        if (workflow[field] == null) {
+          issues.push(`Workflow entry ${workflow.workflowClass || '<unnamed>'} is missing ${field}.`);
+        }
+      }
+      if (!allowedMcpPostures.has(workflow.mcpPosture)) {
+        issues.push(`Workflow ${workflow.workflowClass} has invalid mcpPosture ${workflow.mcpPosture}.`);
+      }
+      if (!allowedMaturityLabels.has(workflow.maturityLabel)) {
+        issues.push(`Workflow ${workflow.workflowClass} has invalid maturityLabel ${workflow.maturityLabel}.`);
+      }
+      if (!workflow.validationPosture || !Array.isArray(workflow.validationPosture.requiredGates)) {
+        issues.push(`Workflow ${workflow.workflowClass} must declare validationPosture.requiredGates.`);
+      } else {
+        for (const gate of workflow.validationPosture.requiredGates) {
+          if (!toolNames.has(gate)) {
+            issues.push(`Workflow ${workflow.workflowClass} references unknown validation gate tool ${gate}.`);
+          }
+        }
+      }
+      if (!allowedMaturityLabels.has(workflow.validationPosture?.maturityLabel)) {
+        issues.push(`Workflow ${workflow.workflowClass} has invalid validationPosture.maturityLabel ${workflow.validationPosture?.maturityLabel || '<missing>'}.`);
+      }
+      if (!allowedBlockingGatePolicies.has(workflow.completionPosture?.blockingGatePolicy)) {
+        issues.push(`Workflow ${workflow.workflowClass} has invalid completionPosture.blockingGatePolicy ${workflow.completionPosture?.blockingGatePolicy || '<missing>'}.`);
+      }
+      if (!allowedAdvisoryGatePolicies.has(workflow.completionPosture?.advisoryGatePolicy)) {
+        issues.push(`Workflow ${workflow.workflowClass} has invalid completionPosture.advisoryGatePolicy ${workflow.completionPosture?.advisoryGatePolicy || '<missing>'}.`);
+      }
+      if (!allowedEvidencePolicies.has(workflow.completionPosture?.requiredEvidencePolicy)) {
+        issues.push(`Workflow ${workflow.workflowClass} has invalid completionPosture.requiredEvidencePolicy ${workflow.completionPosture?.requiredEvidencePolicy || '<missing>'}.`);
+      }
+      for (const skillName of workflow.supportingSkills || []) {
+        if (!skillNameSet.has(skillName)) {
+          issues.push(`Workflow ${workflow.workflowClass} references unknown supporting skill ${skillName}.`);
+        }
+      }
+      for (const controlSkill of workflow.controlPlaneSkills || []) {
+        const controlSkillPath = path.join(root, '.agents', 'skills', controlSkill, 'SKILL.md');
+        if (!fs.existsSync(controlSkillPath)) {
+          issues.push(`Workflow ${workflow.workflowClass} references missing control-plane skill ${controlSkill}.`);
+        }
+      }
+      for (const toolIntent of workflow.allowedToolIntents || []) {
+        if (!toolIntents.has(toolIntent)) {
+          issues.push(`Workflow ${workflow.workflowClass} references unknown tool intent ${toolIntent}.`);
+        }
+      }
+      for (const toolName of workflow.allowedTools || []) {
+        if (!toolNames.has(toolName)) {
+          issues.push(`Workflow ${workflow.workflowClass} references unknown tool ${toolName}.`);
+        }
+      }
+      for (const contractId of workflow.expectedOutputContracts || []) {
+        if (!outputContractIds.has(contractId)) {
+          issues.push(`Workflow ${workflow.workflowClass} references unknown output contract ${contractId}.`);
+        }
+      }
+      for (const contractId of workflow.requiredEvidenceArtifacts || []) {
+        if (!outputContractIds.has(contractId)) {
+          issues.push(`Workflow ${workflow.workflowClass} references unknown required evidence contract ${contractId}.`);
+        }
+        if (!Array.isArray(workflow.expectedOutputContracts) || !workflow.expectedOutputContracts.includes(contractId)) {
+          issues.push(`Workflow ${workflow.workflowClass} requiredEvidenceArtifacts must be a subset of expectedOutputContracts; missing ${contractId}.`);
+        }
+      }
+      if (!Array.isArray(workflow.recommendedTemplates) || workflow.recommendedTemplates.length === 0) {
+        issues.push(`Workflow ${workflow.workflowClass} must declare non-empty recommendedTemplates.`);
+      } else {
+        for (const templatePath of workflow.recommendedTemplates) {
+          if (typeof templatePath !== 'string' || templatePath.trim() === '') {
+            issues.push(`Workflow ${workflow.workflowClass} has an invalid template path entry.`);
+            continue;
+          }
+          if (!templatePath.startsWith('templates/codex-workflow/')) {
+            issues.push(`Workflow ${workflow.workflowClass} template ${templatePath} must be under templates/codex-workflow/.`);
+          }
+          if (!fs.existsSync(path.join(root, templatePath))) {
+            issues.push(`Workflow ${workflow.workflowClass} references missing template ${templatePath}.`);
+          }
+        }
+      }
+    }
+  }
+
+  issues.push(...validateWorkflowTemplateContractCoverage(outputContractCatalog));
+  for (const contract of outputContractCatalog.contracts || []) {
+    if (!Array.isArray(contract.recommended_templates) || contract.recommended_templates.length === 0) {
+      continue;
+    }
+    for (const templatePath of contract.recommended_templates) {
+      if (typeof templatePath !== 'string' || templatePath.trim() === '') {
+        issues.push(`Output contract ${contract.contract_id || '<unknown>'} has invalid recommended_templates entry.`);
+        continue;
+      }
+      if (!templatePath.startsWith('templates/codex-workflow/')) {
+        issues.push(`Output contract ${contract.contract_id || '<unknown>'} template ${templatePath} must be under templates/codex-workflow/.`);
+      }
+      if (!fs.existsSync(path.join(root, templatePath))) {
+        issues.push(`Output contract ${contract.contract_id || '<unknown>'} references missing template ${templatePath}.`);
+      }
     }
   }
 

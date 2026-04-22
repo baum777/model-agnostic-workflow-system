@@ -1,0 +1,53 @@
+{
+  "id": "workflow-execution-evidence",
+  "kind": "workflow-evidence",
+  "blocking": true,
+  "target": {
+    "name": "workflow-routing-map"
+  },
+  "expectations": {
+    "completionPolicy": {
+      "blockingGatePolicy": "all-blocking-gates-pass",
+      "advisoryGatePolicy": "record-only",
+      "requiredEvidencePolicy": "all-required-evidence-artifacts-present"
+    },
+    "executionClaimPolicy": {
+      "requiredExecutionStatuses": [
+        "proposed",
+        "drafted",
+        "applied",
+        "verified"
+      ],
+      "requiredValidationOutcomes": [
+        "PASS",
+        "BLOCKED"
+      ],
+      "requiredWorkflowRunSummarySections": [
+        "EXECUTION STATUS",
+        "WRITE EVIDENCE",
+        "POST-WRITE VERIFICATION",
+        "VALIDATION OUTCOME"
+      ],
+      "requiredValidationNotesSubstrings": [
+        "Execution status must be one of proposed, drafted, applied, or verified.",
+        "Validation outcome must be PASS or BLOCKED",
+        "Applied claims require real write evidence",
+        "Verified claims require post-write verification evidence"
+      ],
+      "requiredFailureBehaviorSubstrings": [
+        "missing write evidence",
+        "post-write verification evidence",
+        "return BLOCKED"
+      ]
+    },
+    "requiredContracts": [
+      "workflow-validation-summary-v1",
+      "workflow-certification-summary-v1"
+    ],
+    "workflowsRequiringCertification": [
+      "verification-and-review",
+      "migration-and-compatibility",
+      "readiness-and-release-review"
+    ]
+  }
+}

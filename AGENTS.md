@@ -38,6 +38,25 @@ Use rule: use this as the root operating contract; defer docs hierarchy details 
 5. Verify against explicit acceptance criteria and gate checks.
 6. Report verified facts, unresolved gaps, and next gate.
 
+## Execution Claim Policy
+- Enforce a strict distinction between execution status and validation outcome.
+- Execution status is limited to: `proposed`, `drafted`, `applied`, `verified`.
+- Validation outcome is limited to: `PASS`, `BLOCKED`.
+- Do not mix execution status and validation outcome in one field.
+- A formulated change is not an applied change.
+- A proposed log or documentation entry is not an inserted entry.
+- Plan is not apply. Review or audit is not execution.
+- Execution verbs such as `inserted`, `updated`, `implemented`, `documented`, `completed`, `eingetragen`, `aktualisiert`, `umgesetzt`, `dokumentiert`, and `abgeschlossen` are allowed only for `applied` or `verified`.
+- `applied` requires all of the following:
+  - a real write step occurred
+  - the changed artifact is named explicitly
+  - the write target path or surface is named explicitly
+- `verified` requires `applied` plus explicit post-write verification evidence:
+  - which artifact state was read after the write
+  - how the new state was recognized
+  - a concrete verification reference (file path, command or validator, and result)
+- If write evidence or post-write verification evidence is missing, fail closed and report `BLOCKED` as the validation outcome.
+
 ## Skill Routing Rules
 - Use `.agents/skills/workflow-core-router/SKILL.md` when the task is non-trivial or artifact shape is unclear.
 - Use `.agents/skills/skill-creator-orchestrator/SKILL.md` when a recurring workflow lacks a concise reusable skill.

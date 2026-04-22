@@ -164,6 +164,7 @@ const routePacketFields = [
 ];
 const routeTypeValues = new Set(['single-skill', 'multi-step']);
 const routeConfidenceValues = new Set(['high', 'medium', 'low']);
+const allowedSecretClasses = new Set(['A', 'B', 'C', 'P']);
 
 function loadSkillText(root, skillPath) {
   const absolutePath = path.join(root, skillPath);
@@ -670,7 +671,355 @@ function evaluateToolSelection(registry, fixture) {
   return result;
 }
 
-async function evaluateFixture(root, registry, providerExports, fixture) {
+function evaluateWorkflowRoutingMap(registry, fixture) {
+  const result = {
+    passed: true,
+    issues: []
+  };
+
+  if (!Array.isArray(registry.workflows) || registry.workflows.length === 0) {
+    result.passed = false;
+    result.issues.push('Registry workflows are missing.');
+    return result;
+  }
+
+  const expectedClasses = Array.isArray(fixture.expectations?.workflowClasses)
+    ? fixture.expectations.workflowClasses
+    : [];
+  const workflowClassSet = new Set(registry.workflows.map((entry) => entry.workflowClass));
+  for (const workflowClass of expectedClasses) {
+    if (!workflowClassSet.has(workflowClass)) {
+      result.passed = false;
+      result.issues.push(`Workflow class ${workflowClass} is missing from registry workflows.`);
+    }
+  }
+
+  const expectedControlPlaneSkills = Array.isArray(fixture.expectations?.controlPlaneSkills)
+    ? fixture.expectations.controlPlaneSkills
+    : [];
+  const controlPlaneSkills = new Set(
+    registry.workflows.flatMap((entry) => Array.isArray(entry.controlPlaneSkills) ? entry.controlPlaneSkills : [])
+  );
+  for (const skillName of expectedControlPlaneSkills) {
+    if (!controlPlaneSkills.has(skillName)) {
+      result.passed = false;
+      result.issues.push(`Control-plane skill ${skillName} is missing from workflow mappings.`);
+    }
+  }
+
+  const expectedMcpPostures = Array.isArray(fixture.expectations?.mcpPostures)
+    ? fixture.expectations.mcpPostures
+    : [];
+  const mcpPostures = new Set(registry.workflows.map((entry) => entry.mcpPosture));
+  for (const posture of expectedMcpPostures) {
+    if (!mcpPostures.has(posture)) {
+      result.passed = false;
+      result.issues.push(`MCP posture ${posture} is missing from workflow mappings.`);
+    }
+  }
+
+  const expectedWorkflowFields = Array.isArray(fixture.expectations?.requiredWorkflowFields)
+    ? fixture.expectations.requiredWorkflowFields
+    : [];
+  for (const workflow of registry.workflows) {
+    for (const field of expectedWorkflowFields) {
+      if (workflow[field] == null) {
+        result.passed = false;
+        result.issues.push(`Workflow ${workflow.workflowClass || '<unnamed>'} is missing required field ${field}.`);
+      }
+    }
+  }
+
+  return result;
+}
+
+function evaluateWorkflowExecutionEvidence(registry, fixture) {
+  const result = {
+    passed: true,
+    issues: []
+  };
+
+  if (!Array.isArray(registry.workflows) || registry.workflows.length === 0) {
+    result.passed = false;
+    result.issues.push('Registry workflows are missing.');
+    return result;
+  }
+
+  const requiredContracts = new Set(Array.isArray(fixture.expectations?.requiredContracts) ? fixture.expectations.requiredContracts : []);
+  const expectedPolicy = fixture.expectations?.completionPolicy || {};
+  const workflowByClass = new Map(registry.workflows.map((entry) => [entry.workflowClass, entry]));
+
+  for (const workflow of registry.workflows) {
+    if (!Array.isArray(workflow.requiredEvidenceArtifacts) || workflow.requiredEvidenceArtifacts.length === 0) {
+      result.passed = false;
+      result.issues.push(`Workflow ${workflow.workflowClass} must declare requiredEvidenceArtifacts.`);
+    }
+    for (const contractId of workflow.requiredEvidenceArtifacts || []) {
+      if (!Array.isArray(workflow.expectedOutputContracts) || !workflow.expectedOutputContracts.includes(contractId)) {
+        result.passed = false;
+        result.issues.push(`Workflow ${workflow.workflowClass} must include required evidence contract ${contractId} in expectedOutputContracts.`);
+      }
+    }
+    if (!workflow.completionPosture || typeof workflow.completionPosture !== 'object') {
+      result.passed = false;
+      result.issues.push(`Workflow ${workflow.workflowClass} must declare completionPosture.`);
+      continue;
+    }
+    for (const [field, expectedValue] of Object.entries(expectedPolicy)) {
+      if (workflow.completionPosture[field] !== expectedValue) {
+        result.passed = false;
+        result.issues.push(`Workflow ${workflow.workflowClass} completionPosture.${field} is ${workflow.completionPosture[field]}, expected ${expectedValue}.`);
+      }
+    }
+  }
+
+  for (const workflowClass of fixture.expectations?.workflowsRequiringCertification || []) {
+    const workflow = workflowByClass.get(workflowClass);
+    if (!workflow) {
+      result.passed = false;
+      result.issues.push(`Expected workflow class ${workflowClass} is missing.`);
+      continue;
+    }
+    for (const contractId of requiredContracts) {
+      if (!Array.isArray(workflow.requiredEvidenceArtifacts) || !workflow.requiredEvidenceArtifacts.includes(contractId)) {
+        result.passed = false;
+        result.issues.push(`Workflow ${workflowClass} must require evidence contract ${contractId}.`);
+      }
+    }
+  }
+
+  return result;
+}
+
+function evaluateExecutionClaimPolicy(outputContractCatalog, fixture) {
+  const result = {
+    passed: true,
+    issues: []
+  };
+  const policy = fixture.expectations?.executionClaimPolicy;
+  if (!policy) {
+    return result;
+  }
+
+  const contracts = Array.isArray(outputContractCatalog?.contracts) ? outputContractCatalog.contracts : [];
+  const workflowRunSummary = contracts.find((entry) => entry.contract_id === 'workflow-run-summary-v1');
+  if (!workflowRunSummary) {
+    result.passed = false;
+    result.issues.push('workflow-run-summary-v1 is missing from output contract catalog.');
+    return result;
+  }
+
+  const requiredSections = new Set(Array.isArray(workflowRunSummary.required_sections) ? workflowRunSummary.required_sections : []);
+  for (const section of policy.requiredWorkflowRunSummarySections || []) {
+    if (!requiredSections.has(section)) {
+      result.passed = false;
+      result.issues.push(`workflow-run-summary-v1 is missing required section ${section}.`);
+    }
+  }
+
+  const validationNotesText = Array.isArray(workflowRunSummary.validation_notes)
+    ? workflowRunSummary.validation_notes.join('\n')
+    : '';
+  for (const snippet of policy.requiredValidationNotesSubstrings || []) {
+    if (!validationNotesText.includes(snippet)) {
+      result.passed = false;
+      result.issues.push(`workflow-run-summary-v1 validation notes are missing substring: ${snippet}.`);
+    }
+  }
+
+  for (const status of policy.requiredExecutionStatuses || []) {
+    if (!validationNotesText.includes(status)) {
+      result.passed = false;
+      result.issues.push(`workflow-run-summary-v1 validation notes are missing execution status ${status}.`);
+    }
+  }
+
+  const failureBehavior = String(workflowRunSummary.failure_or_partial_completion_behavior || '');
+  for (const snippet of policy.requiredFailureBehaviorSubstrings || []) {
+    if (!failureBehavior.includes(snippet)) {
+      result.passed = false;
+      result.issues.push(`workflow-run-summary-v1 failure behavior is missing substring: ${snippet}.`);
+    }
+  }
+
+  const requiredOutcomes = policy.requiredValidationOutcomes || [];
+  for (const outcome of requiredOutcomes) {
+    if (!validationNotesText.includes(outcome) && !failureBehavior.includes(outcome)) {
+      result.passed = false;
+      result.issues.push(`workflow-run-summary-v1 must reference validation outcome ${outcome}.`);
+    }
+  }
+
+  return result;
+}
+
+function evaluateProviderExportAlignment(providerExports, fixture) {
+  const result = {
+    passed: true,
+    issues: []
+  };
+
+  const providers = Array.isArray(fixture.expectations?.providers) ? fixture.expectations.providers : [];
+  const requiredSourceContracts = fixture.expectations?.requiredSourceContracts || {};
+  const requiredSkillFields = Array.isArray(fixture.expectations?.requiredSkillFields) ? fixture.expectations.requiredSkillFields : [];
+  const requiredWorkflowFields = Array.isArray(fixture.expectations?.requiredWorkflowFields) ? fixture.expectations.requiredWorkflowFields : [];
+
+  for (const providerName of providers) {
+    const exportJson = providerExports[providerName];
+    if (!exportJson) {
+      result.passed = false;
+      result.issues.push(`Missing provider export for ${providerName}.`);
+      continue;
+    }
+
+    for (const [field, expectedPath] of Object.entries(requiredSourceContracts)) {
+      if (exportJson.sourceContracts?.[field] !== expectedPath) {
+        result.passed = false;
+        result.issues.push(`Provider ${providerName} sourceContracts.${field} is ${exportJson.sourceContracts?.[field]}, expected ${expectedPath}.`);
+      }
+    }
+
+    if (!Array.isArray(exportJson.skills) || exportJson.skills.length === 0) {
+      result.passed = false;
+      result.issues.push(`Provider ${providerName} must include non-empty skills.`);
+    } else {
+      for (const skill of exportJson.skills) {
+        for (const field of requiredSkillFields) {
+          if (skill[field] == null) {
+            result.passed = false;
+            result.issues.push(`Provider ${providerName} skill ${skill.name || '<unnamed>'} is missing ${field}.`);
+          }
+        }
+        if (skill.outputContractId && skill.outputContractPath == null) {
+          result.passed = false;
+          result.issues.push(`Provider ${providerName} skill ${skill.name || '<unnamed>'} must declare outputContractPath when outputContractId is set.`);
+        }
+        if (skill.outputContractId && skill.toolContractCatalogPath == null) {
+          result.passed = false;
+          result.issues.push(`Provider ${providerName} skill ${skill.name || '<unnamed>'} must declare toolContractCatalogPath when outputContractId is set.`);
+        }
+      }
+    }
+
+    if (!Array.isArray(exportJson.workflows) || exportJson.workflows.length === 0) {
+      result.passed = false;
+      result.issues.push(`Provider ${providerName} must include non-empty workflows.`);
+    } else {
+      for (const workflow of exportJson.workflows) {
+        for (const field of requiredWorkflowFields) {
+          if (workflow[field] == null) {
+            result.passed = false;
+            result.issues.push(`Provider ${providerName} workflow ${workflow.workflowClass || '<unnamed>'} is missing ${field}.`);
+          }
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+function evaluateSecretBoundaryCase(caseEntry) {
+  const issues = [];
+  const type = caseEntry.caseType;
+  const sample = caseEntry.sample || {};
+  let passed = true;
+
+  if (type === 'tool-contract') {
+    const requiredFields = ['requires_secret', 'secret_classes', 'credential_binding', 'raw_secret_exposure', 'model_visible', 'secret_scope', 'environment_scope', 'access_level', 'short_lived_preferred', 'fallback_context_policy', 'trace_redaction', 'memory_persistence'];
+    for (const field of requiredFields) {
+      if (!(field in sample)) {
+        passed = false;
+        issues.push(`tool-contract case ${caseEntry.id} missing field ${field}.`);
+      }
+    }
+    if (sample.raw_secret_exposure !== 'forbidden') {
+      passed = false;
+      issues.push(`tool-contract case ${caseEntry.id} must forbid raw secret exposure.`);
+    }
+    for (const secretClass of sample.secret_classes || []) {
+      if (!allowedSecretClasses.has(secretClass)) {
+        passed = false;
+        issues.push(`tool-contract case ${caseEntry.id} uses unknown secret class ${secretClass}.`);
+      }
+    }
+  } else if (type === 'provider-security') {
+    const requiredFlags = ['raw_secret_prompting_forbidden', 'server_bound_credentials_required', 'provider_switch_requires_reminimization', 'fallback_full_context_reuse_forbidden', 'trace_redaction_required', 'memory_secret_persistence_forbidden'];
+    for (const field of requiredFlags) {
+      if (sample[field] !== true) {
+        passed = false;
+        issues.push(`provider-security case ${caseEntry.id} must set ${field} to true.`);
+      }
+    }
+  } else if (type === 'provider-switch') {
+    if (sample.from_provider === sample.to_provider) {
+      passed = false;
+      issues.push(`provider-switch case ${caseEntry.id} must switch providers.`);
+    }
+    if (sample.context_policy !== 're-minimize') {
+      passed = false;
+      issues.push(`provider-switch case ${caseEntry.id} must re-minimize context.`);
+    }
+  } else if (type === 'context-redaction' || type === 'trace-sanitization') {
+    if (!Array.isArray(sample.findings) || sample.findings.length === 0) {
+      passed = false;
+      issues.push(`${type} case ${caseEntry.id} must declare findings.`);
+    }
+    if (sample.redaction_state !== 'redacted') {
+      passed = false;
+      issues.push(`${type} case ${caseEntry.id} must be redacted.`);
+    }
+  } else if (type === 'memory-rejection') {
+    if (sample.memory_persistence !== 'forbidden') {
+      passed = false;
+      issues.push(`memory-rejection case ${caseEntry.id} must forbid memory persistence.`);
+    }
+    if (sample.decision !== 'reject') {
+      passed = false;
+      issues.push(`memory-rejection case ${caseEntry.id} must reject persistence.`);
+    }
+  } else {
+    passed = false;
+    issues.push(`Unsupported secret-boundary caseType ${type}.`);
+  }
+
+  const expectedPass = caseEntry.expectedPass !== false;
+  if (passed !== expectedPass) {
+    return {
+      passed: false,
+      issues: [`secret-boundary case ${caseEntry.id} expected ${expectedPass ? 'pass' : 'fail'} but observed ${passed ? 'pass' : 'fail'}.`, ...issues]
+    };
+  }
+
+  return {
+    passed: true,
+    issues: []
+  };
+}
+
+function evaluateSecretBoundaryFixture(fixture) {
+  const result = {
+    passed: true,
+    issues: []
+  };
+
+  const cases = Array.isArray(fixture.cases) ? fixture.cases : [];
+  if (cases.length === 0) {
+    result.passed = false;
+    result.issues.push('secret-boundary fixture must contain cases.');
+    return result;
+  }
+
+  for (const caseEntry of cases) {
+    const caseResult = evaluateSecretBoundaryCase(caseEntry);
+    result.passed = result.passed && caseResult.passed;
+    result.issues.push(...caseResult.issues);
+  }
+
+  return result;
+}
+
+async function evaluateFixture(root, registry, providerExports, outputContractCatalog, fixture) {
   const result = {
     id: fixture.id,
     kind: fixture.kind,
@@ -714,6 +1063,21 @@ async function evaluateFixture(root, registry, providerExports, fixture) {
     }
   } else if (fixture.kind === 'tool-selection') {
     const check = evaluateToolSelection(registry, fixture);
+    result.passed = check.passed;
+    result.issues.push(...check.issues);
+  } else if (fixture.kind === 'workflow-routing') {
+    const check = evaluateWorkflowRoutingMap(registry, fixture);
+    result.passed = check.passed;
+    result.issues.push(...check.issues);
+  } else if (fixture.kind === 'workflow-evidence') {
+    const check = evaluateWorkflowExecutionEvidence(registry, fixture);
+    result.passed = check.passed;
+    result.issues.push(...check.issues);
+    const claimPolicyCheck = evaluateExecutionClaimPolicy(outputContractCatalog, fixture);
+    result.passed = result.passed && claimPolicyCheck.passed;
+    result.issues.push(...claimPolicyCheck.issues);
+  } else if (fixture.kind === 'provider-export-alignment') {
+    const check = evaluateProviderExportAlignment(providerExports, fixture);
     result.passed = check.passed;
     result.issues.push(...check.issues);
   } else if (fixture.kind === 'approval-boundary') {
@@ -790,6 +1154,10 @@ async function evaluateFixture(root, registry, providerExports, fixture) {
     const check = evaluateStaticVsDynamicRenderingAdvisorFixture(fixture);
     result.passed = check.passed;
     result.issues.push(...check.issues);
+  } else if (fixture.kind === 'secret-boundary') {
+    const check = evaluateSecretBoundaryFixture(fixture);
+    result.passed = check.passed;
+    result.issues.push(...check.issues);
   } else {
     result.passed = false;
     result.issues.push(`Unsupported eval kind: ${fixture.kind}`);
@@ -803,6 +1171,8 @@ async function runCertificationEvals(baseRoot = repoRoot(), options = {}) {
   const catalog = loadEvalCatalog(root);
   const registry = buildNeutralCoreRegistry(root);
   const providerExports = loadProviderExports(root);
+  const outputContractsPath = path.join(root, 'core', 'contracts', 'output-contracts.json');
+  const outputContractCatalog = fs.existsSync(outputContractsPath) ? readJson(outputContractsPath) : { contracts: [] };
   const fixtures = loadEvalFixtures(root, catalog);
   const requestedKinds = Array.isArray(options.kinds) && options.kinds.length > 0 ? new Set(options.kinds) : null;
   const selectedFixtures = requestedKinds
@@ -824,7 +1194,9 @@ async function runCertificationEvals(baseRoot = repoRoot(), options = {}) {
       issues: ['No eval fixtures matched the requested --kind filter.']
     };
   }
-  const results = await Promise.all(selectedFixtures.map((fixture) => evaluateFixture(root, registry, providerExports, fixture)));
+  const results = await Promise.all(
+    selectedFixtures.map((fixture) => evaluateFixture(root, registry, providerExports, outputContractCatalog, fixture))
+  );
   const passed = results.filter((result) => result.passed).length;
   const failed = results.length - passed;
   const blockingFailures = results.filter((result) => !result.passed && result.blocking).length;

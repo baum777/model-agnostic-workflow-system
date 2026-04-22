@@ -10,6 +10,13 @@
     "qwen"
   ],
   "sourceRegistry": "core/contracts/core-registry.json",
+  "sourceContracts": {
+    "skillManifest": "core/contracts/portable-skill-manifest.json",
+    "outputContracts": "core/contracts/output-contracts.json",
+    "workflowRoutingMap": "core/contracts/workflow-routing-map.json",
+    "toolCatalog": "core/contracts/tool-contracts/catalog.json",
+    "providerCapabilities": "core/contracts/provider-capabilities.json"
+  },
   "sourcePackage": {
     "name": "model-agnostic-workflow-system",
     "version": "0.2.1"
@@ -33,7 +40,15 @@
       "qwen-agent",
       "mcp"
     ],
-    "notes": "Treat trust and tool filtering as adapter responsibilities."
+    "notes": "Treat trust and tool filtering as adapter responsibilities.",
+    "security": {
+      "raw_secret_prompting_forbidden": true,
+      "server_bound_credentials_required": true,
+      "provider_switch_requires_reminimization": true,
+      "fallback_full_context_reuse_forbidden": true,
+      "trace_redaction_required": true,
+      "memory_secret_persistence_forbidden": true
+    }
   },
   "packaging": {
     "mode": "adapter",
@@ -46,9 +61,17 @@
   },
   "skills": [
     {
+      "skillId": "compat.failure-mode-enumerator",
       "name": "failure-mode-enumerator",
       "sourcePath": "skills/failure-mode-enumerator/SKILL.md",
+      "skillPath": "skills/failure-mode-enumerator/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "shared",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -65,6 +88,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -84,9 +109,17 @@
       "providerProjections": null
     },
     {
+      "skillId": "compat.implementation-contract-extractor",
       "name": "implementation-contract-extractor",
       "sourcePath": "skills/implementation-contract-extractor/SKILL.md",
+      "skillPath": "skills/implementation-contract-extractor/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "shared",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -103,6 +136,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -122,9 +157,17 @@
       "providerProjections": null
     },
     {
+      "skillId": "core.incident-runbook-composer",
       "name": "incident-runbook-composer",
       "sourcePath": "core/skills/incident-runbook-composer/SKILL.md",
+      "skillPath": "core/skills/incident-runbook-composer/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "operations-runbook",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "read-only",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -149,6 +192,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "incident-runbook-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -173,9 +218,17 @@
       }
     },
     {
+      "skillId": "core.long-document-to-knowledge-asset",
       "name": "long-document-to-knowledge-asset",
       "sourcePath": "core/skills/long-document-to-knowledge-asset/SKILL.md",
+      "skillPath": "core/skills/long-document-to-knowledge-asset/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "knowledge-transformation",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -195,6 +248,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "knowledge-asset-transform-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -219,9 +274,17 @@
       }
     },
     {
+      "skillId": "compat.mcp-server-creation",
       "name": "mcp-server-creation",
       "sourcePath": "skills/mcp-server-creation/SKILL.md",
+      "skillPath": "skills/mcp-server-creation/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "shared",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "MCP server architecture brief",
@@ -240,6 +303,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -259,9 +324,17 @@
       "providerProjections": null
     },
     {
+      "skillId": "core.migration-planner",
       "name": "migration-planner",
       "sourcePath": "core/skills/migration-planner/SKILL.md",
+      "skillPath": "core/skills/migration-planner/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "migration-planning",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "read-only",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -283,6 +356,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "migration-plan-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -307,9 +382,17 @@
       }
     },
     {
+      "skillId": "core.multi-audience-summarizer",
       "name": "multi-audience-summarizer",
       "sourcePath": "core/skills/multi-audience-summarizer/SKILL.md",
+      "skillPath": "core/skills/multi-audience-summarizer/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "communications",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -330,6 +413,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "multi-audience-summary-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -354,9 +439,17 @@
       }
     },
     {
+      "skillId": "compat.patch-strategy-designer",
       "name": "patch-strategy-designer",
       "sourcePath": "skills/patch-strategy-designer/SKILL.md",
+      "skillPath": "skills/patch-strategy-designer/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "shared",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -372,6 +465,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -391,9 +486,17 @@
       "providerProjections": null
     },
     {
+      "skillId": "compat.planning-slice-builder",
       "name": "planning-slice-builder",
       "sourcePath": "skills/planning-slice-builder/SKILL.md",
+      "skillPath": "skills/planning-slice-builder/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "shared",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -411,6 +514,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -430,9 +535,17 @@
       "providerProjections": null
     },
     {
+      "skillId": "compat.post-implementation-review-writer",
       "name": "post-implementation-review-writer",
       "sourcePath": "skills/post-implementation-review-writer/SKILL.md",
+      "skillPath": "skills/post-implementation-review-writer/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "shared",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -449,6 +562,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -468,9 +583,17 @@
       "providerProjections": null
     },
     {
+      "skillId": "core.readiness-check",
       "name": "readiness-check",
       "sourcePath": "core/skills/readiness-check/SKILL.md",
+      "skillPath": "core/skills/readiness-check/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "verification-gate",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "read-only",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -492,6 +615,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "readiness-check-verdict-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -516,9 +641,17 @@
       }
     },
     {
+      "skillId": "compat.release-narrative-builder",
       "name": "release-narrative-builder",
       "sourcePath": "skills/release-narrative-builder/SKILL.md",
+      "skillPath": "skills/release-narrative-builder/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "shared",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -534,6 +667,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -553,9 +688,17 @@
       "providerProjections": null
     },
     {
+      "skillId": "core.repo-audit",
       "name": "repo-audit",
       "sourcePath": "core/skills/repo-audit/SKILL.md",
+      "skillPath": "core/skills/repo-audit/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared-with-local-inputs",
+      "category": "governance-audit",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "advisory-external",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -579,6 +722,8 @@
         "validate-provider-neutral-core"
       ],
       "outputContractId": "repo-audit-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -603,9 +748,17 @@
       }
     },
     {
+      "skillId": "compat.repo-intake-sot-mapper",
       "name": "repo-intake-sot-mapper",
       "sourcePath": "skills/repo-intake-sot-mapper/SKILL.md",
+      "skillPath": "skills/repo-intake-sot-mapper/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared-with-local-inputs",
+      "category": "shared-with-local-inputs",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -623,6 +776,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -642,9 +797,17 @@
       "providerProjections": null
     },
     {
+      "skillId": "core.research-synthesis",
       "name": "research-synthesis",
       "sourcePath": "core/skills/research-synthesis/SKILL.md",
+      "skillPath": "core/skills/research-synthesis/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "research-analysis",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "advisory-external",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -664,6 +827,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "research-synthesis-brief-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -688,9 +853,17 @@
       }
     },
     {
+      "skillId": "compat.runtime-policy-auditor",
       "name": "runtime-policy-auditor",
       "sourcePath": "skills/runtime-policy-auditor/SKILL.md",
+      "skillPath": "skills/runtime-policy-auditor/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared-with-local-inputs",
+      "category": "shared-with-local-inputs",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -711,6 +884,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -730,9 +905,75 @@
       "providerProjections": null
     },
     {
+      "skillId": "core.secret-boundary-audit",
+      "name": "secret-boundary-audit",
+      "sourcePath": "core/skills/secret-boundary-audit/SKILL.md",
+      "skillPath": "core/skills/secret-boundary-audit/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
+      "classification": "shared-with-local-inputs",
+      "category": "security-governance",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "read-only",
+      "toolUsagePosture": "required-tools-declared",
+      "exportMode": "adapter",
+      "outputHeadings": [
+        "SUMMARY",
+        "OBSERVED SECRET SURFACES",
+        "BOUNDARY CLASSIFICATION",
+        "EXPOSURE RISKS",
+        "ROTATION AND INCIDENT GAPS",
+        "NEXT ACTIONS"
+      ],
+      "requiresRepoInputs": true,
+      "safeToAutoRun": true,
+      "approvalMode": "read-only",
+      "subagentPolicy": "forbid",
+      "requiredTools": [
+        "validate-secret-boundaries",
+        "scan-secrets",
+        "repo-structure-scanner",
+        "spec-compliance-checker"
+      ],
+      "optionalTools": [],
+      "outputContractId": "secret-boundary-audit-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      },
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      }
+    },
+    {
+      "skillId": "core.source-conflict-resolver",
       "name": "source-conflict-resolver",
       "sourcePath": "core/skills/source-conflict-resolver/SKILL.md",
+      "skillPath": "core/skills/source-conflict-resolver/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "authority-resolution",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "advisory-external",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -756,6 +997,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "source-conflict-resolution-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -780,9 +1023,17 @@
       }
     },
     {
+      "skillId": "core.spec-to-task-breakdown",
       "name": "spec-to-task-breakdown",
       "sourcePath": "core/skills/spec-to-task-breakdown/SKILL.md",
+      "skillPath": "core/skills/spec-to-task-breakdown/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "execution-planning",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "read-only",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -807,6 +1058,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "spec-to-task-breakdown-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -831,9 +1084,17 @@
       }
     },
     {
+      "skillId": "core.static-vs-dynamic-rendering-advisor",
       "name": "static-vs-dynamic-rendering-advisor",
       "sourcePath": "core/skills/static-vs-dynamic-rendering-advisor/SKILL.md",
+      "skillPath": "core/skills/static-vs-dynamic-rendering-advisor/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "rendering-architecture",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -857,6 +1118,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "static-vs-dynamic-rendering-advisor-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -881,9 +1144,17 @@
       }
     },
     {
+      "skillId": "core.supabase-deployment",
       "name": "supabase-deployment",
       "sourcePath": "core/skills/supabase-deployment/SKILL.md",
+      "skillPath": "core/skills/supabase-deployment/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared-with-local-inputs",
+      "category": "deployment-runbook",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "bounded-read-write",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -910,6 +1181,8 @@
         "patch-strategy-designer"
       ],
       "outputContractId": "supabase-deploy-runbook-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -934,9 +1207,17 @@
       }
     },
     {
+      "skillId": "compat.test-matrix-builder",
       "name": "test-matrix-builder",
       "sourcePath": "skills/test-matrix-builder/SKILL.md",
+      "skillPath": "skills/test-matrix-builder/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "shared",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -953,6 +1234,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -972,9 +1255,17 @@
       "providerProjections": null
     },
     {
+      "skillId": "core.tradeoff-matrix-builder",
       "name": "tradeoff-matrix-builder",
       "sourcePath": "core/skills/tradeoff-matrix-builder/SKILL.md",
+      "skillPath": "core/skills/tradeoff-matrix-builder/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "decision-analysis",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -997,6 +1288,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "tradeoff-matrix-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1021,9 +1314,17 @@
       }
     },
     {
+      "skillId": "core.ui-to-backend-contract-extractor",
       "name": "ui-to-backend-contract-extractor",
       "sourcePath": "core/skills/ui-to-backend-contract-extractor/SKILL.md",
+      "skillPath": "core/skills/ui-to-backend-contract-extractor/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "contract-extraction",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -1045,6 +1346,8 @@
       ],
       "optionalTools": [],
       "outputContractId": "ui-to-backend-contract-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1069,9 +1372,17 @@
       }
     },
     {
+      "skillId": "core.ui-ux-composition",
       "name": "ui-ux-composition",
       "sourcePath": "core/skills/ui-ux-composition/SKILL.md",
+      "skillPath": "core/skills/ui-ux-composition/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "design-governance",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "required-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "branch",
@@ -1100,6 +1411,8 @@
         "git-diff-explainer"
       ],
       "outputContractId": "ui-ux-composition-branch-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1124,9 +1437,17 @@
       }
     },
     {
+      "skillId": "compat.vercel-deployment",
       "name": "vercel-deployment",
       "sourcePath": "skills/vercel-deployment/SKILL.md",
+      "skillPath": "skills/vercel-deployment/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
       "classification": "shared",
+      "category": "shared",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "disabled",
+      "toolUsagePosture": "no-tools-declared",
       "exportMode": "adapter",
       "outputHeadings": [
         "SUMMARY",
@@ -1143,6 +1464,8 @@
       "requiredTools": [],
       "optionalTools": [],
       "outputContractId": null,
+      "outputContractPath": null,
+      "toolContractCatalogPath": null,
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1200,6 +1523,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1249,6 +1584,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1301,6 +1648,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1344,6 +1703,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1387,6 +1758,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1436,6 +1819,18 @@
       "side_effects": "writes files only when approved",
       "approval_required": true,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1485,6 +1880,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1550,6 +1957,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1590,6 +2009,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1637,6 +2068,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1675,6 +2118,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1718,6 +2173,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1767,6 +2234,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1805,6 +2284,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1842,6 +2333,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1901,6 +2404,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1944,6 +2459,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -1981,6 +2508,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2019,6 +2558,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2062,6 +2613,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2106,6 +2669,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2153,6 +2728,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2191,6 +2778,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2234,6 +2833,18 @@
       "side_effects": "writes files only when approved",
       "approval_required": true,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2271,6 +2882,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2308,6 +2931,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2369,6 +3004,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2409,6 +3056,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2461,6 +3120,18 @@
       "side_effects": "writes screenshot artifacts only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2502,6 +3173,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2550,6 +3233,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2591,6 +3286,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2637,6 +3344,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2657,6 +3376,60 @@
       "routing_hints": [
         "ui-ux-composition",
         "readiness-check"
+      ]
+    },
+    {
+      "name": "scan-secrets",
+      "tool_name": "scan-secrets",
+      "intent_class": "read-only leak scan",
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "requires_secret": true,
+      "secret_classes": [
+        "A",
+        "B",
+        "C"
+      ],
+      "credential_binding": "server-only",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "log-read",
+      "environment_scope": [
+        "staging",
+        "production"
+      ],
+      "access_level": "read",
+      "short_lived_preferred": true,
+      "fallback_context_policy": "re-minimize",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
+      "exportMode": "adapter",
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      },
+      "routing_hints": [
+        "repo-audit",
+        "readiness-check",
+        "secret-boundary-audit"
       ]
     },
     {
@@ -2685,6 +3458,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2724,6 +3509,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2761,6 +3558,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2798,6 +3607,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2853,6 +3674,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2890,6 +3723,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2923,6 +3768,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2961,6 +3818,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2984,6 +3853,52 @@
       ]
     },
     {
+      "name": "validate-secret-boundaries",
+      "tool_name": "validate-secret-boundaries",
+      "intent_class": "read-only validation",
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
+      "exportMode": "adapter",
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export"
+      },
+      "routing_hints": [
+        "readiness-check",
+        "secret-boundary-audit"
+      ]
+    },
+    {
       "name": "validate-shared-core-scaffold",
       "tool_name": "validate-shared-core-scaffold",
       "intent_class": "read-only validation",
@@ -2995,6 +3910,18 @@
       "side_effects": "read-only",
       "approval_required": false,
       "mcp_compatible": false,
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden",
       "exportMode": "adapter",
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -3018,6 +3945,377 @@
       ]
     }
   ],
+  "workflows": [
+    {
+      "workflowClass": "implementation",
+      "category": "execution",
+      "supportingSkills": [
+        "patch-strategy-designer",
+        "implementation-contract-extractor"
+      ],
+      "controlPlaneSkills": [
+        "workflow-core-router"
+      ],
+      "allowedToolIntents": [
+        "read-only",
+        "read-only validation",
+        "mutating write executor"
+      ],
+      "allowedTools": [
+        "approval-gated-write-executor",
+        "validate-repo-surface",
+        "validate-provider-neutral-core",
+        "validate-shared-core-scaffold"
+      ],
+      "mcpPosture": "bounded-read-write",
+      "recommendedTemplates": [
+        "templates/codex-workflow/task-packet-template.md",
+        "templates/codex-workflow/handoff-summary-template.md"
+      ],
+      "validationPosture": {
+        "requiredGates": [
+          "validate-repo-surface",
+          "validate-provider-neutral-core"
+        ],
+        "maturityLabel": "validator-backed"
+      },
+      "expectedOutputContracts": [
+        "workflow-run-summary-v1",
+        "workflow-handoff-summary-v1",
+        "workflow-validation-summary-v1"
+      ],
+      "requiredEvidenceArtifacts": [
+        "workflow-handoff-summary-v1",
+        "workflow-validation-summary-v1"
+      ],
+      "completionPosture": {
+        "blockingGatePolicy": "all-blocking-gates-pass",
+        "advisoryGatePolicy": "record-only",
+        "requiredEvidencePolicy": "all-required-evidence-artifacts-present"
+      },
+      "maturityLabel": "contract-backed",
+      "exportMode": "adapter"
+    },
+    {
+      "workflowClass": "implementation-planning",
+      "category": "planning",
+      "supportingSkills": [
+        "planning-slice-builder",
+        "spec-to-task-breakdown",
+        "migration-planner",
+        "test-matrix-builder"
+      ],
+      "controlPlaneSkills": [
+        "workflow-core-router"
+      ],
+      "allowedToolIntents": [
+        "read-only",
+        "read-only validation",
+        "read-only inventory"
+      ],
+      "allowedTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "validate-provider-neutral-core",
+        "validate-shared-core-scaffold"
+      ],
+      "mcpPosture": "read-only",
+      "recommendedTemplates": [
+        "templates/codex-workflow/task-packet-template.md"
+      ],
+      "validationPosture": {
+        "requiredGates": [
+          "validate-provider-neutral-core"
+        ],
+        "maturityLabel": "validator-backed"
+      },
+      "expectedOutputContracts": [
+        "workflow-plan-v1",
+        "spec-to-task-breakdown-v1",
+        "migration-plan-v1",
+        "workflow-validation-summary-v1"
+      ],
+      "requiredEvidenceArtifacts": [
+        "workflow-plan-v1",
+        "workflow-validation-summary-v1"
+      ],
+      "completionPosture": {
+        "blockingGatePolicy": "all-blocking-gates-pass",
+        "advisoryGatePolicy": "record-only",
+        "requiredEvidencePolicy": "all-required-evidence-artifacts-present"
+      },
+      "maturityLabel": "contract-backed",
+      "exportMode": "adapter"
+    },
+    {
+      "workflowClass": "intake-and-truth-mapping",
+      "category": "governance-intake",
+      "supportingSkills": [
+        "repo-intake-sot-mapper",
+        "source-conflict-resolver",
+        "repo-audit"
+      ],
+      "controlPlaneSkills": [
+        "workflow-core-router",
+        "skill-tool-mcp-builder"
+      ],
+      "allowedToolIntents": [
+        "read-only",
+        "read-only validation",
+        "read-only inventory"
+      ],
+      "allowedTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "validate-repo-surface",
+        "validate-provider-neutral-core"
+      ],
+      "mcpPosture": "advisory-external",
+      "recommendedTemplates": [
+        "templates/codex-workflow/review-summary-template.md"
+      ],
+      "validationPosture": {
+        "requiredGates": [
+          "validate-repo-surface"
+        ],
+        "maturityLabel": "validator-backed"
+      },
+      "expectedOutputContracts": [
+        "repo-audit-report-v1",
+        "source-conflict-resolution-report-v1",
+        "workflow-validation-summary-v1"
+      ],
+      "requiredEvidenceArtifacts": [
+        "repo-audit-report-v1",
+        "workflow-validation-summary-v1"
+      ],
+      "completionPosture": {
+        "blockingGatePolicy": "all-blocking-gates-pass",
+        "advisoryGatePolicy": "record-only",
+        "requiredEvidencePolicy": "all-required-evidence-artifacts-present"
+      },
+      "maturityLabel": "contract-backed",
+      "exportMode": "adapter"
+    },
+    {
+      "workflowClass": "migration-and-compatibility",
+      "category": "migration",
+      "supportingSkills": [
+        "migration-planner",
+        "source-conflict-resolver",
+        "patch-strategy-designer"
+      ],
+      "controlPlaneSkills": [
+        "workflow-core-router",
+        "skill-tool-mcp-builder"
+      ],
+      "allowedToolIntents": [
+        "read-only",
+        "read-only validation",
+        "read-only evaluation runner"
+      ],
+      "allowedTools": [
+        "validate-provider-neutral-core",
+        "validate-shared-core-scaffold",
+        "run-certification-evals"
+      ],
+      "mcpPosture": "advisory-external",
+      "recommendedTemplates": [
+        "templates/codex-workflow/task-packet-template.md",
+        "templates/codex-workflow/review-summary-template.md",
+        "templates/codex-workflow/handoff-summary-template.md"
+      ],
+      "validationPosture": {
+        "requiredGates": [
+          "validate-provider-neutral-core",
+          "run-certification-evals"
+        ],
+        "maturityLabel": "validator-backed"
+      },
+      "expectedOutputContracts": [
+        "migration-plan-v1",
+        "source-conflict-resolution-report-v1",
+        "workflow-run-summary-v1",
+        "workflow-handoff-summary-v1",
+        "workflow-validation-summary-v1",
+        "workflow-certification-summary-v1"
+      ],
+      "requiredEvidenceArtifacts": [
+        "migration-plan-v1",
+        "workflow-validation-summary-v1",
+        "workflow-certification-summary-v1"
+      ],
+      "completionPosture": {
+        "blockingGatePolicy": "all-blocking-gates-pass",
+        "advisoryGatePolicy": "record-only",
+        "requiredEvidencePolicy": "all-required-evidence-artifacts-present"
+      },
+      "maturityLabel": "contract-backed",
+      "exportMode": "adapter"
+    },
+    {
+      "workflowClass": "readiness-and-release-review",
+      "category": "release-governance",
+      "supportingSkills": [
+        "readiness-check",
+        "release-narrative-builder",
+        "secret-boundary-audit"
+      ],
+      "controlPlaneSkills": [
+        "workflow-core-router"
+      ],
+      "allowedToolIntents": [
+        "read-only",
+        "read-only validation",
+        "read-only evaluation runner"
+      ],
+      "allowedTools": [
+        "validate-repo-surface",
+        "validate-provider-neutral-core",
+        "validate-secret-boundaries",
+        "run-certification-evals"
+      ],
+      "mcpPosture": "advisory-external",
+      "recommendedTemplates": [
+        "templates/codex-workflow/review-summary-template.md",
+        "templates/codex-workflow/handoff-summary-template.md"
+      ],
+      "validationPosture": {
+        "requiredGates": [
+          "validate-repo-surface",
+          "validate-provider-neutral-core",
+          "validate-secret-boundaries",
+          "run-certification-evals"
+        ],
+        "maturityLabel": "validator-backed"
+      },
+      "expectedOutputContracts": [
+        "readiness-check-verdict-v1",
+        "secret-boundary-audit-report-v1",
+        "workflow-run-summary-v1",
+        "workflow-handoff-summary-v1",
+        "workflow-validation-summary-v1",
+        "workflow-certification-summary-v1"
+      ],
+      "requiredEvidenceArtifacts": [
+        "workflow-validation-summary-v1",
+        "workflow-certification-summary-v1"
+      ],
+      "completionPosture": {
+        "blockingGatePolicy": "all-blocking-gates-pass",
+        "advisoryGatePolicy": "record-only",
+        "requiredEvidencePolicy": "all-required-evidence-artifacts-present"
+      },
+      "maturityLabel": "contract-backed",
+      "exportMode": "adapter"
+    },
+    {
+      "workflowClass": "spec-and-authority-mapping",
+      "category": "authority-spec",
+      "supportingSkills": [
+        "source-conflict-resolver",
+        "implementation-contract-extractor"
+      ],
+      "controlPlaneSkills": [
+        "workflow-core-router",
+        "skill-tool-mcp-builder"
+      ],
+      "allowedToolIntents": [
+        "read-only",
+        "read-only validation",
+        "read-only inventory"
+      ],
+      "allowedTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "validate-repo-surface"
+      ],
+      "mcpPosture": "read-only",
+      "recommendedTemplates": [
+        "templates/codex-workflow/review-summary-template.md"
+      ],
+      "validationPosture": {
+        "requiredGates": [
+          "validate-provider-neutral-core"
+        ],
+        "maturityLabel": "validator-backed"
+      },
+      "expectedOutputContracts": [
+        "source-conflict-resolution-report-v1",
+        "workflow-validation-summary-v1"
+      ],
+      "requiredEvidenceArtifacts": [
+        "source-conflict-resolution-report-v1",
+        "workflow-validation-summary-v1"
+      ],
+      "completionPosture": {
+        "blockingGatePolicy": "all-blocking-gates-pass",
+        "advisoryGatePolicy": "record-only",
+        "requiredEvidencePolicy": "all-required-evidence-artifacts-present"
+      },
+      "maturityLabel": "contract-backed",
+      "exportMode": "adapter"
+    },
+    {
+      "workflowClass": "verification-and-review",
+      "category": "verification",
+      "supportingSkills": [
+        "readiness-check",
+        "post-implementation-review-writer",
+        "test-matrix-builder",
+        "failure-mode-enumerator"
+      ],
+      "controlPlaneSkills": [
+        "workflow-core-router"
+      ],
+      "allowedToolIntents": [
+        "read-only",
+        "read-only validation",
+        "read-only evaluation runner",
+        "read-only evaluation"
+      ],
+      "allowedTools": [
+        "validate-repo-surface",
+        "validate-provider-neutral-core",
+        "validate-secret-boundaries",
+        "run-certification-evals"
+      ],
+      "mcpPosture": "read-only",
+      "recommendedTemplates": [
+        "templates/codex-workflow/review-summary-template.md"
+      ],
+      "validationPosture": {
+        "requiredGates": [
+          "validate-repo-surface",
+          "validate-provider-neutral-core",
+          "run-certification-evals"
+        ],
+        "maturityLabel": "validator-backed"
+      },
+      "expectedOutputContracts": [
+        "readiness-check-verdict-v1",
+        "workflow-run-summary-v1",
+        "workflow-validation-summary-v1",
+        "workflow-certification-summary-v1"
+      ],
+      "requiredEvidenceArtifacts": [
+        "workflow-validation-summary-v1",
+        "workflow-certification-summary-v1"
+      ],
+      "completionPosture": {
+        "blockingGatePolicy": "all-blocking-gates-pass",
+        "advisoryGatePolicy": "record-only",
+        "requiredEvidencePolicy": "all-required-evidence-artifacts-present"
+      },
+      "maturityLabel": "contract-backed",
+      "exportMode": "adapter"
+    }
+  ],
+  "certification": {
+    "completionModel": "artifact-and-gate-based",
+    "blockingSource": "workflow.validationPosture.requiredGates",
+    "requiredEvidenceSource": "workflow.requiredEvidenceArtifacts"
+  },
   "compatibility": {
     "pluginManifest": null,
     "exportRoot": "providers/qwen-code/export.json",

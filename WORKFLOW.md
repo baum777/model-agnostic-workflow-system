@@ -35,7 +35,9 @@ Provide a stable workflow entrypoint that tells maintainers and agents how work 
 - Use [`skills/planning-slice-builder/SKILL.md`](skills/planning-slice-builder/SKILL.md) for bounded implementation waves, dependencies, and acceptance criteria.
 - Use [`skills/test-matrix-builder/SKILL.md`](skills/test-matrix-builder/SKILL.md) when verification coverage must be made explicit before merge or promotion.
 - Use `core/contracts/` when the task is primarily about canonical machine-readable contract truth.
+- Use `core/contracts/workflow-routing-map.json` for canonical workflow-to-skill/tool/MCP/output/validation linkage.
 - Use `docs/` for canonical prose authority, `core/` for canonical machine-readable authority, and compatibility mirrors only when backward compatibility is the actual goal.
+- Use `docs/workflows/README.md` for workflow-class deep dives; keep root taxonomy authority in `WORKFLOW.md`.
 - Do not create a new shared skill when an existing shared skill, contract, or validator already covers the task sufficiently.
 
 ## Validation Posture
@@ -46,6 +48,22 @@ Provide a stable workflow entrypoint that tells maintainers and agents how work 
 - Treat prose-governed docs as canonical authority for policy and interpretation unless a validator-backed surface overrides them.
 - Treat runtime-implemented claims as valid only when a concrete runnable path or generated artifact proves them.
 - Required repo gates for substantive shared-core changes are normally `npm run validate`, `npm run validate-neutral`, and `npm run eval`.
+
+## Execution Claim Discipline
+
+- Keep execution status separate from validation outcome.
+- Execution status values are `proposed`, `drafted`, `applied`, and `verified`.
+- Validation outcome values are `PASS` and `BLOCKED`.
+- `proposed` means recommendation only; no repo write occurred.
+- `drafted` means text was prepared; no repo write occurred.
+- `applied` is allowed only when a real write occurred and both artifact identity and write target are explicit.
+- `verified` is allowed only after `applied` and explicit post-write verification evidence.
+- Post-write verification evidence must include:
+  - which artifact state was read after write
+  - how the new state was recognized
+  - concrete verification reference (file path, command or validator, and result)
+- Plan is not apply, and review/audit is not execution.
+- If applied or verified wording is used without required evidence, fail closed and report `BLOCKED`.
 
 ## Stop Conditions
 

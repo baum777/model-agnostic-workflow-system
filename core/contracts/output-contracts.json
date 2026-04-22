@@ -4,6 +4,9 @@
     {
       "contract_id": "workflow-plan-v1",
       "skill": "planning-slice-builder",
+      "recommended_templates": [
+        "templates/codex-workflow/task-packet-template.md"
+      ],
       "required_sections": [
         "SUMMARY",
         "WORKFLOW CLASS",
@@ -25,6 +28,122 @@
         "Stop conditions and validation posture must be explicit rather than implied."
       ],
       "failure_or_partial_completion_behavior": "If authority sources are conflicting or the required validation posture cannot be determined, return BLOCKED and enumerate the unresolved sources or gates."
+    },
+    {
+      "contract_id": "workflow-run-summary-v1",
+      "skill": "workflow-execution",
+      "recommended_templates": [
+        "templates/codex-workflow/handoff-summary-template.md"
+      ],
+      "required_sections": [
+        "SUMMARY",
+        "WORKFLOW CLASS",
+        "SCOPE",
+        "ACTIONS EXECUTED",
+        "EXECUTION STATUS",
+        "WRITE EVIDENCE",
+        "POST-WRITE VERIFICATION",
+        "VALIDATION GATES",
+        "VALIDATION OUTCOME",
+        "OPEN GAPS",
+        "NEXT GATE"
+      ],
+      "optional_sections": [
+        "ROLLBACK NOTES",
+        "HANDOFF NOTES"
+      ],
+      "validation_notes": [
+        "This contract is artifact-oriented and does not imply a runtime control plane.",
+        "Every validation gate entry must name the exact script or command path used.",
+        "Execution status must be one of proposed, drafted, applied, or verified.",
+        "Validation outcome must be PASS or BLOCKED, and must not be merged with execution status.",
+        "Applied claims require real write evidence with explicit artifact and write target.",
+        "Verified claims require post-write verification evidence: read artifact state, recognition signal, and concrete verification reference."
+      ],
+      "failure_or_partial_completion_behavior": "If applied or verified claims are missing write evidence or post-write verification evidence, return BLOCKED and enumerate missing artifact paths, write targets, or verification references."
+    },
+    {
+      "contract_id": "workflow-handoff-summary-v1",
+      "skill": "workflow-handoff",
+      "recommended_templates": [
+        "templates/codex-workflow/handoff-summary-template.md"
+      ],
+      "required_sections": [
+        "SUMMARY",
+        "WORKFLOW CLASS",
+        "CURRENT STATE",
+        "CHANGES MADE",
+        "REMAINING BLOCKERS",
+        "OWNER / NEXT ACTION",
+        "EVIDENCE REFERENCES",
+        "NEXT GATE"
+      ],
+      "optional_sections": [
+        "ROLLBACK NOTES",
+        "HANDOFF NOTES"
+      ],
+      "validation_notes": [
+        "Handoff must be execution-evidence aligned and explicitly list unresolved blockers.",
+        "EVIDENCE REFERENCES must point to concrete artifacts and validation outputs.",
+        "OWNER / NEXT ACTION must be explicit and bounded."
+      ],
+      "failure_or_partial_completion_behavior": "If ownership, blockers, or evidence references are missing, return BLOCKED and enumerate unresolved handoff fields."
+    },
+    {
+      "contract_id": "workflow-validation-summary-v1",
+      "skill": "workflow-verification",
+      "recommended_templates": [
+        "templates/codex-workflow/review-summary-template.md"
+      ],
+      "required_sections": [
+        "SUMMARY",
+        "WORKFLOW CLASS",
+        "VALIDATION SCOPE",
+        "BLOCKING GATES",
+        "ADVISORY GATES",
+        "EVIDENCE REFERENCES",
+        "VERDICT",
+        "OPEN GAPS",
+        "NEXT GATE"
+      ],
+      "optional_sections": [
+        "NON-BLOCKING OBSERVATIONS",
+        "ROLLBACK READINESS"
+      ],
+      "validation_notes": [
+        "Every blocking/advisory gate entry must include gate id, command/script path, and pass/fail or advisory status.",
+        "EVIDENCE REFERENCES should point to concrete artifacts, fixtures, or generated outputs instead of narrative-only claims.",
+        "VERDICT must remain fail-closed when any blocking gate evidence is missing."
+      ],
+      "failure_or_partial_completion_behavior": "If blocking gate evidence is incomplete or contradictory, return BLOCKED and enumerate missing gate outputs and unresolved gaps."
+    },
+    {
+      "contract_id": "workflow-certification-summary-v1",
+      "skill": "workflow-certification",
+      "recommended_templates": [
+        "templates/codex-workflow/review-summary-template.md"
+      ],
+      "required_sections": [
+        "SUMMARY",
+        "CERTIFICATION SCOPE",
+        "REQUIRED CONTRACT SURFACES",
+        "REQUIRED VALIDATION RUNS",
+        "REQUIRED EVIDENCE ARTIFACTS",
+        "COMPATIBILITY/EXPORT STATUS",
+        "CERTIFICATION DECISION",
+        "RESIDUAL RISKS",
+        "NEXT GATE"
+      ],
+      "optional_sections": [
+        "CHANGE WINDOW",
+        "HANDOFF NOTES"
+      ],
+      "validation_notes": [
+        "Required contract and validation surfaces must use exact canonical paths.",
+        "COMPATIBILITY/EXPORT STATUS must separate canonical truth from compatibility mirrors.",
+        "CERTIFICATION DECISION must be explicit: CERTIFIED, BLOCKED, or ADVISORY-ONLY."
+      ],
+      "failure_or_partial_completion_behavior": "If required contracts, validations, or export-alignment evidence cannot be verified, return BLOCKED with unresolved evidence gaps."
     },
     {
       "contract_id": "repo-audit-report-v1",
