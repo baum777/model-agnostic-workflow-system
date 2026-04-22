@@ -14,7 +14,7 @@ Executable certification checks live here.
 - skill-routing checks for single-skill, multi-step, and false-positive routing outcomes, using normalized route packets
 - workflow-routing checks for registry workflow class and MCP posture coverage
 - workflow-evidence checks for required evidence artifacts and completion posture consistency per workflow class
-- provider-export-alignment checks for canonical source-contract projection and workflow/skill evidence metadata in provider exports
+- provider-export-alignment checks for canonical source-contract projection, capability-ownership projection, normalized provider capability states, and workflow/skill evidence metadata in provider exports
 - semantic-layout checks for deterministic semantic-to-layout contract decisions and bounded over-stylization prevention
 - render-layout checks for deterministic local-fixture render behavior across breakpoints, with DOM/layout metrics as blocking evidence
 - wcag-a11y checks for deterministic local-fixture accessibility evidence using Axe, Lighthouse, and structural WCAG linting

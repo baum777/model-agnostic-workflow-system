@@ -23,6 +23,11 @@
     "name": "model-agnostic-workflow-system",
     "version": "0.2.1"
   },
+  "capabilityOwnership": {
+    "sourceContract": "core/contracts/provider-capabilities.json",
+    "projectionPolicy": "provider-capabilities-derived-only",
+    "portabilityVocabulary": "provider-portability-v1"
+  },
   "capabilityProfile": {
     "name": "openai-codex",
     "aliases": [

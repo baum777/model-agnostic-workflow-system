@@ -19,6 +19,16 @@
       "toolCatalog": "core/contracts/tool-contracts/catalog.json",
       "providerCapabilities": "core/contracts/provider-capabilities.json"
     },
+    "requiredCapabilityOwnership": {
+      "sourceContract": "core/contracts/provider-capabilities.json",
+      "projectionPolicy": "provider-capabilities-derived-only",
+      "portabilityVocabulary": "provider-portability-v1"
+    },
+    "requiredCapabilityStates": [
+      "native",
+      "adapter",
+      "unsupported"
+    ],
     "requiredSkillFields": [
       "skillId",
       "manifestPath",

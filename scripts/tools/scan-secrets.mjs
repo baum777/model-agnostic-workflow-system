@@ -9,7 +9,9 @@ const FILE_PATTERNS = [
   /^docs\//,
   /^examples\//,
   /^evals\//,
-  /^templates\//
+  /^templates\//,
+  /^policies\//,
+  /^providers\/[^/]+\/export\.json$/
 ];
 
 const SECRET_PATTERNS = [

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseSimpleYaml, readJson, repoRoot } from './_shared.mjs';
+import { scanSecrets } from './scan-secrets.mjs';
 
 const REQUIRED_POLICY_FILES = [
   'docs/secret-handling.md',
@@ -143,6 +144,9 @@ function validateSecretBoundaries(baseRoot = repoRoot()) {
   const toolCapabilities = loadPolicyYaml(root, 'policies/tool-capabilities.yaml');
   const toolCatalog = readJson(path.join(root, 'core', 'contracts', 'tool-contracts', 'catalog.json'));
   const providerCapabilities = readJson(path.join(root, 'core', 'contracts', 'provider-capabilities.json'));
+  const providerDirs = fs.existsSync(path.join(root, 'providers'))
+    ? fs.readdirSync(path.join(root, 'providers'), { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name)
+    : [];
   const allowedSecretClasses = new Set((secretClasses.classes || []).map((entry) => entry.id));
 
   for (const tool of toolCatalog.tools || []) {
@@ -151,6 +155,27 @@ function validateSecretBoundaries(baseRoot = repoRoot()) {
 
   for (const provider of providerCapabilities.providers || []) {
     validateProviderSecurity(provider, issues);
+  }
+
+  for (const providerDir of providerDirs) {
+    const exportPath = path.join(root, 'providers', providerDir, 'export.json');
+    if (!fs.existsSync(exportPath)) {
+      continue;
+    }
+    const providerExport = readJson(exportPath);
+    for (const tool of providerExport.tools || []) {
+      validateSecretTool(tool, toolCapabilities, allowedSecretClasses, issues);
+    }
+    if (providerExport.capabilityProfile) {
+      validateProviderSecurity(providerExport.capabilityProfile, issues);
+    }
+  }
+
+  const secretScan = scanSecrets(root);
+  if (!secretScan.ok) {
+    for (const finding of secretScan.findings || []) {
+      issues.push(`secret-scan finding ${finding.type} in ${finding.file}.`);
+    }
   }
 
   return {

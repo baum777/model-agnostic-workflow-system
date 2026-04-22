@@ -861,6 +861,8 @@ function evaluateProviderExportAlignment(providerExports, fixture) {
 
   const providers = Array.isArray(fixture.expectations?.providers) ? fixture.expectations.providers : [];
   const requiredSourceContracts = fixture.expectations?.requiredSourceContracts || {};
+  const requiredCapabilityOwnership = fixture.expectations?.requiredCapabilityOwnership || {};
+  const requiredCapabilityStates = Array.isArray(fixture.expectations?.requiredCapabilityStates) ? new Set(fixture.expectations.requiredCapabilityStates) : null;
   const requiredSkillFields = Array.isArray(fixture.expectations?.requiredSkillFields) ? fixture.expectations.requiredSkillFields : [];
   const requiredWorkflowFields = Array.isArray(fixture.expectations?.requiredWorkflowFields) ? fixture.expectations.requiredWorkflowFields : [];
 
@@ -876,6 +878,20 @@ function evaluateProviderExportAlignment(providerExports, fixture) {
       if (exportJson.sourceContracts?.[field] !== expectedPath) {
         result.passed = false;
         result.issues.push(`Provider ${providerName} sourceContracts.${field} is ${exportJson.sourceContracts?.[field]}, expected ${expectedPath}.`);
+      }
+    }
+    for (const [field, expectedValue] of Object.entries(requiredCapabilityOwnership)) {
+      if (exportJson.capabilityOwnership?.[field] !== expectedValue) {
+        result.passed = false;
+        result.issues.push(`Provider ${providerName} capabilityOwnership.${field} is ${exportJson.capabilityOwnership?.[field]}, expected ${expectedValue}.`);
+      }
+    }
+    if (requiredCapabilityStates) {
+      for (const field of ['toolUse', 'structuredOutputs', 'mcp', 'subagents']) {
+        if (!requiredCapabilityStates.has(exportJson.capabilityProfile?.[field])) {
+          result.passed = false;
+          result.issues.push(`Provider ${providerName} capabilityProfile.${field} has invalid value ${exportJson.capabilityProfile?.[field]}.`);
+        }
       }
     }
 

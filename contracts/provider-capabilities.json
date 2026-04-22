@@ -1,5 +1,30 @@
 {
   "schemaVersion": "1.0.0",
+  "canonicalOwner": "core/contracts/provider-capabilities.json",
+  "portabilityModel": {
+    "vocabularyVersion": "provider-portability-v1",
+    "allowedStates": [
+      "native",
+      "adapter",
+      "unsupported"
+    ],
+    "normalizedCapabilityFields": [
+      "toolUse",
+      "structuredOutputs",
+      "mcp",
+      "subagents"
+    ],
+    "providerSpecificFields": [
+      "packaging",
+      "notes",
+      "aliases",
+      "legacyExportDirectories"
+    ]
+  },
+  "projectionPolicy": {
+    "exportDerivation": "provider-capabilities-derived-only",
+    "sourceContract": "core/contracts/provider-capabilities.json"
+  },
   "providers": [
     {
       "name": "openai-codex",

@@ -161,6 +161,13 @@ flowchart LR
 - Examples under `examples/codex-workflow/` are tightened as derived, contract-aligned portability artifacts and indexed in `examples/codex-workflow/README.md`.
 - Validators and certification fixtures are extended to enforce workflow coverage fields, example-link integrity, and exported skill workflow-support metadata consistency.
 
+## Phase 6 Overlay Mapping
+
+- Provider capability contracts now carry explicit portability-minimized vocabulary metadata and projection policy in `core/contracts/provider-capabilities.json`.
+- Provider exports now carry explicit capability ownership metadata that points to canonical provider-capability contracts and derived-only projection policy.
+- Secret-boundary enforcement now validates provider-export secret metadata and integrates blocking leak-scan results from `scripts/tools/scan-secrets.mjs`.
+- Provider-export certification alignment now validates capability ownership metadata and normalized capability-state values in addition to workflow/skill alignment checks.
+
 ## Capability Maturity Labels
 
 When a doc in this repo describes capability maturity, it should distinguish:

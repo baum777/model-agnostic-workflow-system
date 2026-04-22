@@ -93,6 +93,7 @@ const allowedBlockingGatePolicies = new Set(['all-blocking-gates-pass']);
 const allowedAdvisoryGatePolicies = new Set(['record-only']);
 const allowedEvidencePolicies = new Set(['all-required-evidence-artifacts-present']);
 const allowedWorkflowCoverageLabels = new Set(['covered', 'partial', 'planned', 'out-of-scope']);
+const allowedProviderCapabilityStates = new Set(['native', 'adapter', 'unsupported']);
 const requiredExecutionStatuses = new Set(['proposed', 'drafted', 'applied', 'verified']);
 const requiredValidationOutcomes = new Set(['PASS', 'BLOCKED']);
 const requiredWorkflowRunSummarySections = [
@@ -284,9 +285,45 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
   } else if (providerNames.length === 0) {
     issues.push('provider capability profile must contain a non-empty providers array.');
   } else {
+    if (fs.existsSync(providerCapabilitiesPath) && fs.existsSync(compatibilityProviderCapabilitiesPath)) {
+      if (JSON.stringify(readJson(providerCapabilitiesPath), null, 2) !== JSON.stringify(readJson(compatibilityProviderCapabilitiesPath), null, 2)) {
+        issues.push('contracts/provider-capabilities.json does not match core/contracts/provider-capabilities.json compatibility mirror expectations.');
+      }
+    }
     for (const required of ['openai-codex', 'anthropic-claude', 'qwen-code', 'kimi-k2_5']) {
       if (!providerNames.includes(required)) {
         issues.push(`provider capability profile must include provider ${required}.`);
+      }
+    }
+    if (capabilities.canonicalOwner !== 'core/contracts/provider-capabilities.json') {
+      issues.push(`provider capability canonicalOwner must be core/contracts/provider-capabilities.json; found ${capabilities.canonicalOwner || '<missing>'}.`);
+    }
+    if (capabilities.projectionPolicy?.exportDerivation !== 'provider-capabilities-derived-only') {
+      issues.push('provider capability projectionPolicy.exportDerivation must be provider-capabilities-derived-only.');
+    }
+    if (capabilities.projectionPolicy?.sourceContract !== 'core/contracts/provider-capabilities.json') {
+      issues.push('provider capability projectionPolicy.sourceContract must be core/contracts/provider-capabilities.json.');
+    }
+    if (!Array.isArray(capabilities.portabilityModel?.allowedStates) || capabilities.portabilityModel.allowedStates.length === 0) {
+      issues.push('provider capability portabilityModel.allowedStates must be a non-empty array.');
+    } else {
+      for (const state of capabilities.portabilityModel.allowedStates) {
+        if (!allowedProviderCapabilityStates.has(state)) {
+          issues.push(`provider capability portabilityModel.allowedStates contains invalid state ${state}.`);
+        }
+      }
+    }
+    const normalizedFields = capabilities.portabilityModel?.normalizedCapabilityFields || [];
+    for (const field of ['toolUse', 'structuredOutputs', 'mcp', 'subagents']) {
+      if (!Array.isArray(normalizedFields) || !normalizedFields.includes(field)) {
+        issues.push(`provider capability portabilityModel.normalizedCapabilityFields must include ${field}.`);
+      }
+    }
+    for (const provider of capabilities.providers || []) {
+      for (const field of ['toolUse', 'structuredOutputs', 'mcp', 'subagents']) {
+        if (!allowedProviderCapabilityStates.has(provider[field])) {
+          issues.push(`provider capability ${provider.name || '<unnamed>'} has invalid ${field} state ${provider[field] || '<missing>'}.`);
+        }
       }
     }
   }
@@ -346,6 +383,20 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
     for (const [key, expectedPath] of Object.entries(expectedSourceContracts)) {
       if (committedExport.sourceContracts?.[key] !== expectedPath) {
         issues.push(`providers/${provider}/export.json must declare sourceContracts.${key} as ${expectedPath}.`);
+      }
+    }
+    if (committedExport.capabilityOwnership?.sourceContract !== 'core/contracts/provider-capabilities.json') {
+      issues.push(`providers/${provider}/export.json must declare capabilityOwnership.sourceContract as core/contracts/provider-capabilities.json.`);
+    }
+    if (committedExport.capabilityOwnership?.projectionPolicy !== 'provider-capabilities-derived-only') {
+      issues.push(`providers/${provider}/export.json must declare capabilityOwnership.projectionPolicy as provider-capabilities-derived-only.`);
+    }
+    if (committedExport.capabilityOwnership?.portabilityVocabulary !== 'provider-portability-v1') {
+      issues.push(`providers/${provider}/export.json must declare capabilityOwnership.portabilityVocabulary as provider-portability-v1.`);
+    }
+    for (const field of ['toolUse', 'structuredOutputs', 'mcp', 'subagents']) {
+      if (!allowedProviderCapabilityStates.has(committedExport.capabilityProfile?.[field])) {
+        issues.push(`providers/${provider}/export.json capabilityProfile.${field} has invalid value ${committedExport.capabilityProfile?.[field] || '<missing>'}.`);
       }
     }
     if (committedExport.certification?.completionModel !== 'artifact-and-gate-based') {

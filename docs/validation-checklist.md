@@ -36,6 +36,7 @@ These items are expected to be backed by scripts or validators.
 - [ ] `model-agnostic-workflow-system/providers/` contains the provider adapter scaffolds
 - [ ] `model-agnostic-workflow-system/providers/<provider>/export.json` files are regenerated from the neutral registry
 - [ ] Provider exports declare canonical `sourceContracts` paths and preserve canonical-vs-compatibility ownership boundaries
+- [ ] Provider exports declare `capabilityOwnership` fields that point to canonical provider capability contracts and projection policy
 - [ ] `model-agnostic-workflow-system/skills/` contains the mirrored shared skills
 - [ ] `model-agnostic-workflow-system/core/skills/repo-audit/SKILL.md` is present and declares the portable core metadata
 - [ ] `model-agnostic-workflow-system/skills/repo-intake-sot-mapper/SKILL.md` is classified as `shared-with-local-inputs`
@@ -58,6 +59,7 @@ These items are expected to be backed by scripts or validators.
 - [ ] `model-agnostic-workflow-system/scripts/tools/validate-provider-neutral-core.mjs` validates the neutral registry and provider scaffolds
 - [ ] `model-agnostic-workflow-system/scripts/tools/validate-secret-boundaries.mjs` validates secret-boundary metadata, provider security flags, and policy presence
 - [ ] `model-agnostic-workflow-system/scripts/tools/scan-secrets.mjs` scans governed surfaces for explicit secret leaks
+- [ ] Secret-boundary validation includes leak-scan findings as blocking issues when explicit secret patterns are detected
 - [ ] `model-agnostic-workflow-system/scripts/tools/validate-repo-surface.mjs` combines package and neutral-core validation
 - [ ] `model-agnostic-workflow-system/scripts/tools/calculate-package-fingerprint.mjs` produces a stable fingerprint
 - [ ] Shared skill frontmatter includes the required metadata fields

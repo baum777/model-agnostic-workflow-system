@@ -84,6 +84,11 @@ function createProviderExport(root, registry, provider) {
     sourceRegistry: 'core/contracts/core-registry.json',
     sourceContracts,
     sourcePackage: registry.core.sourcePackage,
+    capabilityOwnership: {
+      sourceContract: 'core/contracts/provider-capabilities.json',
+      projectionPolicy: 'provider-capabilities-derived-only',
+      portabilityVocabulary: 'provider-portability-v1'
+    },
     capabilityProfile: provider,
     packaging: {
       mode: provider.skillPackaging,

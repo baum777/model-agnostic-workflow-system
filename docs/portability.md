@@ -9,6 +9,7 @@ Use rule: read this when deciding whether an asset belongs in the portable core 
 - `core/contracts/output-contracts.json` holds normalized output contracts.
 - `core/contracts/tool-contracts/catalog.json` holds normalized tool contracts.
 - `core/contracts/provider-capabilities.json` holds canonical provider capabilities.
+- `core/contracts/provider-capabilities.json` also defines the portability-minimized capability vocabulary used by provider projections.
 - `core/evals/` holds portable eval scaffolding and boundary notes.
 
 ## Provider Adapters
@@ -27,4 +28,4 @@ Use rule: read this when deciding whether an asset belongs in the portable core 
 - If an asset changes shared semantics, it belongs in `core/`.
 - If an asset only projects shared semantics into a provider packaging boundary, it belongs in `providers/`.
 - If an asset exists to keep older consumers working, it belongs in a compatibility mirror and must be labeled as such.
-
+- Provider exports must carry capability ownership metadata that points back to canonical capability contracts, not local provider-only semantics.

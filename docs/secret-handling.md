@@ -36,6 +36,7 @@ Secret classes are defined in `policies/secret-classes.yaml`.
 5. Memory surfaces must not persist raw or reconstructable secret material.
 6. Compatibility exports may project security metadata, but they must not become the authority source.
 7. If a secret boundary cannot be proven, validators and audit flows must fail closed.
+8. Secret leak scans across docs/examples/templates/evals/policies/provider exports are part of boundary enforcement, not advisory-only checks.
 
 ## Tool Contract Expectations
 
