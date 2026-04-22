@@ -49,7 +49,7 @@ The generated `.qwen` scaffold is a consumer-local operating overlay. It is not 
 | `docs/validation-checklist.md` | doc | operational | partly enforced | gates reference scripts and validators | conditional items remain conditional |
 | `docs/portability.md` | doc | canonical | prose-only | portability charter | explains core/provider/compatibility boundaries |
 | `docs/provider-capability-matrix.md` | doc | canonical | prose-only | provider capability charter | names canonical providers and aliases |
-| `docs/authoring-guides.md` | doc | operational | prose-only | authoring guide | explains how to author skills, tools, exports, eval fixtures, and secret-boundary metadata |
+| `docs/authoring-guides.md` | doc | operational | partly enforced | authoring guide + scaffold heading checks | explains safe extension of skills/contracts/templates/examples/policies/exports and links directly to validator gates |
 | `docs/secret-handling.md` | doc | canonical | prose-only | canonical secret-boundary charter | single prose authority for secret classes, redaction, memory, and provider-switch posture |
 | `docs/overview.md` | doc | derived | prose-only | summary only | should not be read as governing text |
 | `docs/eval-baseline.md` | doc | derived | prose-only | derived evidence baseline | not a governance source |

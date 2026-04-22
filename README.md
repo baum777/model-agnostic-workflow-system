@@ -203,6 +203,21 @@ Render/A11y-Modi:
 7. `npm run validate-neutral`
 8. `npm run eval`
 
+## Phase-7 Authoring Und Adoption Quickstart
+
+Fuer Maintainer und Consumer gilt derselbe sichere Erweiterungspfad:
+
+1. Canonical ownership zuerst in `core/contracts/*`, `core/skills/*`, `policies/*`.
+2. Danach abgeleitete Projektionen bauen (`npm run build-registry`, `npm run build-exports`) falls betroffen.
+3. Erst danach operatorische Prosa/Beispiele/Templates aktualisieren (`docs/*`, `templates/*`, `examples/*`).
+4. Abschluss nur mit Gate-Lauf: `npm run validate`, `npm run validate-neutral`, `npm run eval`.
+
+Wichtig:
+
+- Provider-Exporte bleiben abgeleitete Spiegel und sind keine zweite kanonische Wahrheitsquelle.
+- Compatibility-Surfaces (`contracts/*`, `skills/*`, `docs/tool-contracts/catalog.json`, legacy `providers/*`) bleiben explizit als Kompatibilitaetsschicht markiert.
+- `repo-root memory/` bleibt geplant; dieses Repo claimt weiterhin kein Runtime-Memory-Subsystem.
+
 ## Beispiele, Templates und lokale Repo-Steuerung
 
 - `templates/` und `examples/` sind Support-/Onboarding-Surfaces, nicht canonical Governance.

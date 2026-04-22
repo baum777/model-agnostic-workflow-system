@@ -68,11 +68,66 @@ const requiredDocMarkers = new Map([
     ]
   ],
   [
+    'README.md',
+    [
+      '## Phase-7 Authoring Und Adoption Quickstart',
+      '## Beispiele, Templates und lokale Repo-Steuerung'
+    ]
+  ],
+  [
+    'docs/README.md',
+    [
+      '## Consumer Onboarding Quickstart',
+      '## Authoring Quickstart'
+    ]
+  ],
+  [
+    'docs/authoring-guides.md',
+    [
+      '## Canonical Ownership First',
+      '## Skill Authoring',
+      '## Workflow/Output/Template Authoring',
+      '## Tool Contract Authoring',
+      '## Provider Capability And Export Authoring',
+      '## Required Validation Gate',
+      '## Drift Prevention Rules',
+      '## Maturity Posture'
+    ]
+  ],
+  [
+    'docs/validation-checklist.md',
+    [
+      '## Enforced Checks',
+      '## Authoring Drift Prevention Checks',
+      '## Conditional Checks',
+      '## Maturity Posture'
+    ]
+  ],
+  [
+    'core/contracts/README.md',
+    [
+      '## Canonical Files',
+      '## Safe Extension Flow',
+      '## Compatibility Rule',
+      '## Maturity Posture'
+    ]
+  ],
+  [
+    'core/skills/README.md',
+    [
+      '## Canonical Skills',
+      '## Safe Extension Flow',
+      '## Compatibility Rule',
+      '## Maturity Posture'
+    ]
+  ],
+  [
     'templates/codex-workflow/README.md',
     [
       '## Objective',
       '## Canonical Contract Links',
       '## Template Map',
+      '## Safe Extension Steps',
       '## Maturity Posture'
     ]
   ],
@@ -82,6 +137,7 @@ const requiredDocMarkers = new Map([
       '## Objective',
       '## Example Map',
       '## Portability Posture',
+      '## Safe Extension Steps',
       '## Maturity Posture'
     ]
   ]

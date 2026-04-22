@@ -28,6 +28,13 @@ Provide bounded examples that project canonical workflow/output/template contrac
 - Examples must not introduce authority that conflicts with canonical contracts.
 - Compatibility/provider exports consume canonical contracts, not example content.
 
+## Safe Extension Steps
+
+1. Keep workflow/output/template truth canonical in `core/contracts/*` and `templates/codex-workflow/*` first.
+2. Add or update only bounded representative examples under `examples/codex-workflow/`.
+3. Ensure each example links to workflow class, output contracts, and template paths already declared canonically.
+4. Treat examples as derived artifacts and run `npm run validate`, `npm run validate-neutral`, and `npm run eval` after updates.
+
 ## Maturity Posture
 
 - `prose-governed`: this example-index guidance.

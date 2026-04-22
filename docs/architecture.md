@@ -168,6 +168,13 @@ flowchart LR
 - Secret-boundary enforcement now validates provider-export secret metadata and integrates blocking leak-scan results from `scripts/tools/scan-secrets.mjs`.
 - Provider-export certification alignment now validates capability ownership metadata and normalized capability-state values in addition to workflow/skill alignment checks.
 
+## Phase 7 Overlay Mapping
+
+- Authoring and onboarding guidance is tightened in existing operational surfaces (`README.md`, `docs/README.md`, `docs/authoring-guides.md`, `docs/validation-checklist.md`) instead of introducing a new doc family.
+- Canonical extension ergonomics for skills and contracts is made explicit in `core/skills/README.md` and `core/contracts/README.md`, with direct linkage to existing validator/eval gates.
+- Template/example extension posture is tightened in `templates/codex-workflow/README.md` and `examples/codex-workflow/README.md` so derived operator artifacts remain projections of canonical contracts.
+- Drift prevention for authoring guidance is partly validator-backed through required heading checks in `scripts/tools/validate-shared-core-scaffold.mjs`.
+
 ## Capability Maturity Labels
 
 When a doc in this repo describes capability maturity, it should distinguish:

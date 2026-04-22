@@ -62,6 +62,20 @@ These labels describe maturity only. Claim-status truth still lives in [authorit
 - `../core/contracts/tool-contracts/catalog.json` is the canonical machine-readable tool catalog.
 - `tool-contracts/catalog.json` remains a compatibility/export surface and must not become a second canonical source.
 
+## Consumer Onboarding Quickstart
+
+1. Read `../README.md`, then `../WORKFLOW.md`.
+2. Confirm authority boundaries in `architecture.md`, `authority-matrix.md`, and `governance/source-hierarchy.md`.
+3. Use `../core/contracts/README.md` and `../core/skills/README.md` to identify canonical machine-readable ownership.
+4. Run `npm run validate`, `npm run validate-neutral`, and `npm run eval` before trusting a portability or adoption slice.
+
+## Authoring Quickstart
+
+1. Start in `authoring-guides.md` for safe extension rules.
+2. Change canonical contracts/skills first, then regenerate derived registry/exports.
+3. Update templates/examples only as projections of canonical truth.
+4. Keep compatibility/export surfaces explicit and non-authoritative.
+
 ## Rule
 
 - If a page restates a governing rule, it should link back to the canonical doc instead of redefining it.
