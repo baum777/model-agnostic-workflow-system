@@ -25,7 +25,7 @@ Current repo mapping:
 
 1. Repo governance: `AGENTS.md`, `docs/architecture.md`, `docs/authority-matrix.md`
 2. Task-specific spec: the current task brief, approved plan, or canonical task artifact when present
-3. Workflow rules: `WORKFLOW.md` and repo-local control-plane routing under `.agents/skills/`
+3. Workflow rules: `WORKFLOW.md`, `docs/workflows/README.md`, `core/contracts/workflow-routing-map.json`, and repo-local control-plane routing under `.agents/skills/`
 4. Skill instructions: `core/skills/*/SKILL.md` and `skills/*/SKILL.md`
 5. Tool contracts: `core/contracts/tool-contracts/catalog.json` as canonical, `docs/tool-contracts/catalog.json` as compatibility/export
 6. MCP data: adapter outputs, provider exports, and bounded MCP-facing context where present

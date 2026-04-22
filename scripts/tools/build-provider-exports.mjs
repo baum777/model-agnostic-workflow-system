@@ -68,6 +68,13 @@ function loadProviderCapabilities(root) {
 function createProviderExport(root, registry, provider) {
   const exportMode = providerCompatibility(provider);
   const exportRoot = `providers/${provider.name}/export.json`;
+  const sourceContracts = registry.core?.canonicalContracts || {
+    skillManifest: 'core/contracts/portable-skill-manifest.json',
+    outputContracts: 'core/contracts/output-contracts.json',
+    workflowRoutingMap: 'core/contracts/workflow-routing-map.json',
+    toolCatalog: 'core/contracts/tool-contracts/catalog.json',
+    providerCapabilities: 'core/contracts/provider-capabilities.json'
+  };
   return {
     schemaVersion: '1.0.0',
     provider: provider.name,
@@ -75,6 +82,7 @@ function createProviderExport(root, registry, provider) {
     aliases: provider.aliases || [],
     legacyExportDirectories: provider.legacyExportDirectories || [],
     sourceRegistry: 'core/contracts/core-registry.json',
+    sourceContracts,
     sourcePackage: registry.core.sourcePackage,
     capabilityProfile: provider,
     packaging: {
@@ -83,9 +91,17 @@ function createProviderExport(root, registry, provider) {
       status: exportMode
     },
     skills: registry.skills.map((skill) => ({
+      skillId: skill.skillId,
       name: skill.name,
       sourcePath: skill.sourcePath,
+      skillPath: skill.skillPath,
+      manifestPath: skill.manifestPath,
       classification: skill.classification,
+      category: skill.category,
+      status: skill.status,
+      maturityLabel: skill.maturityLabel,
+      mcpPosture: skill.mcpPosture,
+      toolUsagePosture: skill.toolUsagePosture,
       exportMode,
       outputHeadings: skill.outputHeadings,
       requiresRepoInputs: skill.requiresRepoInputs,
@@ -95,6 +111,9 @@ function createProviderExport(root, registry, provider) {
       requiredTools: skill.requiredTools,
       optionalTools: skill.optionalTools,
       outputContractId: skill.outputContractId || null,
+      outputContractPath: skill.outputContractPath || null,
+      toolContractCatalogPath: skill.toolContractCatalogPath || null,
+      workflowSupport: skill.workflowSupport || null,
       providerCompatibility: skill.providerCompatibility,
       providerProjections: skill.providerProjections || null
     })),
@@ -106,10 +125,31 @@ function createProviderExport(root, registry, provider) {
       side_effects: tool.side_effects,
       approval_required: tool.approval_required,
       mcp_compatible: tool.mcp_compatible,
+      requires_secret: tool.requires_secret,
+      secret_classes: tool.secret_classes,
+      credential_binding: tool.credential_binding,
+      raw_secret_exposure: tool.raw_secret_exposure,
+      model_visible: tool.model_visible,
+      secret_scope: tool.secret_scope,
+      environment_scope: tool.environment_scope,
+      access_level: tool.access_level,
+      short_lived_preferred: tool.short_lived_preferred,
+      fallback_context_policy: tool.fallback_context_policy,
+      trace_redaction: tool.trace_redaction,
+      memory_persistence: tool.memory_persistence,
       exportMode,
       providerCompatibility: tool.providerCompatibility,
       routing_hints: tool.routing_hints
     })),
+    workflows: (registry.workflows || []).map((workflow) => ({
+      ...workflow,
+      exportMode
+    })),
+    certification: {
+      completionModel: 'artifact-and-gate-based',
+      blockingSource: 'workflow.validationPosture.requiredGates',
+      requiredEvidenceSource: 'workflow.requiredEvidenceArtifacts'
+    },
     compatibility: {
       pluginManifest: provider.name === 'openai-codex' || (provider.legacyExportDirectories || []).includes('codex') ? '.codex-plugin/plugin.json' : null,
       exportRoot,

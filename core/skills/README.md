@@ -18,6 +18,7 @@ Portable skill slice.
 - `long-document-to-knowledge-asset`
 - `ui-ux-composition`
 - `static-vs-dynamic-rendering-advisor`
+- `secret-boundary-audit`
 
 ## Compatibility Rule
 

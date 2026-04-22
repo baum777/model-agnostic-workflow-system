@@ -23,7 +23,15 @@
         "chatkit",
         "plugin-export"
       ],
-      "notes": "Codex is now represented as a compatibility export beneath the OpenAI-Codex adapter."
+      "notes": "Codex is now represented as a compatibility export beneath the OpenAI-Codex adapter.",
+      "security": {
+        "raw_secret_prompting_forbidden": true,
+        "server_bound_credentials_required": true,
+        "provider_switch_requires_reminimization": true,
+        "fallback_full_context_reuse_forbidden": true,
+        "trace_redaction_required": true,
+        "memory_secret_persistence_forbidden": true
+      }
     },
     {
       "name": "anthropic-claude",
@@ -44,7 +52,15 @@
         "claude-desktop",
         "mcp"
       ],
-      "notes": "Use provider adapters to compile prompt and tool bundles."
+      "notes": "Use provider adapters to compile prompt and tool bundles.",
+      "security": {
+        "raw_secret_prompting_forbidden": true,
+        "server_bound_credentials_required": true,
+        "provider_switch_requires_reminimization": true,
+        "fallback_full_context_reuse_forbidden": true,
+        "trace_redaction_required": true,
+        "memory_secret_persistence_forbidden": true
+      }
     },
     {
       "name": "qwen-code",
@@ -65,7 +81,15 @@
         "qwen-agent",
         "mcp"
       ],
-      "notes": "Treat trust and tool filtering as adapter responsibilities."
+      "notes": "Treat trust and tool filtering as adapter responsibilities.",
+      "security": {
+        "raw_secret_prompting_forbidden": true,
+        "server_bound_credentials_required": true,
+        "provider_switch_requires_reminimization": true,
+        "fallback_full_context_reuse_forbidden": true,
+        "trace_redaction_required": true,
+        "memory_secret_persistence_forbidden": true
+      }
     },
     {
       "name": "kimi-k2_5",
@@ -86,8 +110,15 @@
         "openai-compatible-api",
         "tool-calls"
       ],
-      "notes": "Use schema validation in the core; keep JSON mode assumptions narrow."
+      "notes": "Use schema validation in the core; keep JSON mode assumptions narrow.",
+      "security": {
+        "raw_secret_prompting_forbidden": true,
+        "server_bound_credentials_required": true,
+        "provider_switch_requires_reminimization": true,
+        "fallback_full_context_reuse_forbidden": true,
+        "trace_redaction_required": true,
+        "memory_secret_persistence_forbidden": true
+      }
     }
   ]
 }
-

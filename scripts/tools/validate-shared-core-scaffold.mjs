@@ -56,6 +56,34 @@ const requiredDocMarkers = new Map([
       '## Fail-Closed Behavior',
       '## Current Implementation Status'
     ]
+  ],
+  [
+    'docs/workflows/README.md',
+    [
+      '## Objective',
+      '## Relationship To WORKFLOW.md',
+      '## Canonical Deep-Dive Surfaces',
+      '## Workflow-Class Deep Dives',
+      '## Maturity Posture'
+    ]
+  ],
+  [
+    'templates/codex-workflow/README.md',
+    [
+      '## Objective',
+      '## Canonical Contract Links',
+      '## Template Map',
+      '## Maturity Posture'
+    ]
+  ],
+  [
+    'examples/codex-workflow/README.md',
+    [
+      '## Objective',
+      '## Example Map',
+      '## Portability Posture',
+      '## Maturity Posture'
+    ]
   ]
 ]);
 
@@ -92,6 +120,7 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
     'core/contracts/tool-contracts/catalog.json',
     'core/contracts/provider-capabilities.json',
     'core/contracts/core-registry.json',
+    'core/contracts/workflow-routing-map.json',
     'core/evals/README.md',
     'core/overlays/README.md',
     'core/skills/README.md',
@@ -100,6 +129,9 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
     'docs/architecture.md',
     'docs/governance/source-hierarchy.md',
     'docs/mcp/policy.md',
+    'docs/workflows/README.md',
+    'docs/workflows/implementation-and-handoff.md',
+    'docs/workflows/verification-and-certification.md',
     'docs/secret-handling.md',
     'docs/compatibility.md',
     'docs/adoption-playbook.md',
@@ -152,10 +184,14 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
     'scripts/tools/validate-shared-core-scaffold.mjs',
     'templates/codex-workflow/task-packet-template.md',
     'templates/codex-workflow/review-summary-template.md',
+    'templates/codex-workflow/handoff-summary-template.md',
+    'templates/codex-workflow/README.md',
     'templates/codex-workflow/tool-contract-template.json',
     'templates/codex-workflow/validation-checklist-template.md',
     'examples/codex-workflow/planning-slice-example.md',
     'examples/codex-workflow/review-summary-example.md',
+    'examples/codex-workflow/handoff-summary-example.md',
+    'examples/codex-workflow/README.md',
     'examples/codex-workflow/tool-contract-example.json'
   ];
 
@@ -169,6 +205,7 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
     'docs',
     'docs/governance',
     'docs/mcp',
+    'docs/workflows',
     'contracts',
     'policies',
     'skills',

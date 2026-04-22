@@ -890,6 +890,19 @@ function evaluateProviderExportAlignment(providerExports, fixture) {
             result.issues.push(`Provider ${providerName} skill ${skill.name || '<unnamed>'} is missing ${field}.`);
           }
         }
+        if (skill.workflowSupport != null) {
+          if (typeof skill.workflowSupport !== 'object' || Array.isArray(skill.workflowSupport)) {
+            result.passed = false;
+            result.issues.push(`Provider ${providerName} skill ${skill.name || '<unnamed>'} workflowSupport must be an object.`);
+          } else {
+            for (const field of ['status', 'workflowClasses', 'requiredValidationGates', 'expectedOutputContracts', 'requiredEvidenceArtifacts', 'recommendedTemplates', 'exampleArtifacts']) {
+              if (skill.workflowSupport[field] == null) {
+                result.passed = false;
+                result.issues.push(`Provider ${providerName} skill ${skill.name || '<unnamed>'} workflowSupport is missing ${field}.`);
+              }
+            }
+          }
+        }
         if (skill.outputContractId && skill.outputContractPath == null) {
           result.passed = false;
           result.issues.push(`Provider ${providerName} skill ${skill.name || '<unnamed>'} must declare outputContractPath when outputContractId is set.`);

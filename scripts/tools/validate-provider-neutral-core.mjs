@@ -92,6 +92,7 @@ const allowedMaturityLabels = new Set(['prose-governed', 'contract-backed', 'val
 const allowedBlockingGatePolicies = new Set(['all-blocking-gates-pass']);
 const allowedAdvisoryGatePolicies = new Set(['record-only']);
 const allowedEvidencePolicies = new Set(['all-required-evidence-artifacts-present']);
+const allowedWorkflowCoverageLabels = new Set(['covered', 'partial', 'planned', 'out-of-scope']);
 const requiredExecutionStatuses = new Set(['proposed', 'drafted', 'applied', 'verified']);
 const requiredValidationOutcomes = new Set(['PASS', 'BLOCKED']);
 const requiredWorkflowRunSummarySections = [
@@ -110,6 +111,11 @@ const requiredWorkflowRunSummaryFailureBehavior = [
   'missing write evidence',
   'post-write verification evidence',
   'return BLOCKED'
+];
+const requiredWorkflowExampleHeadings = [
+  '## WORKFLOW COVERAGE',
+  '## WORKFLOW CLASS',
+  '## SUMMARY'
 ];
 const requiredWorkflowTemplateContracts = new Set([
   'workflow-plan-v1',
@@ -183,6 +189,23 @@ function validateWorkflowTemplateContractCoverage(outputContractCatalog) {
     }
   }
 
+  return issues;
+}
+
+function validateWorkflowExampleArtifact(root, examplePath, workflowClass) {
+  const issues = [];
+  const absolutePath = path.join(root, examplePath);
+  if (!fs.existsSync(absolutePath)) {
+    issues.push(`Workflow ${workflowClass} references missing example ${examplePath}.`);
+    return issues;
+  }
+
+  const content = fs.readFileSync(absolutePath, 'utf8');
+  for (const heading of requiredWorkflowExampleHeadings) {
+    if (!content.includes(heading)) {
+      issues.push(`Workflow example ${examplePath} must include heading ${heading}.`);
+    }
+  }
   return issues;
 }
 
@@ -335,9 +358,18 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
       issues.push(`providers/${provider}/export.json must declare certification.requiredEvidenceSource as workflow.requiredEvidenceArtifacts.`);
     }
     for (const skill of committedExport.skills || []) {
-      for (const field of ['skillId', 'manifestPath', 'category', 'status', 'maturityLabel', 'mcpPosture', 'toolUsagePosture']) {
+      for (const field of ['skillId', 'manifestPath', 'category', 'status', 'maturityLabel', 'mcpPosture', 'toolUsagePosture', 'workflowSupport']) {
         if (skill[field] == null) {
           issues.push(`providers/${provider}/export.json skill ${skill.name || '<unnamed>'} is missing ${field}.`);
+        }
+      }
+      if (!skill.workflowSupport || typeof skill.workflowSupport !== 'object') {
+        issues.push(`providers/${provider}/export.json skill ${skill.name || '<unnamed>'} must declare workflowSupport as an object.`);
+      } else {
+        for (const field of ['status', 'workflowClasses', 'requiredValidationGates', 'expectedOutputContracts', 'requiredEvidenceArtifacts', 'recommendedTemplates', 'exampleArtifacts']) {
+          if (skill.workflowSupport[field] == null) {
+            issues.push(`providers/${provider}/export.json skill ${skill.name || '<unnamed>'} workflowSupport is missing ${field}.`);
+          }
         }
       }
       if (skill.outputContractId && skill.outputContractPath !== 'core/contracts/output-contracts.json') {
@@ -482,6 +514,22 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
     if (skill.outputContractId && skill.outputContractPath !== 'core/contracts/output-contracts.json') {
       issues.push(`Skill ${skill.name} must point outputContractPath to core/contracts/output-contracts.json when outputContractId is set.`);
     }
+    if (!skill.workflowSupport || typeof skill.workflowSupport !== 'object') {
+      issues.push(`Skill ${skill.name || '<unnamed>'} must declare workflowSupport.`);
+    } else {
+      const workflowSupport = skill.workflowSupport;
+      if (!['mapped', 'standalone'].includes(workflowSupport.status)) {
+        issues.push(`Skill ${skill.name} workflowSupport.status must be mapped or standalone; found ${workflowSupport.status || '<missing>'}.`);
+      }
+      for (const field of ['workflowClasses', 'requiredValidationGates', 'expectedOutputContracts', 'requiredEvidenceArtifacts', 'recommendedTemplates', 'exampleArtifacts']) {
+        if (!Array.isArray(workflowSupport[field])) {
+          issues.push(`Skill ${skill.name} workflowSupport.${field} must be an array.`);
+        }
+      }
+      if (workflowSupport.status === 'mapped' && (!Array.isArray(workflowSupport.workflowClasses) || workflowSupport.workflowClasses.length === 0)) {
+        issues.push(`Skill ${skill.name} workflowSupport.status is mapped but workflowClasses is empty.`);
+      }
+    }
     if (!fs.existsSync(path.join(root, skill.sourcePath))) {
       issues.push(`Skill sourcePath does not exist: ${skill.sourcePath}`);
       continue;
@@ -544,6 +592,11 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
     } else if (!fs.existsSync(path.join(root, workflowRouting.templateRoot))) {
       issues.push(`workflow routing templateRoot does not exist: ${workflowRouting.templateRoot}`);
     }
+    if (workflowRouting.exampleRoot !== 'examples/codex-workflow') {
+      issues.push(`workflow routing exampleRoot must be examples/codex-workflow; found ${workflowRouting.exampleRoot || '<missing>'}.`);
+    } else if (!fs.existsSync(path.join(root, workflowRouting.exampleRoot))) {
+      issues.push(`workflow routing exampleRoot does not exist: ${workflowRouting.exampleRoot}`);
+    }
     if (!sameJson(sortWorkflows(workflowRouting.workflowClasses || []), sortWorkflows(committedRegistry.workflows || []))) {
       issues.push('Registry workflows do not match core/contracts/workflow-routing-map.json workflowClasses.');
     }
@@ -557,7 +610,7 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
         issues.push('workflowClasses entries must be objects.');
         continue;
       }
-      for (const field of ['workflowClass', 'category', 'supportingSkills', 'controlPlaneSkills', 'allowedToolIntents', 'allowedTools', 'mcpPosture', 'validationPosture', 'expectedOutputContracts', 'requiredEvidenceArtifacts', 'completionPosture', 'maturityLabel']) {
+      for (const field of ['workflowClass', 'category', 'supportingSkills', 'controlPlaneSkills', 'allowedToolIntents', 'allowedTools', 'mcpPosture', 'validationPosture', 'expectedOutputContracts', 'requiredEvidenceArtifacts', 'completionPosture', 'recommendedTemplates', 'exampleArtifacts', 'workflowClassCoverage', 'workflowClassCoverageNotes', 'maturityLabel']) {
         if (workflow[field] == null) {
           issues.push(`Workflow entry ${workflow.workflowClass || '<unnamed>'} is missing ${field}.`);
         }
@@ -638,6 +691,51 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
             issues.push(`Workflow ${workflow.workflowClass} references missing template ${templatePath}.`);
           }
         }
+      }
+      if (!Array.isArray(workflow.exampleArtifacts)) {
+        issues.push(`Workflow ${workflow.workflowClass} must declare exampleArtifacts as an array.`);
+      } else {
+        for (const examplePath of workflow.exampleArtifacts) {
+          if (typeof examplePath !== 'string' || examplePath.trim() === '') {
+            issues.push(`Workflow ${workflow.workflowClass} has an invalid example path entry.`);
+            continue;
+          }
+          if (!examplePath.startsWith('examples/codex-workflow/')) {
+            issues.push(`Workflow ${workflow.workflowClass} example ${examplePath} must be under examples/codex-workflow/.`);
+          }
+          if (!fs.existsSync(path.join(root, examplePath))) {
+            issues.push(`Workflow ${workflow.workflowClass} references missing example ${examplePath}.`);
+          } else {
+            issues.push(...validateWorkflowExampleArtifact(root, examplePath, workflow.workflowClass));
+          }
+        }
+      }
+      if (!allowedWorkflowCoverageLabels.has(workflow.workflowClassCoverage)) {
+        issues.push(`Workflow ${workflow.workflowClass} has invalid workflowClassCoverage ${workflow.workflowClassCoverage || '<missing>'}.`);
+      }
+      if (typeof workflow.workflowClassCoverageNotes !== 'string' || workflow.workflowClassCoverageNotes.trim() === '') {
+        issues.push(`Workflow ${workflow.workflowClass} must declare non-empty workflowClassCoverageNotes.`);
+      }
+      if (workflow.workflowClassCoverage === 'covered' && (!Array.isArray(workflow.exampleArtifacts) || workflow.exampleArtifacts.length === 0)) {
+        issues.push(`Workflow ${workflow.workflowClass} declares covered workflowClassCoverage but has no exampleArtifacts.`);
+      }
+    }
+  }
+
+  const workflowByClass = new Map((committedRegistry.workflows || []).map((entry) => [entry.workflowClass, entry]));
+  for (const skill of committedRegistry.skills || []) {
+    const support = skill.workflowSupport;
+    if (!support || typeof support !== 'object' || !Array.isArray(support.workflowClasses)) {
+      continue;
+    }
+    for (const workflowClass of support.workflowClasses) {
+      const workflow = workflowByClass.get(workflowClass);
+      if (!workflow) {
+        issues.push(`Skill ${skill.name} workflowSupport references unknown workflow class ${workflowClass}.`);
+        continue;
+      }
+      if (!Array.isArray(workflow.supportingSkills) || !workflow.supportingSkills.includes(skill.name)) {
+        issues.push(`Skill ${skill.name} workflowSupport includes ${workflowClass} but workflow mapping does not include the skill.`);
       }
     }
   }

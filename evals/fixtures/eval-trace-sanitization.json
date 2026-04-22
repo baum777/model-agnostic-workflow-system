@@ -1,0 +1,27 @@
+{
+  "id": "eval-trace-sanitization",
+  "kind": "secret-boundary",
+  "target": {
+    "name": "validate-secret-boundaries"
+  },
+  "cases": [
+    {
+      "id": "trace-valid",
+      "caseType": "trace-sanitization",
+      "expectedPass": true,
+      "sample": {
+        "redaction_state": "redacted",
+        "findings": ["token value removed from trace"]
+      }
+    },
+    {
+      "id": "trace-invalid",
+      "caseType": "trace-sanitization",
+      "expectedPass": false,
+      "sample": {
+        "redaction_state": "raw",
+        "findings": ["token value persisted in trace"]
+      }
+    }
+  ]
+}

@@ -13,17 +13,21 @@ Canonical truth lives in [architecture.md](architecture.md) and [authority-matri
 - [authority-matrix.md](authority-matrix.md)
 - [governance/source-hierarchy.md](governance/source-hierarchy.md)
 - [mcp/policy.md](mcp/policy.md)
+- [workflows/README.md](workflows/README.md)
+- [workflows/implementation-and-handoff.md](workflows/implementation-and-handoff.md)
+- [workflows/verification-and-certification.md](workflows/verification-and-certification.md)
 - [secret-handling.md](secret-handling.md)
 - [usage.md](usage.md)
 - [../core/README.md](../core/README.md)
 - [../contracts/README.md](../contracts/README.md)
 - [../providers/README.md](../providers/README.md)
 - [../evals/README.md](../evals/README.md)
+- [../examples/codex-workflow/README.md](../examples/codex-workflow/README.md)
 - [ui-ux-composition-branch.md](ui-ux-composition-branch.md) when the task touches the UI/UX composition branch
 
 ## Documentation Classes
 
-- Canonical: `../WORKFLOW.md`, `architecture.md`, `authority-matrix.md`, `governance/source-hierarchy.md`, `mcp/policy.md`, `compatibility.md`, `lock-model.md`, `portability.md`, `provider-capability-matrix.md`, `repo-overlay-contract.md`, `secret-handling.md`, `shared-with-local-inputs.md`, `repo-intake-skill-contract.md`, `runtime-policy-skill-contract.md`, `ui-ux-composition-branch.md`
+- Canonical: `../WORKFLOW.md`, `architecture.md`, `authority-matrix.md`, `governance/source-hierarchy.md`, `mcp/policy.md`, `workflows/README.md`, `workflows/implementation-and-handoff.md`, `workflows/verification-and-certification.md`, `compatibility.md`, `lock-model.md`, `portability.md`, `provider-capability-matrix.md`, `repo-overlay-contract.md`, `secret-handling.md`, `shared-with-local-inputs.md`, `repo-intake-skill-contract.md`, `runtime-policy-skill-contract.md`, `ui-ux-composition-branch.md`
 - Operational: `README.md`, `usage.md`, `adoption-playbook.md`, `consumer-rollout-playbook.md`, `maintainer-commands.md`, `validation-checklist.md`, `authoring-guides.md`
 - Derived: `overview.md`, `eval-baseline.md`, `ui-ux-composition/*`
 - Archive: `extraction-roadmap.md`, `../CHANGELOG.md`

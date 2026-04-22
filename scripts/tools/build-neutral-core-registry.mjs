@@ -113,10 +113,19 @@ function buildProviderCompatibility(providerCapabilities) {
   return compatibility;
 }
 
-function buildSkillContracts(root) {
+function loadPortableSkillManifest(root) {
   const manifestPath = path.join(root, 'core', 'contracts', 'portable-skill-manifest.json');
   if (!fs.existsSync(manifestPath)) {
-    return new Map();
+    return {
+      manifestPath: 'core/contracts/portable-skill-manifest.json',
+      defaults: {
+        defaultMcpPosture: 'disabled',
+        defaultMaturityLabel: 'contract-backed',
+        defaultToolUsagePosture: 'required-tools-declared'
+      },
+      discoveryOverrides: {},
+      contracts: new Map()
+    };
   }
 
   const manifest = readJson(manifestPath);
@@ -126,7 +135,16 @@ function buildSkillContracts(root) {
       contracts.set(entry.name, entry);
     }
   }
-  return contracts;
+  return {
+    manifestPath: manifest.discoveryDefaults?.manifestPath || 'core/contracts/portable-skill-manifest.json',
+    defaults: {
+      defaultMcpPosture: manifest.discoveryDefaults?.defaultMcpPosture || 'disabled',
+      defaultMaturityLabel: manifest.discoveryDefaults?.defaultMaturityLabel || 'contract-backed',
+      defaultToolUsagePosture: manifest.discoveryDefaults?.defaultToolUsagePosture || 'required-tools-declared'
+    },
+    discoveryOverrides: manifest.skillDiscoveryOverrides || {},
+    contracts
+  };
 }
 
 function skillRoots(root) {
@@ -136,8 +154,28 @@ function skillRoots(root) {
   ];
 }
 
-function buildSkillRecords(root, providerCapabilities) {
-  const contracts = buildSkillContracts(root);
+function deriveWorkflowSupport(skillName, workflows) {
+  const linked = (workflows || []).filter((workflow) => Array.isArray(workflow.supportingSkills) && workflow.supportingSkills.includes(skillName));
+  const flattenUnique = (selector) => [...new Set(linked.flatMap((workflow) => selector(workflow) || []))].sort((a, b) => String(a).localeCompare(String(b)));
+
+  return {
+    status: linked.length > 0 ? 'mapped' : 'standalone',
+    workflowClasses: linked.map((workflow) => workflow.workflowClass).sort((a, b) => String(a).localeCompare(String(b))),
+    requiredValidationGates: flattenUnique((workflow) => workflow.validationPosture?.requiredGates),
+    expectedOutputContracts: flattenUnique((workflow) => workflow.expectedOutputContracts),
+    requiredEvidenceArtifacts: flattenUnique((workflow) => workflow.requiredEvidenceArtifacts),
+    recommendedTemplates: flattenUnique((workflow) => workflow.recommendedTemplates),
+    exampleArtifacts: flattenUnique((workflow) => workflow.exampleArtifacts),
+    workflowCoverage: linked.map((workflow) => ({
+      workflowClass: workflow.workflowClass,
+      coverage: workflow.workflowClassCoverage || null
+    }))
+  };
+}
+
+function buildSkillRecords(root, providerCapabilities, workflows = []) {
+  const manifest = loadPortableSkillManifest(root);
+  const contracts = manifest.contracts;
   const providerCompatibility = buildProviderCompatibility(providerCapabilities);
   const seen = new Set();
   const records = [];
@@ -169,24 +207,45 @@ function buildSkillRecords(root, providerCapabilities) {
       const safeToAutoRun = frontmatter.safe_to_auto_run === true;
       const approvalMode = contract.approvalMode || (safeToAutoRun ? 'read-only' : 'approval-required');
       const outputHeadings = extractOutputHeadings(fs.readFileSync(skillPath, 'utf8'));
+      const sourcePath = `${skillRoot.startsWith(path.join(root, 'core')) ? 'core/skills' : 'skills'}/${entry.name}/SKILL.md`;
+      const discoveryOverride = manifest.discoveryOverrides[name] || {};
+      const category = discoveryOverride.category || classification;
+      const mcpPosture = discoveryOverride.mcpPosture || manifest.defaults.defaultMcpPosture;
+      const requiredTools = Array.isArray(contract.requiredTools) ? contract.requiredTools : [];
+      const optionalTools = Array.isArray(contract.optionalTools) ? contract.optionalTools : [];
+      let toolUsagePosture = manifest.defaults.defaultToolUsagePosture;
+      if (requiredTools.length === 0 && optionalTools.length > 0) {
+        toolUsagePosture = 'optional-tools-declared';
+      }
+      if (requiredTools.length === 0 && optionalTools.length === 0) {
+        toolUsagePosture = 'no-tools-declared';
+      }
 
       records.push({
+        skillId: contract.portableIdentity || `compat.${name}`,
         name,
         portableIdentity: contract.portableIdentity || null,
-        sourcePath: `${skillRoot.startsWith(path.join(root, 'core')) ? 'core/skills' : 'skills'}/${entry.name}/SKILL.md`,
+        sourcePath,
+        skillPath: sourcePath,
+        manifestPath: manifest.manifestPath,
         classification,
+        category,
         requiresRepoInputs: frontmatter.requires_repo_inputs === true,
         producesStructuredOutput: frontmatter.produces_structured_output === true,
         safeToAutoRun,
         status: frontmatter.status || 'unknown',
+        maturityLabel: discoveryOverride.maturityLabel || manifest.defaults.defaultMaturityLabel,
+        mcpPosture,
+        toolUsagePosture,
         approvalMode,
         subagentPolicy: contract.subagentPolicy || (classification === 'shared-with-local-inputs' ? 'forbid' : 'allow'),
-        requiredTools: Array.isArray(contract.requiredTools) ? contract.requiredTools : [],
-        optionalTools: Array.isArray(contract.optionalTools) ? contract.optionalTools : [],
+        requiredTools,
+        optionalTools,
         outputHeadings,
         outputContractId: contract.outputContractId || null,
         outputContractPath: contract.outputContractPath || frontmatter.output_contract_path || null,
         toolContractCatalogPath: contract.toolContractCatalogPath || frontmatter.tool_contract_catalog_path || null,
+        workflowSupport: deriveWorkflowSupport(name, workflows),
         providerProjections: contract.providerProjection || null,
         evalScaffold: contract.evalScaffold || null,
         providerCompatibility
@@ -195,6 +254,31 @@ function buildSkillRecords(root, providerCapabilities) {
   }
 
   return records.sort((left, right) => left.name.localeCompare(right.name));
+}
+
+function loadWorkflowRoutingMap(root) {
+  const candidate = readFirstJson(root, [
+    path.join('core', 'contracts', 'workflow-routing-map.json')
+  ]);
+
+  if (!candidate) {
+    return {
+      schemaVersion: '1.0.0',
+      workflowClasses: []
+    };
+  }
+
+  return candidate.value;
+}
+
+function buildWorkflowRecords(root) {
+  const workflowMap = loadWorkflowRoutingMap(root);
+  const workflows = Array.isArray(workflowMap.workflowClasses) ? workflowMap.workflowClasses : [];
+  return workflows
+    .map((workflow) => ({
+      ...workflow
+    }))
+    .sort((left, right) => left.workflowClass.localeCompare(right.workflowClass));
 }
 
 function normalizeLegacyTool(tool) {
@@ -223,7 +307,19 @@ function normalizeLegacyTool(tool) {
     failureBehavior: tool.failureBehavior || 'unspecified',
     exampleInvocation: tool.exampleInvocation || null,
     implementationStatus: tool.implementationStatus || 'contract-only',
-    sourcePath: tool.entrypoint || tool.sourcePath || null
+    sourcePath: tool.entrypoint || tool.sourcePath || null,
+    requires_secret: tool.requires_secret ?? false,
+    secret_classes: Array.isArray(tool.secret_classes) ? tool.secret_classes : [],
+    credential_binding: tool.credential_binding || 'not-applicable',
+    raw_secret_exposure: tool.raw_secret_exposure || 'forbidden',
+    model_visible: tool.model_visible ?? false,
+    secret_scope: tool.secret_scope || 'not-applicable',
+    environment_scope: Array.isArray(tool.environment_scope) ? tool.environment_scope : [],
+    access_level: tool.access_level || 'none',
+    short_lived_preferred: tool.short_lived_preferred ?? false,
+    fallback_context_policy: tool.fallback_context_policy || 'not-applicable',
+    trace_redaction: tool.trace_redaction || 'required',
+    memory_persistence: tool.memory_persistence || 'forbidden'
   };
 }
 
@@ -265,7 +361,8 @@ function buildNeutralCoreRegistry(baseRoot = repoRoot()) {
   const root = baseRoot;
   const providerCapabilities = loadProviderCapabilities(root);
   const providers = Array.isArray(providerCapabilities.providers) ? providerCapabilities.providers : [];
-  const providerNames = providers.map((provider) => provider.name);
+  const workflows = buildWorkflowRecords(root);
+  const skills = buildSkillRecords(root, providerCapabilities, workflows);
 
   return {
     schemaVersion: '1.0.0',
@@ -275,6 +372,13 @@ function buildNeutralCoreRegistry(baseRoot = repoRoot()) {
       sourcePackage: {
         name: 'model-agnostic-workflow-system',
         version: readJson(path.join(root, 'package.json')).version
+      },
+      canonicalContracts: {
+        skillManifest: 'core/contracts/portable-skill-manifest.json',
+        outputContracts: 'core/contracts/output-contracts.json',
+        workflowRoutingMap: 'core/contracts/workflow-routing-map.json',
+        toolCatalog: 'core/contracts/tool-contracts/catalog.json',
+        providerCapabilities: 'core/contracts/provider-capabilities.json'
       },
       compatibilityExports: providers.map((provider) => ({
         provider: provider.name,
@@ -290,10 +394,11 @@ function buildNeutralCoreRegistry(baseRoot = repoRoot()) {
         }
       ])
     },
-    skills: buildSkillRecords(root, providerCapabilities).map((skill) => ({
+    skills: skills.map((skill) => ({
       ...skill,
       providerCompatibility: skill.providerCompatibility
     })),
+    workflows,
     tools: buildToolRecords(root, providerCapabilities),
     providers
   };

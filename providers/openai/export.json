@@ -96,6 +96,39 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "workflow-certification-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -144,6 +177,46 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "implementation",
+          "spec-and-authority-mapping"
+        ],
+        "requiredValidationGates": [
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "source-conflict-resolution-report-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "source-conflict-resolution-report-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/handoff-summary-template.md",
+          "templates/codex-workflow/review-summary-template.md",
+          "templates/codex-workflow/task-packet-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/handoff-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "implementation",
+            "coverage": "covered"
+          },
+          {
+            "workflowClass": "spec-and-authority-mapping",
+            "coverage": "partial"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -200,6 +273,16 @@
       "outputContractId": "incident-runbook-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -256,6 +339,16 @@
       "outputContractId": "knowledge-asset-transform-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -311,6 +404,16 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -364,6 +467,53 @@
       "outputContractId": "migration-plan-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "implementation-planning",
+          "migration-and-compatibility"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core"
+        ],
+        "expectedOutputContracts": [
+          "migration-plan-v1",
+          "source-conflict-resolution-report-v1",
+          "spec-to-task-breakdown-v1",
+          "workflow-certification-summary-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-plan-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "migration-plan-v1",
+          "workflow-certification-summary-v1",
+          "workflow-plan-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/handoff-summary-template.md",
+          "templates/codex-workflow/review-summary-template.md",
+          "templates/codex-workflow/task-packet-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/handoff-summary-example.md",
+          "examples/codex-workflow/planning-slice-example.md",
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "implementation-planning",
+            "coverage": "covered"
+          },
+          {
+            "workflowClass": "migration-and-compatibility",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -421,6 +571,16 @@
       "outputContractId": "multi-audience-summary-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -473,6 +633,52 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "implementation",
+          "migration-and-compatibility"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "migration-plan-v1",
+          "source-conflict-resolution-report-v1",
+          "workflow-certification-summary-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "migration-plan-v1",
+          "workflow-certification-summary-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/handoff-summary-template.md",
+          "templates/codex-workflow/review-summary-template.md",
+          "templates/codex-workflow/task-packet-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/handoff-summary-example.md",
+          "examples/codex-workflow/planning-slice-example.md",
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "implementation",
+            "coverage": "covered"
+          },
+          {
+            "workflowClass": "migration-and-compatibility",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -522,6 +728,37 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "implementation-planning"
+        ],
+        "requiredValidationGates": [
+          "validate-provider-neutral-core"
+        ],
+        "expectedOutputContracts": [
+          "migration-plan-v1",
+          "spec-to-task-breakdown-v1",
+          "workflow-plan-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-plan-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/task-packet-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/planning-slice-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "implementation-planning",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -570,6 +807,39 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "workflow-certification-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -623,6 +893,49 @@
       "outputContractId": "readiness-check-verdict-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "readiness-and-release-review",
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface",
+          "validate-secret-boundaries"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "secret-boundary-audit-report-v1",
+          "workflow-certification-summary-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/handoff-summary-template.md",
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/handoff-summary-example.md",
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "readiness-and-release-review",
+            "coverage": "covered"
+          },
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -675,6 +988,44 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "readiness-and-release-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface",
+          "validate-secret-boundaries"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "secret-boundary-audit-report-v1",
+          "workflow-certification-summary-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/handoff-summary-template.md",
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/handoff-summary-example.md",
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "readiness-and-release-review",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -730,6 +1081,34 @@
       "outputContractId": "repo-audit-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "intake-and-truth-mapping"
+        ],
+        "requiredValidationGates": [
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "repo-audit-report-v1",
+          "source-conflict-resolution-report-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "repo-audit-report-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [],
+        "workflowCoverage": [
+          {
+            "workflowClass": "intake-and-truth-mapping",
+            "coverage": "partial"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -784,6 +1163,34 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "intake-and-truth-mapping"
+        ],
+        "requiredValidationGates": [
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "repo-audit-report-v1",
+          "source-conflict-resolution-report-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "repo-audit-report-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [],
+        "workflowCoverage": [
+          {
+            "workflowClass": "intake-and-truth-mapping",
+            "coverage": "partial"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -835,6 +1242,16 @@
       "outputContractId": "research-synthesis-brief-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -892,6 +1309,16 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -945,6 +1372,44 @@
       "outputContractId": "secret-boundary-audit-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "readiness-and-release-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface",
+          "validate-secret-boundaries"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "secret-boundary-audit-report-v1",
+          "workflow-certification-summary-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/handoff-summary-template.md",
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/handoff-summary-example.md",
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "readiness-and-release-review",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1005,6 +1470,59 @@
       "outputContractId": "source-conflict-resolution-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "intake-and-truth-mapping",
+          "migration-and-compatibility",
+          "spec-and-authority-mapping"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "migration-plan-v1",
+          "repo-audit-report-v1",
+          "source-conflict-resolution-report-v1",
+          "workflow-certification-summary-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "migration-plan-v1",
+          "repo-audit-report-v1",
+          "source-conflict-resolution-report-v1",
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/handoff-summary-template.md",
+          "templates/codex-workflow/review-summary-template.md",
+          "templates/codex-workflow/task-packet-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/handoff-summary-example.md",
+          "examples/codex-workflow/planning-slice-example.md",
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "intake-and-truth-mapping",
+            "coverage": "partial"
+          },
+          {
+            "workflowClass": "migration-and-compatibility",
+            "coverage": "covered"
+          },
+          {
+            "workflowClass": "spec-and-authority-mapping",
+            "coverage": "partial"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1066,6 +1584,37 @@
       "outputContractId": "spec-to-task-breakdown-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "implementation-planning"
+        ],
+        "requiredValidationGates": [
+          "validate-provider-neutral-core"
+        ],
+        "expectedOutputContracts": [
+          "migration-plan-v1",
+          "spec-to-task-breakdown-v1",
+          "workflow-plan-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-plan-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/task-packet-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/planning-slice-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "implementation-planning",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1126,6 +1675,16 @@
       "outputContractId": "static-vs-dynamic-rendering-advisor-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1189,6 +1748,16 @@
       "outputContractId": "supabase-deploy-runbook-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1242,6 +1811,50 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "implementation-planning",
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "migration-plan-v1",
+          "readiness-check-verdict-v1",
+          "spec-to-task-breakdown-v1",
+          "workflow-certification-summary-v1",
+          "workflow-plan-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-plan-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md",
+          "templates/codex-workflow/task-packet-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/planning-slice-example.md",
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "implementation-planning",
+            "coverage": "covered"
+          },
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1296,6 +1909,16 @@
       "outputContractId": "tradeoff-matrix-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1354,6 +1977,16 @@
       "outputContractId": "ui-to-backend-contract-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1419,6 +2052,16 @@
       "outputContractId": "ui-ux-composition-branch-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -1472,6 +2115,16 @@
       "outputContractId": null,
       "outputContractPath": null,
       "toolContractCatalogPath": null,
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -3978,6 +4631,11 @@
         "templates/codex-workflow/task-packet-template.md",
         "templates/codex-workflow/handoff-summary-template.md"
       ],
+      "exampleArtifacts": [
+        "examples/codex-workflow/handoff-summary-example.md"
+      ],
+      "workflowClassCoverage": "covered",
+      "workflowClassCoverageNotes": "Canonical implementation handoff example exists and captures execution evidence posture.",
       "validationPosture": {
         "requiredGates": [
           "validate-repo-surface",
@@ -4029,6 +4687,11 @@
       "recommendedTemplates": [
         "templates/codex-workflow/task-packet-template.md"
       ],
+      "exampleArtifacts": [
+        "examples/codex-workflow/planning-slice-example.md"
+      ],
+      "workflowClassCoverage": "covered",
+      "workflowClassCoverageNotes": "Canonical planning example exists and is template- and contract-aligned.",
       "validationPosture": {
         "requiredGates": [
           "validate-provider-neutral-core"
@@ -4080,6 +4743,9 @@
       "recommendedTemplates": [
         "templates/codex-workflow/review-summary-template.md"
       ],
+      "exampleArtifacts": [],
+      "workflowClassCoverage": "partial",
+      "workflowClassCoverageNotes": "No dedicated canonical intake example is currently maintained; class remains contract-backed and validator-backed via routing and gate checks.",
       "validationPosture": {
         "requiredGates": [
           "validate-repo-surface"
@@ -4131,6 +4797,13 @@
         "templates/codex-workflow/review-summary-template.md",
         "templates/codex-workflow/handoff-summary-template.md"
       ],
+      "exampleArtifacts": [
+        "examples/codex-workflow/planning-slice-example.md",
+        "examples/codex-workflow/review-summary-example.md",
+        "examples/codex-workflow/handoff-summary-example.md"
+      ],
+      "workflowClassCoverage": "covered",
+      "workflowClassCoverageNotes": "Migration class references planning, review, and handoff examples as bounded portable projections.",
       "validationPosture": {
         "requiredGates": [
           "validate-provider-neutral-core",
@@ -4186,6 +4859,12 @@
         "templates/codex-workflow/review-summary-template.md",
         "templates/codex-workflow/handoff-summary-template.md"
       ],
+      "exampleArtifacts": [
+        "examples/codex-workflow/review-summary-example.md",
+        "examples/codex-workflow/handoff-summary-example.md"
+      ],
+      "workflowClassCoverage": "covered",
+      "workflowClassCoverageNotes": "Readiness/release class is covered through certification review and handoff example projections.",
       "validationPosture": {
         "requiredGates": [
           "validate-repo-surface",
@@ -4240,6 +4919,9 @@
       "recommendedTemplates": [
         "templates/codex-workflow/review-summary-template.md"
       ],
+      "exampleArtifacts": [],
+      "workflowClassCoverage": "partial",
+      "workflowClassCoverageNotes": "No dedicated canonical spec/authority mapping example is currently maintained; class remains contract-backed via workflow routing and output contracts.",
       "validationPosture": {
         "requiredGates": [
           "validate-provider-neutral-core"
@@ -4290,6 +4972,11 @@
       "recommendedTemplates": [
         "templates/codex-workflow/review-summary-template.md"
       ],
+      "exampleArtifacts": [
+        "examples/codex-workflow/review-summary-example.md"
+      ],
+      "workflowClassCoverage": "covered",
+      "workflowClassCoverageNotes": "Canonical review example exists and aligns to validation and certification contracts.",
       "validationPosture": {
         "requiredGates": [
           "validate-repo-surface",

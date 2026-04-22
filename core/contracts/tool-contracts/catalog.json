@@ -45,7 +45,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "analyze_spacing",
@@ -82,7 +94,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "analyze_typography",
@@ -122,7 +146,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "analyze-content-semantics-for-design",
@@ -153,7 +189,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "analyze-skill-tree-coverage",
@@ -185,7 +233,19 @@
       "routing_hints": [
         "migration-planner",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "approval-gated-write-executor",
@@ -221,7 +281,19 @@
       ],
       "routing_hints": [
         "migration-planner"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "assert-layout-contract-rendered",
@@ -259,7 +331,19 @@
       "routing_hints": [
         "ui-ux-composition",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "audit_ui",
@@ -311,7 +395,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "check-render-a11y-runtime",
@@ -340,7 +436,19 @@
       "routing_hints": [
         "readiness-check",
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "compare-render-breakpoints",
@@ -375,7 +483,19 @@
       "routing_hints": [
         "ui-ux-composition",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "derive-oklch-palette",
@@ -406,7 +526,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "detect-skill-overlap",
@@ -444,7 +576,19 @@
       "routing_hints": [
         "repo-audit",
         "migration-planner"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "eval-semantic-layout-decisions",
@@ -470,7 +614,19 @@
       "routing_hints": [
         "readiness-check",
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "generate_layout_blueprint",
@@ -516,7 +672,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "generate-visual-direction-contract",
@@ -547,7 +715,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "git-diff-explainer",
@@ -573,7 +753,19 @@
       "routing_hints": [
         "repo-audit",
         "migration-planner"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "lint-semantic-design-contracts",
@@ -605,7 +797,19 @@
       "routing_hints": [
         "ui-ux-composition",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "lint-skill-contracts",
@@ -637,7 +841,19 @@
       "routing_hints": [
         "readiness-check",
         "repo-audit"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "lint-wcag-structure",
@@ -672,7 +888,19 @@
       "routing_hints": [
         "ui-ux-composition",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "refine_screen",
@@ -721,7 +949,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "render-page-snapshots",
@@ -762,7 +1002,19 @@
       "routing_hints": [
         "ui-ux-composition",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "repo-structure-scanner",
@@ -792,7 +1044,19 @@
         "repo-audit",
         "migration-planner",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "run-axe-accessibility-audit",
@@ -827,7 +1091,19 @@
       "routing_hints": [
         "ui-ux-composition",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "run-certification-evals",
@@ -855,7 +1131,19 @@
       ],
       "routing_hints": [
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "run-lighthouse-page-audit",
@@ -890,7 +1178,19 @@
       "routing_hints": [
         "ui-ux-composition",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "spec-compliance-checker",
@@ -927,7 +1227,19 @@
         "repo-audit",
         "readiness-check",
         "long-document-to-knowledge-asset"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "synthesize_design_tokens",
@@ -970,7 +1282,19 @@
       ],
       "routing_hints": [
         "ui-ux-composition"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "validate-provider-neutral-core",
@@ -992,7 +1316,19 @@
       "routing_hints": [
         "readiness-check",
         "migration-planner"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "validate-repo-surface",
@@ -1018,7 +1354,19 @@
       "routing_hints": [
         "readiness-check",
         "repo-audit"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     },
     {
       "tool_name": "validate-shared-core-scaffold",
@@ -1040,7 +1388,95 @@
       "routing_hints": [
         "migration-planner",
         "readiness-check"
-      ]
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
+    },
+    {
+      "tool_name": "validate-secret-boundaries",
+      "intent_class": "read-only validation",
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "providers": [
+        "openai-codex",
+        "anthropic-claude",
+        "qwen-code",
+        "kimi-k2_5"
+      ],
+      "routing_hints": [
+        "readiness-check",
+        "secret-boundary-audit"
+      ],
+      "requires_secret": false,
+      "secret_classes": [],
+      "credential_binding": "not-applicable",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "not-applicable",
+      "environment_scope": [],
+      "access_level": "none",
+      "short_lived_preferred": false,
+      "fallback_context_policy": "not-applicable",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
+    },
+    {
+      "tool_name": "scan-secrets",
+      "intent_class": "read-only leak scan",
+      "schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "side_effects": "read-only",
+      "approval_required": false,
+      "mcp_compatible": false,
+      "providers": [
+        "openai-codex",
+        "anthropic-claude",
+        "qwen-code",
+        "kimi-k2_5"
+      ],
+      "routing_hints": [
+        "repo-audit",
+        "readiness-check",
+        "secret-boundary-audit"
+      ],
+      "requires_secret": true,
+      "secret_classes": [
+        "A",
+        "B",
+        "C"
+      ],
+      "credential_binding": "server-only",
+      "raw_secret_exposure": "forbidden",
+      "model_visible": false,
+      "secret_scope": "log-read",
+      "environment_scope": [
+        "staging",
+        "production"
+      ],
+      "access_level": "read",
+      "short_lived_preferred": true,
+      "fallback_context_policy": "re-minimize",
+      "trace_redaction": "required",
+      "memory_persistence": "forbidden"
     }
   ]
 }

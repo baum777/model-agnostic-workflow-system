@@ -975,6 +975,42 @@
       "failureBehavior": "Exit non-zero if the catalog is missing or malformed.",
       "exampleInvocation": "contract-only; no runnable implementation is present in scripts/tools",
       "implementationStatus": "contract-only"
+    },
+    {
+      "name": "validate-secret-boundaries",
+      "purpose": "Validate canonical secret-boundary policy files, tool metadata, and provider security flags.",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "validation",
+          "type": "json",
+          "description": "Secret-boundary validation report."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Exit non-zero when secret-boundary policy, tool metadata, or provider security constraints are missing or unsafe.",
+      "exampleInvocation": "node scripts/tools/validate-secret-boundaries.mjs",
+      "implementationStatus": "validator-backed",
+      "entrypoint": "scripts/tools/validate-secret-boundaries.mjs"
+    },
+    {
+      "name": "scan-secrets",
+      "purpose": "Scan governed surfaces for explicit secret leaks without becoming a policy source.",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "scanReport",
+          "type": "json",
+          "description": "Leak findings by file and pattern."
+        }
+      ],
+      "sideEffects": "read-only",
+      "approvalRequirement": "none",
+      "failureBehavior": "Exit non-zero when explicit leak patterns are detected in governed surfaces.",
+      "exampleInvocation": "node scripts/tools/scan-secrets.mjs",
+      "implementationStatus": "validator-backed",
+      "entrypoint": "scripts/tools/scan-secrets.mjs"
     }
   ],
   "statusLegend": {

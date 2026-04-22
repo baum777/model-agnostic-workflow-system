@@ -1,0 +1,27 @@
+{
+  "id": "context-builder-redaction",
+  "kind": "secret-boundary",
+  "target": {
+    "name": "validate-secret-boundaries"
+  },
+  "cases": [
+    {
+      "id": "context-redaction-valid",
+      "caseType": "context-redaction",
+      "expectedPass": true,
+      "sample": {
+        "redaction_state": "redacted",
+        "findings": ["authorization header removed", "dsn credentials masked"]
+      }
+    },
+    {
+      "id": "context-redaction-invalid",
+      "caseType": "context-redaction",
+      "expectedPass": false,
+      "sample": {
+        "redaction_state": "raw",
+        "findings": ["authorization header still present"]
+      }
+    }
+  ]
+}

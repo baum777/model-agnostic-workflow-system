@@ -1,0 +1,57 @@
+schema_version: "1.0.0"
+required_fields:
+  - "requires_secret"
+  - "secret_classes"
+  - "credential_binding"
+  - "raw_secret_exposure"
+  - "model_visible"
+  - "secret_scope"
+  - "environment_scope"
+  - "access_level"
+  - "short_lived_preferred"
+  - "fallback_context_policy"
+  - "trace_redaction"
+  - "memory_persistence"
+defaults:
+  requires_secret: false
+  secret_classes: []
+  credential_binding: "not-applicable"
+  raw_secret_exposure: "forbidden"
+  model_visible: false
+  secret_scope: "not-applicable"
+  environment_scope: []
+  access_level: "none"
+  short_lived_preferred: false
+  fallback_context_policy: "not-applicable"
+  trace_redaction: "required"
+  memory_persistence: "forbidden"
+enums:
+  credential_binding:
+    - "not-applicable"
+    - "server-only"
+    - "brokered"
+    - "operator-supplied"
+  raw_secret_exposure:
+    - "forbidden"
+  secret_scope:
+    - "not-applicable"
+    - "environment-validation"
+    - "repo-read"
+    - "repo-write"
+    - "issue-read"
+    - "issue-write"
+    - "deployment-read"
+    - "deployment-write"
+    - "log-read"
+  access_level:
+    - "none"
+    - "read"
+    - "write"
+  fallback_context_policy:
+    - "not-applicable"
+    - "re-minimize"
+    - "fail-closed"
+  trace_redaction:
+    - "required"
+  memory_persistence:
+    - "forbidden"

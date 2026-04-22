@@ -1,0 +1,29 @@
+{
+  "id": "provider-switch-reminimization",
+  "kind": "secret-boundary",
+  "target": {
+    "name": "validate-secret-boundaries"
+  },
+  "cases": [
+    {
+      "id": "provider-switch-valid",
+      "caseType": "provider-switch",
+      "expectedPass": true,
+      "sample": {
+        "from_provider": "openai-codex",
+        "to_provider": "anthropic-claude",
+        "context_policy": "re-minimize"
+      }
+    },
+    {
+      "id": "provider-switch-invalid",
+      "caseType": "provider-switch",
+      "expectedPass": false,
+      "sample": {
+        "from_provider": "openai-codex",
+        "to_provider": "anthropic-claude",
+        "context_policy": "reuse-full-context"
+      }
+    }
+  ]
+}

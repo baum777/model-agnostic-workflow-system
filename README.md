@@ -47,6 +47,7 @@ Wichtig: Das Klassenmodell (canonical/operational/derived/archive) ist logisch; 
 - `core/contracts/`  
   Canonical machine-readable Contracts:
   - `core-registry.json` (neutraler Registry-Snapshot)
+  - `workflow-routing-map.json` (workflow class -> skill/tool/MCP/output/validation mapping)
   - `provider-capabilities.json`
   - `output-contracts.json`
   - `tool-contracts/catalog.json`

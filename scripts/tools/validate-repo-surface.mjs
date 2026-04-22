@@ -4,13 +4,16 @@ import { fileURLToPath } from 'node:url';
 import { repoRoot } from './_shared.mjs';
 import { validateSharedCorePackage } from './validate-shared-core-package.mjs';
 import { validateProviderNeutralCore } from './validate-provider-neutral-core.mjs';
+import { validateSecretBoundaries } from './validate-secret-boundaries.mjs';
 
 function validateRepoSurface(baseRoot = repoRoot()) {
   const packageResult = validateSharedCorePackage(baseRoot);
   const neutralResult = validateProviderNeutralCore(baseRoot);
+  const secretResult = validateSecretBoundaries(baseRoot);
   const issues = [
     ...packageResult.ok ? [] : packageResult.issues.map((issue) => `package: ${issue}`),
-    ...neutralResult.ok ? [] : neutralResult.issues.map((issue) => `neutral: ${issue}`)
+    ...neutralResult.ok ? [] : neutralResult.issues.map((issue) => `neutral: ${issue}`),
+    ...secretResult.ok ? [] : secretResult.issues.map((issue) => `secret: ${issue}`)
   ];
 
   return {
@@ -19,6 +22,7 @@ function validateRepoSurface(baseRoot = repoRoot()) {
     issueCount: issues.length,
     packageResult,
     neutralResult,
+    secretResult,
     issues
   };
 }

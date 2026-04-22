@@ -1,0 +1,41 @@
+{
+  "id": "provider-export-alignment",
+  "kind": "provider-export-alignment",
+  "blocking": true,
+  "target": {
+    "name": "provider-exports"
+  },
+  "expectations": {
+    "providers": [
+      "openai-codex",
+      "anthropic-claude",
+      "qwen-code",
+      "kimi-k2_5"
+    ],
+    "requiredSourceContracts": {
+      "skillManifest": "core/contracts/portable-skill-manifest.json",
+      "outputContracts": "core/contracts/output-contracts.json",
+      "workflowRoutingMap": "core/contracts/workflow-routing-map.json",
+      "toolCatalog": "core/contracts/tool-contracts/catalog.json",
+      "providerCapabilities": "core/contracts/provider-capabilities.json"
+    },
+    "requiredSkillFields": [
+      "skillId",
+      "manifestPath",
+      "category",
+      "status",
+      "maturityLabel",
+      "mcpPosture",
+      "toolUsagePosture",
+      "workflowSupport"
+    ],
+    "requiredWorkflowFields": [
+      "recommendedTemplates",
+      "exampleArtifacts",
+      "workflowClassCoverage",
+      "requiredEvidenceArtifacts",
+      "completionPosture",
+      "maturityLabel"
+    ]
+  }
+}

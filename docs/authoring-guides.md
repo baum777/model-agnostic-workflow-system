@@ -15,7 +15,17 @@ Use rule: use these instructions when creating or updating portable skills, tool
 
 1. Put normalized tool contracts in `core/contracts/tool-contracts/catalog.json`.
 2. Include `tool_name`, `intent_class`, `schema`, `side_effects`, `approval_required`, `mcp_compatible`, `providers`, and `routing_hints`.
-3. Keep compatibility mirrors in the legacy `docs/tool-contracts/catalog.json` only when needed.
+3. Also include the canonical secret-boundary fields defined in `policies/tool-capabilities.yaml`, even when the tool does not require secrets.
+4. Use explicit safe defaults for non-secret tools instead of leaving boundary fields implicit.
+5. Keep compatibility mirrors in the legacy `docs/tool-contracts/catalog.json` only when needed.
+
+## Secret Boundary Authoring
+
+1. Keep prose authority in `docs/secret-handling.md`.
+2. Keep machine-readable secret class and tool capability policy in `policies/`.
+3. Treat provider security objects as projection metadata, not policy origins.
+4. Add fixture-backed pass and fail cases for secret-boundary rules in `evals/fixtures/`.
+5. Do not place literal secrets in docs, examples, templates, or eval payloads.
 
 ## Export Authoring
 
@@ -28,4 +38,3 @@ Use rule: use these instructions when creating or updating portable skills, tool
 1. Add fixture files under `evals/fixtures/`.
 2. Register them in `evals/catalog.json`.
 3. Prefer fail-closed checks that compare declared metadata rather than narrative summaries.
-

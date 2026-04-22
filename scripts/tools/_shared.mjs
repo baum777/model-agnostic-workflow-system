@@ -73,3 +73,88 @@ export function parseSkillFrontmatter(text) {
 export function printJson(value) {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
 }
+
+function parseScalar(value) {
+  const trimmed = value.trim();
+  if (trimmed === 'true') return true;
+  if (trimmed === 'false') return false;
+  if (trimmed === '[]') return [];
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return Number(trimmed);
+  return trimmed.replace(/^["']|["']$/g, '');
+}
+
+export function parseSimpleYaml(text) {
+  const root = {};
+  const stack = [{ indent: -1, value: root, container: 'object' }];
+  const lines = text.split(/\r?\n/);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const rawLine = lines[index];
+    if (!rawLine.trim() || rawLine.trim().startsWith('#')) {
+      continue;
+    }
+
+    const indent = rawLine.match(/^ */)[0].length;
+    const trimmed = rawLine.trim();
+
+    while (stack.length > 1 && indent <= stack[stack.length - 1].indent) {
+      stack.pop();
+    }
+
+    const parent = stack[stack.length - 1];
+
+    if (trimmed.startsWith('- ')) {
+      if (parent.container !== 'array') {
+        throw new Error(`Unexpected list item: ${trimmed}`);
+      }
+
+      const itemContent = trimmed.slice(2);
+      if (!itemContent.includes(':')) {
+        parent.value.push(parseScalar(itemContent));
+        continue;
+      }
+
+      const separator = itemContent.indexOf(':');
+      const key = itemContent.slice(0, separator).trim();
+      const remainder = itemContent.slice(separator + 1).trim();
+      const objectItem = {};
+
+      if (remainder) {
+        objectItem[key] = parseScalar(remainder);
+        parent.value.push(objectItem);
+        stack.push({ indent, value: objectItem, container: 'object' });
+      } else {
+        objectItem[key] = {};
+        parent.value.push(objectItem);
+        stack.push({ indent, value: objectItem[key], container: 'object' });
+      }
+      continue;
+    }
+
+    const separator = trimmed.indexOf(':');
+    if (separator === -1) {
+      throw new Error(`Invalid YAML line: ${trimmed}`);
+    }
+
+    const key = trimmed.slice(0, separator).trim();
+    const remainder = trimmed.slice(separator + 1).trim();
+    if (remainder) {
+      parent.value[key] = parseScalar(remainder);
+      continue;
+    }
+
+    let nextMeaningfulIndex = index + 1;
+    while (nextMeaningfulIndex < lines.length && (!lines[nextMeaningfulIndex].trim() || lines[nextMeaningfulIndex].trim().startsWith('#'))) {
+      nextMeaningfulIndex += 1;
+    }
+
+    const nextRawLine = lines[nextMeaningfulIndex] || '';
+    const nextIndent = nextRawLine.match(/^ */)[0].length;
+    const nextTrimmed = nextRawLine.trim();
+    const isArray = nextTrimmed.startsWith('- ') && nextIndent > indent;
+    parent.value[key] = isArray ? [] : {};
+    stack.push({ indent, value: parent.value[key], container: isArray ? 'array' : 'object' });
+  }
+
+  return root;
+}

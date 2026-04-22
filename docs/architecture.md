@@ -15,7 +15,7 @@ Define how repository docs are classified, where authority lives, and how update
 | Tier | Class | Meaning | Examples |
 | --- | --- | --- | --- |
 | 0 | enforced | Script- or validator-backed truth. This is the highest executable authority. | `scripts/tools/validate-shared-core-package.mjs`, `scripts/tools/validate-shared-core-scaffold.mjs`, `scripts/tools/validate-consumer-linkage.mjs` |
-| 1 | canonical | Normative repo docs that define policy, contracts, and architecture. | `AGENTS.md`, `WORKFLOW.md`, `docs/authority-matrix.md`, `docs/compatibility.md`, `docs/governance/source-hierarchy.md`, `docs/lock-model.md`, `docs/mcp/policy.md`, `docs/repo-overlay-contract.md`, `docs/secret-handling.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `core/README.md`, `core/contracts/README.md` |
+| 1 | canonical | Normative repo docs that define policy, contracts, and architecture. | `AGENTS.md`, `WORKFLOW.md`, `docs/authority-matrix.md`, `docs/compatibility.md`, `docs/governance/source-hierarchy.md`, `docs/lock-model.md`, `docs/mcp/policy.md`, `docs/repo-overlay-contract.md`, `docs/secret-handling.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `docs/workflows/README.md`, `core/README.md`, `core/contracts/README.md` |
 | 2 | operational | Runbooks, usage guides, command references, checklists, and authoring guides that depend on canonical rules. | `docs/README.md`, `docs/usage.md`, `docs/adoption-playbook.md`, `docs/consumer-rollout-playbook.md`, `docs/maintainer-commands.md`, `docs/validation-checklist.md`, `docs/authoring-guides.md`, `evals/README.md` |
 | 3 | derived | Summaries, baselines, examples, and templates that explain or demonstrate current practice. | `docs/overview.md`, `docs/eval-baseline.md`, `templates/codex-workflow/*`, `examples/codex-workflow/*` |
 | 4 | archive | Historical or frozen planning records. | `docs/extraction-roadmap.md`, `CHANGELOG.md` |
@@ -27,7 +27,9 @@ Define how repository docs are classified, where authority lives, and how update
 - Front door: `README.md`
 - Docs index: `docs/README.md`
 - Canonical docs: `docs/authority-matrix.md`, `docs/architecture.md`, `docs/compatibility.md`, `docs/governance/source-hierarchy.md`, `docs/lock-model.md`, `docs/mcp/policy.md`, `docs/repo-overlay-contract.md`, `docs/secret-handling.md`, `docs/shared-with-local-inputs.md`, `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, `docs/portability.md`, `docs/provider-capability-matrix.md`, `docs/ui-ux-composition-branch.md`
+- Canonical workflow deep-dive docs: `docs/workflows/README.md`, `docs/workflows/implementation-and-handoff.md`, `docs/workflows/verification-and-certification.md`
 - Canonical machine-readable tool catalog: `core/contracts/tool-contracts/catalog.json`
+- Canonical machine-readable workflow mapping: `core/contracts/workflow-routing-map.json`
 - Compatibility/export tool catalog: `docs/tool-contracts/catalog.json`
 - Machine-readable neutral registry: `core/contracts/core-registry.json`, `core/contracts/provider-capabilities.json`
 - Machine-readable policy surfaces: `policies/secret-classes.yaml`, `policies/tool-capabilities.yaml`
@@ -128,6 +130,36 @@ flowchart LR
 - Canonical machine-readable workflow/tool/provider truth remains under `core/contracts/`.
 - Compatibility mirrors remain explicit in `skills/`, `contracts/`, legacy `providers/*`, and `docs/tool-contracts/catalog.json`.
 - Validator-backed enforcement remains under `scripts/tools/`; prose docs must not imply runtime or validator maturity that the scripts do not prove.
+
+## Phase 2 Overlay Mapping
+
+- Workflow-class to skill/tool/MCP/output/validation linkage is now canonically modeled in `core/contracts/workflow-routing-map.json`.
+- Canonical skill discoverability posture remains rooted in `core/contracts/portable-skill-manifest.json` and is projected into `core/contracts/core-registry.json`.
+- `core/contracts/core-registry.json` now includes a workflow mapping projection to keep routing/discovery inspection in one validator-backed registry snapshot.
+- `docs/workflows/README.md` is a canonical deep-dive entrypoint and does not replace `WORKFLOW.md` root taxonomy authority.
+
+## Phase 3 Overlay Mapping
+
+- Workflow routing now includes explicit evidence and completion posture fields (`requiredEvidenceArtifacts`, `completionPosture`) in `core/contracts/workflow-routing-map.json`.
+- Canonical output contracts now include bounded execution evidence artifacts (`workflow-validation-summary-v1`, `workflow-certification-summary-v1`) in `core/contracts/output-contracts.json`.
+- Provider exports now project canonical source-contract ownership and workflow/skill evidence metadata via `scripts/tools/build-provider-exports.mjs`.
+- Certification coverage now includes workflow evidence posture and provider export alignment fixtures under `evals/fixtures/`.
+- Repo-root `memory/` remains intentionally `planned`; this slice does not introduce a runtime memory subsystem.
+
+## Phase 4 Overlay Mapping
+
+- Operator-facing templates under `templates/codex-workflow/` are explicitly linked to canonical workflow/output contracts and remain artifact scaffolds rather than authority replacements.
+- `core/contracts/workflow-routing-map.json` now carries template linkage per workflow class via `recommendedTemplates`.
+- `core/contracts/output-contracts.json` now carries template linkage for workflow evidence artifacts via `recommended_templates`, including `workflow-handoff-summary-v1`.
+- `docs/workflows/` now includes bounded class-level deep dives for implementation/handoff and verification/certification without redefining root taxonomy.
+- Cross-surface validator and eval checks are extended to keep template/workflow/output linkage aligned across registry and provider exports.
+
+## Phase 5 Overlay Mapping
+
+- Workflow-class entries in `core/contracts/workflow-routing-map.json` now declare bounded example linkage and explicit coverage labels (`workflowClassCoverage`, `workflowClassCoverageNotes`, `exampleArtifacts`).
+- Skill-to-workflow/tool/output/template/example alignment is projected into the neutral registry and provider exports via derived `workflowSupport` metadata on each skill record.
+- Examples under `examples/codex-workflow/` are tightened as derived, contract-aligned portability artifacts and indexed in `examples/codex-workflow/README.md`.
+- Validators and certification fixtures are extended to enforce workflow coverage fields, example-link integrity, and exported skill workflow-support metadata consistency.
 
 ## Capability Maturity Labels
 

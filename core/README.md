@@ -10,6 +10,7 @@ Canonical portable workflow slice.
 - normalized tool contracts under `core/contracts/tool-contracts/catalog.json`
 - canonical provider capability data under `core/contracts/provider-capabilities.json`
 - portable core bundle metadata under `core/contracts/portable-skill-manifest.json`
+- canonical secret-boundary policy under `../docs/secret-handling.md` and `../policies/`
 - eval scaffolding and core boundary notes under `core/evals/`
 - overlay boundary notes under `core/overlays/`
 - branch charter under `docs/ui-ux-composition-branch.md`

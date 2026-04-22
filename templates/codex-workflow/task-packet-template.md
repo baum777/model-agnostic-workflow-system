@@ -1,17 +1,26 @@
 # Task Packet
 
+Use for: workflow planning artifacts.
+Primary contract: `core/contracts/output-contracts.json#workflow-plan-v1`.
+
 ## SUMMARY
 
-## SCOPE
+## WORKFLOW CLASS
+
+## AUTHORITY SOURCES
+
+## ROUTING DECISION
+
+## IMPLEMENTATION PHASES
+
+## VALIDATION POSTURE
+
+## STOP CONDITIONS
+
+## GAPS
+
+## NEXT ACTIONS
 
 ## NON-GOALS
 
-## DEPENDENCIES
-
-## IMPLEMENTATION WAVES
-
-## ACCEPTANCE CRITERIA
-
-## RISK NOTES
-
-## NEXT ACTIONS
+## HANDOFF NOTES

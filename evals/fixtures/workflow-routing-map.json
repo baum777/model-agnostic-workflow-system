@@ -1,0 +1,36 @@
+{
+  "id": "workflow-routing-map",
+  "kind": "workflow-routing",
+  "blocking": true,
+  "target": {
+    "name": "workflow-routing-map"
+  },
+  "expectations": {
+    "workflowClasses": [
+      "intake-and-truth-mapping",
+      "spec-and-authority-mapping",
+      "implementation-planning",
+      "implementation",
+      "verification-and-review",
+      "migration-and-compatibility",
+      "readiness-and-release-review"
+    ],
+    "controlPlaneSkills": [
+      "workflow-core-router",
+      "skill-tool-mcp-builder"
+    ],
+    "requiredWorkflowFields": [
+      "recommendedTemplates",
+      "exampleArtifacts",
+      "workflowClassCoverage",
+      "workflowClassCoverageNotes",
+      "requiredEvidenceArtifacts",
+      "completionPosture",
+      "maturityLabel"
+    ],
+    "mcpPostures": [
+      "read-only",
+      "advisory-external"
+    ]
+  }
+}

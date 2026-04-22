@@ -1,6 +1,79 @@
 {
   "schemaVersion": "1.0.0",
   "scope": "portable-core",
+  "discoveryDefaults": {
+    "manifestPath": "core/contracts/portable-skill-manifest.json",
+    "categorySource": "skill-discovery-overrides-or-classification",
+    "statusSource": "skill-frontmatter.status",
+    "defaultMcpPosture": "disabled",
+    "defaultMaturityLabel": "contract-backed",
+    "defaultToolUsagePosture": "required-tools-declared",
+    "workflowAlignmentSource": "core/contracts/workflow-routing-map.json",
+    "templateAlignmentSource": "core/contracts/workflow-routing-map.json",
+    "exampleAlignmentSource": "core/contracts/workflow-routing-map.json"
+  },
+  "skillDiscoveryOverrides": {
+    "repo-audit": {
+      "category": "governance-audit",
+      "mcpPosture": "advisory-external"
+    },
+    "readiness-check": {
+      "category": "verification-gate",
+      "mcpPosture": "read-only"
+    },
+    "supabase-deployment": {
+      "category": "deployment-runbook",
+      "mcpPosture": "bounded-read-write"
+    },
+    "migration-planner": {
+      "category": "migration-planning",
+      "mcpPosture": "read-only"
+    },
+    "research-synthesis": {
+      "category": "research-analysis",
+      "mcpPosture": "advisory-external"
+    },
+    "ui-to-backend-contract-extractor": {
+      "category": "contract-extraction",
+      "mcpPosture": "disabled"
+    },
+    "source-conflict-resolver": {
+      "category": "authority-resolution",
+      "mcpPosture": "advisory-external"
+    },
+    "spec-to-task-breakdown": {
+      "category": "execution-planning",
+      "mcpPosture": "read-only"
+    },
+    "incident-runbook-composer": {
+      "category": "operations-runbook",
+      "mcpPosture": "read-only"
+    },
+    "multi-audience-summarizer": {
+      "category": "communications",
+      "mcpPosture": "disabled"
+    },
+    "tradeoff-matrix-builder": {
+      "category": "decision-analysis",
+      "mcpPosture": "disabled"
+    },
+    "long-document-to-knowledge-asset": {
+      "category": "knowledge-transformation",
+      "mcpPosture": "disabled"
+    },
+    "secret-boundary-audit": {
+      "category": "security-governance",
+      "mcpPosture": "read-only"
+    },
+    "ui-ux-composition": {
+      "category": "design-governance",
+      "mcpPosture": "disabled"
+    },
+    "static-vs-dynamic-rendering-advisor": {
+      "category": "rendering-architecture",
+      "mcpPosture": "disabled"
+    }
+  },
   "skills": [
     {
       "name": "repo-audit",
@@ -353,6 +426,36 @@
         "approvalBoundary": "evals/fixtures/approval-boundary.json",
         "providerParity": "evals/fixtures/core-provider-parity.json",
         "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "secret-boundary-audit",
+      "portableIdentity": "core.secret-boundary-audit",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "validate-secret-boundaries",
+        "scan-secrets",
+        "repo-structure-scanner",
+        "spec-compliance-checker"
+      ],
+      "outputContractId": "secret-boundary-audit-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json",
+        "secretBoundary": "evals/fixtures/secret-boundary-tool-contracts.json"
       }
     },
     {

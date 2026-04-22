@@ -12,7 +12,7 @@ Define how MCP-facing context and adapters may be used in this repository withou
 ## Current Implementation Status
 
 - `prose-governed`: this policy document and related canonical docs describe the intended MCP boundary behavior
-- `contract-backed`: `core/contracts/tool-contracts/catalog.json`, provider capability metadata, and provider export contracts describe MCP-facing capability boundaries where relevant
+- `contract-backed`: `core/contracts/tool-contracts/catalog.json`, `core/contracts/workflow-routing-map.json`, provider capability metadata, and provider export contracts describe MCP-facing capability boundaries where relevant
 - `validator-backed`: `scripts/tools/validate-provider-neutral-core.mjs` and `scripts/tools/validate-secret-boundaries.mjs` validate contract/export consistency and secret-boundary metadata
 - `runtime-implemented`: only concrete runnable scripts, generated exports, or adapters proven by repo artifacts qualify; this repo does not currently present a general live MCP runtime mesh as canonical truth
 
