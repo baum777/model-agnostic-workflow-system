@@ -238,6 +238,35 @@ Regel:
 - Canonical Aenderungen starten in `core/contracts/*`, `core/skills/*`, `policies/*`.
 - Mirrors/Exports bleiben abgeleitet (`contracts/*`, legacy `providers/*`, `skills/*`, `docs/tool-contracts/catalog.json`).
 
+## Phase-9 Release Posture Und Certification Handoff (Bounded)
+
+Release-/Adoptionsbereitschaft wird in diesem Repo ueber Artefakte und Gates bestimmt, nicht ueber narrative Claims.
+
+Release-kritische Canonical Surfaces:
+
+- `core/contracts/*`
+- `policies/*`
+- `core/skills/*` (mit Projektion in Registry/Exports)
+
+Release-kritische Derived/Compatibility Surfaces:
+
+- `contracts/*`
+- legacy `providers/*`
+- `docs/tool-contracts/catalog.json`
+
+Release Gate vor Handoff:
+
+1. Regeneration: `npm run build-registry`, `npm run build-exports`
+2. Validation: `npm run validate`, `npm run validate-neutral`
+3. Certification: `npm run eval`
+
+Bounded Handoff muss explizit enthalten:
+
+- welche canonical surfaces geaendert wurden
+- welche mirrors/exports regeneriert wurden
+- Gate-Resultate
+- welche `planned`/`missing` Surfaces bewusst nicht als implemented geclaimt sind
+
 ## Beispiele, Templates und lokale Repo-Steuerung
 
 - `templates/` und `examples/` sind Support-/Onboarding-Surfaces, nicht canonical Governance.

@@ -71,6 +71,7 @@ const requiredDocMarkers = new Map([
     'README.md',
     [
       '## Phase-7 Authoring Und Adoption Quickstart',
+      '## Phase-9 Release Posture Und Certification Handoff (Bounded)',
       '## Beispiele, Templates und lokale Repo-Steuerung'
     ]
   ],
@@ -78,7 +79,8 @@ const requiredDocMarkers = new Map([
     'docs/README.md',
     [
       '## Consumer Onboarding Quickstart',
-      '## Authoring Quickstart'
+      '## Authoring Quickstart',
+      '## Release Audit Quick Links'
     ]
   ],
   [
@@ -98,6 +100,8 @@ const requiredDocMarkers = new Map([
     'docs/validation-checklist.md',
     [
       '## Enforced Checks',
+      '## Release-Critical Audit Checks',
+      '## Certification Handoff Checks',
       '## Authoring Drift Prevention Checks',
       '## Conditional Checks',
       '## Maturity Posture'
@@ -111,6 +115,8 @@ const requiredDocMarkers = new Map([
       '## Consumer Adoption Rule',
       '## Bounded Migration And Handoff',
       '## Validator And Export Linkage',
+      '## Release-Critical Audit Scope',
+      '## Bounded Certification Handoff',
       '## Maturity Posture'
     ]
   ],
@@ -122,6 +128,7 @@ const requiredDocMarkers = new Map([
       '## Consumer First-Time Flow',
       '## Canonical Versus Compatibility Rule',
       '## Handoff Checklist',
+      '## Bounded Certification Handoff Record',
       '## Maturity Posture'
     ]
   ],
@@ -132,7 +139,17 @@ const requiredDocMarkers = new Map([
       '## Rollout Flow',
       '## Compatibility Governance During Rollout',
       '## Handoff Evidence',
+      '## Release-Readiness Boundary',
       '## Maturity Posture'
+    ]
+  ],
+  [
+    'docs/maintainer-commands.md',
+    [
+      '## Build the Neutral Registry (helper-only)',
+      '## Build the Provider Exports (helper-only)',
+      '## Release Certification Gate (validator-backed + helper-only flow)',
+      '## Run Certification Evals (validator-backed)'
     ]
   ],
   [
@@ -141,7 +158,8 @@ const requiredDocMarkers = new Map([
       '## Current Surfaces',
       '## Compatibility Rules',
       '## Consumer Adoption Rule',
-      '## Required Build And Validation Gate'
+      '## Required Build And Validation Gate',
+      '## Release Audit Rule'
     ]
   ],
   [
@@ -150,7 +168,8 @@ const requiredDocMarkers = new Map([
       '## Canonical Rule',
       '## Current Provider Scaffolds',
       '## Generated Exports',
-      '## Compatibility Governance'
+      '## Compatibility Governance',
+      '## Release Audit Rule'
     ]
   ],
   [

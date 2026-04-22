@@ -182,6 +182,13 @@ flowchart LR
 - Compatibility tool-catalog metadata explicitly marks `docs/tool-contracts/catalog.json` as compatibility/export with canonical source linkage.
 - Drift prevention for consumer/compatibility guidance is strengthened via additional required heading checks in `scripts/tools/validate-shared-core-scaffold.mjs` and compatibility metadata checks in `scripts/tools/validate-provider-neutral-core.mjs`.
 
+## Phase 9 Overlay Mapping
+
+- Release posture and adoption-readiness guidance is tightened in existing entry/checklist/command surfaces (`README.md`, `docs/README.md`, `docs/validation-checklist.md`, `docs/maintainer-commands.md`).
+- Operational auditability is strengthened by explicit release-critical canonical-vs-derived scope and bounded certification handoff requirements in `docs/compatibility.md`, `docs/adoption-playbook.md`, and `docs/consumer-rollout-playbook.md`.
+- Compatibility tool-catalog release metadata is tightened in `docs/tool-contracts/catalog.json` with validator-backed enforcement in `scripts/tools/validate-provider-neutral-core.mjs`.
+- Drift detection for release-critical prose surfaces is strengthened through additional required heading checks in `scripts/tools/validate-shared-core-scaffold.mjs`.
+
 ## Capability Maturity Labels
 
 When a doc in this repo describes capability maturity, it should distinguish:

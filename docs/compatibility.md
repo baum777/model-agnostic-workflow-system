@@ -50,6 +50,32 @@ Compatibility/export surfaces are derived projections and must not become the so
 - Scaffold and docs-heading checks: `scripts/tools/validate-shared-core-scaffold.mjs`
 - Repo-level gate: `scripts/tools/validate-repo-surface.mjs`
 
+## Release-Critical Audit Scope
+
+Release-critical canonical surfaces:
+
+- `core/contracts/*`
+- `policies/*`
+- `core/skills/*` with projected metadata in registry/exports
+- `core/contracts/core-registry.json` and canonical provider exports under `providers/openai-codex/`, `providers/anthropic-claude/`, `providers/qwen-code/`, `providers/kimi-k2_5/`
+
+Release-critical derived/compatibility surfaces:
+
+- `contracts/*`
+- legacy provider exports under `providers/openai/`, `providers/anthropic/`, `providers/qwen/`, `providers/kimi/`, `providers/codex/`
+- `docs/tool-contracts/catalog.json`
+
+Release rule: canonical surfaces are the source of truth; compatibility/export surfaces are audited as projections.
+
+## Bounded Certification Handoff
+
+At handoff time, include:
+
+1. canonical source paths used for release/audit decisions
+2. derived surfaces regenerated before handoff
+3. validator/eval gate outcomes (`validate`, `validate-neutral`, `eval`)
+4. remaining planned/missing surfaces that are explicitly not claimed
+
 ## Compatibility Rule
 
 If a change only touches a compatibility surface and not its canonical source, treat it as incomplete and block merge until canonical ownership is updated or the change is rejected.

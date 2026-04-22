@@ -33,3 +33,9 @@ This directory is the provider-specific export boundary for the shared core.
 1. Canonical provider exports are projections of canonical contracts under `core/contracts/*`.
 2. Legacy provider directories are compatibility mirrors and must not become semantic authority.
 3. Provider-specific packaging may differ, but canonical capability/workflow/tool/output ownership remains in shared-core contracts and policies.
+
+## Release Audit Rule
+
+1. Canonical provider export directories are release-critical derived artifacts.
+2. Legacy provider export directories are compatibility-derived artifacts and must not be used to define canonical semantics.
+3. Release handoff should report that provider exports were regenerated and validated against canonical contracts before adoption claims.

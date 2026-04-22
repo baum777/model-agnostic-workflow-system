@@ -341,6 +341,12 @@ function validateProviderNeutralCore(baseRoot = repoRoot()) {
       if (compatibilityToolCatalog.canonicalSourcePath !== compatibilityToolCatalogSourcePath) {
         issues.push(`docs/tool-contracts/catalog.json must declare canonicalSourcePath as ${compatibilityToolCatalogSourcePath}.`);
       }
+      if (compatibilityToolCatalog.releaseClassification !== 'derived-compatibility') {
+        issues.push('docs/tool-contracts/catalog.json must declare releaseClassification as derived-compatibility.');
+      }
+      if (compatibilityToolCatalog.releaseCanonicalAuthority !== compatibilityToolCatalogSourcePath) {
+        issues.push(`docs/tool-contracts/catalog.json must declare releaseCanonicalAuthority as ${compatibilityToolCatalogSourcePath}.`);
+      }
       if (compatibilityToolCatalog.authoritative !== false) {
         issues.push('docs/tool-contracts/catalog.json must declare authoritative as false.');
       }

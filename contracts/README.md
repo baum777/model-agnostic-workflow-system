@@ -30,3 +30,8 @@ Canonical machine-readable registries live here.
 3. `npm run validate`
 4. `npm run validate-neutral`
 5. `npm run eval`
+
+## Release Audit Rule
+
+- Treat `core/contracts/*` as release-critical canonical source.
+- Treat `contracts/*` as release-critical derived mirrors that must be regenerated and validated from canonical source before handoff.

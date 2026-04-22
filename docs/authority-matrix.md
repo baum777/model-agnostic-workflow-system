@@ -39,15 +39,15 @@ The generated `.qwen` scaffold is a consumer-local operating overlay. It is not 
 | `docs/authority-matrix.md` | doc | canonical | prose-only | canonical authority ledger by repo convention | records claim status and evidence across surfaces |
 | `docs/governance/source-hierarchy.md` | doc | canonical | prose-only | canonical authority-order document by repo convention | maps governance, workflow, skill, tool, MCP, and inference order |
 | `docs/mcp/policy.md` | doc | canonical | prose-only | canonical MCP boundary policy by repo convention | MCP posture, modes, non-authority rule, and fail-closed behavior |
-| `docs/compatibility.md` | doc | canonical | prose-only | canonical compatibility governance charter | explicit canonical-vs-compatibility ownership plus bounded migration/handoff boundary |
+| `docs/compatibility.md` | doc | canonical | partly enforced | canonical compatibility governance charter + scaffold heading checks | explicit canonical-vs-compatibility ownership, release-critical audit scope, and bounded certification handoff boundary |
 | `docs/usage.md` | doc | operational | prose-only | operational hub | links outward instead of redefining canon |
 | `docs/ui-ux-composition-branch.md` | doc | canonical | prose-only | canonical UI/UX branch charter | branch authority, status matrix, and contract boundaries |
 | `docs/ui-ux-composition/*` | doc | derived | prose-only | advisory internal branch taxonomy | not a second authority path |
 | `evals/README.md` | doc | operational | prose-only | evals entrypoint | certification and parity guide |
 | `docs/adoption-playbook.md` | doc | operational | prose-only | operational first-time adoption guidance | bounded consumer init/adoption flow with explicit canonical-vs-compatibility and validator linkage |
 | `docs/consumer-rollout-playbook.md` | doc | operational | prose-only | operational rollout guidance | bounded existing-consumer refresh/handoff flow with required regeneration, validation, and eval linkage |
-| `docs/maintainer-commands.md` | doc | operational | prose-only | operational guidance | command appendix only |
-| `docs/validation-checklist.md` | doc | operational | partly enforced | gates reference scripts and validators | conditional items remain conditional |
+| `docs/maintainer-commands.md` | doc | operational | partly enforced | operational guidance + scaffold heading checks | command appendix including bounded release certification gate flow |
+| `docs/validation-checklist.md` | doc | operational | partly enforced | gates reference scripts and validators | includes release-critical audit and certification handoff checks |
 | `docs/portability.md` | doc | canonical | prose-only | portability charter | explains core/provider/compatibility boundaries |
 | `docs/provider-capability-matrix.md` | doc | canonical | prose-only | provider capability charter | names canonical providers and aliases |
 | `docs/authoring-guides.md` | doc | operational | partly enforced | authoring guide + scaffold heading checks | explains safe extension of skills/contracts/templates/examples/policies/exports and links directly to validator gates |

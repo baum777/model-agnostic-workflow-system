@@ -46,6 +46,15 @@ Use rule: use this playbook for first-time consumer setup; canonical ownership s
 3. Local overlay file ownership is explicit.
 4. Validator and eval evidence is attached in handoff notes.
 
+## Bounded Certification Handoff Record
+
+At first-time adoption handoff, include:
+
+1. canonical surfaces trusted for adoption decisions (`core/contracts/*`, `core/skills/*`, `policies/*`)
+2. compatibility/export surfaces consumed as derived projections only
+3. shared-core gate outcomes (`validate`, `validate-neutral`, `eval`)
+4. explicit statement of still-planned/still-missing repo-root surfaces (`memory/`, `mcp/`, `tools/`)
+
 ## Notes
 
 - This is an operational playbook; authority boundaries remain in [architecture.md](architecture.md), [authority-matrix.md](authority-matrix.md), and [compatibility.md](compatibility.md).

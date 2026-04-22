@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "surfaceRole": "compatibility-export",
   "canonicalSourcePath": "core/contracts/tool-contracts/catalog.json",
+  "releaseClassification": "derived-compatibility",
+  "releaseCanonicalAuthority": "core/contracts/tool-contracts/catalog.json",
   "authoritative": false,
   "tools": [
     {

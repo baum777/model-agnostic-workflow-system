@@ -81,6 +81,20 @@ These items are expected to be backed by scripts or validators.
 - [ ] Consumer overlay boundaries are explicit via `docs/repo-overlay-contract.md`
 - [ ] Consumer rollout evidence includes version/fingerprint and validator/eval results
 
+## Release-Critical Audit Checks
+
+- [ ] Release-critical canonical ownership remains in `core/contracts/*`, `core/skills/*`, and `policies/*`
+- [ ] Release-critical compatibility/export surfaces remain explicitly derived (`contracts/*`, legacy `providers/*`, `docs/tool-contracts/catalog.json`)
+- [ ] Registry and provider exports are regenerated before release handoff when canonical contracts/skills/policies change
+- [ ] Release handoff records validator/eval outcomes and does not overclaim planned/missing surfaces
+
+## Certification Handoff Checks
+
+- [ ] Handoff identifies canonical surfaces that changed
+- [ ] Handoff identifies derived mirrors/exports regenerated from canonical sources
+- [ ] Handoff includes explicit gate outcomes for `npm run validate`, `npm run validate-neutral`, and `npm run eval`
+- [ ] Handoff states remaining `planned`/`missing` surfaces and avoids runtime-overclaim language
+
 ## Authoring Drift Prevention Checks
 
 These checks target common contributor drift paths and should stay aligned with `docs/authoring-guides.md`.

@@ -37,6 +37,18 @@ npm run build-exports -- --provider openai
 
 Regenerates `providers/<provider>/export.json` from the neutral registry and provider capability profile. Omit `--provider` to rebuild every provider export. Canonical provider names are `openai-codex`, `anthropic-claude`, `qwen-code`, and `kimi-k2_5`.
 
+## Release Certification Gate (validator-backed + helper-only flow)
+
+```bash
+npm run build-registry -- --write
+npm run build-exports
+npm run validate
+npm run validate-neutral
+npm run eval
+```
+
+Use this bounded sequence before release/adoption handoff when canonical contracts, skills, policies, registry semantics, or provider exports changed.
+
 ## Run Certification Evals (validator-backed)
 
 ```bash

@@ -84,6 +84,13 @@ These labels describe maturity only. Claim-status truth still lives in [authorit
 3. Canonical-vs-compatibility boundary: `compatibility.md`
 4. Overlay boundary contract: `repo-overlay-contract.md`
 
+## Release Audit Quick Links
+
+1. Release posture and boundaries: `compatibility.md`
+2. Claim and surface status ledger: `authority-matrix.md`
+3. Operational gate list: `validation-checklist.md`
+4. Command-level execution path: `maintainer-commands.md`
+
 ## Rule
 
 - If a page restates a governing rule, it should link back to the canonical doc instead of redefining it.

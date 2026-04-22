@@ -36,6 +36,16 @@ Use rule: use this playbook when a consumer overlay already exists and shared-co
 3. Any deferred consumer-local contract updates.
 4. Explicit statement that compatibility/export surfaces were treated as derived.
 
+## Release-Readiness Boundary
+
+Rollout handoff must not claim:
+
+- runtime workflow orchestration
+- runtime memory subsystem
+- live MCP mesh
+
+Rollout handoff should claim only validator/eval/artifact-backed readiness for the current shared-core slice.
+
 ## Notes
 
 - Rollback behavior remains consumer-specific and is not a shared-core runtime control plane.
