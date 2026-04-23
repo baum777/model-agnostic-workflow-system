@@ -70,9 +70,9 @@ const requiredDocMarkers = new Map([
   [
     'README.md',
     [
-      '## Phase-7 Authoring Und Adoption Quickstart',
-      '## Phase-9 Release Posture Und Certification Handoff (Bounded)',
-      '## Beispiele, Templates und lokale Repo-Steuerung'
+      '## Phase-7 Authoring and Adoption Quickstart',
+      '## Phase-9 Release Posture and Certification Handoff (Bounded)',
+      '## Examples, Templates, and Local Repo Control'
     ]
   ],
   [

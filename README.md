@@ -1,176 +1,176 @@
 # model-agnostic-workflow-system
 
-Provider-neutrales Shared-Core-Repository fuer governte, agentische Workflow-Artefakte.  
-Dieses Repository ist ein Core-/Contract-/Export-/Validation-System, kein Endnutzerprodukt.
+Provider-neutral shared-core repository for governed agentic workflow artifacts.  
+This repository is a core, contract, export, and validation system, not an end-user product.
 
-## Was dieses Repository ist
+## What This Repository Is
 
-Dieses Repo buendelt wiederverwendbare, provider-neutrale Workflow-Bausteine und ihre Governance:
+This repo bundles reusable, provider-neutral workflow building blocks and the governance around them:
 
-- portable Skills und Skill-Metadaten
-- maschinenlesbare Contracts und Registry-Snapshots
-- Provider-Adapter-Exporte (canonical + compatibility)
-- Validatoren, Build-Skripte und Certification-Evals
-- Templates und Beispiele fuer Adoption
-- repo-lokale Orchestrierungs-Skills zur Steuerung von Routing/Surface-Entscheidungen
+- portable skills and skill metadata
+- machine-readable contracts and registry snapshots
+- provider adapter exports (canonical and compatibility)
+- validators, build scripts, and certification evals
+- templates and examples for adoption
+- repo-local orchestration skills for routing and surface decisions
 
-Zielgruppen:
+Primary audiences:
 
-- Maintainer dieses Shared Core
-- Consumer-Repositories, die den Core adoptieren
-- Provider-/Adapter-Autoren, die Exporte und Packaging-Grenzen pflegen
+- maintainers of this shared core
+- consumer repositories adopting the core
+- provider and adapter authors maintaining exports and packaging boundaries
 
-## Was dieses Repository nicht ist
+## What This Repository Is Not
 
-- keine einzelne Produkt-App oder Endnutzer-UI
-- kein reines Codex-Repository
-- kein provider-spezifischer Monolith
-- kein Ersatz fuer consumer-lokale Governance/Overlay-Dateien
-- keine Aussage ueber "live runtime readiness", sofern nicht validator-/artifact-basiert belegt
+- not a single product app or end-user UI
+- not a Codex-only repository
+- not a provider-specific monolith
+- not a replacement for consumer-local governance or overlay files
+- not evidence of live runtime readiness unless validator-backed or artifact-backed
 
-## Systemmodell / Architektur auf einen Blick
+## System Model / Architecture At A Glance
 
-1. Portable Core: Semantik, Skills, Contracts und neutrale Registry (`core/`).
-2. Compatibility Mirrors: Uebergangs-/Kompatibilitaetsflaechen fuer aeltere Konsumenten (`skills/`, `contracts/`, legacy `providers/*`, `docs/tool-contracts/catalog.json`).
-3. Provider Exports: generierte provider-spezifische Bundles unter `providers/<provider>/export.json`.
-4. Governance + Authority: dokumentierte Klassen- und Claim-Logik in `docs/architecture.md` und `docs/authority-matrix.md`.
-5. Enforcement/Gates: Validatoren und Evals in `scripts/tools/` und `evals/`.
-6. Workflow Entry: root workflow guidance in `WORKFLOW.md` plus repo-lokale Routing-Skills unter `.agents/skills/`.
+1. Portable Core: semantics, skills, contracts, and the neutral registry in `core/`.
+2. Compatibility Mirrors: transition and compatibility surfaces for older consumers in `skills/`, `contracts/`, legacy `providers/*`, and `docs/tool-contracts/catalog.json`.
+3. Provider Exports: generated provider-specific bundles under `providers/<provider>/export.json`.
+4. Governance and Authority: documented class logic and claim logic in `docs/architecture.md` and `docs/authority-matrix.md`.
+5. Enforcement and Gates: validators and evals under `scripts/tools/` and `evals/`.
+6. Workflow Entry: root workflow guidance in `WORKFLOW.md` plus repo-local routing skills under `.agents/skills/`.
 
-Wichtig: Das Klassenmodell (canonical/operational/derived/archive) ist logisch; es impliziert keine physische Verzeichnisaufteilung nach diesen Klassen.
+Important: the class model (`canonical`, `operational`, `derived`, `archive`) is logical only. It does not imply a physical directory split by class.
 
-## Repository-Struktur (Bedeutung der Hauptverzeichnisse)
+## Repository Structure (Meaning Of The Main Directories)
 
 - `core/`  
-  Provider-neutrale Kernflaeche (Skills, Contracts, Core-Eval-Scaffolding, Overlay-Boundary-Notes).
+  Provider-neutral core surface for skills, contracts, core eval scaffolding, and overlay boundary notes.
 
 - `core/contracts/`  
-  Canonical machine-readable Contracts:
-  - `core-registry.json` (neutraler Registry-Snapshot)
-  - `workflow-routing-map.json` (workflow class -> skill/tool/MCP/output/validation mapping)
+  Canonical machine-readable contracts:
+  - `core-registry.json` for the neutral registry snapshot
+  - `workflow-routing-map.json` for workflow class to skill/tool/MCP/output/validation mapping
   - `provider-capabilities.json`
   - `output-contracts.json`
   - `tool-contracts/catalog.json`
   - `portable-skill-manifest.json`
 
 - `contracts/`  
-  Compatibility Mirrors (u. a. Registry-/Capability-Mirror waehrend Migration).
+  Compatibility mirrors, including registry and capability mirrors during migration.
 
 - `providers/`  
-  Adapter-Boundary und Export-Bundles:
-  - canonical Adapter: `openai-codex`, `anthropic-claude`, `qwen-code`, `kimi-k2_5`
+  Adapter boundary and export bundles:
+  - canonical adapters: `openai-codex`, `anthropic-claude`, `qwen-code`, `kimi-k2_5`
   - legacy compatibility mirrors: `openai`, `anthropic`, `qwen`, `kimi`, `codex`
 
 - `docs/`  
-  Governance-, Authority-, Boundary- und Operations-Dokumentation.
+  Governance, authority, boundary, and operations documentation.
 
 - `evals/`  
-  Deterministische Certification-Fixtures und Eval-Katalog (`evals/catalog.json`).
+  Deterministic certification fixtures and the eval catalog in `evals/catalog.json`.
 
 - `scripts/tools/`  
-  Validatoren, Registry-/Export-Builder und helper scripts.
+  Validators, registry builders, export builders, and helper scripts.
 
 - `.agents/skills/`  
-  Repo-lokale Control-Plane-Skills (Routing/Surface-Entscheidungen), nicht portable shared skills.
+  Repo-local control-plane skills for routing and surface decisions, not portable shared skills.
 
 - `skills/`  
-  Legacy/compatibility und contract-bound shared skills (inkl. shared-with-local-inputs Muster).
+  Legacy compatibility and contract-bound shared skills, including shared-with-local-inputs patterns.
 
 - `templates/`  
-  Wiederverwendbare Vorlagen (z. B. `templates/codex-workflow/`, `templates/discord-fetch-mcp/`, `templates/qwen-bootstrap/`).
+  Reusable templates such as `templates/codex-workflow/`, `templates/discord-fetch-mcp/`, and `templates/qwen-bootstrap/`.
 
 - `examples/`  
-  Beispielartefakte und kleine Referenzbeispiele.
+  Example artifacts and small reference examples.
 
-## Authority- und Governance-Modell
+## Authority And Governance Model
 
-Normative Orientierung:
+Normative entry points:
 
-- Root Operating Contract: `AGENTS.md`
-- Root Workflow Contract: `WORKFLOW.md`
-- Docs-Hierarchie/Regeln: `docs/architecture.md`
-- Claim-/Status-Ledger: `docs/authority-matrix.md`
-- Source Hierarchy: `docs/governance/source-hierarchy.md`
-- MCP Boundary Policy: `docs/mcp/policy.md`
+- Root operating contract: `AGENTS.md`
+- Root workflow contract: `WORKFLOW.md`
+- Documentation hierarchy and rules: `docs/architecture.md`
+- Claim and status ledger: `docs/authority-matrix.md`
+- Source hierarchy: `docs/governance/source-hierarchy.md`
+- MCP boundary policy: `docs/mcp/policy.md`
 
-Doc-Klassen:
+Documentation classes:
 
-- canonical
-- operational
-- derived
-- archive
+- `canonical`
+- `operational`
+- `derived`
+- `archive`
 
-Wichtig: Doc-Klasse und Enforcement-Status sind getrennt.  
-Eine canonical Aussage ist nicht automatisch script-enforced. Enforced Truth liegt bei Validatoren/Skripten.
+Important: documentation class and enforcement status are separate.  
+A canonical statement is not automatically script-enforced. Enforced truth lives in validators and scripts.
 
-Praktische Regel:
+Practical rule:
 
-- Bei Konflikt zwischen Prosa und Validator-Verhalten gilt die Enforcement-Surface; Status wird in der Authority-Matrix transparent gemacht.
+- when prose and validator behavior conflict, the enforcement surface wins, and the status should be made explicit in `docs/authority-matrix.md`
 
-Capability-Maturity-Labels:
+Capability maturity labels:
 
 - `prose-governed`
 - `contract-backed`
 - `validator-backed`
 - `runtime-implemented`
 
-Diese Labels beschreiben Reifegrad, nicht die Claim-Status-Werte der Authority-Matrix.
+These labels describe maturity, not the claim-status values used in the authority matrix.
 
 ## Portable Core vs Compatibility Mirrors vs Provider Exports
 
 - Portable Core (`core/`)  
-  Heimat gemeinsamer Semantik und neutraler Contracts.
+  Home of shared semantics and neutral contracts.
 
-- Compatibility Mirrors (`skills/`, `contracts/`, legacy provider dirs, `docs/tool-contracts/catalog.json`)  
-  Stabilitaets-/Migrationsflaechen fuer bestehende Consumer; nicht die primaere Quelle neuer Shared-Semantik.
+- Compatibility Mirrors (`skills/`, `contracts/`, legacy provider directories, `docs/tool-contracts/catalog.json`)  
+  Stability and migration surfaces for existing consumers, not the primary home for new shared semantics.
 
 - Provider Exports (`providers/<provider>/export.json`)  
-  Generierte Packaging/Transport-Projektion aus neutraler Registry und Provider-Capability-Profilen.
+  Generated packaging and transport projections from the neutral registry and provider capability profiles.
 
-Boundary-Regel:
+Boundary rule:
 
-- Shared-Semantik aendert man im Core.
-- Provider-spezifische Packaging-Projektion gehoert in `providers/`.
-- Rueckwaertskompatibilitaet bleibt explizit als Mirror markiert.
-- `core/contracts/tool-contracts/catalog.json` ist der kanonische machine-readable Tool-Katalog.
-- `docs/tool-contracts/catalog.json` bleibt eine explizite compatibility/export surface und ist keine zweite kanonische Tool-Wahrheit.
+- change shared semantics in the core
+- keep provider-specific packaging projection in `providers/`
+- keep backward compatibility explicitly marked as mirror behavior
+- treat `core/contracts/tool-contracts/catalog.json` as the canonical machine-readable tool catalog
+- treat `docs/tool-contracts/catalog.json` as an explicit compatibility and export surface, not a second canonical tool truth
 
-## Validation, Registry-Build, Export-Build und Evals
+## Validation, Registry Build, Export Build, And Evals
 
-Zentrale Kommandos:
+Primary commands:
 
 - `npm run validate`  
-  Repo-Surface-Validation (kombinierte Hauptpruefung).
+  Repo-surface validation as the combined main check.
 
 - `npm run validate-neutral`  
-  Neutral-Core-Validation (Registry, Provider-Capabilities, Adapter-Scaffolds, Konsistenz).
+  Neutral-core validation for registry, provider capabilities, adapter scaffolds, and consistency.
 
 - `npm run build-registry`  
-  Regeneriert neutralen Registry-Snapshot (+ Mirror).
+  Regenerates the neutral registry snapshot and mirrors.
 
 - `npm run build-exports`  
-  Regeneriert Provider-Export-Bundles.
+  Regenerates provider export bundles.
 
 - `npm run eval`  
-  Laeuft deterministische Certification-Evals gegen Fixtures.
+  Runs deterministic certification evals against fixtures.
 
-Wichtige Slices:
+Important slices:
 
 - `npm run eval:skill-routing`
 - `npm run eval:semantic-layout`
 - `npm run eval:render-layout`
 - `npm run eval:wcag-a11y`
 
-Render/A11y-Modi:
+Render and accessibility modes:
 
-- certification: lokale Fixtures, deterministisch, blocking
-- operator-evidence: externe URLs erlaubt, advisory/non-blocking
+- `certification`: local fixtures, deterministic, blocking
+- `operator-evidence`: external URLs allowed, advisory, non-blocking
 
-## Einstiegspfade
+## Entry Paths
 
-### Fuer neue Maintainer
+### For New Maintainers
 
-1. `README.md` (diese Front Door)
+1. `README.md` as the front door
 2. `AGENTS.md`
 3. `WORKFLOW.md`
 4. `docs/architecture.md`
@@ -181,24 +181,24 @@ Render/A11y-Modi:
 9. `docs/maintainer-commands.md`
 10. `docs/validation-checklist.md`
 
-### Fuer Consumer-Repositories
+### For Consumer Repositories
 
 1. `docs/repo-overlay-contract.md`
 2. `docs/compatibility.md`
-3. `docs/adoption-playbook.md` (erstmalige Adoption)
-4. `docs/consumer-rollout-playbook.md` (bestehender Consumer)
-5. Consumer-Linkage/Lock:
+3. `docs/adoption-playbook.md` for first-time adoption
+4. `docs/consumer-rollout-playbook.md` for an existing consumer
+5. Consumer linkage and lock:
    - `npm run refresh-lock -- --consumer <consumer-root>`
    - `npm run validate-consumer -- --consumer <consumer-root>`
-   - `npm run validate-input-contract -- --contract <consumer-root>/.codex/repo-intake-inputs.json` (falls adoptiert)
-   - `npm run validate-runtime-policy-input-contract -- --contract <consumer-root>/.codex/runtime-policy-inputs.json` (falls adoptiert)
-6. Bei contract-bound Skills:
+   - `npm run validate-input-contract -- --contract <consumer-root>/.codex/repo-intake-inputs.json` if adopted
+   - `npm run validate-runtime-policy-input-contract -- --contract <consumer-root>/.codex/runtime-policy-inputs.json` if adopted
+6. For contract-bound skills:
    - `docs/shared-with-local-inputs.md`
    - `docs/repo-intake-skill-contract.md`
    - `docs/runtime-policy-skill-contract.md`
-7. Danach: `npm run validate`, `npm run validate-neutral`, `npm run eval`
+7. Then run `npm run validate`, `npm run validate-neutral`, and `npm run eval`
 
-### Fuer Provider-/Adapter-Arbeit
+### For Provider And Adapter Work
 
 1. `providers/README.md`
 2. `docs/portability.md`
@@ -209,74 +209,74 @@ Render/A11y-Modi:
 7. `npm run validate-neutral`
 8. `npm run eval`
 
-## Phase-7 Authoring Und Adoption Quickstart
+## Phase-7 Authoring and Adoption Quickstart
 
-Fuer Maintainer und Consumer gilt derselbe sichere Erweiterungspfad:
+Maintainers and consumers should follow the same safe extension path:
 
-1. Canonical ownership zuerst in `core/contracts/*`, `core/skills/*`, `policies/*`.
-2. Danach abgeleitete Projektionen bauen (`npm run build-registry`, `npm run build-exports`) falls betroffen.
-3. Erst danach operatorische Prosa/Beispiele/Templates aktualisieren (`docs/*`, `templates/*`, `examples/*`).
-4. Abschluss nur mit Gate-Lauf: `npm run validate`, `npm run validate-neutral`, `npm run eval`.
+1. Start canonical ownership changes in `core/contracts/*`, `core/skills/*`, and `policies/*`.
+2. Build derived projections next with `npm run build-registry` and `npm run build-exports` when affected.
+3. Update operational prose, examples, and templates only after that in `docs/*`, `templates/*`, and `examples/*`.
+4. Treat the slice as complete only after running `npm run validate`, `npm run validate-neutral`, and `npm run eval`.
 
-Wichtig:
+Important:
 
-- Provider-Exporte bleiben abgeleitete Spiegel und sind keine zweite kanonische Wahrheitsquelle.
-- Compatibility-Surfaces (`contracts/*`, `skills/*`, `docs/tool-contracts/catalog.json`, legacy `providers/*`) bleiben explizit als Kompatibilitaetsschicht markiert.
-- `repo-root memory/` bleibt geplant; dieses Repo claimt weiterhin kein Runtime-Memory-Subsystem.
+- provider exports remain derived mirrors, not a second canonical truth source
+- compatibility surfaces in `contracts/*`, `skills/*`, `docs/tool-contracts/catalog.json`, and legacy `providers/*` stay explicitly marked as compatibility layers
+- `repo-root memory/` remains planned, and this repo still does not claim a runtime memory subsystem
 
-## Phase-8 Consumer Migration Und Handoff (Bounded)
+## Phase-8 Consumer Migration and Handoff (Bounded)
 
-Downstream-Consumer sollten diesen begrenzten Pfad nutzen:
+Downstream consumers should use this bounded path:
 
-1. First-time Adoption: `docs/adoption-playbook.md`
-2. Bestehender Consumer-Rollout: `docs/consumer-rollout-playbook.md`
-3. Canonical-vs-Compatibility Boundary: `docs/compatibility.md`
-4. Danach Gate-Lauf: `npm run validate`, `npm run validate-neutral`, `npm run eval`
+1. First-time adoption: `docs/adoption-playbook.md`
+2. Existing consumer rollout: `docs/consumer-rollout-playbook.md`
+3. Canonical-vs-compatibility boundary: `docs/compatibility.md`
+4. Then run `npm run validate`, `npm run validate-neutral`, and `npm run eval`
 
-Regel:
+Rule:
 
-- Canonical Aenderungen starten in `core/contracts/*`, `core/skills/*`, `policies/*`.
-- Mirrors/Exports bleiben abgeleitet (`contracts/*`, legacy `providers/*`, `skills/*`, `docs/tool-contracts/catalog.json`).
+- canonical changes start in `core/contracts/*`, `core/skills/*`, and `policies/*`
+- mirrors and exports remain derived in `contracts/*`, legacy `providers/*`, `skills/*`, and `docs/tool-contracts/catalog.json`
 
-## Phase-9 Release Posture Und Certification Handoff (Bounded)
+## Phase-9 Release Posture and Certification Handoff (Bounded)
 
-Release-/Adoptionsbereitschaft wird in diesem Repo ueber Artefakte und Gates bestimmt, nicht ueber narrative Claims.
+Release and adoption readiness in this repo is determined by artifacts and gates, not by narrative claims.
 
-Release-kritische Canonical Surfaces:
+Release-critical canonical surfaces:
 
 - `core/contracts/*`
 - `policies/*`
-- `core/skills/*` (mit Projektion in Registry/Exports)
+- `core/skills/*` with projection into registry and exports
 
-Release-kritische Derived/Compatibility Surfaces:
+Release-critical derived and compatibility surfaces:
 
 - `contracts/*`
 - legacy `providers/*`
 - `docs/tool-contracts/catalog.json`
 
-Release Gate vor Handoff:
+Release gate before handoff:
 
 1. Regeneration: `npm run build-registry`, `npm run build-exports`
 2. Validation: `npm run validate`, `npm run validate-neutral`
 3. Certification: `npm run eval`
 
-Bounded Handoff muss explizit enthalten:
+Bounded handoff must explicitly include:
 
-- welche canonical surfaces geaendert wurden
-- welche mirrors/exports regeneriert wurden
-- Gate-Resultate
-- welche `planned`/`missing` Surfaces bewusst nicht als implemented geclaimt sind
+- which canonical surfaces changed
+- which mirrors and exports were regenerated
+- gate results
+- which `planned` or `missing` surfaces were intentionally not claimed as implemented
 
-## Beispiele, Templates und lokale Repo-Steuerung
+## Examples, Templates, and Local Repo Control
 
-- `templates/` und `examples/` sind Support-/Onboarding-Surfaces, nicht canonical Governance.
-- Consumer-lokale Overlays bleiben ausserhalb des Shared Core als lokale Verantwortung.
-- `.agents/skills/` sind repo-lokale Orchestrierungsregeln dieses Repos; sie sind nicht automatisch portable in Consumer-Repos.
-- Optionale Bootstrap-/Overlay-Flaechen (z. B. `.qwen`) sind consumer-lokal und keine globale Shared-Core-Authority.
+- `templates/` and `examples/` are support and onboarding surfaces, not canonical governance
+- consumer-local overlays remain outside the shared core as local responsibility
+- `.agents/skills/` are repo-local orchestration rules for this repo and are not automatically portable to consumer repos
+- optional bootstrap and overlay surfaces such as `.qwen` are consumer-local and not global shared-core authority
 
 ## Start Here / Next Reading
 
-Core Navigation:
+Core navigation:
 
 - `docs/README.md`
 - `WORKFLOW.md`
@@ -291,18 +291,18 @@ Core Navigation:
 - `providers/README.md`
 - `evals/README.md`
 
-Boundary-spezifisch:
+Boundary-specific reading:
 
 - Portability: `docs/portability.md`
 - Compatibility: `docs/compatibility.md`
-- Source Hierarchy: `docs/governance/source-hierarchy.md`
-- MCP Policy: `docs/mcp/policy.md`
-- Overlay-Trennung: `docs/repo-overlay-contract.md`
-- Maintainer-Befehle: `docs/maintainer-commands.md`
+- Source hierarchy: `docs/governance/source-hierarchy.md`
+- MCP policy: `docs/mcp/policy.md`
+- Overlay boundary: `docs/repo-overlay-contract.md`
+- Maintainer commands: `docs/maintainer-commands.md`
 
-## Pflegehinweise (kurz)
+## Maintenance Notes (Short)
 
-- Neue Regeln/Authority nicht parallel an mehreren Stellen normativ definieren.
-- Bei neuen oder geaenderten Shared-Semantics immer Core + Validation + relevante Docs gemeinsam aktualisieren.
-- Claims zu Readiness/Coverage nur treffen, wenn sie artifact- oder validator-basiert belegt sind.
-- Die Phase-1-Spec-Adoption ist ein Overlay auf die aktuelle kanonische Repo-Struktur, nicht die Uebernahme eines zweiten illustrativen Verzeichnisbaums.
+- do not define new rules or authority normatively in parallel locations
+- when shared semantics change, update the core, validation surfaces, and relevant docs in the same slice
+- only make readiness or coverage claims when they are backed by artifacts or validators
+- treat the Phase 1 spec adoption as an overlay on the current canonical repo structure, not as a second illustrative directory tree
