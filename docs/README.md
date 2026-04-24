@@ -82,7 +82,8 @@ These labels describe maturity only. Claim-status truth still lives in [authorit
 1. First-time adoption: `adoption-playbook.md`
 2. Existing rollout/handoff: `consumer-rollout-playbook.md`
 3. Canonical-vs-compatibility boundary: `compatibility.md`
-4. Overlay boundary contract: `repo-overlay-contract.md`
+4. [consumer-adoption.md](consumer-adoption.md) for opt-in adoption of extension contracts in consumer repositories without enabling runtime or blocking gates.
+5. Overlay boundary contract: `repo-overlay-contract.md`
 
 ## Release Audit Quick Links
 
