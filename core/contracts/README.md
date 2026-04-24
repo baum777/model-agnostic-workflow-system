@@ -31,6 +31,14 @@ Validator-backed candidate eval slices now exist for targeted contract-rule chec
 `eval:mahp` is a minimal validator-backed candidate slice for core envelope-rule checks only and does not introduce runtime handoff orchestration.
 `eval:rgc` and `eval:tsc` are minimal validator-backed candidate slices for deterministic contract-rule checks only and do not introduce budget or scheduler runtimes.
 
+## Extension Snapshot
+
+- Extension modules present and `contract-backed`: OBS, PBC, WMC, MAHP, RGC, TSC.
+- Deterministic module eval slices present: `eval:obs`, `eval:pbc`, `eval:wmc`, `eval:mahp`, `eval:rgc`, `eval:tsc`.
+- Module adoption posture is opt-in via `core/contracts/portable-skill-manifest.json`.
+- Existing consumers are not made blocking by these module contracts or module-scoped eval slices.
+- Runtime implementation and enforcement engines for these extension modules remain intentionally deferred.
+
 ## Safe Extension Flow
 
 1. Update canonical contract(s) in this folder first.

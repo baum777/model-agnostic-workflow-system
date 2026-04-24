@@ -41,3 +41,10 @@ Executable certification checks live here.
   - `npm run eval:mahp`
   - `npm run eval:rgc`
   - `npm run eval:tsc`
+
+## Module Extension Posture
+
+- `eval:obs`, `eval:pbc`, `eval:wmc`, `eval:mahp`, `eval:rgc`, and `eval:tsc` are deterministic shared-core contract checks.
+- These module evals are validator-backed candidates for module semantics, not global mandatory consumer migration gates.
+- Advisory rules in module fixtures remain non-blocking in this slice.
+- Runtime implementation and enforcement engines remain out of scope for these evals.

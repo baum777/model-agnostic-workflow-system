@@ -189,6 +189,14 @@ flowchart LR
 - Compatibility tool-catalog release metadata is tightened in `docs/tool-contracts/catalog.json` with validator-backed enforcement in `scripts/tools/validate-provider-neutral-core.mjs`.
 - Drift detection for release-critical prose surfaces is strengthened through additional required heading checks in `scripts/tools/validate-shared-core-scaffold.mjs`.
 
+## Phase 10 Overlay Mapping
+
+- Canonical extension contracts now include OBS, PBC, WMC, MAHP, RGC, and TSC surfaces under `core/contracts/`.
+- Portable manifest module declarations in `core/contracts/portable-skill-manifest.json` now carry opt-in/deferred extension posture for all six modules.
+- Deterministic module eval slices exist for all six modules (`eval:obs`, `eval:pbc`, `eval:wmc`, `eval:mahp`, `eval:rgc`, `eval:tsc`) as validator-backed candidates only.
+- Compatibility posture remains non-breaking: no global consumer-blocking gate or mandatory migration is introduced by these module slices.
+- Runtime and enforcement layers remain explicitly out of scope in this phase (no sink/exporter, scheduler, memory store, permission engine, handoff transport, or budget runtime engine).
+
 ## Capability Maturity Labels
 
 When a doc in this repo describes capability maturity, it should distinguish:

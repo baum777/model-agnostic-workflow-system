@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.3.0 - planned
+
+- Added contract-backed agentic workflow extension modules:
+  - OBS - Observability Spine
+  - PBC - Permission Boundary Contract
+  - WMC - Workflow Memory Contract
+  - MAHP - Multi-Agent Handoff Protocol
+  - RGC - Resource Governor Contract
+  - TSC - Trigger and Scheduling Contract
+- Added deterministic eval slices:
+  - eval:obs
+  - eval:pbc
+  - eval:wmc
+  - eval:mahp
+  - eval:rgc
+  - eval:tsc
+- Extended portable skill manifest with opt-in/deferred module contract declarations.
+- Added examples for MAHP, RGC, and TSC where applicable.
+- Preserved provider neutrality.
+- Preserved existing consumer opt-in posture.
+- Added migration-hardening policy for future opt-in-to-blocking transition; no blocking consumer gates in 0.3.0.
+- No runtime implementation, scheduler, memory store, permission engine, transport, budget engine, or enforcement layer added.
+- No breaking changes to existing consumers.
+
 ## 0.2.1 - 2026-04-09
 
 - Added generated provider export bundles and the certification eval runner.

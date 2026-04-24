@@ -29,6 +29,20 @@ These labels describe maturity and evidence shape. They do not replace the claim
 
 The generated `.qwen` scaffold is a consumer-local operating overlay. It is not shared-core authority and not a repo-global enforcement plane. The Qwen bootstrap validator checks bootstrap integrity only; it does not assert canonical runtime truth.
 
+## Extension Module Consolidation Snapshot
+
+| module | canonical surface(s) | maturity | opt-in posture | eval status | runtime status | deferred cross-module checks |
+| --- | --- | --- | --- | --- | --- | --- |
+| OBS | `core/contracts/observability-spine.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:obs` | deferred | none in current slice |
+| PBC | `core/contracts/permission-boundary.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:pbc` | deferred | `PBC-V03` |
+| WMC | `core/contracts/workflow-memory-contract.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:wmc` | deferred | `WMC-V04` |
+| MAHP | `core/contracts/handoff-protocol.json`, `core/contracts/handoff-patterns.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:mahp` | deferred | `MAHP-V05` |
+| RGC | `core/contracts/resource-governor.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:rgc` | deferred | `RGC-V01`, `RGC-V02`, `RGC-V03` |
+| TSC | `core/contracts/trigger-scheduling.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:tsc` | deferred | `TSC-V05`, `TSC-V06` |
+
+Runtime/enforcement note: no runtime sink/exporter, scheduler, memory store, permission engine, handoff transport/receiver, or budget enforcement engine is implemented by these module surfaces.
+For extension-module migration hardening policy and the opt-in-to-blocking transition boundary, see `docs/compatibility.md` -> `0.3.0 Migration Timeline Decision Record`.
+
 | surface | surface kind | doc class | enforcement status | authority / enforcement path | note |
 | --- | --- | --- | --- | --- | --- |
 | `README.md` | doc | canonical | prose-only | canonical front door by repo convention | shortest practical entrypoint; points to the docs index |
