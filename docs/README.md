@@ -91,6 +91,7 @@ These labels describe maturity only. Claim-status truth still lives in [authorit
 2. Claim and surface status ledger: `authority-matrix.md`
 3. Operational gate list: `validation-checklist.md`
 4. Command-level execution path: `maintainer-commands.md`
+5. Consumer handoff playbooks: `adoption-playbook.md` (first-time) and `consumer-rollout-playbook.md` (existing rollout)
 
 ## Rule
 

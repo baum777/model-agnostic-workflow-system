@@ -4,7 +4,8 @@ This directory is the provider-specific export boundary for the shared core.
 
 ## Canonical Rule
 
-- Core semantics live in `core/`, `contracts/`, `skills/`, and `scripts/tools/`.
+- Canonical shared semantics live in `core/contracts/*`, `core/skills/*`, and `policies/*`.
+- `contracts/*` and `skills/*` remain compatibility mirrors and must not become canonical semantic authority.
 - Canonical provider adapters live in `providers/openai-codex/`, `providers/anthropic-claude/`, `providers/qwen-code/`, and `providers/kimi-k2_5/`.
 - Legacy directories under `providers/openai/`, `providers/anthropic/`, `providers/qwen/`, `providers/kimi/`, and `providers/codex/` remain compatibility mirrors until the migration is complete.
 - Provider directories compile the canonical portable slice into provider-specific packaging and transport artifacts.

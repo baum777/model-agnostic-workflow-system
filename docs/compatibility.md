@@ -49,9 +49,9 @@ Targeted validator-backed candidate eval slices now exist for OBS/PBC/WMC (`eval
 `eval:rgc` and `eval:tsc` are minimal candidate slices for deterministic RGC/TSC contract rules only. They do not introduce budget runtime enforcement, scheduler runtime behavior, or mandatory consumer migration.
 MAHP may reference adjacent OBS/WMC/PBC contract surfaces in future consumer integrations, but this slice does not introduce cross-module runtime orchestration or mandatory consumer migration.
 
-## Phase 10 Extension Posture (0.3.0 Planned)
+## Phase 10 Extension Posture (0.3.0 Opt-In Closeout)
 
-- Planned release target: `0.3.0` (opt-in posture).
+- Release target remains `0.3.0` (opt-in posture).
 - Extension modules (OBS, PBC, WMC, MAHP, RGC, TSC) are `contract-backed`.
 - Module eval slices (`eval:obs`, `eval:pbc`, `eval:wmc`, `eval:mahp`, `eval:rgc`, `eval:tsc`) are shared-core deterministic evidence and validator-backed candidates only.
 - Existing consumers are not automatically blocked and are not forced into migration by these module additions.
