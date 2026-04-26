@@ -18,6 +18,12 @@ The `repo-intake-sot-mapper` skill uses a consumer-local contract file to avoid 
 - `ignorePaths`
 - `notes`
 
+## Optional Fields
+
+- `journalPaths`
+- `dailyNotePaths`
+- `evidenceLogPaths`
+
 ## Contract Rules
 
 - `skill` must be `repo-intake-sot-mapper`
@@ -25,10 +31,12 @@ The `repo-intake-sot-mapper` skill uses a consumer-local contract file to avoid 
 - all array fields must contain strings
 - `canonicalSourceFiles`, `primaryDocs`, `governanceFiles`, `likelyEntrypoints`, `testCommands`, and `ignorePaths` must be non-empty
 - `ignorePaths` must include `.git`, `node_modules`, `dist`, and `coverage`
+- `journalPaths`, `dailyNotePaths`, and `evidenceLogPaths` are optional; when provided, each must be a non-empty array of strings
+- any provided path in `journalPaths`, `dailyNotePaths`, and `evidenceLogPaths` must exist in the consumer repo
 
 ## Purpose
 
-The contract tells the shared skill where to look for canonical source documents, governance files, likely entrypoints, and test commands without embedding repo-specific assumptions into the skill itself.
+The contract tells the shared skill where to look for canonical source documents, governance files, likely entrypoints, test commands, and optional journal/daily/evidence surfaces without embedding repo-specific assumptions into the skill itself.
 
 ## Validation
 

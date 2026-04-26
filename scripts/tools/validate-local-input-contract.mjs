@@ -48,6 +48,22 @@ function assertStringArray(issues, value, label, options = {}) {
   }
 }
 
+function assertOptionalStringArray(issues, value, label) {
+  if (value == null) {
+    return;
+  }
+  if (!Array.isArray(value) || value.length === 0) {
+    issues.push(`${label} must be a non-empty array of strings when provided.`);
+    return;
+  }
+  for (const entry of value) {
+    if (typeof entry !== 'string' || entry.trim() === '') {
+      issues.push(`${label} must contain only non-empty strings.`);
+      return;
+    }
+  }
+}
+
 function validateLocalInputContract(contractPath, expectedSkill = 'repo-intake-sot-mapper') {
   const issues = [];
   const absoluteContractPath = normalize(contractPath);
@@ -78,6 +94,9 @@ function validateLocalInputContract(contractPath, expectedSkill = 'repo-intake-s
     for (const field of ['canonicalSourceFiles', 'primaryDocs', 'governanceFiles', 'likelyEntrypoints', 'testCommands', 'ignorePaths']) {
       assertStringArray(issues, contract[field], field);
     }
+    for (const field of ['journalPaths', 'dailyNotePaths', 'evidenceLogPaths']) {
+      assertOptionalStringArray(issues, contract[field], field);
+    }
     if (typeof contract.notes !== 'string' || contract.notes.trim() === '') {
       issues.push('Contract notes must be a non-empty string.');
     }
@@ -88,7 +107,7 @@ function validateLocalInputContract(contractPath, expectedSkill = 'repo-intake-s
         }
       }
     }
-    for (const field of ['canonicalSourceFiles', 'primaryDocs', 'governanceFiles', 'likelyEntrypoints']) {
+    for (const field of ['canonicalSourceFiles', 'primaryDocs', 'governanceFiles', 'likelyEntrypoints', 'journalPaths', 'dailyNotePaths', 'evidenceLogPaths']) {
       for (const relativePath of contract[field] || []) {
         const target = path.join(root, relativePath);
         if (!fs.existsSync(target)) {
