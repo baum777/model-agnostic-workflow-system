@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import {
+  buildRenderA11yChromiumLaunchOptions,
   buildEnvelope,
   ensureMode,
   isHttpUrl,
@@ -107,7 +108,7 @@ function flattenViolations(caseId, violations) {
 export async function runAxeAccessibilityAudit(payload, options = {}) {
   const baseRoot = options.baseRoot || process.cwd();
   const mode = ensureMode(options.mode || payload.mode || 'certification');
-  const runtime = await checkRenderA11yRuntime({ mode });
+  const runtime = await checkRenderA11yRuntime({ mode, baseRoot, includeChromeLauncher: false });
   if (!runtime.ok) {
     return buildEnvelope({
       ok: false,
@@ -123,7 +124,10 @@ export async function runAxeAccessibilityAudit(payload, options = {}) {
     });
   }
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch(buildRenderA11yChromiumLaunchOptions(chromium, {
+    baseRoot,
+    scope: 'axe-a11y-audit'
+  }));
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const caseReports = [];
   const findings = [];

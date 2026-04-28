@@ -39,6 +39,88 @@ export function readJsonFile(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
+function firstNonEmpty(values) {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim() !== '') {
+      return value.trim();
+    }
+  }
+  return null;
+}
+
+export function resolveRenderA11yChromePath(playwrightChromium = null) {
+  const envOverride = firstNonEmpty([
+    process.env.RENDER_A11Y_CHROME_PATH,
+    process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH,
+    process.env.CHROME_PATH
+  ]);
+  if (envOverride && fs.existsSync(envOverride)) {
+    return path.resolve(envOverride);
+  }
+
+  if (playwrightChromium && typeof playwrightChromium.executablePath === 'function') {
+    const resolved = firstNonEmpty([playwrightChromium.executablePath()]);
+    if (resolved && fs.existsSync(resolved)) {
+      return path.resolve(resolved);
+    }
+  }
+
+  const commonPaths = [
+    'C:/Program Files/Google/Chrome/Application/chrome.exe',
+    'C:/Program Files/Microsoft/Edge/Application/msedge.exe',
+    'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
+  ];
+  for (const candidate of commonPaths) {
+    if (fs.existsSync(candidate)) {
+      return path.resolve(candidate);
+    }
+  }
+  return null;
+}
+
+export function resolveRenderA11yUserDataDir({ baseRoot = process.cwd(), scope = 'default' } = {}) {
+  const configured = firstNonEmpty([process.env.RENDER_A11Y_USER_DATA_DIR]);
+  const resolved = configured
+    ? path.resolve(configured)
+    : path.resolve(baseRoot, 'artifacts', 'render-a11y-runtime', 'profiles', scope);
+  fs.mkdirSync(resolved, { recursive: true });
+  return resolved;
+}
+
+export function buildRenderA11yChromiumLaunchOptions(playwrightChromium, { baseRoot = process.cwd(), scope = 'default', headless = true } = {}) {
+  const executablePath = resolveRenderA11yChromePath(playwrightChromium);
+  const options = {
+    headless,
+    args: [
+      '--disable-breakpad',
+      '--disable-crash-reporter',
+      '--no-first-run',
+      '--no-default-browser-check'
+    ]
+  };
+  if (executablePath) {
+    options.executablePath = executablePath;
+  }
+  // Ensure runtime profile root exists even for tools that do not consume user-data-dir directly.
+  resolveRenderA11yUserDataDir({ baseRoot, scope });
+  return options;
+}
+
+export function formatRuntimeLaunchFailure(error, { executablePath = null, userDataDir = null } = {}) {
+  const baseMessage = error?.message || String(error);
+  const suffix = [];
+  if (executablePath) {
+    suffix.push(`chromePath=${normalizePath(executablePath)}`);
+  }
+  if (userDataDir) {
+    suffix.push(`userDataDir=${normalizePath(userDataDir)}`);
+  }
+  if (/spawn EPERM|Zugriff verweigert|Access is denied/i.test(baseMessage)) {
+    suffix.push('hint=Browser-Launch permission denied; set RENDER_A11Y_CHROME_PATH/RENDER_A11Y_USER_DATA_DIR or run outside restricted sandbox.');
+  }
+  return suffix.length > 0 ? `${baseMessage} (${suffix.join(', ')})` : baseMessage;
+}
+
 export function toFileUrl(filePath) {
   return pathToFileURL(path.resolve(filePath)).href;
 }

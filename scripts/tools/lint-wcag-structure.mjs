@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import {
+  buildRenderA11yChromiumLaunchOptions,
   buildEnvelope,
   classifyIssueStatus,
   ensureMode,
@@ -127,7 +128,7 @@ function pushFinding(findings, caseId, status, severity, code, message, suggeste
 export async function lintWcagStructure(payload, options = {}) {
   const baseRoot = options.baseRoot || process.cwd();
   const mode = ensureMode(options.mode || payload.mode || 'certification');
-  const runtime = await checkRenderA11yRuntime({ mode });
+  const runtime = await checkRenderA11yRuntime({ mode, baseRoot, includeChromeLauncher: false });
   if (!runtime.ok) {
     return buildEnvelope({
       ok: false,
@@ -143,7 +144,10 @@ export async function lintWcagStructure(payload, options = {}) {
     });
   }
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch(buildRenderA11yChromiumLaunchOptions(chromium, {
+    baseRoot,
+    scope: 'wcag-structure-lint'
+  }));
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const findings = [];
   const caseReports = [];

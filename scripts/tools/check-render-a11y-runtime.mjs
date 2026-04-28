@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildEnvelope, classifyIssueStatus, ensureMode } from './_render_a11y_shared.mjs';
+import {
+  buildEnvelope,
+  buildRenderA11yChromiumLaunchOptions,
+  classifyIssueStatus,
+  ensureMode,
+  formatRuntimeLaunchFailure,
+  resolveRenderA11yUserDataDir
+} from './_render_a11y_shared.mjs';
 
 function parseArgs(argv) {
   const args = { mode: 'certification', json: false };
@@ -27,24 +34,28 @@ function fail(name, error) {
 
 export async function checkRenderA11yRuntime(options = {}) {
   const mode = ensureMode(options.mode || 'certification');
+  const baseRoot = options.baseRoot || process.cwd();
+  const includeChromeLauncher = options.includeChromeLauncher !== false;
   const checks = [];
   const findings = [];
 
   let playwrightModule = null;
   let chromiumPath = null;
+  let chromeUserDataDir = null;
 
   try {
     playwrightModule = await import('playwright');
     const chromium = playwrightModule.chromium;
-    chromiumPath = chromium.executablePath();
-    const browser = await chromium.launch({ headless: true });
+    const launchOptions = buildRenderA11yChromiumLaunchOptions(chromium, { baseRoot, scope: 'runtime-preflight' });
+    chromiumPath = launchOptions.executablePath || chromium.executablePath();
+    const browser = await chromium.launch(launchOptions);
     const page = await browser.newPage();
     await page.setContent('<!doctype html><html><body><main>runtime-check</main></body></html>');
     await page.textContent('main');
     await browser.close();
     checks.push(pass('playwright.chromium.launch', { executablePath: chromiumPath }));
   } catch (error) {
-    checks.push(fail('playwright.chromium.launch', error));
+    checks.push(fail('playwright.chromium.launch', formatRuntimeLaunchFailure(error, { executablePath: chromiumPath })));
   }
 
   try {
@@ -69,28 +80,32 @@ export async function checkRenderA11yRuntime(options = {}) {
     checks.push(fail('lighthouse.import', error));
   }
 
-  try {
-    const chromeLauncherModule = await import('chrome-launcher');
-    const launchFn = chromeLauncherModule.launch || chromeLauncherModule.default?.launch;
-    if (typeof launchFn !== 'function') {
-      throw new Error('chrome-launcher launch export not found.');
-    }
-
-    let launcher = null;
+  if (includeChromeLauncher) {
     try {
-      launcher = await launchFn({
-        chromePath: chromiumPath || undefined,
-        logLevel: 'silent',
-        chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu']
-      });
-      checks.push(pass('chrome-launcher.launch', { port: launcher.port, usedChromePath: chromiumPath || null }));
-    } finally {
-      if (launcher) {
-        await launcher.kill();
+      const chromeLauncherModule = await import('chrome-launcher');
+      const launchFn = chromeLauncherModule.launch || chromeLauncherModule.default?.launch;
+      if (typeof launchFn !== 'function') {
+        throw new Error('chrome-launcher launch export not found.');
       }
+
+      let launcher = null;
+      try {
+        chromeUserDataDir = resolveRenderA11yUserDataDir({ baseRoot, scope: 'runtime-preflight-chrome-launcher' });
+        launcher = await launchFn({
+          chromePath: chromiumPath || undefined,
+          userDataDir: chromeUserDataDir,
+          logLevel: 'silent',
+          chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu']
+        });
+        checks.push(pass('chrome-launcher.launch', { port: launcher.port, usedChromePath: chromiumPath || null, userDataDir: chromeUserDataDir }));
+      } finally {
+        if (launcher) {
+          await launcher.kill();
+        }
+      }
+    } catch (error) {
+      checks.push(fail('chrome-launcher.launch', formatRuntimeLaunchFailure(error, { executablePath: chromiumPath, userDataDir: chromeUserDataDir })));
     }
-  } catch (error) {
-    checks.push(fail('chrome-launcher.launch', error));
   }
 
   const ok = checks.every((entry) => entry.ok);
@@ -113,6 +128,7 @@ export async function checkRenderA11yRuntime(options = {}) {
     input: { mode },
     runtime: {
       checks,
+      includeChromeLauncher,
       strictCertification: mode === 'certification'
     },
     evidence: {

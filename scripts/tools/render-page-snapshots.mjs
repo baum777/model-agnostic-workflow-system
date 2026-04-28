@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import {
+  buildRenderA11yChromiumLaunchOptions,
   buildEnvelope,
   classifyIssueStatus,
   ensureMode,
@@ -218,7 +219,7 @@ function addMetricFindings(findings, caseId, breakpoint, metrics) {
 export async function renderPageSnapshots(payload, options = {}) {
   const baseRoot = options.baseRoot || process.cwd();
   const mode = ensureMode(options.mode || payload.mode || 'certification');
-  const runtime = await checkRenderA11yRuntime({ mode });
+  const runtime = await checkRenderA11yRuntime({ mode, baseRoot, includeChromeLauncher: false });
   if (!runtime.ok) {
     return buildEnvelope({
       ok: false,
@@ -241,7 +242,10 @@ export async function renderPageSnapshots(payload, options = {}) {
   const outputDir = normalizePath(path.resolve(baseRoot, options.outputDir || payload.outputDir || path.join('artifacts', 'render-snapshots')));
   fs.mkdirSync(outputDir, { recursive: true });
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch(buildRenderA11yChromiumLaunchOptions(chromium, {
+    baseRoot,
+    scope: 'render-page-snapshots'
+  }));
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const findings = [];
   const snapshots = [];

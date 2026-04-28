@@ -5,11 +5,13 @@ import lighthouse from 'lighthouse';
 import { launch } from 'chrome-launcher';
 import { chromium } from 'playwright';
 import {
+  buildRenderA11yChromiumLaunchOptions,
   buildEnvelope,
   ensureMode,
   isHttpUrl,
   normalizePath,
   readJsonFile,
+  resolveRenderA11yUserDataDir,
   startStaticServer
 } from './_render_a11y_shared.mjs';
 import { checkRenderA11yRuntime } from './check-render-a11y-runtime.mjs';
@@ -132,7 +134,7 @@ function compactAudits(lhr) {
 export async function runLighthousePageAudit(payload, options = {}) {
   const baseRoot = options.baseRoot || process.cwd();
   const mode = ensureMode(options.mode || payload.mode || 'certification');
-  const runtime = await checkRenderA11yRuntime({ mode });
+  const runtime = await checkRenderA11yRuntime({ mode, baseRoot });
   if (!runtime.ok) {
     return buildEnvelope({
       ok: false,
@@ -158,9 +160,12 @@ export async function runLighthousePageAudit(payload, options = {}) {
       staticServer = await startStaticServer(baseRoot);
     }
 
-    const chromePath = chromium.executablePath();
+    const launchOptions = buildRenderA11yChromiumLaunchOptions(chromium, { baseRoot, scope: 'lighthouse-audit' });
+    const chromePath = launchOptions.executablePath || chromium.executablePath();
+    const userDataDir = resolveRenderA11yUserDataDir({ baseRoot, scope: 'lighthouse-chrome-launcher' });
     chrome = await launch({
       chromePath,
+      userDataDir,
       logLevel: 'silent',
       chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu']
     });
