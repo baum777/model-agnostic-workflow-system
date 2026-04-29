@@ -48,6 +48,12 @@ npm run runtime:validate -- --runId <runId>
 
 Validates a specific local Phase 1 runtime run artifact.
 
+```bash
+npm run memory:validate
+```
+
+Validates the Phase 2 memory skeleton. This checks structure, schemas, policy markers, and disabled-capability posture only.
+
 The following commands intentionally fail closed in Phase 1:
 
 ```bash
@@ -92,10 +98,18 @@ Phase 1 validation is limited to local run artifact consistency:
 - `permissions.jsonl` contains a denied `external.http` decision
 - `validation-receipt.json` has `result: "pass"`
 
+Phase 2 memory validation is limited to skeleton consistency:
+
+- required `memory/` docs, scopes, policies, and schemas exist
+- schema files parse as JSON and declare required fields
+- policies preserve secret exclusion, known scopes, and review-only promotion
+- runtime memory writes, canonical promotion, SQLite, and scheduler remain disabled
+
 Use the repo-wide gates for shared-core integrity:
 
 ```bash
 npm run validate
 npm run eval:obs
 npm run eval:pbc
+npm run eval:wmc
 ```

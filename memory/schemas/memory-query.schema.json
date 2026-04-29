@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "memory/schemas/memory-query.schema.json",
+  "title": "Memory Query",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["scope", "confidence", "source"],
+  "properties": {
+    "scope": {
+      "type": "string",
+      "enum": ["runtime", "project", "operator", "decision-candidate"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["observed", "validated", "inferred", "candidate"]
+    },
+    "source": {
+      "type": "string",
+      "enum": ["runtime-run", "handoff", "manual-note", "validation", "commit"]
+    },
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    }
+  }
+}
