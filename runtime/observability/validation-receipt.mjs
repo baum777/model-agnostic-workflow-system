@@ -1,10 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { SERVICE_CAPABLE_ACTIONS } from '../service/service-actions.mjs';
 
 const PHASE_1_ARTIFACTS = ['manifest.json', 'events.jsonl', 'permissions.jsonl', 'validation-receipt.json'];
 const PHASE_3_ARTIFACTS = ['memory.jsonl'];
 const PHASE_5_ARTIFACTS = ['handoff-envelope.json', 'resources.json'];
 const PHASE_6_ARTIFACTS = ['trigger.json'];
+const PHASE_10_ARTIFACTS = ['service-actions.json'];
 const VALIDATION_RECEIPT_VERSION = '1.0.0';
 
 function writeValidationReceipt(context, checks) {
@@ -235,6 +237,59 @@ function validateTriggerShape(trigger, runId) {
   return issues;
 }
 
+function validateServiceActionShape(serviceActions, runId) {
+  const issues = [];
+  if (serviceActions.serviceActionReceiptVersion !== '1.0.0') {
+    issues.push('service action receipt version must be 1.0.0.');
+  }
+  if (serviceActions.runId !== runId) {
+    issues.push('service actions runId must match manifest runId.');
+  }
+  const coverage = serviceActions.coverage;
+  if (!coverage?.coverageComplete) {
+    issues.push('service action coverage must be complete.');
+  }
+  const expectedActions = coverage?.expectedActions ?? [];
+  const coveredActions = coverage?.coveredActions ?? [];
+  for (const action of SERVICE_CAPABLE_ACTIONS) {
+    if (!expectedActions.includes(action)) {
+      issues.push(`service action coverage expectedActions missing ${action}.`);
+    }
+    if (!coveredActions.includes(action)) {
+      issues.push(`service action coverage coveredActions missing ${action}.`);
+    }
+  }
+  if (!Array.isArray(serviceActions.receipts) || serviceActions.receipts.length !== SERVICE_CAPABLE_ACTIONS.length) {
+    issues.push('service action receipts must cover every service-capable action.');
+  }
+  for (const [index, receipt] of (serviceActions.receipts ?? []).entries()) {
+    if (receipt.runId !== runId) {
+      issues.push(`service action receipt[${index}] runId must match manifest runId.`);
+    }
+    if (!SERVICE_CAPABLE_ACTIONS.includes(receipt.action)) {
+      issues.push(`service action receipt[${index}] action is not service-capable.`);
+    }
+    if (!hasString(receipt.identity?.id) || receipt.identity?.trust !== 'controlled-local') {
+      issues.push(`service action receipt[${index}] identity must be controlled-local.`);
+    }
+    if (receipt.claim?.scope !== 'service' || receipt.claim?.action !== receipt.action) {
+      issues.push(`service action receipt[${index}] claim must match service action.`);
+    }
+    if (receipt.claimBinding?.result !== 'pass') {
+      issues.push(`service action receipt[${index}] claim binding must pass.`);
+    }
+    if (receipt.execution?.simulated !== true || receipt.execution?.transport !== 'local-only') {
+      issues.push(`service action receipt[${index}] execution must be local-only simulation.`);
+    }
+    for (const field of ['listenerStarted', 'httpMcpStarted', 'remoteTransportStarted', 'daemonStarted', 'serviceStartAllowed']) {
+      if (receipt.execution?.[field] !== false) {
+        issues.push(`service action receipt[${index}] execution ${field} must be false.`);
+      }
+    }
+  }
+  return issues;
+}
+
 function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } = {}) {
   const root = path.resolve(repoRoot);
   const runDir = latest
@@ -270,6 +325,7 @@ function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } 
   let handoffEnvelope = null;
   let resources = null;
   let trigger = null;
+  let serviceActions = null;
   try {
     manifest = readJson(path.join(runDir, 'manifest.json'));
     receipt = readJson(path.join(runDir, 'validation-receipt.json'));
@@ -286,6 +342,9 @@ function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } 
     }
     if (fs.existsSync(path.join(runDir, 'trigger.json'))) {
       trigger = readJson(path.join(runDir, 'trigger.json'));
+    }
+    if (fs.existsSync(path.join(runDir, 'service-actions.json'))) {
+      serviceActions = readJson(path.join(runDir, 'service-actions.json'));
     }
   } catch (error) {
     return { ok: false, issues: [`Runtime artifact parse failed: ${error.message}`], runDir };
@@ -331,6 +390,9 @@ function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } 
   if (trigger) {
     issues.push(...validateTriggerShape(trigger, manifest.runId));
   }
+  if (serviceActions) {
+    issues.push(...validateServiceActionShape(serviceActions, manifest.runId));
+  }
 
   return {
     ok: issues.length === 0,
@@ -343,7 +405,8 @@ function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } 
     memoryEntries,
     handoffEnvelope,
     resources,
-    trigger
+    trigger,
+    serviceActions
   };
 }
 
@@ -352,6 +415,7 @@ export {
   PHASE_3_ARTIFACTS,
   PHASE_5_ARTIFACTS,
   PHASE_6_ARTIFACTS,
+  PHASE_10_ARTIFACTS,
   VALIDATION_RECEIPT_VERSION,
   findLatestRunDir,
   readJson,

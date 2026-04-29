@@ -132,6 +132,7 @@ artifacts/runtime-runs/<runId>/
   handoff-envelope.json
   resources.json
   trigger.json
+  service-actions.json
   validation-receipt.json
 ```
 
@@ -225,6 +226,14 @@ Phase 9 service execution contract defines local-only service-capable actions wi
 - action-level permission coverage must include all service-capable actions
 - simulated execution uses `transport: local-only`
 - successful simulation returns `listenerStarted: false`, `httpMcpStarted: false`, and `serviceStartAllowed: false`
+
+Phase 10 service action artifacts persist local simulation receipts into run evidence:
+
+- `service-actions.json` records simulated receipts for `run`, `status`, `replay`, and `cancel`
+- each receipt includes controlled identity, explicit claim, and claim binding result
+- validation checks action-level permission coverage for every service-capable action
+- replay reports service action coverage from artifacts only
+- HTTP, MCP, remote transport, daemon, and service start remain disabled
 
 Use the repo-wide gates for shared-core integrity:
 

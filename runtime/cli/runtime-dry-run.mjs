@@ -13,6 +13,8 @@ import { writeRuntimeMemoryEntry } from '../memory/memory-writer.mjs';
 import { writeHandoffEnvelope } from '../handoff/handoff-writer.mjs';
 import { createResourceGovernor } from '../resources/resource-governor.mjs';
 import { runManualTrigger } from '../scheduler/manual-trigger.mjs';
+import { resolveAuthContext } from '../auth/auth-context.mjs';
+import { writeServiceActionReceipts } from '../service/service-action-receipts.mjs';
 
 function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
   const context = createRunContext({
@@ -134,6 +136,16 @@ function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
     name: 'manual_trigger_written',
     result: triggerWrite.ok ? 'pass' : 'blocked',
     details: triggerWrite.issues
+  });
+
+  const serviceIdentity = resolveAuthContext({ fixtureIdentity: 'local-user' });
+  const serviceActionReceipts = serviceIdentity.ok
+    ? writeServiceActionReceipts({ context, identity: serviceIdentity.identity })
+    : { ok: false, issues: serviceIdentity.issues };
+  checks.push({
+    name: 'service_action_receipts_written',
+    result: serviceActionReceipts.ok ? 'pass' : 'blocked',
+    details: serviceActionReceipts.issues
   });
 
   const finalReceipt = writeValidationReceipt(context, checks).receipt;

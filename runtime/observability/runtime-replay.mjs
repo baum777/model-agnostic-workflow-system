@@ -37,6 +37,9 @@ function replayRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } = 
     const trigger = fs.existsSync(path.join(runDir, 'trigger.json'))
       ? readJson(path.join(runDir, 'trigger.json'))
       : null;
+    const serviceActions = fs.existsSync(path.join(runDir, 'service-actions.json'))
+      ? readJson(path.join(runDir, 'service-actions.json'))
+      : null;
     const validationReceipt = readJson(path.join(runDir, 'validation-receipt.json'));
     const resolvedRunId = manifest.runId ?? path.basename(runDir);
 
@@ -59,11 +62,13 @@ function replayRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } = 
         hasHandoff: Boolean(handoff),
         resourceResult: resources?.result ?? null,
         triggerType: trigger?.trigger_type ?? null,
+        serviceActionCoverage: serviceActions?.coverage?.coverageComplete ?? null,
         validationResult: validationReceipt.result
       },
       handoff,
       resources,
-      trigger
+      trigger,
+      serviceActions
     };
   } catch (error) {
     return {
