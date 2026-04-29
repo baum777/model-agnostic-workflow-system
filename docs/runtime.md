@@ -95,6 +95,18 @@ npm run runtime:service -- --enable-service-mode --http --mcp
 Fails closed. HTTP and MCP service transports remain deferred until a local auth/permission model is implemented and validated.
 
 ```bash
+npm run runtime:service -- --preflight --identity local-user
+```
+
+Runs Phase 8 local service auth/permission preflight. This may return `preflightChecksPassed: true`, but must still report `serviceStartAllowed: false`.
+
+```bash
+npm run runtime:service -- --simulate-action run --identity local-user
+```
+
+Simulates a Phase 9 service-capable action locally. The action must have an explicit identity-bound claim and still does not start a listener.
+
+```bash
 npm run memory:validate
 ```
 
@@ -195,6 +207,24 @@ Phase 7 service-mode readiness is a specification gate, not a service runtime:
 - HTTP and MCP service transports remain deferred behind local auth and permission model readiness
 - remote transport remains blocked before local auth/permission model readiness
 - no HTTP listener, MCP server, remote transport, background service, or daemon is started
+
+Phase 8 local service auth/permission preflight proves local control checks without opening a service surface:
+
+- identity is required and must come from a controlled local source: CLI flag, environment, or fixture
+- allowed identities are bounded to `local-user`, `ci`, and `agent`
+- service preflight is bound through `identity + scope + action + target`
+- unbound actions and implicit trust sources are blocked
+- successful preflight returns `preflightChecksPassed: true` and `serviceStartAllowed: false`
+- `--http`, `--mcp`, `--remote`, and `--daemon` remain blocked during preflight
+
+Phase 9 service execution contract defines local-only service-capable actions without opening a service surface:
+
+- `run`, `status`, `replay`, and `cancel` are service-capable actions
+- every action requires a controlled identity and an explicit `service:<action>` claim
+- claim binding is evaluated with `identity + scope + action + target`
+- action-level permission coverage must include all service-capable actions
+- simulated execution uses `transport: local-only`
+- successful simulation returns `listenerStarted: false`, `httpMcpStarted: false`, and `serviceStartAllowed: false`
 
 Use the repo-wide gates for shared-core integrity:
 
