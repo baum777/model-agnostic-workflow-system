@@ -90,8 +90,8 @@ test('runtime dry-run creates Phase 1 artifacts that validate by latest run', ()
   assert.equal(validation.receipt.result, 'pass');
 });
 
-test('unimplemented runtime commands fail closed in Phase 1', () => {
-  for (const scriptName of ['runtime-run.mjs', 'runtime-status.mjs', 'runtime-replay.mjs']) {
+test('unimplemented runtime commands fail closed', () => {
+  for (const scriptName of ['runtime-run.mjs', 'runtime-status.mjs']) {
     const result = spawnSync('node', [path.join(repoRoot, 'runtime', 'cli', scriptName)], {
       cwd: repoRoot,
       encoding: 'utf8'

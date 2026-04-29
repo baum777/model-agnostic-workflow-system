@@ -52,6 +52,18 @@ npm run runtime:validate -- --runId <runId>
 Validates a specific local Phase 1 runtime run artifact.
 
 ```bash
+npm run runtime:replay -- --runId <runId>
+```
+
+Replays a specific local runtime run by reading `manifest.json`, `events.jsonl`, `permissions.jsonl`, `memory.jsonl`, and `validation-receipt.json`.
+
+```bash
+npm run runtime:replay -- --latest
+```
+
+Replays the latest valid local runtime run. Latest-run resolution ignores malformed run directories and orders valid runs by manifest `createdAt`.
+
+```bash
 npm run memory:validate
 ```
 
@@ -62,7 +74,6 @@ The following commands intentionally fail closed in Phase 1:
 ```bash
 npm run runtime:run
 npm run runtime:status
-npm run runtime:replay
 ```
 
 ## Artifact Contract
@@ -109,6 +120,8 @@ Phase 1 validation is limited to local run artifact consistency:
 - `events.jsonl` contains at least one event
 - `permissions.jsonl` contains a denied `external.http` decision
 - `validation-receipt.json` has `result: "pass"`
+- `validation-receipt.json` includes versioned summary metadata
+- latest-run resolution uses valid manifest `createdAt`, not directory mtime alone
 
 Phase 2 memory validation is limited to skeleton consistency:
 
@@ -125,6 +138,8 @@ Phase 3 memory write validation is limited to:
 - secret-like content is blocked before write
 - unknown or non-runtime scope is blocked
 - promotion status remains `none`
+
+Phase 4 replay reads artifacts only. It does not re-execute runtime actions.
 
 Use the repo-wide gates for shared-core integrity:
 
