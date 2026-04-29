@@ -1,2 +1,5 @@
 node_modules/
-artifacts/
+artifacts/*
+!artifacts/runtime-runs/
+artifacts/runtime-runs/run_*/
+!artifacts/runtime-runs/.gitkeep

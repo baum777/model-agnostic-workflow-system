@@ -33,14 +33,14 @@ The generated `.qwen` scaffold is a consumer-local operating overlay. It is not 
 
 | module | canonical surface(s) | maturity | opt-in posture | eval status | runtime status | deferred cross-module checks |
 | --- | --- | --- | --- | --- | --- | --- |
-| OBS | `core/contracts/observability-spine.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:obs` | deferred | none in current slice |
-| PBC | `core/contracts/permission-boundary.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:pbc` | deferred | `PBC-V03` |
-| WMC | `core/contracts/workflow-memory-contract.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:wmc` | deferred | `WMC-V04` |
+| OBS | `core/contracts/observability-spine.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:obs` | Phase 1 local dry-run artifact writer | none in current slice |
+| PBC | `core/contracts/permission-boundary.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:pbc` | Phase 1 local dry-run permission gate | `PBC-V03` |
+| WMC | `core/contracts/workflow-memory-contract.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:wmc` | loaded by Phase 1 dry-run; memory storage deferred | `WMC-V04` |
 | MAHP | `core/contracts/handoff-protocol.json`, `core/contracts/handoff-patterns.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:mahp` | deferred | `MAHP-V05` |
 | RGC | `core/contracts/resource-governor.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:rgc` | deferred | `RGC-V01`, `RGC-V02`, `RGC-V03` |
 | TSC | `core/contracts/trigger-scheduling.json` | `contract-backed` | opt-in via `portable-skill-manifest` moduleContracts | validator-backed candidate via `eval:tsc` | deferred | `TSC-V05`, `TSC-V06` |
 
-Runtime/enforcement note: no runtime sink/exporter, scheduler, memory store, permission engine, handoff transport/receiver, or budget enforcement engine is implemented by these module surfaces.
+Runtime/enforcement note: Phase 1 adds a local dry-run runtime surface for OBS artifact writing and a PBC deny-by-default permission gate only. Scheduler, memory store, handoff transport/receiver, budget enforcement engine, HTTP service, MCP server, remote queue, and background daemon remain deferred.
 For extension-module migration hardening policy and the opt-in-to-blocking transition boundary, see `docs/compatibility.md` -> `0.3.0 Migration Timeline Decision Record`.
 
 | surface | surface kind | doc class | enforcement status | authority / enforcement path | note |
@@ -86,6 +86,10 @@ For extension-module migration hardening policy and the opt-in-to-blocking trans
 | `core/contracts/output-contracts.json` | config surface | n/a | contract-only | portable output contract catalog | normalized output contract metadata for portable skills and workflow plan/run/validation/certification/handoff artifacts, including recommended template linkage |
 | `core/contracts/workflow-routing-map.json` | config surface | n/a | validator-backed | `scripts/tools/build-neutral-core-registry.mjs` + `scripts/tools/validate-provider-neutral-core.mjs` | canonical workflow class mapping to supporting skills, control-plane skills, allowed tools, MCP posture, validation gates, expected output contracts, template linkage, example linkage, and completion evidence posture |
 | `core/contracts/tool-contracts/catalog.json` | config surface | n/a | validator-backed | `scripts/tools/validate-provider-neutral-core.mjs` + `scripts/tools/validate-secret-boundaries.mjs` | canonical machine-readable tool catalog with explicit secret-boundary metadata |
+| `runtime/cli/runtime-dry-run.mjs` | runnable-tool | n/a | runnable | `npm run runtime:dry-run` | local-only Phase 1 runtime-implemented surface; loads required `core/contracts/*`, writes OBS events, exercises PBC denial, and creates ignored run artifacts |
+| `runtime/cli/runtime-validate.mjs` | runnable-tool | n/a | runnable | `npm run runtime:validate -- --latest` or `npm run runtime:validate -- --runId <id>` | validates Phase 1 runtime-implemented run artifacts only; does not validate memory, scheduler, handoff, resource governor, HTTP, MCP, or service mode |
+| `runtime/cli/runtime-run.mjs`, `runtime/cli/runtime-status.mjs`, `runtime/cli/runtime-replay.mjs` | runnable-tool | n/a | stub | package scripts exit fail-closed in Phase 1 | reserved for later local runtime slices; current stubs prevent overclaiming unavailable capability |
+| `artifacts/runtime-runs/<runId>/` | generated artifact surface | n/a | implemented | created by `npm run runtime:dry-run`; validated by `npm run runtime:validate` | ignored local runtime-implemented evidence containing `manifest.json`, `events.jsonl`, `permissions.jsonl`, and `validation-receipt.json` |
 | `policies/secret-classes.yaml` | config surface | n/a | validator-backed | `scripts/tools/validate-secret-boundaries.mjs` | machine-readable secret class policy; not a second prose authority |
 | `policies/tool-capabilities.yaml` | config surface | n/a | validator-backed | `scripts/tools/validate-secret-boundaries.mjs` | machine-readable secret-boundary field policy for normalized tool contracts |
 | `contracts/core-registry.json` | config surface | n/a | compatibility mirror | `scripts/tools/build-neutral-core-registry.mjs` + `scripts/tools/validate-provider-neutral-core.mjs` | legacy mirror of the canonical registry |
@@ -124,7 +128,7 @@ For extension-module migration hardening policy and the opt-in-to-blocking trans
 | `examples/codex-workflow/README.md` | doc | derived | prose-only | derived example index by repo convention | maps representative planning/review/handoff examples to canonical workflow/output/template surfaces |
 | `repo-root mcp/` | repo surface | n/a | missing | no observed canonical top-level MCP directory | MCP canon for this slice lives in `docs/mcp/policy.md` |
 | `repo-root tools/` | repo surface | n/a | missing | no observed canonical top-level tools directory | canonical machine-readable tool truth lives in `core/contracts/tool-contracts/catalog.json` |
-| `repo-root memory/` | repo surface | n/a | planned | no current canonical memory subtree for this repo | Phase 3 reassessment keeps this planned intentionally; workflow evidence remains artifact-oriented via contracts and validations |
+| `repo-root memory/` | repo surface | n/a | planned | no current canonical memory subtree for this repo | Runtime Phase 1 intentionally does not introduce a memory subsystem; workflow evidence remains artifact-oriented via contracts and validations |
 | `scripts/tools/validate-shared-core-package.mjs` | validator | n/a | validator-backed | package and plugin validator | validates package metadata, plugin name/version/skills path |
 | `scripts/tools/validate-shared-core-scaffold.mjs` | validator | n/a | validator-backed | scaffold validator | validates required files/dirs and shared skill contract sections |
 | `scripts/tools/build-neutral-core-registry.mjs` | helper-script | n/a | helper-only | neutral registry generator | writes or prints the provider-neutral registry snapshot |
