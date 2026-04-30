@@ -15,6 +15,7 @@ import { createResourceGovernor } from '../resources/resource-governor.mjs';
 import { runManualTrigger } from '../scheduler/manual-trigger.mjs';
 import { resolveAuthContext } from '../auth/auth-context.mjs';
 import { writeServiceActionReceipts } from '../service/service-action-receipts.mjs';
+import { writeServiceRequestReceipts } from '../service/service-request-receipts.mjs';
 
 function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
   const context = createRunContext({
@@ -146,6 +147,15 @@ function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
     name: 'service_action_receipts_written',
     result: serviceActionReceipts.ok ? 'pass' : 'blocked',
     details: serviceActionReceipts.issues
+  });
+
+  const serviceRequestReceipts = serviceIdentity.ok
+    ? writeServiceRequestReceipts({ context, identity: serviceIdentity.identity })
+    : { ok: false, issues: serviceIdentity.issues };
+  checks.push({
+    name: 'service_request_receipts_written',
+    result: serviceRequestReceipts.ok ? 'pass' : 'blocked',
+    details: serviceRequestReceipts.issues
   });
 
   const finalReceipt = writeValidationReceipt(context, checks).receipt;

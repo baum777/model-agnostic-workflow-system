@@ -6,14 +6,14 @@ Use rule: use this as the compact implementation and activation status for the l
 ## Result
 
 - `result`: `pass`
-- Runtime Phase 1-11 is locally implemented and validatable.
+- Runtime Phase 1-13 is locally implemented and validatable.
 - This is not a live-service activation claim. Service Mode remains gated and fail-closed.
 
 ## Implemented / Locally Proven
 
 The following surfaces are implemented as local runtime behavior and evidence-producing checks:
 
-- Runtime Phase 1-11
+- Runtime Phase 1-13
 - Memory Skeleton
 - controlled runtime memory writes
 - Replay/Validation
@@ -22,6 +22,8 @@ The following surfaces are implemented as local runtime behavior and evidence-pr
 - Service Auth/Execution Gates
 - Service Action Artifacts
 - Local Service API Design Gate
+- Local Service Request Envelope Gate
+- Local Service Request Artifacts
 
 The local runtime can produce ignored run evidence under:
 
@@ -67,15 +69,15 @@ Status:
 - working tree clean at post-commit verification time
 - no push performed
 
-## Current API Design Gate
+## Current Request Artifact Gate
 
-Phase 11: local service API design gate.
+Phase 13: local service request artifact gate.
 
 Scope:
 
-- endpoint specification only
+- validated local request envelopes only
 - no listener
-- map endpoint -> service action -> identity-bound claim
-- fail closed for unbound endpoints
+- map request envelope -> endpoint -> service action -> identity-bound claim -> local receipt
+- fail closed for missing identity, unknown identity, unbound endpoints, and claim mismatch
 
-Phase 11 is locally implemented and validatable. It is not a service activation claim and does not open a listener.
+Phase 13 is locally implemented and validatable. It is not a service activation claim and does not open a listener.

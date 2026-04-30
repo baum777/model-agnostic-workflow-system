@@ -20,6 +20,7 @@ It can:
 - write an explicit local manual trigger artifact
 - validate cron trigger configuration without starting a scheduler
 - validate local run artifacts
+- write local service request receipts for validated request envelopes
 
 It does not implement:
 
@@ -151,6 +152,7 @@ artifacts/runtime-runs/<runId>/
   resources.json
   trigger.json
   service-actions.json
+  service-requests.json
   validation-receipt.json
 ```
 
@@ -268,6 +270,14 @@ Phase 12 local service request envelope gate validates planned service requests 
 - missing identity, unknown identity, unbound endpoint, and claim mismatch block
 - `--http`, `--mcp`, `--remote`, and `--daemon` remain blocked
 - successful validation returns `requestValidated: true`, `transport: local-only`, and `serviceStartAllowed: false`
+
+Phase 13 local service request artifacts persist validated request envelopes into run evidence:
+
+- `service-requests.json` records receipts for each spec-only service API endpoint
+- each receipt includes controlled identity, endpoint, action, claim, validation result, and disabled service-start fields
+- validation checks request-level endpoint coverage and claim consistency
+- replay reports service request coverage from artifacts only
+- HTTP, MCP, remote transport, daemon, and service start remain disabled
 
 Use the repo-wide gates for shared-core integrity:
 

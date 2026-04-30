@@ -1,12 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { SERVICE_CAPABLE_ACTIONS } from '../service/service-actions.mjs';
+import { SERVICE_API_ENDPOINTS } from '../service/service-api-design.mjs';
 
 const PHASE_1_ARTIFACTS = ['manifest.json', 'events.jsonl', 'permissions.jsonl', 'validation-receipt.json'];
 const PHASE_3_ARTIFACTS = ['memory.jsonl'];
 const PHASE_5_ARTIFACTS = ['handoff-envelope.json', 'resources.json'];
 const PHASE_6_ARTIFACTS = ['trigger.json'];
 const PHASE_10_ARTIFACTS = ['service-actions.json'];
+const PHASE_13_ARTIFACTS = ['service-requests.json'];
 const VALIDATION_RECEIPT_VERSION = '1.0.0';
 
 function writeValidationReceipt(context, checks) {
@@ -290,6 +292,82 @@ function validateServiceActionShape(serviceActions, runId) {
   return issues;
 }
 
+function serviceEndpointKey(endpoint) {
+  return `${endpoint.method} ${endpoint.path}`;
+}
+
+function validateServiceRequestShape(serviceRequests, runId) {
+  const issues = [];
+  if (serviceRequests.serviceRequestReceiptVersion !== '1.0.0') {
+    issues.push('service request receipt version must be 1.0.0.');
+  }
+  if (serviceRequests.runId !== runId) {
+    issues.push('service requests runId must match manifest runId.');
+  }
+  const coverage = serviceRequests.coverage;
+  if (!coverage?.coverageComplete) {
+    issues.push('service request coverage must be complete.');
+  }
+  const expectedEndpoints = coverage?.expectedEndpoints ?? [];
+  const coveredEndpoints = coverage?.coveredEndpoints ?? [];
+  for (const endpoint of SERVICE_API_ENDPOINTS) {
+    const key = serviceEndpointKey(endpoint);
+    if (!expectedEndpoints.includes(key)) {
+      issues.push(`service request coverage expectedEndpoints missing ${key}.`);
+    }
+    if (!coveredEndpoints.includes(key)) {
+      issues.push(`service request coverage coveredEndpoints missing ${key}.`);
+    }
+  }
+  if (!Array.isArray(serviceRequests.receipts) || serviceRequests.receipts.length !== SERVICE_API_ENDPOINTS.length) {
+    issues.push('service request receipts must cover every service API endpoint.');
+  }
+  for (const [index, receipt] of (serviceRequests.receipts ?? []).entries()) {
+    const request = receipt.request;
+    const matchedEndpoint = SERVICE_API_ENDPOINTS.find((endpoint) => (
+      endpoint.method === request?.endpoint?.method && endpoint.path === request?.endpoint?.path
+    ));
+    if (receipt.runId !== runId) {
+      issues.push(`service request receipt[${index}] runId must match manifest runId.`);
+    }
+    if (!matchedEndpoint) {
+      issues.push(`service request receipt[${index}] endpoint must be declared in service API design.`);
+    }
+    if (!hasString(request?.identity?.id) || request.identity?.trust !== 'controlled-local') {
+      issues.push(`service request receipt[${index}] identity must be controlled-local.`);
+    }
+    if (request?.requestEnvelopeVersion !== '1.0.0') {
+      issues.push(`service request receipt[${index}] envelope version must be 1.0.0.`);
+    }
+    if (request?.transport !== 'local-only') {
+      issues.push(`service request receipt[${index}] envelope transport must be local-only.`);
+    }
+    for (const field of ['listenerStarted', 'serviceStartAllowed']) {
+      if (request?.[field] !== false) {
+        issues.push(`service request receipt[${index}] envelope ${field} must be false.`);
+      }
+    }
+    if (matchedEndpoint && request.action !== matchedEndpoint.action) {
+      issues.push(`service request receipt[${index}] action must match endpoint action.`);
+    }
+    if (matchedEndpoint && JSON.stringify(request.claim) !== JSON.stringify(matchedEndpoint.claim)) {
+      issues.push(`service request receipt[${index}] claim must match endpoint claim.`);
+    }
+    if (receipt.validation?.result !== 'pass' || receipt.validation?.requestValidated !== true) {
+      issues.push(`service request receipt[${index}] validation must pass.`);
+    }
+    if (receipt.execution?.transport !== 'local-only') {
+      issues.push(`service request receipt[${index}] execution transport must be local-only.`);
+    }
+    for (const field of ['listenerStarted', 'httpMcpStarted', 'remoteTransportStarted', 'daemonStarted', 'serviceStartAllowed']) {
+      if (receipt.execution?.[field] !== false) {
+        issues.push(`service request receipt[${index}] execution ${field} must be false.`);
+      }
+    }
+  }
+  return issues;
+}
+
 function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } = {}) {
   const root = path.resolve(repoRoot);
   const runDir = latest
@@ -326,6 +404,7 @@ function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } 
   let resources = null;
   let trigger = null;
   let serviceActions = null;
+  let serviceRequests = null;
   try {
     manifest = readJson(path.join(runDir, 'manifest.json'));
     receipt = readJson(path.join(runDir, 'validation-receipt.json'));
@@ -345,6 +424,9 @@ function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } 
     }
     if (fs.existsSync(path.join(runDir, 'service-actions.json'))) {
       serviceActions = readJson(path.join(runDir, 'service-actions.json'));
+    }
+    if (fs.existsSync(path.join(runDir, 'service-requests.json'))) {
+      serviceRequests = readJson(path.join(runDir, 'service-requests.json'));
     }
   } catch (error) {
     return { ok: false, issues: [`Runtime artifact parse failed: ${error.message}`], runDir };
@@ -393,6 +475,9 @@ function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } 
   if (serviceActions) {
     issues.push(...validateServiceActionShape(serviceActions, manifest.runId));
   }
+  if (serviceRequests) {
+    issues.push(...validateServiceRequestShape(serviceRequests, manifest.runId));
+  }
 
   return {
     ok: issues.length === 0,
@@ -406,7 +491,8 @@ function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } 
     handoffEnvelope,
     resources,
     trigger,
-    serviceActions
+    serviceActions,
+    serviceRequests
   };
 }
 
@@ -416,6 +502,7 @@ export {
   PHASE_5_ARTIFACTS,
   PHASE_6_ARTIFACTS,
   PHASE_10_ARTIFACTS,
+  PHASE_13_ARTIFACTS,
   VALIDATION_RECEIPT_VERSION,
   findLatestRunDir,
   readJson,
