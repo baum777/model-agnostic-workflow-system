@@ -33,6 +33,12 @@ Use `skill-tool-mcp-builder` first when the request is about what kind of surfac
 - current evidence available vs missing
 - whether the task is one-off or repeatable
 
+## Workflow
+1. Confirm the request is not a small obvious edit and is not a surface-type decision.
+2. Apply the routing logic to select one primary artifact shape.
+3. Add at most one secondary shape only when it is strictly needed.
+4. Emit the matching minimal output shape and call out unresolved blockers.
+
 ## Routing Logic
 1. If the request is about choosing a repo action or surface type, route to `skill-tool-mcp-builder`.
 2. If requirements are ambiguous or authority boundaries are unclear, route to `spec`.
@@ -43,7 +49,9 @@ Use `skill-tool-mcp-builder` first when the request is about what kind of surfac
 7. If the primary need is transfer of in-flight state, route to `handover`.
 8. Allow one primary shape and at most one secondary shape when strictly needed.
 
-## Minimal Output Shapes
+## Output
+Use the selected minimal output shape:
+
 - `spec`: `OBJECTIVE`, `CURRENT TRUTH`, `GAPS`, `CONSTRAINTS`, `DECISIONS NEEDED`, `ACCEPTANCE CRITERIA`
 - `architecture-map`: `SYSTEM BOUNDARY`, `COMPONENTS`, `INTERFACES`, `AUTHORITY`, `RISKS`, `MIGRATION ORDER`
 - `runbook`: `TRIGGER`, `PREREQS`, `STEPS`, `GATES`, `FAILURE HANDLING`, `EVIDENCE`
