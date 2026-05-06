@@ -1,0 +1,4 @@
+interface:
+  display_name: "Getdesign Style Router"
+  short_description: "Pick and apply getdesign.md style systems to artifacts"
+  default_prompt: "Use $getdesign-style-router to pick a matching getdesign.md style and apply it to my document, HTML, or PDF output."
