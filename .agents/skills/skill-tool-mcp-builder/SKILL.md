@@ -33,6 +33,12 @@ Use this skill when the request is about what kind of repo surface should exist 
 - canonical vs local-only vs compatibility-only boundary
 - any approval or local-input constraints that matter to the request
 
+## Workflow
+1. Confirm the request needs a surface-type decision rather than a small obvious edit.
+2. Apply the decision logic against observed repo evidence and nearest existing coverage.
+3. Emit exactly one normalized decision packet.
+4. Use the quality checks to reject over-broad or unsupported surface creation.
+
 ## Decision Logic
 1. Classify the request as one of:
    - `new skill`
