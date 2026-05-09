@@ -130,6 +130,9 @@ Data flow:
 - `examples/`  
   Example artifacts and small reference examples.
 
+- `wiki-overlay/`  
+  Non-migrating LLM-Wiki review overlay. It contains pointer-only maps and metadata for human review; it does not replace canonical sources, move files, or permit content copies from excluded paths.
+
 ## Authority And Governance Model
 
 Normative entry points:
@@ -257,6 +260,17 @@ Render and accessibility modes:
 7. `npm run validate-neutral`
 8. `npm run eval`
 
+### For LLM-Wiki Overlay Review
+
+1. `wiki-overlay/README.md`
+2. `wiki-overlay/index.md`
+3. `wiki-overlay/authority-map.md`
+4. `wiki-overlay/private-exclusion-map.md`
+5. Domain-specific maps under `wiki-overlay/` as needed
+6. `npm run validate-overlay` before trusting or publishing overlay changes
+
+Rule: the overlay is pointer-only and non-migrating. Human reviewers should use it to decide what an LLM may read, summarize, exclude, or keep review-gated without changing original repo files.
+
 ## Phase-7 Authoring and Adoption Quickstart
 
 Maintainers and consumers should follow the same safe extension path:
@@ -346,6 +360,7 @@ Boundary-specific reading:
 - Source hierarchy: `docs/governance/source-hierarchy.md`
 - MCP policy: `docs/mcp/policy.md`
 - Overlay boundary: `docs/repo-overlay-contract.md`
+- LLM-Wiki overlay review: `wiki-overlay/README.md`
 - Maintainer commands: `docs/maintainer-commands.md`
 
 ## Maintenance Notes (Short)
