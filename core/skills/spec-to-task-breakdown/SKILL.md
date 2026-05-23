@@ -43,10 +43,12 @@ Use this skill when a bounded spec exists and needs direct conversion into execu
 
 1. Normalize the source spec into implementation-relevant clauses.
 2. Map clauses to task slices with explicit traceability references.
-3. Identify dependencies, assumptions, and blockers per slice.
-4. Attach validation targets and sequencing suggestions to each slice.
-5. Mark clauses that cannot be operationalized due to ambiguity.
-6. Return a bounded execution breakdown with unresolved blockers.
+3. Prefer tracer-bullet task slices that create a thin end-to-end path through the affected contract, docs, validator, or example surfaces before broadening coverage.
+4. Mark each task slice as `AFK` when repo-local evidence and deterministic commands are sufficient, or `HITL` when a human decision, external state, credentialed access, or subjective review is required.
+5. Identify dependencies, assumptions, and blockers per slice.
+6. Attach validation targets and sequencing suggestions to each slice.
+7. Mark clauses that cannot be operationalized due to ambiguity.
+8. Return a bounded execution breakdown with unresolved blockers.
 
 ## Boundary Differentiation
 
@@ -97,6 +99,8 @@ Use this skill when a bounded spec exists and needs direct conversion into execu
 ## Quality Checks
 
 - Every task slice must map to a concrete source-spec clause.
+- Task slices should be independently grabbable where possible; grouped slices must state the coupling reason.
+- HITL/AFK labels must reflect required evidence and authority, not estimated effort.
 - Dependencies must be explicit and directionally ordered.
 - Assumptions and blockers must be separated clearly.
 - Validation targets must be actionable and reviewable.

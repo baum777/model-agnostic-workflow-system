@@ -31,9 +31,11 @@ Use this skill when a request is broad enough that one safe implementation pass 
 
 1. Restate the goal in operational terms.
 2. Split the work into bounded waves.
-3. Attach dependencies, non-goals, and acceptance criteria to each wave.
-4. Mark the smallest safe first slice.
-5. Identify the verification points that gate progress.
+3. Prefer tracer-bullet slices that produce a narrow, reviewable path through all affected surfaces instead of horizontal layer-only slices.
+4. Mark each slice as `AFK` when it can be executed from repo evidence alone, or `HITL` when it needs a human decision, external access, or design judgment.
+5. Attach dependencies, non-goals, and acceptance criteria to each wave.
+6. Mark the smallest safe first slice.
+7. Identify the verification points that gate progress.
 
 ## Output
 
@@ -50,6 +52,8 @@ Use these headings:
 ## Quality Checks
 
 - Each wave must be independently understandable.
+- Each implementation slice should be independently reviewable or explain why it must be grouped.
+- HITL/AFK classification must be based on evidence needs, not implementation difficulty.
 - Dependencies must be explicit and ordered.
 - Non-goals must exclude obvious scope creep.
 - Acceptance criteria must be testable or reviewable.

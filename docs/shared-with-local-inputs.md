@@ -13,6 +13,7 @@ Some shared-core skills are reusable only when the consumer repository supplies 
 
 - skill: `repo-intake-sot-mapper`
 - local contract: `.codex/repo-intake-inputs.json`
+- optional local context fields: `domainGlossaryPaths`, `adrPaths`, `issueTrackerDocs`, `triageLabelDocs`
 
 ## Second Example
 
@@ -22,6 +23,7 @@ Some shared-core skills are reusable only when the consumer repository supplies 
 ## Guardrail
 
 If the consumer repo does not supply the declared local contract, the skill is not ready for use.
+If optional local context fields are absent, the skill must treat domain glossary, ADR, issue-tracker, and triage-label context as unresolved rather than guessing conventional paths.
 
 ## Validation
 

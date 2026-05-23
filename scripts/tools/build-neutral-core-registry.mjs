@@ -65,7 +65,7 @@ function extractOutputHeadings(skillText) {
       inOutput = true;
       continue;
     }
-    if (inOutput && line.startsWith('## ')) {
+    if (inOutput && line.startsWith('#')) {
       break;
     }
     if (!inOutput) {
@@ -78,10 +78,6 @@ function extractOutputHeadings(skillText) {
       continue;
     }
 
-    const plain = line.match(/^-\s+(.+)$/);
-    if (plain) {
-      headings.push(plain[1].replace(/^`|`$/g, ''));
-    }
   }
 
   return headings;

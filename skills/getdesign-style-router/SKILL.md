@@ -1,6 +1,13 @@
 ---
 name: getdesign-style-router
 description: Apply a matching style system from https://getdesign.md to generated documents, HTML pages, and PDFs by selecting the closest visual language and translating it into actionable design tokens. Use when a request asks for style polish, brand-inspired output, DESIGN.md-based output, or explicit visual direction for doc/html/pdf artifacts.
+version: 1.0.0
+classification: shared
+requires_repo_inputs: false
+produces_structured_output: true
+safe_to_auto_run: true
+owner: model-agnostic-workflow-system
+status: extracted
 ---
 
 # Getdesign Style Router
@@ -8,6 +15,17 @@ description: Apply a matching style system from https://getdesign.md to generate
 ## Overview
 
 Select one style source from getdesign.md, extract its design language, and apply that language consistently to the requested artifact without copying brand assets or proprietary content.
+
+## Trigger
+
+Use this skill when a request asks for style polish, brand-inspired output, DESIGN.md-based output, or explicit visual direction for a document, HTML page, or PDF artifact.
+
+## When Not To Use
+
+- Do not use for application UI implementation; use the UI/UX composition surfaces for product interface work.
+- Do not use when the user has already provided exact design tokens and does not want style routing.
+- Do not use to copy logos, proprietary assets, or exact brand systems.
+- Do not use when getdesign.md evidence or a direct style choice is unavailable.
 
 ## Workflow
 
@@ -32,6 +50,15 @@ Select one style source from getdesign.md, extract its design language, and appl
    - any fallback assumptions
 
 ## Output Rules by Artifact
+
+## Output
+
+- `STYLE DECISION`
+- `OBSERVED STYLE CUES`
+- `INFERRED TOKEN GAPS`
+- `APPLIED TOKENS`
+- `ARTIFACT NOTES`
+- `BLOCKERS`
 
 ### DOC
 
@@ -65,3 +92,11 @@ Select one style source from getdesign.md, extract its design language, and appl
   - `Inferred`: mapped choices used to complete missing details
   - `Applied`: actual tokens/layout decisions used in output
 - Load `references/style-selection-map.md` when style choice is ambiguous.
+
+## Quality Checks
+
+- Cite observed style cues separately from inferred choices.
+- Keep generated tokens readable and artifact-appropriate.
+- Preserve document, HTML, or PDF semantic structure while applying style.
+- Fail closed when style selection has no evidence.
+- Do not claim copied branding or proprietary design-system fidelity.

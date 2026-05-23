@@ -94,7 +94,16 @@ function validateLocalInputContract(contractPath, expectedSkill = 'repo-intake-s
     for (const field of ['canonicalSourceFiles', 'primaryDocs', 'governanceFiles', 'likelyEntrypoints', 'testCommands', 'ignorePaths']) {
       assertStringArray(issues, contract[field], field);
     }
-    for (const field of ['journalPaths', 'dailyNotePaths', 'evidenceLogPaths']) {
+    const optionalPathFields = [
+      'journalPaths',
+      'dailyNotePaths',
+      'evidenceLogPaths',
+      'domainGlossaryPaths',
+      'adrPaths',
+      'issueTrackerDocs',
+      'triageLabelDocs'
+    ];
+    for (const field of optionalPathFields) {
       assertOptionalStringArray(issues, contract[field], field);
     }
     if (typeof contract.notes !== 'string' || contract.notes.trim() === '') {
@@ -107,7 +116,7 @@ function validateLocalInputContract(contractPath, expectedSkill = 'repo-intake-s
         }
       }
     }
-    for (const field of ['canonicalSourceFiles', 'primaryDocs', 'governanceFiles', 'likelyEntrypoints', 'journalPaths', 'dailyNotePaths', 'evidenceLogPaths']) {
+    for (const field of ['canonicalSourceFiles', 'primaryDocs', 'governanceFiles', 'likelyEntrypoints', ...optionalPathFields]) {
       for (const relativePath of contract[field] || []) {
         const target = path.join(root, relativePath);
         if (!fs.existsSync(target)) {
