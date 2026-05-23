@@ -175,7 +175,8 @@
       "category": "execution",
       "supportingSkills": [
         "patch-strategy-designer",
-        "implementation-contract-extractor"
+        "implementation-contract-extractor",
+        "diagnostic-feedback-loop"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"
@@ -231,7 +232,8 @@
         "readiness-check",
         "post-implementation-review-writer",
         "test-matrix-builder",
-        "failure-mode-enumerator"
+        "failure-mode-enumerator",
+        "diagnostic-feedback-loop"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"

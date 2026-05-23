@@ -11,6 +11,7 @@ Portable skill slice.
 - `research-synthesis`
 - `ui-to-backend-contract-extractor`
 - `source-conflict-resolver`
+- `diagnostic-feedback-loop`
 - `spec-to-task-breakdown`
 - `incident-runbook-composer`
 - `multi-audience-summarizer`

@@ -81,7 +81,7 @@
       "approvalMode=approval-required and safeToAutoRun=true"
     ],
     "expectedDistribution": {
-      "modelagnostic-autonomous": 14,
+      "modelagnostic-autonomous": 15,
       "explicit-user-call-required": 1
     }
   },
@@ -145,6 +145,10 @@
     "static-vs-dynamic-rendering-advisor": {
       "category": "rendering-architecture",
       "mcpPosture": "disabled"
+    },
+    "diagnostic-feedback-loop": {
+      "category": "debugging-diagnostics",
+      "mcpPosture": "read-only"
     }
   },
   "skills": [
@@ -342,6 +346,39 @@
         "git-diff-explainer"
       ],
       "outputContractId": "source-conflict-resolution-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "diagnostic-feedback-loop",
+      "portableIdentity": "core.diagnostic-feedback-loop",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "git-diff-explainer",
+        "test-matrix-builder"
+      ],
+      "optionalTools": [
+        "failure-mode-enumerator",
+        "source-conflict-resolver"
+      ],
+      "outputContractId": "diagnostic-feedback-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerProjection": {

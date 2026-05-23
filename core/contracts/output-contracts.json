@@ -336,6 +336,35 @@
       "failure_or_partial_completion_behavior": "If contradiction resolution is underdetermined, return BLOCKED and preserve unresolved conflicts explicitly."
     },
     {
+      "contract_id": "diagnostic-feedback-report-v1",
+      "skill": "diagnostic-feedback-loop",
+      "required_sections": [
+        "SUMMARY",
+        "OBSERVED FAILURE",
+        "REPRODUCTION STATUS",
+        "MINIMIZED FAILURE SURFACE",
+        "WORKING COMPARISON",
+        "HYPOTHESIS",
+        "EVIDENCE / INSTRUMENTATION",
+        "ROOT CAUSE CONFIDENCE",
+        "RECOMMENDED FIX BOUNDARY",
+        "REGRESSION EVIDENCE",
+        "BLOCKERS",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "COMPETING HYPOTHESES",
+        "ENVIRONMENT NOTES",
+        "TEMPORARY INSTRUMENTATION PLAN"
+      ],
+      "validation_notes": [
+        "Reproduction status must be explicit before fix recommendations.",
+        "Hypothesis evidence must be separated from inference.",
+        "Regression evidence must map to the minimized failure surface."
+      ],
+      "failure_or_partial_completion_behavior": "If reproduction, logs, permissions, or source evidence are insufficient, return BLOCKED and identify the missing diagnostic evidence."
+    },
+    {
       "contract_id": "spec-to-task-breakdown-v1",
       "skill": "spec-to-task-breakdown",
       "required_sections": [
