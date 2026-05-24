@@ -122,7 +122,8 @@
         "planning-slice-builder",
         "spec-to-task-breakdown",
         "migration-planner",
-        "test-matrix-builder"
+        "test-matrix-builder",
+        "architecture-depth-review"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"
@@ -176,7 +177,8 @@
       "supportingSkills": [
         "patch-strategy-designer",
         "implementation-contract-extractor",
-        "diagnostic-feedback-loop"
+        "diagnostic-feedback-loop",
+        "architecture-depth-review"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"
@@ -233,7 +235,8 @@
         "post-implementation-review-writer",
         "test-matrix-builder",
         "failure-mode-enumerator",
-        "diagnostic-feedback-loop"
+        "diagnostic-feedback-loop",
+        "architecture-depth-review"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"

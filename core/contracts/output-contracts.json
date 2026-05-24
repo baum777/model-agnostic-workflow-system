@@ -365,6 +365,33 @@
       "failure_or_partial_completion_behavior": "If reproduction, logs, permissions, or source evidence are insufficient, return BLOCKED and identify the missing diagnostic evidence."
     },
     {
+      "contract_id": "architecture-depth-review-report-v1",
+      "skill": "architecture-depth-review",
+      "required_sections": [
+        "SUMMARY",
+        "REVIEW TARGET",
+        "BOUNDARY MAP",
+        "DEPENDENCY / COUPLING FINDINGS",
+        "DELETION TEST",
+        "TEST SEAMS",
+        "AI-NAVIGABILITY",
+        "RECOMMENDED ADJUSTMENTS",
+        "BLOCKERS",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "OWNERSHIP NOTES",
+        "COMPATIBILITY NOTES",
+        "ADVISORY IMPROVEMENTS"
+      ],
+      "validation_notes": [
+        "Findings must cite concrete paths, contracts, or dependency edges.",
+        "Required fixes must be separated from advisory architectural improvements.",
+        "Recommendations must remain bounded to the reviewed slice."
+      ],
+      "failure_or_partial_completion_behavior": "If target evidence, authority, or ownership boundaries are missing, return BLOCKED and identify the missing architecture evidence."
+    },
+    {
       "contract_id": "spec-to-task-breakdown-v1",
       "skill": "spec-to-task-breakdown",
       "required_sections": [
