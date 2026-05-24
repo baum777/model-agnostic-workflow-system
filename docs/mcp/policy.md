@@ -16,6 +16,14 @@ Define how MCP-facing context and adapters may be used in this repository withou
 - `validator-backed`: `scripts/tools/validate-provider-neutral-core.mjs` and `scripts/tools/validate-secret-boundaries.mjs` validate contract/export consistency and secret-boundary metadata
 - `runtime-implemented`: only concrete runnable scripts, generated exports, or adapters proven by repo artifacts qualify; this repo does not currently present a general live MCP runtime mesh as canonical truth
 
+## MCP Tool And Registry Surfaces
+
+- `core/contracts/tool-contracts/catalog.json` is the canonical machine-readable tool contract catalog. Use it for MCP/tool side-effect posture, approval requirements, provider support, and secret-boundary metadata.
+- `core/contracts/core-registry.json` is a validator-backed registry projection that aggregates skills, workflows, tools, providers, and provider-compatibility metadata for discovery. It does not replace the canonical input contracts that feed it.
+- `docs/tool-contracts/catalog.json` is a compatibility/export view for the current Codex-oriented tool catalog. It may be useful for consumer documentation, but it is not canonical tool truth.
+- `providers/<provider>/export.json` files are generated provider packaging projections. They can document provider-neutral tool and workflow support, but they do not prove a consumer has mounted or started any MCP server.
+- `templates/discord-fetch-mcp/` is downstream scaffold material for a read-only MCP server. It is not a running shared-core MCP service and must be validated in the consumer repo after adoption.
+
 ## MCP Modes
 
 - `disabled`: no MCP resources or adapters are permitted for the workflow

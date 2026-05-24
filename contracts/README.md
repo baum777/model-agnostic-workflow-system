@@ -13,6 +13,8 @@ Canonical machine-readable registries live here.
 ## Compatibility Rules
 
 - `docs/tool-contracts/catalog.json` remains the compatibility export for the current Codex-oriented tool catalog.
+- `core/contracts/tool-contracts/catalog.json` remains the canonical normalized tool contract source for MCP/tool governance.
+- `core/contracts/core-registry.json` is the validator-backed aggregate registry for discovery and provider export generation; it should not be edited as a replacement for the canonical input contracts.
 - `providers/` owns adapter-specific packaging boundaries.
 - canonical provider adapters live under `providers/openai-codex/`, `providers/anthropic-claude/`, `providers/qwen-code/`, and `providers/kimi-k2_5/`.
 - The registry builder and validator must stay fail-closed if a declared surface is missing.
