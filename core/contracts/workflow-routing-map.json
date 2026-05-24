@@ -123,7 +123,8 @@
         "spec-to-task-breakdown",
         "migration-planner",
         "test-matrix-builder",
-        "architecture-depth-review"
+        "architecture-depth-review",
+        "behavior-first-tdd"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"
@@ -178,7 +179,8 @@
         "patch-strategy-designer",
         "implementation-contract-extractor",
         "diagnostic-feedback-loop",
-        "architecture-depth-review"
+        "architecture-depth-review",
+        "behavior-first-tdd"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"
@@ -236,7 +238,8 @@
         "test-matrix-builder",
         "failure-mode-enumerator",
         "diagnostic-feedback-loop",
-        "architecture-depth-review"
+        "architecture-depth-review",
+        "behavior-first-tdd"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"

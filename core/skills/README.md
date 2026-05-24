@@ -12,6 +12,7 @@ Portable skill slice.
 - `ui-to-backend-contract-extractor`
 - `source-conflict-resolver`
 - `diagnostic-feedback-loop`
+- `behavior-first-tdd`
 - `architecture-depth-review`
 - `spec-to-task-breakdown`
 - `incident-runbook-composer`

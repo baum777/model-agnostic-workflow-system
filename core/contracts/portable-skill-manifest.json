@@ -81,7 +81,7 @@
       "approvalMode=approval-required and safeToAutoRun=true"
     ],
     "expectedDistribution": {
-      "modelagnostic-autonomous": 16,
+      "modelagnostic-autonomous": 17,
       "explicit-user-call-required": 1
     }
   },
@@ -152,6 +152,10 @@
     },
     "architecture-depth-review": {
       "category": "architecture-review",
+      "mcpPosture": "read-only"
+    },
+    "behavior-first-tdd": {
+      "category": "implementation-testing",
       "mcpPosture": "read-only"
     }
   },
@@ -383,6 +387,39 @@
         "source-conflict-resolver"
       ],
       "outputContractId": "diagnostic-feedback-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "behavior-first-tdd",
+      "portableIdentity": "core.behavior-first-tdd",
+      "classification": "shared",
+      "requiresRepoInputs": false,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "test-matrix-builder",
+        "patch-strategy-designer",
+        "diagnostic-feedback-loop"
+      ],
+      "optionalTools": [
+        "readiness-check",
+        "failure-mode-enumerator"
+      ],
+      "outputContractId": "behavior-first-tdd-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerProjection": {

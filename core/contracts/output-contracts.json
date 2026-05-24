@@ -365,6 +365,32 @@
       "failure_or_partial_completion_behavior": "If reproduction, logs, permissions, or source evidence are insufficient, return BLOCKED and identify the missing diagnostic evidence."
     },
     {
+      "contract_id": "behavior-first-tdd-report-v1",
+      "skill": "behavior-first-tdd",
+      "required_sections": [
+        "SUMMARY",
+        "BEHAVIOR UNDER TEST",
+        "FAILING CHECK",
+        "IMPLEMENTATION BOUNDARY",
+        "PASSING CHECK",
+        "REFACTOR NOTES",
+        "REGRESSION GATE",
+        "BLOCKERS",
+        "NEXT ACTIONS"
+      ],
+      "optional_sections": [
+        "FIXTURE NOTES",
+        "COMPATIBILITY NOTES",
+        "FOLLOW-UP TESTS"
+      ],
+      "validation_notes": [
+        "The failing check must map directly to the behavior under test.",
+        "Implementation boundary must stay smaller than the regression gate.",
+        "Regression evidence must include the focused check and relevant surrounding gate."
+      ],
+      "failure_or_partial_completion_behavior": "If behavior, fixture, failing signal, or test command cannot be established, return BLOCKED and identify the missing TDD evidence."
+    },
+    {
       "contract_id": "architecture-depth-review-report-v1",
       "skill": "architecture-depth-review",
       "required_sections": [
