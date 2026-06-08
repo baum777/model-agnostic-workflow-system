@@ -144,6 +144,33 @@
         "trace_redaction_required": true,
         "memory_secret_persistence_forbidden": true
       }
+    },
+    {
+      "name": "minimax",
+      "aliases": [
+        "minimax-text",
+        "abab",
+        "speech-01"
+      ],
+      "legacyExportDirectories": [],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "adapter",
+      "mcp": "adapter",
+      "subagents": "adapter",
+      "packaging": [
+        "openai-compatible-api",
+        "tool-calls"
+      ],
+      "notes": "OpenAI-compatible API via /v1/text/chatcompletion_pro. Uses bot_setting instead of system role; role_meta required. JSON mode requires explicit prompt instruction. Speech/TTS (speech-01-turbo) is provider-only and not exposed in portable core skills.",
+      "security": {
+        "raw_secret_prompting_forbidden": true,
+        "server_bound_credentials_required": true,
+        "provider_switch_requires_reminimization": true,
+        "fallback_full_context_reuse_forbidden": true,
+        "trace_redaction_required": true,
+        "memory_secret_persistence_forbidden": true
+      }
     }
   ]
 }

@@ -1,14 +1,13 @@
 {
   "schemaVersion": "1.0.0",
-  "provider": "anthropic-claude",
-  "canonicalProvider": "anthropic-claude",
+  "provider": "minimax",
+  "canonicalProvider": "minimax",
   "aliases": [
-    "anthropic",
-    "claude"
+    "minimax-text",
+    "abab",
+    "speech-01"
   ],
-  "legacyExportDirectories": [
-    "anthropic"
-  ],
+  "legacyExportDirectories": [],
   "sourceRegistry": "core/contracts/core-registry.json",
   "sourceContracts": {
     "skillManifest": "core/contracts/portable-skill-manifest.json",
@@ -27,25 +26,23 @@
     "portabilityVocabulary": "provider-portability-v1"
   },
   "capabilityProfile": {
-    "name": "anthropic-claude",
+    "name": "minimax",
     "aliases": [
-      "anthropic",
-      "claude"
+      "minimax-text",
+      "abab",
+      "speech-01"
     ],
-    "legacyExportDirectories": [
-      "anthropic"
-    ],
+    "legacyExportDirectories": [],
     "skillPackaging": "adapter",
     "toolUse": "native",
     "structuredOutputs": "adapter",
-    "mcp": "native",
+    "mcp": "adapter",
     "subagents": "adapter",
     "packaging": [
-      "claude-code",
-      "claude-desktop",
-      "mcp"
+      "openai-compatible-api",
+      "tool-calls"
     ],
-    "notes": "Use provider adapters to compile prompt and tool bundles.",
+    "notes": "OpenAI-compatible API via /v1/text/chatcompletion_pro. Uses bot_setting instead of system role; role_meta required. JSON mode requires explicit prompt instruction. Speech/TTS (speech-01-turbo) is provider-only and not exposed in portable core skills.",
     "security": {
       "raw_secret_prompting_forbidden": true,
       "server_bound_credentials_required": true,
@@ -58,9 +55,8 @@
   "packaging": {
     "mode": "adapter",
     "transport": [
-      "claude-code",
-      "claude-desktop",
-      "mcp"
+      "openai-compatible-api",
+      "tool-calls"
     ],
     "status": "adapter"
   },
@@ -6063,9 +6059,7 @@
   },
   "compatibility": {
     "pluginManifest": null,
-    "exportRoot": "providers/anthropic-claude/export.json",
-    "legacyExportRoots": [
-      "providers/anthropic/export.json"
-    ]
+    "exportRoot": "providers/minimax/export.json",
+    "legacyExportRoots": []
   }
 }

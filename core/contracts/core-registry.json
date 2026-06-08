@@ -67,6 +67,17 @@
         "status": "adapter"
       },
       {
+        "provider": "minimax",
+        "aliases": [
+          "minimax-text",
+          "abab",
+          "speech-01"
+        ],
+        "legacyExportDirectories": [],
+        "manifestPath": "providers/minimax/export.json",
+        "status": "adapter"
+      },
+      {
         "provider": "codex",
         "manifestPath": ".codex-plugin/plugin.json",
         "status": "compatibility-export"
@@ -199,7 +210,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -325,7 +340,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -391,7 +410,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -510,7 +533,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -594,7 +621,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -655,7 +686,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -746,7 +781,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -827,7 +866,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -903,7 +946,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -966,7 +1013,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1081,7 +1132,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1158,7 +1213,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1254,7 +1313,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1337,7 +1400,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1421,7 +1488,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1532,7 +1603,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1620,7 +1695,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1718,7 +1797,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1798,7 +1881,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1874,7 +1961,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -1939,7 +2030,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2000,7 +2095,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2061,7 +2160,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2120,7 +2223,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2181,7 +2288,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2287,7 +2398,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2410,7 +2525,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2512,7 +2631,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2592,7 +2715,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2675,7 +2802,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2770,7 +2901,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2849,7 +2984,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -2927,7 +3066,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -3012,7 +3155,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -3073,7 +3220,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     }
   ],
@@ -3560,7 +3711,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -3635,7 +3790,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -3713,7 +3872,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -3782,7 +3945,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -3852,7 +4019,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -3926,7 +4097,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4002,7 +4177,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4092,7 +4271,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4159,7 +4342,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4232,7 +4419,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4264,7 +4455,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "deploy-readiness-gate"
@@ -4318,7 +4513,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4387,7 +4586,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4463,7 +4666,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4495,7 +4702,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "env-secret-validator"
@@ -4549,7 +4760,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4613,7 +4828,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4697,7 +4916,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4766,7 +4989,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4830,7 +5057,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4862,7 +5093,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "issue-to-task-sync"
@@ -4916,7 +5151,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -4986,7 +5225,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5056,7 +5299,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5129,7 +5376,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5161,7 +5412,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "log-journal-query"
@@ -5215,7 +5470,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5253,7 +5512,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "patch-applicator-with-review-gate"
@@ -5319,7 +5582,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5351,7 +5618,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "pr-review-assembler"
@@ -5405,7 +5676,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5437,7 +5712,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "premerge-gate-runner"
@@ -5491,7 +5770,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5578,7 +5861,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5613,7 +5900,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "regression-comparator"
@@ -5673,7 +5964,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5752,7 +6047,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5820,7 +6119,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5893,7 +6196,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -5959,7 +6266,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6032,7 +6343,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6100,7 +6415,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6175,7 +6494,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6207,7 +6530,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "staging-prod-context-switcher"
@@ -6261,7 +6588,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6293,7 +6624,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "structured-plan-generator"
@@ -6347,7 +6682,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6379,7 +6718,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "symbol-dependency-tracer"
@@ -6433,7 +6776,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6514,7 +6861,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6546,7 +6897,11 @@
         "kimi-k2_5",
         "kimi",
         "kimi-k2.5",
-        "moonshot"
+        "moonshot",
+        "minimax",
+        "minimax-text",
+        "abab",
+        "speech-01"
       ],
       "routing_hints": [
         "tool-namespace-loader"
@@ -6600,7 +6955,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6660,7 +7019,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6724,7 +7087,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6784,7 +7151,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     },
     {
@@ -6844,7 +7215,11 @@
         "kimi-k2_5": "adapter",
         "kimi": "compatibility-export",
         "kimi-k2.5": "compatibility-export",
-        "moonshot": "compatibility-export"
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
       }
     }
   ],
@@ -6959,6 +7334,33 @@
         "tool-calls"
       ],
       "notes": "Use schema validation in the core; keep JSON mode assumptions narrow.",
+      "security": {
+        "raw_secret_prompting_forbidden": true,
+        "server_bound_credentials_required": true,
+        "provider_switch_requires_reminimization": true,
+        "fallback_full_context_reuse_forbidden": true,
+        "trace_redaction_required": true,
+        "memory_secret_persistence_forbidden": true
+      }
+    },
+    {
+      "name": "minimax",
+      "aliases": [
+        "minimax-text",
+        "abab",
+        "speech-01"
+      ],
+      "legacyExportDirectories": [],
+      "skillPackaging": "adapter",
+      "toolUse": "native",
+      "structuredOutputs": "adapter",
+      "mcp": "adapter",
+      "subagents": "adapter",
+      "packaging": [
+        "openai-compatible-api",
+        "tool-calls"
+      ],
+      "notes": "OpenAI-compatible API via /v1/text/chatcompletion_pro. Uses bot_setting instead of system role; role_meta required. JSON mode requires explicit prompt instruction. Speech/TTS (speech-01-turbo) is provider-only and not exposed in portable core skills.",
       "security": {
         "raw_secret_prompting_forbidden": true,
         "server_bound_credentials_required": true,
