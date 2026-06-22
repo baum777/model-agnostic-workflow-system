@@ -25,10 +25,22 @@ Canonical truth lives in [architecture.md](architecture.md) and [authority-matri
 - [../evals/README.md](../evals/README.md)
 - [../examples/codex-workflow/README.md](../examples/codex-workflow/README.md)
 - [ui-ux-composition-branch.md](ui-ux-composition-branch.md) when the task touches the UI/UX composition branch
+- [agent-teams/README.md](agent-teams/README.md) for the optional extended role library and presets
+
+## Baum-OS / Pi-Harness Adapter Decisions
+
+Docs-only, non-canonical governance-adjacent slices. None of these change a contract, activate a validator, or grant runtime capability.
+
+- [pi-agent-kit-adapter-core-anchor-decision.md](pi-agent-kit-adapter-core-anchor-decision.md) — holds that `model-agnostic-workflow-system` is the Core-Anker; Pi remains a future thin adapter, not a parallel tree.
+- [computer-use-policy.md](computer-use-policy.md) — defines Computer-Use as an approval-gated fallback, last in the Preferred Interface Order after MCP/CLI/API/local files/browser-use/deterministic handlers.
+- [skill-contract-gap-analysis.md](skill-contract-gap-analysis.md) — gap analysis of missing skill-contract fields (`allowed_agents`, `allowed_models`, `write_mode`, `computer_use_allowed`, `skill_security_scan`, among others); no migration applied.
+- [human-approval-tier-extension.md](human-approval-tier-extension.md) — proposes a 5-tier human-approval model and explicitly separates `verified` from `approved`.
+- [permission-boundary-approval-extension-proposal.md](permission-boundary-approval-extension-proposal.md) — proposal only: projects approval/privilege concepts onto `core/contracts/permission-boundary.json` without changing the contract.
 
 ## Documentation Classes
 
 - Canonical: `../WORKFLOW.md`, `architecture.md`, `authority-matrix.md`, `governance/source-hierarchy.md`, `mcp/policy.md`, `workflows/README.md`, `workflows/implementation-and-handoff.md`, `workflows/verification-and-certification.md`, `compatibility.md`, `lock-model.md`, `portability.md`, `provider-capability-matrix.md`, `repo-overlay-contract.md`, `secret-handling.md`, `shared-with-local-inputs.md`, `repo-intake-skill-contract.md`, `runtime-policy-skill-contract.md`, `ui-ux-composition-branch.md`
+- Agent-team composition (proposed, opt-in): `agent-teams/README.md`, `agent-teams/swarm_roles_extended_spec.md`, `agent-teams/swarm_presets.md`
 - Operational: `README.md`, `usage.md`, `adoption-playbook.md`, `consumer-rollout-playbook.md`, `maintainer-commands.md`, `validation-checklist.md`, `authoring-guides.md`
 - Derived: `overview.md`, `eval-baseline.md`, `ui-ux-composition/*`
 - Archive: `extraction-roadmap.md`, `../CHANGELOG.md`

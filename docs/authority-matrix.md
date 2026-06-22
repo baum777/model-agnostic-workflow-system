@@ -68,6 +68,11 @@ For extension-module migration hardening policy and the opt-in-to-blocking trans
 | `docs/secret-handling.md` | doc | canonical | prose-only | canonical secret-boundary charter | single prose authority for secret classes, redaction, memory, and provider-switch posture |
 | `docs/overview.md` | doc | derived | prose-only | summary only | should not be read as governing text |
 | `docs/eval-baseline.md` | doc | derived | prose-only | derived evidence baseline | not a governance source |
+| `docs/pi-agent-kit-adapter-core-anchor-decision.md` | doc | derived | prose-only | non-canonical governance-adjacent decision record by repo convention | documents the Core-Anker decision for Pi; does not redefine canonical contracts or runtime |
+| `docs/computer-use-policy.md` | doc | derived | prose-only | non-canonical governance-adjacent policy draft by repo convention | prose-governed Computer-Use posture; no validator, no runtime activation |
+| `docs/skill-contract-gap-analysis.md` | doc | derived | prose-only | non-canonical gap analysis by repo convention | enumerates missing skill-contract fields; no schema migration |
+| `docs/human-approval-tier-extension.md` | doc | derived | prose-only | non-canonical governance-adjacent approval-model extension by repo convention | proposes a 5-tier approval model; separates `verified` from `approved` |
+| `docs/permission-boundary-approval-extension-proposal.md` | doc | derived | prose-only | non-canonical contract-extension proposal by repo convention | proposes a PBC projection only; does not modify `core/contracts/permission-boundary.json` |
 | `docs/extraction-roadmap.md` | doc | archive | prose-only | historical planning record | not live authority |
 | `CHANGELOG.md` | doc | archive | prose-only | release history | historical record only |
 | `docs/tool-contracts/catalog.json` | config surface | n/a | partly enforced | compatibility/export tool catalog with runnable/helper-only/validator-backed/contract-only/stub labels | compatibility export for the current Codex-oriented tool catalog; not canonical machine-readable tool truth |
