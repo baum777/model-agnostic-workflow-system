@@ -88,3 +88,15 @@ Provide a stable workflow entrypoint that tells maintainers and agents how work 
 - `runtime-implemented`: a concrete runnable tool, script, or generated artifact demonstrates the capability in practice
 
 These labels describe capability maturity. They do not replace the claim-status labels in [docs/authority-matrix.md](docs/authority-matrix.md), which remain the compact ledger for `implemented`, `contract-only`, `planned`, `missing`, and `unclear`.
+
+## Optional Agent-Team Composition (proposed, opt-in)
+
+An **optional** extended role library and preset set is proposed under
+[docs/agent-teams/](docs/agent-teams/) as an opt-in overlay on top of
+the 3-Agent-Core (Orchestrator / Builder / Reviewer). It defines 11
+specialized roles and 5 default team presets, each mapped to existing
+shared-core skills. It is **proposed** status, not `canonical`, and
+remains opt-in per [docs/compatibility.md](docs/compatibility.md)
+0.3.0 migration timeline. Consumer repos that adopt the library do so
+by adding a thin overlay referencing the role spec; the shared core
+does not enforce role activation.

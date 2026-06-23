@@ -23,6 +23,7 @@ Use rule: use this as the root operating contract; defer docs hierarchy details 
 6. Never present derived or assumed state as canonical truth.
 7. If critical information is missing or contradictory, stop and escalate with explicit gaps.
 8. For docs hierarchy, skill topology, and authority order, use [docs/architecture.md](docs/architecture.md) and [docs/authority-matrix.md](docs/authority-matrix.md).
+9. The optional extended agent-team role library and presets under [docs/agent-teams/](docs/agent-teams/) are `proposed` and opt-in; they do not override the 3-Agent-Core (Orchestrator / Builder / Reviewer) or repo-local governance.
 
 ## Word + Context Economy
 - Keep always-on guidance short; route depth into skills.
