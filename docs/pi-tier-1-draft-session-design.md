@@ -6,7 +6,8 @@ derived / docs-only / tier-1 draft-session design
 
 ## Status
 
-proposed — no runtime execution
+accepted execution-boundary design — no runtime execution
+Acceptance evidence: b16cc90 + 9801521 + bd4ff8c
 
 ## Purpose
 
