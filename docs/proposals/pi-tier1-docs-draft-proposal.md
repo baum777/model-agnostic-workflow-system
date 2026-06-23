@@ -24,13 +24,12 @@
 ## Evidence & Storage
 
 - All evidence lives under `sandbox/runs/<timestamp>`.
-- Per run: `input/`, `output/`, `logs/`, `verify/`, `meta.json`.
-- `meta.json` fields: `run_id`, `start_ts`, `end_ts`, `task`, `tier`, `model`, `git_sha`, `status`.
-- Raw inputs copied read-only to `input/`; derived artifacts written to `output/`.
-- Tool calls and agent steps appended to `logs/events.jsonl` with `ts`, `kind`, `actor`, `payload`.
-- Verification evidence (commands, diffs, screenshots) stored under `verify/`, indexed in `meta.json`.
-- Tier-1 drafts purged after review unless promoted; promotion copies them to the proposal surface.
+- Tier-1 drafts are not promotable without evidence.
 - `sandbox/runs/<timestamp>` is the single source of truth; no writes outside it during the run.
+
+**Canonical evidence structure for this repo:** `sandbox/runs/<timestamp>/` with the artifacts defined in `sandbox/runs/run-evidence-template.md`.
+
+Any alternative structures such as `meta.json` or `logs/events.jsonl` are non-binding ideas generated during the first Tier-1 run and require a separate owner-approved schema change before use.
 
 ## Promotion Gate
 

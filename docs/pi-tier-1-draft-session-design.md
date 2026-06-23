@@ -116,6 +116,14 @@ Validator creation
 Provider changes
 ```
 
+## Tool Suppression Rule
+
+For Tier-1 draft-only Pi runs that only request generated Markdown output, `--no-tools` is required unless the skill execution slice explicitly approves tool use.
+
+Rationale: the first Tier-1 run used `--no-session --print` without `--no-tools`. Pi did not invoke tools, but suppression was behavioral rather than enforced. For prompt-only draft generation, `--no-tools` must be the default.
+
+Exception: if `allowed_tools` includes `read_only_shell` or `draft_file_write` and the execution slice explicitly activates them, tool use must be documented in the slice approval and evidence.
+
 ## Relation To Vault Boundary
 
 Vault bleibt:
