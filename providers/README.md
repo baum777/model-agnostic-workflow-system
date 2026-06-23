@@ -6,7 +6,7 @@ This directory is the provider-specific export boundary for the shared core.
 
 - Canonical shared semantics live in `core/contracts/*`, `core/skills/*`, and `policies/*`.
 - `contracts/*` and `skills/*` remain compatibility mirrors and must not become canonical semantic authority.
-- Canonical provider adapters live in `providers/openai-codex/`, `providers/anthropic-claude/`, `providers/qwen-code/`, and `providers/kimi-k2_5/`.
+- Canonical provider adapters live in `providers/openai-codex/`, `providers/anthropic-claude/`, `providers/qwen-code/`, `providers/kimi-k2_5/`, and `providers/minimax/`.
 - Legacy directories under `providers/openai/`, `providers/anthropic/`, `providers/qwen/`, `providers/kimi/`, and `providers/codex/` remain compatibility mirrors until the migration is complete.
 - Provider directories compile the canonical portable slice into provider-specific packaging and transport artifacts.
 - Provider-specific behavior must not become the source of truth for shared contracts.
@@ -17,6 +17,7 @@ This directory is the provider-specific export boundary for the shared core.
 - `providers/anthropic-claude/` - canonical Claude export boundary
 - `providers/qwen-code/` - canonical Qwen Code export boundary
 - `providers/kimi-k2_5/` - canonical Kimi K2.5 export boundary
+- `providers/minimax/` - canonical MiniMax / abab6.5 / speech-01 export boundary
 - `providers/openai/` - compatibility export boundary for the legacy OpenAI/Codex surface
 - `providers/anthropic/` - compatibility export boundary for the legacy Claude surface
 - `providers/qwen/` - compatibility export boundary for the legacy Qwen surface
