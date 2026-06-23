@@ -71,9 +71,36 @@ Nicht bestätigt durch diesen Smoke:
 - keine Contract-/Skill-/Validator-Änderung
 - keine weitere Pi-Session in diesem Slice
 
+## Second Attempt — Anthropic (Failed, Provider-Side Billing Limit)
+
+```text
+command: pi --no-tools --no-session --print "Return exactly: PI_SMOKE_OK" --provider anthropic --model claude-haiku-4-5
+provider: anthropic
+model: claude-haiku-4-5
+tool_mode: --no-tools
+exit_behaviour: deterministic, returned immediately (--print)
+expected_marker: PI_SMOKE_OK
+observed_output: HTTP 400 invalid_request_error
+error_message: "Third-party apps now draw from your extra usage, not your plan limits. Add more at claude.ai/settings/usage and keep going."
+request_id: req_011CcLuMixGo1m8XwijhPm3Y
+marker_found: false
+approval_tier: Tier 0 (no-tools, no-session, print)
+host: baum-Latitude-3440 (persistent Owner-Host, owner-executed)
+session: ephemeral (--no-session)
+secrets_in_command: none
+secrets_in_output: none
+.env_read: no
+```
+
+**Klassifikation:** Provider-seitiges Billing-/Plan-Limit (Claude-Subscription "extra usage" für Third-Party-Apps erschöpft), kein Pi-Fehler, kein Workspace-Fehler, kein Secret-Leak. Die Fehlermeldung enthält keine Key-Werte, nur eine Nutzungsgrenzen-Auskunft — Secret-Boundary bleibt eingehalten.
+
+**Konsequenz für P-04:** `anthropic` ist damit für aktuelle Smoke-Zwecke vorübergehend nicht nutzbar (Kontingent), unabhängig von der dokumentierten Auth-Fähigkeit. Das ist ein Verfügbarkeits-, kein Architekturproblem — ändert nichts an der bestehenden Provider-Default-Entscheidung.
+
 ## Recommended Next Gate
 
 **Pi Provider Default Verification (openai-codex)** — sobald das Subscription-Limit zurückgesetzt ist, denselben Tier-0-Smoke mit dem primären Default (`openai-codex`, Modellkandidat aus `pi --list-models`) wiederholen, um P-04 vollständig durch Runtime-Evidence zu decken statt nur durch Doc-Annahme.
+
+Anthropic-Recheck optional, sobald "extra usage" beim Owner wieder verfügbar ist — nicht blockierend für v0.
 
 ## References
 
