@@ -4,14 +4,14 @@
 derived / docs-only / provider-default decision
 
 ## Status
-applied — three smokes executed (2026-06-23); minimax confirmed successful; openai-codex and anthropic provider-limited
+verified — four smokes executed; minimax/MiniMax-M3 fully verified (provider + model level); P-04 complete
 
 ## Decision
 
 ```text
 Default provider for first Pi smoke:  minimax
 Default auth mode:                    MINIMAX_API_KEY via .env (source .env before smoke)
-Default model candidate:              MiniMax-M3 (provider smoke-verified via MiniMax-M2.7; MiniMax-M3 model-level smoke pending)
+Default model candidate:              MiniMax-M3 (fully smoke-verified: PI_SMOKE_OK, exit 0, 2026-06-24)
 Secondary provider:                   openai-codex — Subscription-Login via /login; currently quota-limited (reset: 2026-06-24/25)
 Excluded now:                         google — not in pi --list-models
 Correct Google env (if ever needed):  GEMINI_API_KEY (not GOOGLE_API_KEY)
@@ -67,10 +67,10 @@ Beobachtet via `pi --list-models` und `pi --help` (read-only, keine Ausführung)
 
 | Model | Context | Max-Out | Thinking | Images | Smoke-Status |
 |---|---|---|---|---|---|
-| `MiniMax-M3` | 512K | 128K | yes | yes | **Owner-chosen default; model-level smoke pending** |
+| `MiniMax-M3` | 512K | 128K | yes | yes | **smoke-verifiziert (PI_SMOKE_OK, exit 0, 2026-06-24)** |
 | `MiniMax-M2.7` | — | — | — | — | **smoke-verifiziert (PI_SMOKE_OK, 2026-06-23)** |
 
-**Default-Modell: `MiniMax-M3`** — Owner-Entscheidung (2026-06-23). Größtes Context-Window (512K), Images und Thinking verfügbar. Nächster Gate: MiniMax-M3 Smoke zur Modell-Level-Verifikation.
+**Default-Modell: `MiniMax-M3`** — Owner-Entscheidung (2026-06-23), smoke-verifiziert (2026-06-24). Größtes Context-Window (512K), Images und Thinking verfügbar. P-04 vollständig durch Runtime-Evidence gedeckt.
 
 ### Beobachtete `openai-codex` Modelle (aus `pi --list-models`)
 
@@ -137,9 +137,9 @@ Eine neue Trennung bleibt jedoch bestehen — diesmal innerhalb von minimax:
 | Achse | Definition | Status |
 |---|---|---|
 | **Provider-Level-Verifikation** | Hat `minimax` als Provider einen Tier-0-Smoke erfolgreich abgeschlossen? | **verifiziert** — MiniMax-M2.7 lieferte PI_SMOKE_OK (2026-06-23) |
-| **Modell-Level-Verifikation** | Hat `MiniMax-M3` (das gewählte Default-Modell) einen Smoke abgeschlossen? | **ausstehend** — MiniMax-M3 ist Owner-chosen, aber noch nicht individuell smoke-getestet |
+| **Modell-Level-Verifikation** | Hat `MiniMax-M3` (das gewählte Default-Modell) einen Smoke abgeschlossen? | **verifiziert** — MiniMax-M3 lieferte PI_SMOKE_OK, exit 0 (2026-06-24) |
 
-**Konsequenz:** Die nächste Smoke-Aufgabe ist ein MiniMax-M3-spezifischer Run, um die Modell-Level-Verifikation nachzuholen. Die Provider-Level-Verifikation reicht für initiale Konfidenz; Modell-Level-Verifikation ist für vollständige P-04-Abdeckung nötig.
+**Konsequenz:** Beide Achsen sind verifiziert. P-04 ist vollständig durch Runtime-Evidence gedeckt. Nächster Gate: P-01 Workspace-Reproducibility → `.env.example` → `runtime/surfaces/pi/`.
 
 **Leitplanke erhalten:** `openai-codex` bleibt als Secondary dokumentiert mit dem einfachsten Auth-Pfad. Die Rolle hat sich verändert (Default → Secondary), aber die architektonische Eigenschaft (kein `.env` nötig, auth.json-basiert) bleibt dokumentiert für zukünftige Nutzung.
 

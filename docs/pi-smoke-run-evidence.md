@@ -126,13 +126,38 @@ secrets_in_output: none
 
 **Konsequenz für P-04:** Alle drei dokumentierten Provider (`minimax` ✓, `anthropic` ✗ Billing, `openai-codex` ✗ Quota) wurden in diesem Slice real angetestet. Einziger funktionierender Smoke bisher: `minimax`. Der primäre Default (`openai-codex`) bleibt durch echte Evidence weiterhin nur als "erreichbar, aber aktuell kontingentiert" belegt — nicht als "funktionsfähig getestet".
 
+## Fourth Run — MiniMax-M3 (Successful, Model-Level Verification)
+
+```text
+command: pi --provider minimax --model MiniMax-M3 --no-tools --no-session --print "Return exactly: PI_SMOKE_OK"
+provider: minimax
+model: MiniMax-M3
+tool_mode: --no-tools
+exit_behaviour: deterministic, returned immediately (--print)
+expected_marker: PI_SMOKE_OK
+observed_output: PI_SMOKE_OK
+marker_found: true
+exit_code: 0
+approval_tier: Tier 0 (no-tools, no-session, print)
+host: baum-Latitude-3440 (persistent Owner-Host)
+session: ephemeral (--no-session)
+secrets_in_command: none
+secrets_in_output: none
+.env_read: no
+timestamp_utc: 2026-06-24
+```
+
+**Klassifikation:** Erfolgreicher Tier-0-Smoke mit dem Owner-gewählten Default-Modell. Provider-Level-Verifikation (MiniMax-M2.7, Run 1) und Modell-Level-Verifikation (MiniMax-M3, dieser Run) sind jetzt beide abgeschlossen. P-04 ist vollständig durch Runtime-Evidence gedeckt.
+
+**Pi-Config-Kontext:** `~/.pi/agent/settings.json` enthält `defaultProvider: minimax` und `defaultModel: MiniMax-M3` — kein `.env`-sourcing nötig; Credentials intern in Pi konfiguriert.
+
 ## Recommended Next Gate
 
-**Pi Provider Default Verification (openai-codex)** — Re-Test nach `primary_reset_at_utc: 2026-06-24 02:37:03` (Primary-Window) oder `secondary_reset_at_utc: 2026-06-25 11:28:04` (Secondary-Window, maßgeblich für aktuelles 429). Ziel: mindestens einmal echten `PI_SMOKE_OK`-Marker mit dem primären Default erzeugen, um P-04 vollständig durch Runtime-Evidence zu decken statt nur durch Doc-Annahme.
+**openai-codex Secondary Verification** — optional nach `secondary_reset_at_utc: 2026-06-25 11:28:04`. Nicht blockierend für v0; minimax/MiniMax-M3 als Default vollständig verifiziert.
 
 Anthropic-Recheck optional, sobald "extra usage" beim Owner wieder verfügbar ist — nicht blockierend für v0.
 
-**Zwischenfazit:** v0-Smoke-Fähigkeit ist nicht durch Pi selbst limitiert, sondern durch Provider-seitige Kontingente bei zwei von drei getesteten Providern. `minimax` bleibt der einzige aktuell uneingeschränkt nutzbare Smoke-Pfad.
+**Zwischenfazit:** P-04 vollständig durch Runtime-Evidence abgedeckt. minimax/MiniMax-M3 ist Provider-Level UND Modell-Level verifiziert. Nächster Schritt: P-01 Workspace-Reproducibility → `.env.example` → `runtime/surfaces/pi/`.
 
 ## References
 
