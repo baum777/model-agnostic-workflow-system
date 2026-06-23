@@ -36,6 +36,8 @@ Docs-only, non-canonical governance-adjacent slices. None of these change a cont
 - [skill-contract-gap-analysis.md](skill-contract-gap-analysis.md) — gap analysis of missing skill-contract fields (`allowed_agents`, `allowed_models`, `write_mode`, `computer_use_allowed`, `skill_security_scan`, among others); no migration applied.
 - [human-approval-tier-extension.md](human-approval-tier-extension.md) — proposes a 5-tier human-approval model and explicitly separates `verified` from `approved`.
 - [permission-boundary-approval-extension-proposal.md](permission-boundary-approval-extension-proposal.md) — proposal only: projects approval/privilege concepts onto `core/contracts/permission-boundary.json` without changing the contract.
+- [pi-provider-adapter-specification.md](pi-provider-adapter-specification.md) — describes Pi as a future thin adapter/runtime layer over the Core-Anker; no provider implementation, no `providers/pi/`, no contract change.
+- [skill-schema-extension-proposal.md](skill-schema-extension-proposal.md) — proposal for `allowed_agents`, `allowed_models`, and `write_mode` as future SKILL.md frontmatter fields; no skill migration, no validator, no runtime activation.
 
 ## Documentation Classes
 
