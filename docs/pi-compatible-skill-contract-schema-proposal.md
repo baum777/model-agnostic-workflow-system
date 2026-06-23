@@ -6,7 +6,8 @@ derived / docs-only / skill-contract schema proposal
 
 ## Status
 
-proposed — no validator, no runtime implementation
+accepted as skill-contract policy precursor — no validator, no runtime implementation
+Acceptance evidence: dc48afb + bd4ff8c + 880a3d4
 
 ## Purpose
 
