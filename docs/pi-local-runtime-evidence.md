@@ -34,8 +34,8 @@ Nur secret-sichere Fakten:
 | provider flags | `--provider`, `--model`, `--mcp-config` | Pi routes to external providers |
 | list-models providers | anthropic, minimax, openai-codex | Pi's own provider routing — Pi nutzt diese APIs |
 | list-models (anthropic) | claude-sonnet-4-6, claude-opus-4-8, claude-fable-5, u.a. | provider-neutral Modellauswahl |
-| list-models (minimax) | MiniMax-M2.7, MiniMax-M2.7-highspeed, MiniMax-M3 | MiniMax via Pi als Backend |
-| list-models (openai-codex) | gpt-5.3-codex-spark, gpt-5.4, gpt-5.4-mini, gpt-5.5 | Codex-Familie via Pi |
+| list-models (minimax) | **MiniMax-M2.7, MiniMax-M2.7-highspeed, MiniMax-M3** (owner-verified) | MiniMax via Pi als Backend — owner locally confirmed all three |
+| list-models (openai-codex) | **gpt-5.3-codex-spark** (owner-verified), gpt-5.4, gpt-5.4-mini, gpt-5.5 | Codex-Familie via Pi — owner locally confirmed gpt-5.3-codex-spark |
 | extension API | `pi.registerProvider()` | Pi hat eigene Provider-Extension-API (docs/custom-provider.md im npm package) |
 | workspace dependency | nicht vorhanden | kein Eintrag in `package.json` des Workspace |
 | providers/pi/ | nicht vorhanden | korrekt — noch nicht angelegt |

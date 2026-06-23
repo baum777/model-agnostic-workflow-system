@@ -59,21 +59,25 @@ Beobachtet via `pi --list-models` und `pi --help` (read-only, keine Ausführung)
 
 ### Beobachtete `openai-codex` Modelle (aus `pi --list-models`)
 
-| Model | Context | Max-Out | Thinking | Images |
-|---|---|---|---|---|
-| `gpt-5.3-codex-spark` | 128K | 128K | yes | no |
-| `gpt-5.4` | 272K | 128K | yes | yes |
-| `gpt-5.4-mini` | 272K | 128K | yes | yes |
-| `gpt-5.5` | 272K | 128K | yes | yes |
+| Model | Context | Max-Out | Thinking | Images | Owner-Verified |
+|---|---|---|---|---|---|
+| `gpt-5.3-codex-spark` | 128K | 128K | yes | no | **yes** |
+| `gpt-5.4` | 272K | 128K | yes | yes | — |
+| `gpt-5.4-mini` | 272K | 128K | yes | yes | — |
+| `gpt-5.5` | 272K | 128K | yes | yes | — |
 
-**Empfohlener Smoke-Modell-Kandidat: `gpt-5.4-mini`**
+**Smoke-Modell-Kandidaten für openai-codex (geordnet nach Owner-Verifikation):**
 
-Begründung:
-- Größeres Context-Window (272K) als `gpt-5.3-codex-spark` (128K)
-- Für einen Smoke-Command (`--print "Return exactly: PI_SMOKE_OK"`) ausreichend leistungsfähig
-- `-mini`-Suffix deutet auf eine cost-effective Variante hin gegenüber `gpt-5.4` und `gpt-5.5`
-- Thinking-Support nicht benötigt für deterministisches Smoke-Output — aber kein Nachteil
-- `gpt-5.5` und `gpt-5.4` bleiben als Upgrade-Kandidaten für spätere, anspruchsvollere Pi-Sessions
+1. **Primary: `gpt-5.3-codex-spark`** — Owner hat dieses Modell lokal via `pi --list-models` bestätigt
+   - Smallest context (128K), aber ausreichend für Smoke-Command (`--print "Return exactly: PI_SMOKE_OK"`)
+   - Zu versuchen zuerst, da direkt Owner-verifiziert
+   
+2. **Fallback: `gpt-5.4-mini`** — Falls `gpt-5.3-codex-spark` Probleme hat
+   - Größeres Context-Window (272K) als gpt-5.3-codex-spark
+   - Cost-effective Variante
+   - Thinking-Support nicht benötigt für deterministisches Smoke-Output
+   
+3. **Future Upgrade: `gpt-5.4`, `gpt-5.5`** — Für spätere anspruchsvollere Pi-Sessions
 
 ## Rationale
 
@@ -133,6 +137,19 @@ Nach Abschluss von P-01 — openai-codex Subscription-Login vorausgesetzt:
 ```bash
 # Not executed in this slice — design only
 # Prerequisite: pi /login already executed for openai-codex subscription
+# Using gpt-5.3-codex-spark as primary because owner locally verified this model
+
+pi --provider openai-codex \
+  --model gpt-5.3-codex-spark \
+  --no-tools \
+  --no-session \
+  --print "Return exactly: PI_SMOKE_OK"
+```
+
+Fallback bei Problemen:
+
+```bash
+# Alternative — if gpt-5.3-codex-spark fails for any reason
 pi --provider openai-codex \
   --model gpt-5.4-mini \
   --no-tools \

@@ -203,16 +203,19 @@ Bevorzugter Smoke für späteren Einsatz — **nicht ausgeführt in diesem Slice
 ```bash
 # Future command; not executed in this slice
 # Prerequisites: P-12 done, P-01 done, .env in .gitignore, secrets loaded via source
-pi --provider <approved-provider> \
-  --model <approved-model> \
+# Primary model: gpt-5.3-codex-spark (owner-verified via pi --list-models)
+
+pi --provider openai-codex \
+  --model gpt-5.3-codex-spark \
   --no-tools \
   --no-session \
   --print "Return exactly: PI_SMOKE_OK"
 ```
 
 Entschieden per P-04 (`docs/pi-provider-default-decision.md`):
-- `<approved-provider>`: `openai-codex` (Subscription-Login, kein Env Var) — primärer Default
-- `<approved-model>`: aus `pi --list-models` für openai-codex wählen
+- Provider: `openai-codex` (Subscription-Login, kein Env Var) — primärer Default
+- **Model: `gpt-5.3-codex-spark`** — Owner hat dieses Modell lokal bestätigt via `pi --list-models`
+- Fallback model: `gpt-5.4-mini` falls gpt-5.3-codex-spark Probleme hat
 - **Hinweis Auth-Mechanismus**: openai-codex Subscription läuft via `pi` Login-Flow (`/login`), Token in `~/.pi/agent/auth.json` — kein `OPENAI_API_KEY` in `.env` nötig für Codex
 - **Hinweis google**: Pi-Help-Default-Name `google` ist irreführend — kein aktiver Provider in `pi --list-models`; korrekte Env-Var laut Pi.dev wäre `GEMINI_API_KEY`
 
