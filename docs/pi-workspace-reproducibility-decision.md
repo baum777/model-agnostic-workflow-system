@@ -11,15 +11,29 @@ proposed — no runtime integration
 ## Decision
 
 ```text
-Decision:              Option A — Pi remains an external local prerequisite for v0
-Observed Version:      0.79.9
-Package:               @earendil-works/pi-coding-agent@0.79.9
-Current Installation:  global only (/home/baum/.npm-global/bin/pi)
-Workspace Dependency:  not yet added to package.json
-npx Execution Path:    not yet enabled
-runtime/surfaces/pi/:  not yet created
-Reassessment Trigger:  before runtime/surfaces/pi/ is architected (P-12)
+Decision: external prerequisite for v0.
+
+Pi darf für Smoke-/Runtime-Schritte nur in einer Umgebung verwendet werden,
+in der `which pi`, `pi --version` und `pi --list-models` vorab erfolgreich sind.
+Der zuvor beobachtete Pfad `/home/baum/.npm-global/bin/pi` ist historische Owner-Host-Evidence,
+nicht garantiert in jeder Agent-/Claude-/Cowork-Ausführungsumgebung.
+
+Observed Version (Owner-Host, historisch): 0.79.9
+Package:                                   @earendil-works/pi-coding-agent@0.79.9
+Current Slice Execution Environment:       `which pi` → not found
+Workspace Dependency:                      not yet added to package.json
+npx Execution Path:                        not yet enabled
+runtime/surfaces/pi/:                      not yet created
+Reassessment Trigger:                      before runtime/surfaces/pi/ is architected (P-12)
 ```
+
+## Environment Clarification
+
+Pi wurde in früherer Owner-/Cowork-Umgebung als lokale CLI beobachtet.
+In der aktuellen Ausführungsumgebung dieses P-01-Slices war `pi` jedoch nicht verfügbar.
+Daher ist Pi für v0 ein external prerequisite, nicht eine aktuell workspace-reproduzierbare Dependency.
+
+Diese Unterscheidung ist kein Widerspruch zur Decision, sondern ihre Begründung: Reproduzierbarkeit von Pi ist umgebungsabhängig und muss vor jeder Pi-Session lokal re-verifiziert werden — nicht aus diesem Dokument übernommen werden.
 
 ## Use Rule
 
@@ -194,10 +208,21 @@ Ziel:
 5. Verifizieren: Keine Secrets im Befehl oder in Env-Dumps
 6. Optional: Approval-Tier checken (Tier 0 für `--no-tools --print`, kein Human Approval nötig, aber Secret-Boundary gilt)
 
-Falls alle Checks grün sind: P-03 Smoke-Run ist freigegeben.
+**Smoke-Freigabe-Status: nicht freigegeben.** In der aktuellen Ausführungsumgebung dieses Slices ist `which pi` nicht erfolgreich — Smoke-Readiness ist damit nicht gegeben, unabhängig von der historischen Owner-Host-Evidence.
+
+Nächster Gate ist **P-04 Provider Default Decision** oder ein **Owner-Host Pi Availability Recheck** — nicht direkt P-03 Smoke.
+
+P-03 Smoke-Run darf erst erfolgen, nachdem:
+1. Pi im ausführenden Host verfügbar ist (`which pi`, `pi --version`, `pi --list-models` erfolgreich)
+2. Provider-/Model-Default entschieden ist (P-04)
+3. Secret Boundary bestätigt ist (P-05)
+4. Worktree clean ist
+5. Smoke-Befehl-Form korrekt ist (`--no-tools --no-session --print`)
+
+Falls alle fünf Punkte erfüllt sind: P-03 Smoke-Run ist freigegeben.
 
 Alternative nächster Schritt (falls P-04 Provider-Auswahl offener ist):
-**P-04 Pi Provider Default Decision** → entscheidet, welcher Provider (`anthropic`, `minimax`, `openai-codex`) für Smoke genutzt wird → dann P-01 Smoke-Readiness → P-03 Smoke-Run
+**P-04 Pi Provider Default Decision** → entscheidet, welcher Provider (`anthropic`, `minimax`, `openai-codex`) für Smoke genutzt wird → dann Owner-Host Pi Availability Recheck → P-01 Smoke-Readiness → P-03 Smoke-Run
 
 ## Verification
 
@@ -234,7 +259,7 @@ git commit -m "docs: decide pi workspace reproducibility — option A external p
 Die folgenden Entscheidungen sind **nicht** Aufgabe dieses Slices und bleiben offen:
 
 - P-04: Welcher Provider ist der Default für Pi-Workspace-Sessions? (anthropic, minimax, openai-codex — noch nicht entschieden)
-- P-12: Wo wird `runtime/surfaces/pi/` angelegt und wie ist sein API-Shape? (noch nicht architekturiert)
+- P-12: ist docs-only entschieden als **No Integration Yet**. Future-preferred path: `runtime/surfaces/pi/`. Der konkrete API-/Directory-Shape bleibt future work — noch nicht architekturiert.
 - `.env.example`-Template: Welche Env-Var-Namen genau? (vertagt bis P-04)
 - Extension Host: Ist Pi-Extension-API-Integration gewünscht? (deferred bis Evidence vorliegt)
 - Upgrade-Strategie: Wann wird Pi von 0.79.9 auf eine neuere Version aktualisiert? (v0.x-Frage, nicht dieser Slice)
