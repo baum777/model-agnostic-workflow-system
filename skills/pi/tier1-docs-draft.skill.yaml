@@ -1,0 +1,121 @@
+skill_id: pi.tier1.docs_draft
+name: Pi Tier-1 Docs Draft
+purpose: >
+  Generate a bounded Markdown draft through Pi for a pre-approved
+  Tier-1 docs/proposal task, without runtime changes, provider changes,
+  Vault writes, secret access, or automatic promotion.
+
+allowed_agents:
+  - pi
+
+allowed_models:
+  - minimax/MiniMax-M3
+
+input_contract:
+  required:
+    - owner_approval
+    - bounded_prompt
+    - approved_output_path
+    - evidence_run_directory
+  output_format: markdown
+  output_scope: draft_or_proposal_only
+
+context_sources:
+  - docs/pi-tier-1-draft-workflow.md
+  - docs/pi-tier-1-draft-session-design.md
+  - runtime/surfaces/pi/session-policy.md
+  - runtime/surfaces/pi/evidence-contract.md
+  - sandbox/runs/run-evidence-template.md
+
+allowed_tools: []
+
+forbidden_tools:
+  - computer_use
+  - browser_use
+  - network
+  - vault_write
+  - secret_read
+  - runtime_write
+  - provider_adapter_write
+
+allowed_paths:
+  - docs/proposals/
+  - drafts/
+  - sandbox/runs/
+
+forbidden_paths:
+  - providers/pi/
+  - runtime/
+  - .env
+  - .env.*
+  - vault/
+  - ~/.ssh/
+  - ~/.config/
+
+write_mode: draft_only
+
+human_approval_required: true
+
+secret_policy:
+  env_files: forbidden
+  api_keys: forbidden
+  credentials: forbidden
+  browser_profiles: forbidden
+  private_config: forbidden
+
+prompt_injection_risk:
+  level: medium
+  mitigation:
+    - bounded_prompt_only
+    - no_untrusted_web_context
+    - no_secret_access
+    - no_tool_use_unless_explicitly_approved
+    - evidence_required
+
+execution_steps:
+  - confirm_owner_approval
+  - confirm_accepted_skill_contract
+  - confirm_allowed_output_path
+  - create_timestamped_evidence_directory
+  - run_pi_with_bounded_command_shape
+  - save_markdown_output_to_approved_draft_path
+  - capture_required_evidence
+  - validate_boundaries_and_diff
+  - commit_only_approved_files
+
+verify_steps:
+  - output_file_exists
+  - output_is_markdown
+  - evidence_artifacts_complete
+  - providers_pi_absent
+  - no_runtime_files_changed
+  - no_vault_files_changed
+  - no_secrets_read
+  - staged_files_match_allowlist
+
+evidence_required:
+  - intent.md
+  - files-read.md
+  - files-changed.md
+  - commands-run.md
+  - diff.patch
+  - validation.md
+  - risks.md
+  - next-gate.md
+
+abort_conditions:
+  - missing_owner_approval
+  - output_path_is_canonical
+  - provider_or_model_unavailable
+  - secret_access_requested
+  - env_access_requested
+  - vault_write_requested
+  - runtime_change_requested
+  - providers_pi_creation_requested
+  - network_requested_under_net0
+  - evidence_incomplete
+  - unexpected_dirty_tree
+
+log_target: sandbox/runs/<timestamp>/
+
+last_reviewed: "2026-06-24"
