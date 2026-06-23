@@ -24,3 +24,16 @@ Pi sessions default to Tier 0 unless explicitly elevated.
 
 ## Approval Rule
 Any mutation requires explicit human approval before execution.
+
+## Vault / Memory Boundary
+
+Vault and Memory Bridge access follows:
+
+`docs/vault-memory-bridge-boundary-decision.md`
+
+Default:
+
+- Vault context may be read only through approved read-only bridges.
+- Vault write access is blocked by default.
+- Any Pi-assisted Vault write is Tier 2+ and requires a separate owner-scoped write slice.
+- Subagents must not write Vault notes or promote memory to truth.

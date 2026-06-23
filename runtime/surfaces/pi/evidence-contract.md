@@ -36,3 +36,20 @@ Every Pi run must report:
 - Secret check
 - Risks / gaps
 - Next gate
+
+## Vault / Memory Evidence Boundary
+
+If a Pi-assisted run uses Vault-derived context, evidence may include:
+
+- that Vault-derived context was referenced
+- the approved read-only bridge or summary source
+- whether draft artifacts were produced outside the Vault
+
+Evidence must not include:
+
+- raw private Vault contents unless explicitly approved
+- secrets
+- provider/auth details
+- automatic truth-promotion claims
+
+Vault writes must reference a separate owner-scoped write slice.
