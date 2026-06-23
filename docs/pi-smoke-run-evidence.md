@@ -96,11 +96,43 @@ secrets_in_output: none
 
 **Konsequenz für P-04:** `anthropic` ist damit für aktuelle Smoke-Zwecke vorübergehend nicht nutzbar (Kontingent), unabhängig von der dokumentierten Auth-Fähigkeit. Das ist ein Verfügbarkeits-, kein Architekturproblem — ändert nichts an der bestehenden Provider-Default-Entscheidung.
 
+## Third Attempt — Openai-Codex (Failed, Confirmed Subscription Usage Limit)
+
+```text
+command: pi --no-tools --no-session --print "Return exactly: PI_SMOKE_OK" --provider openai-codex --model gpt-5.4-mini
+provider: openai-codex
+model: gpt-5.4-mini
+tool_mode: --no-tools
+exit_behaviour: deterministic, returned immediately (--print)
+expected_marker: PI_SMOKE_OK
+observed_output: HTTP 429 usage_limit_reached
+error_type: usage_limit_reached
+plan_type: plus
+primary_used_percent: 1
+secondary_used_percent: 100
+primary_reset_at_utc: 2026-06-24 02:37:03
+secondary_reset_at_utc: 2026-06-25 11:28:04
+credits_balance: 0
+marker_found: false
+approval_tier: Tier 0 (no-tools, no-session, print)
+host: baum-Latitude-3440 (persistent Owner-Host, owner-executed)
+session: ephemeral (--no-session)
+secrets_in_command: none
+secrets_in_output: none
+.env_read: no
+```
+
+**Klassifikation:** Bestätigtes Subscription-Quota-Limit (Secondary-Window zu 100% ausgeschöpft, Credits-Balance 0), kein Pi-Fehler, kein Secret-Leak. Deckt sich mit der ursprünglichen Owner-Aussage ("Codex-Limit erreicht") aus diesem Slice — Befund ist konsistent, nicht widersprüchlich.
+
+**Konsequenz für P-04:** Alle drei dokumentierten Provider (`minimax` ✓, `anthropic` ✗ Billing, `openai-codex` ✗ Quota) wurden in diesem Slice real angetestet. Einziger funktionierender Smoke bisher: `minimax`. Der primäre Default (`openai-codex`) bleibt durch echte Evidence weiterhin nur als "erreichbar, aber aktuell kontingentiert" belegt — nicht als "funktionsfähig getestet".
+
 ## Recommended Next Gate
 
-**Pi Provider Default Verification (openai-codex)** — sobald das Subscription-Limit zurückgesetzt ist, denselben Tier-0-Smoke mit dem primären Default (`openai-codex`, Modellkandidat aus `pi --list-models`) wiederholen, um P-04 vollständig durch Runtime-Evidence zu decken statt nur durch Doc-Annahme.
+**Pi Provider Default Verification (openai-codex)** — Re-Test nach `primary_reset_at_utc: 2026-06-24 02:37:03` (Primary-Window) oder `secondary_reset_at_utc: 2026-06-25 11:28:04` (Secondary-Window, maßgeblich für aktuelles 429). Ziel: mindestens einmal echten `PI_SMOKE_OK`-Marker mit dem primären Default erzeugen, um P-04 vollständig durch Runtime-Evidence zu decken statt nur durch Doc-Annahme.
 
 Anthropic-Recheck optional, sobald "extra usage" beim Owner wieder verfügbar ist — nicht blockierend für v0.
+
+**Zwischenfazit:** v0-Smoke-Fähigkeit ist nicht durch Pi selbst limitiert, sondern durch Provider-seitige Kontingente bei zwei von drei getesteten Providern. `minimax` bleibt der einzige aktuell uneingeschränkt nutzbare Smoke-Pfad.
 
 ## References
 
