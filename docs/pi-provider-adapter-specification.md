@@ -1,13 +1,15 @@
 # Pi Provider Adapter Specification
 
 ## Class
-derived / docs-only / provider-adapter specification
+derived / docs-only / provider-adapter specification — reclassified: Pi ist Execution Surface, kein LLM-Provider
 
 ## Status
-proposed — not implemented
+proposed — reclassified (siehe `docs/pi-local-runtime-evidence.md`, commit `c14bc52`)
 
 ## Use rule
-Dieses Dokument beschreibt Pi als zukünftige Adapter-/Runtime-Schicht. Es aktiviert keinen Provider, erzeugt keine Runtime-Fähigkeit und ändert keine Contracts. Canonical authority bleibt `docs/pi-agent-kit-adapter-core-anchor-decision.md` (Strukturentscheidung), `docs/architecture.md` und `docs/authority-matrix.md` (Doc-Class-Authority), `core/contracts/*` (Contract-Wahrheit).
+Dieses Dokument beschreibt ursprünglich Pi als zukünftige Provider-Adapter-/Runtime-Schicht. Es aktiviert keinen Provider, erzeugt keine Runtime-Fähigkeit und ändert keine Contracts. Canonical authority bleibt `docs/pi-agent-kit-adapter-core-anchor-decision.md` (Strukturentscheidung), `docs/architecture.md` und `docs/authority-matrix.md` (Doc-Class-Authority), `core/contracts/*` (Contract-Wahrheit).
+
+**Reklassifikation (2026-06-23):** Pi wurde lokal als `@earendil-works/pi-coding-agent@0.79.9` beobachtet. Pi ist ein CLI-Agent-Runner / Execution Surface — kein LLM-API-Provider. Die Schichtannahme "Pi unter `providers/<name>/`" ist damit hinfällig. Canonical Evidence: `docs/pi-local-runtime-evidence.md`. Die Grenzziehungen dieses Dokuments (Approval, Permission Boundary, Skill Contracts) bleiben gültig und übertragen sich auf die Execution-Surface-Klassifikation.
 
 ## Purpose
 
@@ -29,11 +31,16 @@ Dieses Muster wird hier referenziert, nicht kopiert: Es existiert kein `provider
 
 ## Adapter Role
 
-Pi wird beschrieben als:
+**Reklassifikation:** Pi ist kein Provider-Adapter im Sinne von `providers/<name>/`. Pi ist eine Execution Surface.
 
-- Runtime-Adapter (zukünftig, nicht aktiv)
-- Workflow-Ausführungsfläche für bereits im Core definierte Workflows
-- möglicher Connector zu Minimax 3, lokalen Modellen oder externen Modellen — als Ausführungsschicht, nicht als Modell- oder Provider-Wahrheit
+Pi wird reklassifiziert als:
+
+- Execution Surface / CLI-Agent-Runner (lokal beobachtet, nicht integriert) — kein LLM-API-Provider
+- Workflow-Ausführungsfläche für bereits im Core definierte Workflows — aber über CLI-Ausführung, nicht über Provider-Adapter-Normalisierung
+- Pi nutzt selbst Provider wie Anthropic, MiniMax, OpenAI-Codex als Backends (`pi --list-models`) — Pi ist keiner dieser Provider
+- möglicher Execution Host für Core-Skills: `runtime/surfaces/pi/` oder Extension Host — nicht `providers/pi/adapter.mjs`
+
+Canonical Evidence: `docs/pi-local-runtime-evidence.md`.
 
 Pi ist explizit:
 
@@ -110,19 +117,27 @@ Diese Felder sind dieselben offenen Gaps, die bereits in `docs/pi-agent-kit-adap
 
 ## Provider Surface Decision
 
-**Warum `docs/pi-provider-adapter-specification.md` und nicht `providers/pi/README.md`:**
+**`providers/pi/` ist nicht gerechtfertigt — Kategoriefehler, nicht nur fehlende Voraussetzungen.**
 
-Das bestehende Muster (`providers/minimax/README.md`, `providers/anthropic/`, `providers/codex/` etc.) dokumentiert Adapter, für die bereits eine reale, beobachtbare API-Surface existiert (Base URL, Auth-Schema, Model-Familie, Tool-Use-Format) — auch wenn der Adapter selbst nur `scaffolded` ist. Für Pi existiert aktuell keine solche beobachtbare Surface: keine Pi-Laufzeitkonfiguration im Workspace gefunden (bereits in `docs/pi-agent-kit-adapter-core-anchor-decision.md`, Abschnitt "Adapter-Zielbild" festgehalten: "Claude in Pi: nur falls lokal belegbar — aktuell nicht belegt"). Ein `providers/pi/README.md` würde an dieser Stelle eine API-Surface suggerieren, die nicht beobachtet, sondern nur erwartet ist. Eine `docs/`-Spezifikation hält die Unterscheidung zwischen "Provider-Verzeichnis mit beobachtbarer Surface" (`providers/`) und "Konzept-/Gap-Dokumentation ohne beobachtbare Surface" (`docs/`) explizit aufrecht — dieselbe Unterscheidung, die bereits zwischen `docs/skill-contract-gap-analysis.md` (Gap-Analyse) und realen `SKILL.md`-Dateien (Implementierung) gilt.
+Das bestehende Muster (`providers/minimax/README.md`, `providers/anthropic/`, `providers/codex/` etc.) dokumentiert Adapter für LLM-API-Provider mit beobachtbarer HTTP-Surface: Base URL, Auth-Schema, Model-Familie, Tool-Use-Format (Beispiel: `providers/minimax/README.md`: `Base URL: https://api.minimax.chat`, `Auth: Bearer <MINIMAX_API_KEY>`). Ein `providers/<name>/adapter.mjs` normalisiert Core-Skill-Calls in API-Requests gegen diesen Endpunkt.
 
-**Warum noch kein `providers/pi/README.md` angelegt wird:**
+**Pi hat keine solche API-Surface.** Pi ist ein lokaler CLI-Agent-Runner (`@earendil-works/pi-coding-agent@0.79.9`), der selbst LLM-Provider (Anthropic, MiniMax, OpenAI-Codex) als Backends nutzt. Canonical Evidence: `docs/pi-local-runtime-evidence.md`.
 
-Ein `providers/<name>/`-Verzeichnis impliziert im bestehenden Muster mindestens einen scaffolded Adapter mit benennbarer API-Surface. Für Pi sind `allowed_agents`, `allowed_models` und `write_mode` noch nicht entschieden (offene Gaps), und es gibt keine bestätigte Pi-Laufzeitumgebung im Workspace. Ein `providers/pi/`-Verzeichnis vor dieser Klärung würde eine Implementationsbereitschaft suggerieren, die nicht vorliegt — im Widerspruch zur Non-Goals-Liste der Adapter-Core-Anchor-Decision ("Keine Provider-Implementierung").
+Warum kein `providers/pi/README.md`:
 
-**Wann ein späterer `providers/pi/README.md`-Slice sinnvoll wäre:**
+- Ein `providers/pi/adapter.mjs` würde `normalizeSkillCall()` gegen welchen HTTP-Endpunkt normalisieren? Keinen — Pi hat keine HTTP-API für externe Caller.
+- `pi --list-models` bestätigt: Pi nutzt anthropic, minimax, openai-codex — Pi ist selbst keiner davon.
+- `providers/pi/` wäre ein Schichten-Fehler, kein bloß verfrühter Slice.
 
-- wenn Provider-Surface autorisiert ist (explizite Owner-Freigabe, ein `providers/pi/`-Verzeichnis anzulegen)
-- wenn `allowed_agents` / `allowed_models` / `write_mode` für Pi entschieden sind
-- wenn Runtime-Grenzen und Approval-Bezug klar sind (mindestens eine bestätigte, beobachtbare Pi-Laufzeitkonfiguration im Workspace)
+**Wann `providers/pi/` gerechtfertigt wäre (Bedingung, nicht Zeitplan):**
+
+Nur wenn Pi eine eigene LLM-HTTP-API-Surface bereitstellt (z. B. lokaler Server-Modus mit Endpunkt, Auth-Schema und Modell-Routing). Aktuell kein Anhaltspunkt dafür. Neue Evidence-Prüfung nötig, bevor dieser Pfad wieder geöffnet wird.
+
+**Korrekter Zielpfad statt `providers/pi/`:**
+
+- `runtime/surfaces/pi/` — Pi als lokale Execution Surface (bevorzugt)
+- Pi Extension Host — Core-Skills via Pi Extension API
+- Beide Pfade noch nicht implementiert, kein Code in diesem Slice.
 
 ## Non-Goals
 
@@ -140,8 +155,14 @@ Ein `providers/<name>/`-Verzeichnis impliziert im bestehenden Muster mindestens 
 
 ## Next Gate
 
-Empfohlen: **Skill-Schema-Proposal für `allowed_agents` / `allowed_models` / `write_mode`** als nächster kleiner, docs-only Slice.
+**Pi Execution Surface Integration Slice** — erst wenn folgende Voraussetzungen erfüllt sind:
 
-Begründung: Diese drei Felder sind die am häufigsten wiederkehrenden offenen Gaps — sie werden in `docs/pi-agent-kit-adapter-core-anchor-decision.md`, `docs/skill-contract-gap-analysis.md` und in diesem Dokument gleichermaßen als Voraussetzung benannt, bevor irgendein Provider-Surface-Slice (`providers/pi/README.md`) sinnvoll wird. Eine Klärung dieser drei Felder schließt die Voraussetzung für den in "Provider Surface Decision" benannten späteren Schritt, ohne selbst eine Contract-Änderung oder Runtime-Aktivierung zu sein.
+- workspace-lokale Pi-Konfiguration (Pi in `package.json`, nicht nur global installiert)
+- dokumentierter sicherer Smoke-Befehl ohne Secrets
+- klare Provider-Auswahl für Pi-Sessions
+- Human-Approval-Grenzen für Pi-Sessions (Pi kann `bash` — Approval-Tier?)
+- Mapping von Core-Skill-Contracts zu Pi-Execution-Mechanismen
 
-Alternativen, die bewusst nicht empfohlen werden: ein Docs-README-Link-Slice für diese neue Datei (kleinster Scope, aber inhaltlich nicht der nächste sinnvolle Schritt, da `docs/README.md` laut Auftrag in diesem Slice nicht angefasst werden darf und ein reiner Link-Slice keine offene Frage schließt); ein Provider-Surface-Decision-Slice für `providers/pi/README.md` (verfrüht — siehe "Provider Surface Decision" oben, Voraussetzungen noch nicht erfüllt).
+Vorgänger-Pfad `providers/pi/README.md` ist nicht mehr der empfohlene Gate — Begründung: Kategoriefehler (Pi ist kein LLM-Provider), dokumentiert in `docs/pi-local-runtime-evidence.md`.
+
+Zielpfad: `runtime/surfaces/pi/` oder Pi Extension Host — erst nach Erfüllung der obigen Voraussetzungen.
