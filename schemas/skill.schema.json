@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baum-os/schemas/skill.schema.json",
+  "title": "Baum-OS Skill Contract",
+  "description": "JSON Schema for Baum-OS YAML skill contracts. Validates skill_id, write_mode, approval, paths, evidence, and abort conditions.",
+  "$comment": "v0.1 — targets the expanded 21-field Baum-OS skill YAML contract used by skills/pi/tier1-docs-draft.skill.yaml. Earlier documentation (docs/pi-compatible-skill-contract-schema-proposal.md, commit 9801521) described a 17-field proposal with different naming (id, approval_tier, network_mode, vault_mode, secret_boundary, evidence_contract, verification, handoff_format). This schema preserves the expanded safety-oriented 21-field set and should be reviewed before runtime validator introduction.",
+  "x-baumos-schema-version": "0.1",
+  "x-baumos-canonical-authority": "docs/pi-compatible-skill-contract-schema-proposal.md",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "skill_id",
+    "name",
+    "purpose",
+    "allowed_agents",
+    "allowed_models",
+    "input_contract",
+    "context_sources",
+    "allowed_tools",
+    "forbidden_tools",
+    "allowed_paths",
+    "forbidden_paths",
+    "write_mode",
+    "human_approval_required",
+    "secret_policy",
+    "prompt_injection_risk",
+    "execution_steps",
+    "verify_steps",
+    "evidence_required",
+    "abort_conditions",
+    "log_target",
+    "last_reviewed"
+  ],
+  "properties": {
+    "skill_id": {
+      "type": "string",
+      "description": "Unique skill identifier. Dot-separated namespace: e.g. pi.tier1.docs_draft.",
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable skill name.",
+      "minLength": 3
+    },
+    "purpose": {
+      "type": "string",
+      "description": "What the skill does and does not do.",
+      "minLength": 10
+    },
+    "allowed_agents": {
+      "type": "array",
+      "description": "Agents permitted to execute this skill.",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "allowed_models": {
+      "type": "array",
+      "description": "Provider/model pairs permitted. Format: provider/model.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]+/[a-zA-Z0-9_./-]+$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "input_contract": {
+      "type": "object",
+      "description": "Required inputs and output format constraints.",
+      "required": ["required", "output_format", "output_scope"],
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "output_format": {
+          "type": "string",
+          "enum": ["markdown", "json", "yaml", "text", "patch"]
+        },
+        "output_scope": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "context_sources": {
+      "type": "array",
+      "description": "Files the skill may reference as context.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "allowed_tools": {
+      "type": "array",
+      "description": "Tool classes permitted. Empty array means --no-tools.",
+      "items": { "type": "string" }
+    },
+    "forbidden_tools": {
+      "type": "array",
+      "description": "Tool classes explicitly forbidden. Must be non-empty.",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "allowed_paths": {
+      "type": "array",
+      "description": "Filesystem paths the skill may read or write.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "description": "Filesystem paths the skill must never access.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "write_mode": {
+      "type": "string",
+      "description": "Permitted write behaviour for this skill.",
+      "enum": ["read_only", "draft_only", "approved_write"]
+    },
+    "human_approval_required": {
+      "type": "boolean",
+      "description": "Whether explicit owner approval is required before execution."
+    },
+    "secret_policy": {
+      "type": "object",
+      "description": "Controls access to secrets and sensitive files.",
+      "required": ["env_files", "api_keys", "credentials", "browser_profiles", "private_config"],
+      "properties": {
+        "env_files": {
+          "type": "string",
+          "enum": ["forbidden", "allowed_with_owner_approval", "allowed"]
+        },
+        "api_keys": {
+          "type": "string",
+          "enum": ["forbidden", "allowed_with_owner_approval", "allowed"]
+        },
+        "credentials": {
+          "type": "string",
+          "enum": ["forbidden", "allowed_with_owner_approval", "allowed"]
+        },
+        "browser_profiles": {
+          "type": "string",
+          "enum": ["forbidden", "allowed_with_owner_approval", "allowed"]
+        },
+        "private_config": {
+          "type": "string",
+          "enum": ["forbidden", "allowed_with_owner_approval", "allowed"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "prompt_injection_risk": {
+      "type": "object",
+      "description": "Risk level and mitigations for prompt injection.",
+      "required": ["level", "mitigation"],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "mitigation": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "execution_steps": {
+      "type": "array",
+      "description": "Ordered steps an agent must follow to execute this skill.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "verify_steps": {
+      "type": "array",
+      "description": "Checks that must pass after execution.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "evidence_required": {
+      "type": "array",
+      "description": "Artifacts that must be created under sandbox/runs/<timestamp>/.",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "contains": {
+        "enum": [
+          "intent.md",
+          "files-read.md",
+          "files-changed.md",
+          "commands-run.md",
+          "diff.patch",
+          "validation.md",
+          "risks.md",
+          "next-gate.md"
+        ]
+      }
+    },
+    "abort_conditions": {
+      "type": "array",
+      "description": "Conditions that must cause immediate abort. Fail-closed.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "log_target": {
+      "type": "string",
+      "description": "Path pattern for evidence logs. Must be under sandbox/runs/.",
+      "pattern": "^sandbox/runs/"
+    },
+    "last_reviewed": {
+      "type": "string",
+      "description": "ISO 8601 date of last review. Format: YYYY-MM-DD.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  }
+}
