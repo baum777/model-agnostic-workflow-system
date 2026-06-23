@@ -49,11 +49,18 @@ Env Vars laut `pi --help` (Auszug, keine echten Werte):
 |---|---|---|
 | `ANTHROPIC_API_KEY` | anthropic | high — explizit in Pi-Help gelistet |
 | `ANTHROPIC_OAUTH_TOKEN` | anthropic | high — explizit in Pi-Help gelistet (Alternative zu API Key) |
-| `OPENAI_API_KEY` | openai-codex | high — explizit in Pi-Help gelistet |
-| `MINIMAX_API_KEY` | minimax | medium — aus `providers/minimax/README.md` belegt, aber nicht in Pi-Help-Output |
-| `GOOGLE_API_KEY` / `GEMINI_API_KEY` | google | low — nicht in Pi-Help-Output; verify before use |
+| `ANTHROPIC_API_KEY` | anthropic | high — explizit in Pi-Help + Pi.dev-Doku |
+| `ANTHROPIC_OAUTH_TOKEN` | anthropic | high — Pi-Help: Alternative zu API Key (Claude-Subscription-OAuth) |
+| keine Env Var — auth.json | openai-codex (Subscription) | high — Pi.dev-Doku: ChatGPT Plus/Pro via `/login`; Token in `~/.pi/agent/auth.json` |
+| `OPENAI_API_KEY` | openai (API-Key-Provider) | high — Pi.dev-Doku; **nicht identisch** mit openai-codex-Subscription |
+| `MINIMAX_API_KEY` | minimax | **high — Pi.dev-Doku offiziell bestätigt** |
+| `MINIMAX_CN_API_KEY` | minimax (CN) | high — Pi.dev-Doku; optional für CN-Region |
+| `GEMINI_API_KEY` | google | excluded — Provider nicht in `pi --list-models`; korrekte Env-Var laut Pi.dev wäre `GEMINI_API_KEY` (nicht `GOOGLE_API_KEY`) |
 
-**Update vs. `docs/pi-secret-handling-spec.md`:** MINIMAX und GOOGLE sind nicht in Pi-Help-Env-Var-Liste aufgeführt. Diese Korrektur ist relevant für die spätere `.env.example`-Erstellung. `ANTHROPIC_API_KEY` und `OPENAI_API_KEY` sind high-confidence bestätigt.
+**Update 2026-06-23 (Pi.dev Web-Review):** Alle Env-Var-Namen durch Pi.dev-Doku verifiziert. Wichtigste Korrekturen:
+- openai-codex Subscription nutzt **kein** Env Var — Auth läuft via `/login` und `auth.json`
+- `MINIMAX_API_KEY` ist offiziell bestätigt (nicht mehr "unclear")
+- Google: korrekte Env wäre `GEMINI_API_KEY`, aber Provider bleibt excluded
 
 ## Preconditions
 
@@ -203,15 +210,11 @@ pi --provider <approved-provider> \
   --print "Return exactly: PI_SMOKE_OK"
 ```
 
-Offen bis P-12/P-01:
-- `<approved-provider>`: noch nicht entschieden — anthropic (high-confidence env var) oder google (default laut Pi-Help: `--provider <name>  Provider name (default: google)`) möglich
-- `<approved-model>`: folgt aus Provider-Entscheidung
-- **Hinweis Pi-Help Default**: Pi nutzt `google` als Default-Provider — für Workspace-Nutzung muss die Provider-Auswahl explizit in P-12 entschieden werden, nicht implizit vom Default abhängen
-
-**Warum nicht `google` als Default annehmen:**
-- `google` steht in Pi-Help als Default, aber kein `GOOGLE_API_KEY` in Pi-Help-Env-Var-Liste — unklar ob Key-Name korrekt ist
-- Provider-Auswahl ist eine Governance-Entscheidung (P-12), keine technische Default-Übernahme
-- Anthropic hat high-confidence Env-Var-Belege + Standard-Konvention
+Entschieden per P-04 (`docs/pi-provider-default-decision.md`):
+- `<approved-provider>`: `openai-codex` (Subscription-Login, kein Env Var) — primärer Default
+- `<approved-model>`: aus `pi --list-models` für openai-codex wählen
+- **Hinweis Auth-Mechanismus**: openai-codex Subscription läuft via `pi` Login-Flow (`/login`), Token in `~/.pi/agent/auth.json` — kein `OPENAI_API_KEY` in `.env` nötig für Codex
+- **Hinweis google**: Pi-Help-Default-Name `google` ist irreführend — kein aktiver Provider in `pi --list-models`; korrekte Env-Var laut Pi.dev wäre `GEMINI_API_KEY`
 
 ## Relation To Open Preconditions
 

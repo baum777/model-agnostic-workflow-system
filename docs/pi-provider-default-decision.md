@@ -9,18 +9,23 @@ proposed — no smoke executed
 ## Decision
 
 ```text
-Primary provider for first Pi smoke:  anthropic
-Primary model candidate:              claude-haiku-4-5
-Co-confirmed provider:                openai-codex (gpt-5.4-mini) — equally valid
-Fallback provider:                    minimax — after Pi-specific auth/config verification
+Default provider for first Pi smoke:  openai-codex
+Default auth mode:                    subscription login via /login — NOT OPENAI_API_KEY
+Default model candidate:              from pi --list-models openai-codex section
+Fallback provider:                    minimax — MINIMAX_API_KEY confirmed by Pi.dev
 Excluded now:                         google — not in pi --list-models
+Correct Google env (if ever needed):  GEMINI_API_KEY (not GOOGLE_API_KEY)
+Co-confirmed provider:                anthropic — Claude subscription connected;
+                                      auth via ANTHROPIC_API_KEY or ANTHROPIC_OAUTH_TOKEN
 ```
 
-**Correction note (2026-06-23):** Previous version deferred anthropic due to unconfirmed
-owner-availability. Corrected: both Claude subscription and OpenAI subscription are connected.
-Both providers are now confirmed co-candidates. anthropic is preferred as primary because
-Pi-Help confirms both ANTHROPIC_API_KEY and ANTHROPIC_OAUTH_TOKEN, Pi lists 25+ anthropic
-models vs. 4 openai-codex models, and this workspace is Claude-native.
+**Correction history:**
+- Initial version (commit 32a99bc): openai-codex default; anthropic deferred (no owner confirmation)
+- First correction (commit 68c9b29): both subscriptions confirmed; anthropic promoted to primary
+- Second correction (2026-06-23, Pi.dev Web-Review): openai-codex restored as default because
+  Pi.dev confirms Codex subscription uses /login + auth.json (no env var needed — simpler auth).
+  Anthropic remains co-confirmed but requires API-Key or OAuth-Token in env.
+  MiniMax MINIMAX_API_KEY officially confirmed. Google env corrected to GEMINI_API_KEY.
 
 ## Use Rule
 
@@ -47,10 +52,10 @@ Beobachtet via `pi --list-models` und `pi --help` (read-only, keine Ausführung)
 
 | Provider | Listed by Pi | Owner availability | Secret/Auth confidence | Smoke fit | Decision |
 |---|---|---|---|---|---|
-| `openai-codex` | yes — 4 Modelle | **Owner-bestätigt: Abo/Login** | `OPENAI_API_KEY` in Pi-Help ✓ | **best for first smoke** | **default** |
-| `minimax` | yes — 3 Modelle | Owner: API-Key verbunden | Env Var nicht in Pi-Help bestätigt | fallback nach Verifikation | verify first |
-| `anthropic` | yes — 25+ Modelle | **Owner-bestätigt: Claude-Subscription** | `ANTHROPIC_API_KEY` + `ANTHROPIC_OAUTH_TOKEN` in Pi-Help ✓ | **primary candidate** | **primary** |
-| `google` | **nein** — keine Modelle | nicht bestätigt | nicht in Pi-Help | nein | **exclude** |
+| `openai-codex` | yes — 4 Modelle | **Owner-bestätigt: Abo/Login** | auth.json via `/login` — **kein Env Var nötig** | **best for first smoke — simplest auth** | **default** |
+| `minimax` | yes — 3 Modelle | Owner: API-Key verbunden | `MINIMAX_API_KEY` **Pi.dev offiziell bestätigt**; opt. `MINIMAX_CN_API_KEY` | valider Fallback | fallback |
+| `anthropic` | yes — 25+ Modelle | **Owner-bestätigt: Claude-Subscription** | `ANTHROPIC_API_KEY` oder `ANTHROPIC_OAUTH_TOKEN` — Env Var nötig | co-confirmed; etwas mehr Auth-Setup | co-candidate |
+| `google` | **nein** — keine Modelle | nicht bestätigt | `GEMINI_API_KEY` (korrekt lt. Pi.dev; nicht `GOOGLE_API_KEY`) | nein | **exclude** |
 
 ### Beobachtete `openai-codex` Modelle (aus `pi --list-models`)
 
@@ -72,39 +77,34 @@ Begründung:
 
 ## Rationale
 
-### `openai-codex` — Co-Confirmed (gleichwertige Alternative)
+### `openai-codex` — Default (Pi.dev-bestätigt)
 
-- **Owner-Verfügbarkeit bestätigt**: OpenAI-Subscription ist verbunden
-- **Pi-seitige Evidence**: `OPENAI_API_KEY` explizit in `pi --help` Env-Var-Liste gelistet
-- **Modell-Liste verfügbar**: `pi --list-models` zeigt 4 Modelle (gpt-5.3-codex-spark, gpt-5.4, gpt-5.4-mini, gpt-5.5)
-- **Co-Kandidat, nicht default**: Da beide Subscriptions bestätigt sind und anthropic mehr Pi-seitige Evidence + mehr Modelle hat, ist openai-codex gleichwertig aber nicht primär
-- **Empfohlen als Alternativ-Smoke**: Falls anthropic-Auth-Mechanismus (API-Key vs. OAuth) unklar bleibt, ist `openai-codex`/`gpt-5.4-mini` der direkte Fallback
-- **Login/Subscription-Mechanismus**: Ob OpenAI via `OPENAI_API_KEY` in `.env` oder via Session-Auth läuft, muss vor Smoke verifiziert werden
+- **Owner-Verfügbarkeit bestätigt**: OpenAI-Subscription (ChatGPT Plus/Pro) ist verbunden
+- **Simplest auth path**: Pi.dev-Doku bestätigt: Subscription-Provider laufen via `/login`-Flow; Token wird automatisch in `~/.pi/agent/auth.json` gespeichert und refresht — **kein Env Var in `.env` nötig**
+- **`OPENAI_API_KEY` ist ein anderer Provider**: Pi.dev unterscheidet `openai-codex` (Subscription) von `openai` (API-Key-Provider mit `OPENAI_API_KEY`). Diese müssen getrennt gehalten werden.
+- **Modell-Liste verfügbar**: `pi --list-models` zeigt 4 Modelle; `gpt-5.4-mini` als Smoke-Kandidat
+- **Default wegen Einfachheit**: Subscription-Auth braucht keine `.env`-Konfiguration — geringster Setup-Aufwand für ersten Smoke
 
-### `minimax` — Fallback (nach Verifikation)
+### `minimax` — Fallback (Pi.dev bestätigt)
 
 - **Owner-Verfügbarkeit bestätigt**: API-Key vorhanden
-- **Pi-seitige Env-Var unklar**: `MINIMAX_API_KEY` erscheint **nicht** in `pi --help` Env-Var-Liste. Das bedeutet entweder:
-  - Pi verwendet einen anderen Env-Var-Namen für MiniMax (unbekannt)
-  - MiniMax-Konfiguration läuft über `pi config` TUI oder einen anderen Mechanismus
-  - MiniMax verwendet `--api-key` Flag (verboten per `docs/pi-secret-handling-spec.md`)
-- **Nächster Schritt**: Verifizieren via `pi config` oder Pi-Extension-Docs, welchen Env-Var-Namen Pi für MiniMax erwartet. Erst danach `.env.example` mit `MINIMAX_API_KEY=` oder korrektem Alternativ-Namen befüllen.
-- **Langfristig wichtig**: MiniMax ist verbunden und ist ein relevanter lokaler Provider — Verifikation hat hohe Priorität nach dem ersten Smoke.
+- **Pi.dev-Doku bestätigt**: `MINIMAX_API_KEY` ist der offizielle Env-Var-Name; optional `MINIMAX_CN_API_KEY` für CN-Region
+- **Früherer Vorbehalt aufgehoben**: "nicht in Pi-Help bestätigt" war unvollständige Evidence — Pi.dev-Doku ist autoritativer
+- **Langfristig wichtig**: MiniMax ist verbunden — wird nach erstem Smoke als Alternativ-Provider verifiziert
 
-### `anthropic` — Primary (Korrektur von "Vertagt")
+### `anthropic` — Co-Confirmed (etwas mehr Auth-Setup)
 
-- **Owner-Verfügbarkeit bestätigt**: Claude-Subscription ist verbunden — Korrektur der initialen Einschätzung
-- **Pi-seitige Evidence stark**: Pi-Help listet sowohl `ANTHROPIC_API_KEY` als auch `ANTHROPIC_OAUTH_TOKEN` (Alternative für Subscription-basiertes Auth)
-- **Modell-Tiefe**: 25+ Modelle in `pi --list-models` — deutlich mehr Auswahl als openai-codex (4 Modelle)
-- **Claude-nativer Workspace**: Dieser Workspace nutzt Claude Code als primären Agenten — Anthropic als Pi-Provider ist konsistent mit dem bestehenden Setup
-- **Smoke-Kandidat**: `claude-haiku-4-5` — der schnellste/günstigste Haiku-Tier mit Thinking-Support und 200K Kontext; analog zur `-mini`-Logik bei OpenAI
-- **Auth-Flexibilität**: Subscription kann entweder via `ANTHROPIC_API_KEY` (Console) oder `ANTHROPIC_OAUTH_TOKEN` (Claude.ai OAuth) konfiguriert sein — welcher davon in Pi greift, muss vor dem Smoke verifiziert werden
+- **Owner-Verfügbarkeit bestätigt**: Claude-Subscription ist verbunden
+- **Pi.dev und Pi-Help**: Sowohl `ANTHROPIC_API_KEY` (Console-API-Key) als auch `ANTHROPIC_OAUTH_TOKEN` (Claude.ai OAuth) sind verfügbar
+- **Warum nicht default**: Auth erfordert Env-Var (`ANTHROPIC_API_KEY` oder `ANTHROPIC_OAUTH_TOKEN` in `.env`) — mehr Setup als openai-codex Subscription-Login
+- **Smoke-Kandidat**: `claude-haiku-4-5` als späterer Alternativ-Smoke, sobald Auth-Pfad verifiziert
+- **Co-Kandidat, nicht excluded**: Gleichwertig zu openai-codex technisch; auth-Setup entscheidet
 
 ### `google` — Ausgeschlossen
 
-- **Kein Modell in `pi --list-models`**: Eindeutig — kein Google-Provider aktuell konfiguriert
-- **Pi-Help Default-Name `google`**: Pi-Help nennt `google` als Default-Provider, aber ohne konfigurierte Credentials erscheinen keine Modelle
-- **Exclude bis neue Evidence vorliegt**: Falls Google-Provider-Konfiguration hinzukommt, erneute Prüfung nötig
+- **Kein Modell in `pi --list-models`**: Provider aktuell nicht konfiguriert
+- **Env-Var-Korrektur**: Korrekte Env-Var laut Pi.dev wäre `GEMINI_API_KEY` (nicht `GOOGLE_API_KEY`) — relevant, falls Provider später aktiviert wird
+- **Exclude bis neue Evidence vorliegt**: Keine Aktion bis Google-Provider in `pi --list-models` erscheint
 
 ## Auth/Config Verification Notes
 
@@ -112,8 +112,8 @@ Vor dem ersten OpenAI-Codex-Smoke müssen folgende Punkte geklärt sein:
 
 | Punkt | Status | Nächste Aktion |
 |---|---|---|
-| Anthropic via API-Key oder OAuth-Token? | unklar — Pi-Help listet beide (`ANTHROPIC_API_KEY` + `ANTHROPIC_OAUTH_TOKEN`) | Verifizieren, welcher Auth-Pfad mit bestehender Claude-Subscription greift |
-| OpenAI via API-Key oder Login/OAuth? | unklar — `OPENAI_API_KEY` in Pi-Help bestätigt, aber Abo-Mechanismus unbekannt | Verifizieren, ob `OPENAI_API_KEY` gesetzt ist oder Pi OpenAI via session-auth erreicht |
+| openai-codex Subscription Login ausgeführt? | Pi.dev: `pi` dann `/login` — Token in `auth.json` | Einmalig `pi` starten und `/login` für OpenAI-Codex ausführen (kein Env Var nötig) |
+| Anthropic via API-Key oder OAuth-Token? | Pi.dev: beide möglich — `ANTHROPIC_API_KEY` oder `ANTHROPIC_OAUTH_TOKEN` | Für anthropic-Fallback verifizieren, welcher Auth-Pfad mit Claude-Subscription greift |
 | MiniMax Env-Var-Name für Pi | unklar — nicht in Pi-Help | `pi config` oder Pi-MiniMax-Doku prüfen |
 | `.env.example`-Platzhalter | noch nicht erstellt | erst nach P-04 + P-01 |
 
@@ -128,10 +128,24 @@ Vor dem ersten OpenAI-Codex-Smoke müssen folgende Punkte geklärt sein:
 
 ## Proposed First Smoke Shape (Entwurf, nicht ausführen)
 
-Nach Abschluss von P-01 und Anthropic-Auth-Verifikation (primär):
+Nach Abschluss von P-01 — openai-codex Subscription-Login vorausgesetzt:
 
 ```bash
 # Not executed in this slice — design only
+# Prerequisite: pi /login already executed for openai-codex subscription
+pi --provider openai-codex \
+  --model gpt-5.4-mini \
+  --no-tools \
+  --no-session \
+  --print "Return exactly: PI_SMOKE_OK"
+```
+
+**Kein `source .env` nötig für openai-codex Subscription:** Auth läuft via `~/.pi/agent/auth.json` — kein Key-Wert in `.env` oder im Command. Dieses Pattern ist der einfachste sichere Auth-Pfad.
+
+Alternativ mit anthropic (falls API-Key oder OAuth-Token in `.env` vorhanden):
+
+```bash
+# Alternative — not executed in this slice
 set -a && source .env && set +a
 pi --provider anthropic \
   --model claude-haiku-4-5 \
@@ -140,30 +154,16 @@ pi --provider anthropic \
   --print "Return exactly: PI_SMOKE_OK"
 ```
 
-Alternativ mit openai-codex (falls anthropic-Auth unklar):
-
-```bash
-# Alternative — not executed in this slice
-set -a && source .env && set +a
-pi --provider openai-codex \
-  --model gpt-5.4-mini \
-  --no-tools \
-  --no-session \
-  --print "Return exactly: PI_SMOKE_OK"
-```
-
 Erwarteter Output: `PI_SMOKE_OK`
 Exit-Code: `0`
 Approval-Tier: 0 (`read_only`) — kein Human Approval nötig
-Secret-Boundary: Key kommt aus env, nicht aus dem CLI-Argument
-
-**Vorbehalt Auth-Mechanismus:** Ob Pi anthropic via `ANTHROPIC_API_KEY` (Console-Key in `.env`) oder via `ANTHROPIC_OAUTH_TOKEN` (Claude.ai OAuth) authentifiziert, muss vor dem Smoke verifiziert werden. Pi-Help listet beide. Dasselbe gilt für openai-codex (`OPENAI_API_KEY` vs. Session-Login).
+Secret-Boundary: openai-codex — kein Secret-Wert exponiert; anthropic — Key aus env, nie im Command
 
 ## Required Before First Smoke
 
-1. **Konkretes Modell gewählt**: `claude-haiku-4-5` (anthropic primary) oder `gpt-5.4-mini` (openai-codex fallback)
-2. **Auth-Mechanismus verifiziert**: `ANTHROPIC_API_KEY` vs. `ANTHROPIC_OAUTH_TOKEN` — vor Smoke klären, welcher in Pi greift; analog für OpenAI
-3. **Keine Secrets im Command**: Key kommt aus `.env` oder OAuth-Session, nie `--api-key <value>`
+1. **Konkretes Modell gewählt**: `gpt-5.4-mini` (openai-codex default) aus `pi --list-models`
+2. **openai-codex Login ausgeführt**: `pi` → `/login` → OpenAI Subscription verbinden (einmalig; Token in `auth.json`)
+3. **Keine Secrets im Command**: openai-codex braucht kein Env Var; anthropic-Fallback via `.env`
 4. **Smoke-Flags**: `--no-tools`, `--no-session`, `--print` zwingend
 5. **Exit-/Marker-Erwartung**: `PI_SMOKE_OK`
 6. **Evidence-Output**: Command-Shape ohne Secret, Provider, Model, Exit-Code, Timestamp — per `docs/pi-smoke-command-design.md`

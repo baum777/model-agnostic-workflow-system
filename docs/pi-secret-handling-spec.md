@@ -103,21 +103,25 @@ Abgeleitet aus `pi --list-models` (beobachtete Provider), `providers/minimax/REA
 
 | Provider | Proposed Env Var | Confidence | Notes |
 |---|---|---|---|
-| `anthropic` | `ANTHROPIC_API_KEY` | high — Standard-Anthropic-Konvention | Class A per `policies/secret-classes.yaml` |
-| `minimax` | `MINIMAX_API_KEY` | high — belegt in `providers/minimax/README.md` (`Bearer <MINIMAX_API_KEY>`) | Class B; evtl. zusätzlich `MINIMAX_GROUP_ID` (MiniMax-spezifisch) |
-| `openai-codex` | `OPENAI_API_KEY` | medium — Standard-OpenAI-Konvention, Pi nutzt OpenAI-compatible API | Class A/B; verify against `pi --help` output before use |
-| `google` | `GOOGLE_API_KEY` oder `GEMINI_API_KEY` | low — unklar welchen Namen Pi erwartet | **verify before use** — nicht belegt in lokalem Pi-Help-Output |
+| `anthropic` | `ANTHROPIC_API_KEY` | high — explizit in Pi-Help gelistet | Class A; alternativ `ANTHROPIC_OAUTH_TOKEN` für Claude-Subscription-OAuth |
+| `openai-codex` (Subscription) | keine Env Var — `~/.pi/agent/auth.json` | high — Pi.dev-Doku bestätigt: ChatGPT Plus/Pro läuft via `/login`, Token in auth.json | **kein Secret in `.env`** — Login-Flow via `pi` CLI; `--api-key` verboten |
+| `openai` (API-Key) | `OPENAI_API_KEY` | high — Pi.dev-Doku bestätigt als separater Provider | Class A/B; **nicht identisch** mit openai-codex-Subscription |
+| `minimax` | `MINIMAX_API_KEY` | **high — Pi.dev-Doku offiziell bestätigt** | Class B; optional `MINIMAX_CN_API_KEY` für CN-Region; kein MINIMAX_GROUP_ID nötig für Pi |
+| `google` | `GEMINI_API_KEY` | excluded — nicht in `pi --list-models` | Korrekte Env-Var laut Pi.dev wäre `GEMINI_API_KEY` (nicht `GOOGLE_API_KEY`); excluded bis Provider in Pi aktiv |
 
 Status-Legende:
 - `high`: aus direkter Beobachtung oder Repo-Evidence abgeleitet — wahrscheinlich korrekt
 - `medium`: aus Konvention abgeleitet — vor Nutzung verifizieren
 - `low`: spekulativ — **nicht verwenden** ohne Verifikation gegen `pi --help` oder Pi-Docs
 
-## MiniMax Group ID
+## MiniMax Auth
 
-MiniMax erfordert neben `MINIMAX_API_KEY` zusätzlich eine `MM-GroupId` als HTTP-Header (beobachtet in `providers/minimax/README.md`). Falls Pi das intern über eine weitere Env-Var steuert, ist der Name noch nicht belegt.
+Pi.dev-Doku bestätigt offiziell: `MINIMAX_API_KEY` ist der korrekte Env-Var-Name für Pi-MiniMax-Auth.
+Optional: `MINIMAX_CN_API_KEY` für CN-Region-Nutzer.
 
-Proposed: `MINIMAX_GROUP_ID` — **verify before use**.
+`MM-GroupId` ist ein HTTP-Header, den der Provider-Adapter (`providers/minimax/adapter.mjs`) selbst setzt — Pi nutzt `MINIMAX_API_KEY` direkt, kein separates `MINIMAX_GROUP_ID` in Pi-Env nötig.
+
+Früherer Vermerk "nicht belegt in Pi-Help" ist überholt — Pi.dev-Doku ist autoritativer als Pi-Help-Output.
 
 ## .env.example Status
 
@@ -200,8 +204,8 @@ Schließt konzeptionell: **P-05** (Secret-Handling für Pi-Sessions ohne Secret-
 
 Vollständige P-05-Schließung erfordert noch:
 - Verifikation dass `.env` im `.gitignore` steht
-- `.env.example`-Template mit leeren Platzhaltern (Next Gate)
-- Ggf. Verifikation der exakten Env-Var-Namen für `openai-codex` und `google` gegen Pi-Docs
+- `.env.example`-Template mit leeren Platzhaltern (Next Gate, nach P-04/P-01)
+- Env-Var-Namen sind jetzt durch Pi.dev-Doku verifiziert (Update 2026-06-23)
 
 Noch offen nach diesem Slice:
 - P-01 Workspace-Reproduzierbarkeit (`package.json`)
@@ -217,12 +221,17 @@ Ziel:
 2. Anlegen von `templates/pi-session/.env.example` (oder passendem Pfad nach P-12-Entscheidung) mit leeren Platzhaltern:
    ```bash
    # Pi execution surface provider keys — examples only, no real values
+   # anthropic: API-Key (or use ANTHROPIC_OAUTH_TOKEN for Claude subscription OAuth)
    ANTHROPIC_API_KEY=
+   # minimax: officially confirmed by Pi.dev docs
    MINIMAX_API_KEY=
-   MINIMAX_GROUP_ID=
+   # minimax CN region (optional)
+   # MINIMAX_CN_API_KEY=
+   # openai API-Key provider (NOT for openai-codex subscription — that uses auth.json)
    OPENAI_API_KEY=
-   # TODO: verify exact env var name for google provider before use
-   GOOGLE_API_KEY=
+   # openai-codex subscription: no env var needed — login via: pi (then /login)
+   # google (GEMINI_API_KEY): excluded — provider not active in pi --list-models
+   # GEMINI_API_KEY=
    ```
-3. Verifikation der exakten Env-Var-Namen für `openai-codex` / `google` gegen Pi-Docs oder `pi --help`
+3. `openai-codex` Subscription-Auth läuft via `pi` CLI Login-Flow — kein Env-Var-Eintrag nötig
 4. Kein echter Wert, kein Commit echter `.env`
