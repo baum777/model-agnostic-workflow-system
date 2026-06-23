@@ -4,19 +4,19 @@
 derived / docs-only / provider-default decision
 
 ## Status
-proposed — no smoke executed
+applied — three smokes executed (2026-06-23); minimax confirmed successful; openai-codex and anthropic provider-limited
 
 ## Decision
 
 ```text
 Default provider for first Pi smoke:  openai-codex
 Default auth mode:                    subscription login via /login — NOT OPENAI_API_KEY
-Default model candidate:              from pi --list-models openai-codex section
-Fallback provider:                    minimax — MINIMAX_API_KEY confirmed by Pi.dev
+Default model candidate:              gpt-5.3-codex-spark (smoke-status: not yet verified; openai-codex quota-limited on 2026-06-23)
+Fallback provider:                    minimax — MINIMAX_API_KEY confirmed by Pi.dev; smoke-verified successful (PI_SMOKE_OK, 2026-06-23)
 Excluded now:                         google — not in pi --list-models
 Correct Google env (if ever needed):  GEMINI_API_KEY (not GOOGLE_API_KEY)
-Co-confirmed provider:                anthropic — Claude subscription connected;
-                                      auth via ANTHROPIC_API_KEY or ANTHROPIC_OAUTH_TOKEN
+Co-confirmed provider:                anthropic — Claude subscription connected; auth via ANTHROPIC_API_KEY or ANTHROPIC_OAUTH_TOKEN
+                                      (smoke-status: provider-side billing limit, Third-party usage quota exhausted; not an architectural issue)
 ```
 
 **Correction history:**
@@ -96,19 +96,34 @@ Beobachtet via `pi --list-models` und `pi --help` (read-only, keine Ausführung)
 - **Früherer Vorbehalt aufgehoben**: "nicht in Pi-Help bestätigt" war unvollständige Evidence — Pi.dev-Doku ist autoritativer
 - **Langfristig wichtig**: MiniMax ist verbunden — wird nach erstem Smoke als Alternativ-Provider verifiziert
 
-### `anthropic` — Co-Confirmed (etwas mehr Auth-Setup)
+### `anthropic` — Co-Confirmed (etwas mehr Auth-Setup, aktuell provider-limitiert)
 
 - **Owner-Verfügbarkeit bestätigt**: Claude-Subscription ist verbunden
 - **Pi.dev und Pi-Help**: Sowohl `ANTHROPIC_API_KEY` (Console-API-Key) als auch `ANTHROPIC_OAUTH_TOKEN` (Claude.ai OAuth) sind verfügbar
 - **Warum nicht default**: Auth erfordert Env-Var (`ANTHROPIC_API_KEY` oder `ANTHROPIC_OAUTH_TOKEN` in `.env`) — mehr Setup als openai-codex Subscription-Login
-- **Smoke-Kandidat**: `claude-haiku-4-5` als späterer Alternativ-Smoke, sobald Auth-Pfad verifiziert
-- **Co-Kandidat, nicht excluded**: Gleichwertig zu openai-codex technisch; auth-Setup entscheidet
+- **Aktueller Smoke-Status (2026-06-23)**: `claude-haiku-4-5` Smoke fehlgeschlagen mit HTTP 400 — "Third-party apps now draw from your extra usage"; Quota für Third-Party-Integration erschöpft. Dies ist ein Verfügbarkeitsproblem (Kontingent), nicht ein architektonisches Problem. Auth-Pfad bleibt dokumentiert und funktionsfähig sobald Quota wieder verfügbar ist.
+- **Co-Kandidat, nicht excluded**: Architektonisch gleichwertig zu openai-codex; auth-Setup und Provider-Kontingent entscheiden über Timing
 
 ### `google` — Ausgeschlossen
 
 - **Kein Modell in `pi --list-models`**: Provider aktuell nicht konfiguriert
 - **Env-Var-Korrektur**: Korrekte Env-Var laut Pi.dev wäre `GEMINI_API_KEY` (nicht `GOOGLE_API_KEY`) — relevant, falls Provider später aktiviert wird
 - **Exclude bis neue Evidence vorliegt**: Keine Aktion bis Google-Provider in `pi --list-models` erscheint
+
+## Architektonischer Default vs. Smoke-Verifikation (Kritische Trennung)
+
+**Wichtige Leitplanke (aus dieser Slice, 2026-06-23):**
+
+Das Dokument distinguiert streng zwischen zwei unabhängigen Achsen:
+
+| Achse | Definition | Entscheidung | Basis |
+|---|---|---|---|
+| **Architektonischer Default** | Welcher Provider hat den einfachsten Auth-Pfad und die geringsten Runtime-Voraussetzungen? | **openai-codex** — Subscription-Login via `/login`, kein `.env` nötig, automatische Token-Verwaltung in `auth.json` | Design, nicht Validation |
+| **Smoke-Verifiziert (aktuell)** | Welcher Provider hat einen erfolgreichen Tier-0-Smoke mit PI_SMOKE_OK-Marker gezeigt? | **minimax** — einziger Provider mit erfolgreichem Smoke-Run (MiniMax-M2.7, 2026-06-23) | Runtime-Evidence aus `docs/pi-smoke-run-evidence.md` |
+
+**Konsequenz:** Obwohl `minimax` aktuell der einzige smoke-verifizierte Provider ist, bleibt `openai-codex` der architektonische Default. Der Grund: eine Architekturentscheidung (einfachste Auth) von Smoke-Verification abzukoppeln ist essentiell — sonst würde jede temporäre Provider-Quota-Erschöpfung die architektonische Wahl rückwirkend ändern. Das widerspricht dem Geist dieses gesamten Governance-Prozesses.
+
+**Für den Leser:** Diese Trennung ist nicht ein Fehler oder eine Inkonsistenz. Sie ist die zu erhaltende Invariante. openai-codex bleibt der architecturally intended Default; minimax ist der aktuell praktisch nutzbare Fallback.
 
 ## Auth/Config Verification Notes
 
