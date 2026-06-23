@@ -320,7 +320,7 @@ Keine Selbst-Promotion durch Pi oder Subagents.
 runtime/surfaces/pi/ must not be created before:
 
 1. Tier-0 Smoke passed                          ✓ (MiniMax-M3, 2026-06-24, PI_SMOKE_OK)
-2. Smoke evidence documented                    ✓ (docs/pi-smoke-run-evidence.md)
+2. Smoke evidence documented                    ✓ (docs/pi-smoke-run-evidence.md, commit bdcc4b5)
 3. Sandbox policy accepted                      ⏳ (dieses Dokument — pending Owner-Acceptance)
 4. Runtime surface skeleton decision approved   ⏳ (eigener Slice erforderlich)
 ```
@@ -412,7 +412,11 @@ test -d runtime/surfaces/pi && echo RUNTIME_SURFACE_PI_EXISTS || echo RUNTIME_SU
 # → RUNTIME_SURFACE_PI_NOT_EXISTS
 
 git status --short --untracked-files=all
-# → docs/pi-harness-sandbox-working-plan.md als neue Datei
+# → A  docs/pi-harness-sandbox-working-plan.md (staged, vor Commit)
+# → ?? docs/handover-pi-governance-2026-06-23.md
+#    Klassifikation: generated-local-handover (Cowork-Session-Artefakt)
+#    Status: untracked, nicht staged, kein Repo-Artefakt — kein clean-state-Blocker
+#    Repo-State: sauber bis auf dieses lokale Artefakt
 
 git diff --cached --name-only
 # → exakt eine Datei: docs/pi-harness-sandbox-working-plan.md
