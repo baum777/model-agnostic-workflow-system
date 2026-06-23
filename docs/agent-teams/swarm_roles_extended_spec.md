@@ -21,7 +21,7 @@ Orchestrator activates a role **only** when the trigger condition is
 satisfied and the role is not in the `verboten` set for the current task.
 
 > **Status:** `proposed` (not yet `canonical`). See
-> [swarm_roles_extended.md](./README.md) for promotion criteria.
+> [agent-team overview (README.md)](./README.md) for promotion criteria.
 >
 > **Composition order is Orchestrator-owned.** Builder may not activate
 > specialized roles. Reviewer may flag missing activation but does not

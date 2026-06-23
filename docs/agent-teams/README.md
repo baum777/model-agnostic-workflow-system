@@ -59,7 +59,7 @@ activate in addition to the core `Builder` and `Reviewer`. Each role has:
 | --- | --- | --- |
 | L0 — Always-on | Orchestrator / Scope Governor | `swarm_roles.md` v1 |
 | L0 — Always-on (when activating) | Builder / Reviewer | `swarm_roles.md` v1 |
-| L1 — Activated on demand | Specialized roles (this file) | `swarm_roles_extended.md` v1 |
+| L1 — Activated on demand | Specialized roles (this file) | `docs/agent-teams/README.md` v1 |
 | L2 — Optional auxiliary | Memory Auditor, Refactor Librarian, Release Captain | this file |
 
 The Orchestrator owns the activation decision. The Builder may not invoke
@@ -126,7 +126,7 @@ for the link to existing shared-core skills (`repo-audit`, `secret-boundary-audi
 2. Validator-backed coverage: `lint-agent-role-coverage.mjs` in
    `scripts/tools/` enforcing minimum role coverage for presets.
 3. Authority-matrix update: `docs/authority-matrix.md` entry for
-   `docs/agent-teams/swarm_roles_extended.md` and `docs/agent-teams/swarm_presets.md`.
+   `docs/agent-teams/README.md` and `docs/agent-teams/swarm_presets.md`.
 4. Compatibility decision: per `docs/compatibility.md` 0.3.0 migration
    timeline, this remains opt-in until at least one consumer overlay
    provides opt-in evidence.
