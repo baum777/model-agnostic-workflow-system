@@ -6,7 +6,8 @@ derived / docs-only / sandbox-policy working plan
 
 ## Status
 
-proposed — not implemented
+accepted as policy precursor — no runtime implementation
+Acceptance evidence: e30970b + bdcc4b5
 
 ## Use Rule
 
