@@ -1,0 +1,27 @@
+# Evidence Supplement
+# Date: 2026-06-24
+# Run: sandbox/runs/20260624T043216Z/
+# Slice: Pi Tier-1 Dry Run Execution Slice — Real Bounded Prompt
+#
+# Why diff.patch is a supplement:
+# Pi ran with --no-tools --print: no file writes were made by Pi.
+# pi-output.md was written by this slice (Claude Code) by capturing Pi's stdout,
+# not by Pi itself via a tool call. All files in this run folder are new untracked
+# files; no previously tracked file was modified.
+#
+# New files created in this slice:
+#   sandbox/runs/20260624T043216Z/intent.md
+#   sandbox/runs/20260624T043216Z/commands-run.md
+#   sandbox/runs/20260624T043216Z/files-read.md
+#   sandbox/runs/20260624T043216Z/files-changed.md
+#   sandbox/runs/20260624T043216Z/validation.md
+#   sandbox/runs/20260624T043216Z/diff.patch  (this file)
+#   sandbox/runs/20260624T043216Z/risks.md
+#   sandbox/runs/20260624T043216Z/next-gate.md
+#   sandbox/runs/20260624T043216Z/pi-output.md
+#   docs/pi-tier1-dry-run-execution.md
+#
+# Pi exit code: 0
+# Pi tools invoked: none (--no-tools enforced)
+# Pi session persisted: none (--no-session enforced)
+# Pi repo writes: none
