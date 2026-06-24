@@ -119,6 +119,7 @@ Beobachtet via `pi --list-models` und `pi --help` (read-only, keine Ausführung)
 - **Warum nicht default**: Auth erfordert Env-Var (`ANTHROPIC_API_KEY` oder `ANTHROPIC_OAUTH_TOKEN` in `.env`) — mehr Setup als openai-codex Subscription-Login
 - **Aktueller Smoke-Status (2026-06-23)**: `claude-haiku-4-5` Smoke fehlgeschlagen mit HTTP 400 — "Third-party apps now draw from your extra usage"; Quota für Third-Party-Integration erschöpft. Dies ist ein Verfügbarkeitsproblem (Kontingent), nicht ein architektonisches Problem. Auth-Pfad bleibt dokumentiert und funktionsfähig sobald Quota wieder verfügbar ist.
 - **Co-Kandidat, nicht excluded**: Architektonisch gleichwertig zu openai-codex; auth-Setup und Provider-Kontingent entscheiden über Timing
+- **Governance-Trennung (Architektur vs. Pi-Runtime)**: Anthropic/Claude wird in dieser Governance-Kette als externer Architektur-, Review- und Synthese-Agent eingesetzt — nicht als Pi-Runtime-Modell. Diese zwei Rollen sind strikt getrennt: Anthropic als externer Governance-Agent (diese Session) ist unabhängig von Anthropic als Pi-Runtime-Provider-Kandidat. Jede zukünftige Nutzung von Anthropic-backed Runtime-Ausführung innerhalb von Pi muss durch einen separaten, explizit owner-approvals Slice freigegeben werden und muss Account-Availability, Billing-Kontingent und provider-spezifische Constraints neu bewerten.
 
 ### `google` — Ausgeschlossen
 
