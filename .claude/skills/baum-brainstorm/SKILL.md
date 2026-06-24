@@ -56,7 +56,11 @@ Top 3 next moves:
   2.
   3.
 
-Recommended next gate:
+Empfohlener Arbeitsblock (optional — nur wenn ein konkreter Scope Gate sinnvoll ist):
+  Ziel:
+  Schritte:
+  Grenzen:
+  Done:
 ```
 
 ## Boundaries

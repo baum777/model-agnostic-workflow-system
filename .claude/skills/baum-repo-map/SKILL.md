@@ -90,5 +90,8 @@ Dirty tree classification:
 Risks/gaps:
   -
 
-Recommended next gate:
+Empfohlener Arbeitsblock (optional — nur wenn Scope Gate oder Closure Gate relevant):
+  Ziel:
+  Grenzen:
+  Done:
 ```

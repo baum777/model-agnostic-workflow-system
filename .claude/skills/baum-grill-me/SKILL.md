@@ -46,5 +46,8 @@ Decision tree summary:
   Resolved:
   Unresolved:
 
-Recommended next gate:
+Empfohlener Arbeitsblock (optional — nur wenn Entscheidung oder Closure erforderlich):
+  Ziel:
+  Grenzen:
+  Done:
 ```

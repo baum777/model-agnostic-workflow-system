@@ -32,10 +32,10 @@ Only run this skill when the user explicitly invokes it. Do not trigger automati
 ## Verdicts
 
 **Pass** — scope correct, validation run, no boundary violations, no hidden automation.
-Provide only the next follow-up Codex/Claude prompt.
+Report result and close the gate. Only recommend a next work block if a meaningful continuation point exists.
 
 **Rework** — a deficiency exists but the run is salvageable.
-State the deficiency clearly. Provide the corrected follow-up prompt.
+State the deficiency clearly. Provide the corrected follow-up prompt targeting the specific gap.
 
 **Blocked** — a hard violation occurred (secret read, production touch, commit without request, autonomous claim).
 State the blocker. Provide the smallest safe unblock prompt.
@@ -45,10 +45,20 @@ State the blocker. Provide the smallest safe unblock prompt.
 ```
 Verdict: pass / rework / blocked
 Reason:
-
-Follow-up prompt:
 ```
 
+If rework or blocked — include one corrective prompt:
 ```
-[single code block containing the next exact Codex/Claude prompt]
+[single code block containing the corrective Codex/Claude prompt]
 ```
+
+If pass and a meaningful continuation exists — optionally include:
+```
+Empfohlener Arbeitsblock:
+Ziel: [klares Ziel]
+Schritte: [3–7 erlaubte Schritte]
+Grenzen: [was nicht angefasst werden darf]
+Done: [Abschlusskriterium]
+```
+
+A gate pass that closes a work block does not automatically require a follow-up gate.
