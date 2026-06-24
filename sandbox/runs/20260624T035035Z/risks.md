@@ -4,11 +4,19 @@
 
 | Risk | Severity | Detail |
 |------|---------|--------|
-| `MINIMAX_API_KEY` not in shell | **medium** | Boolean check: MINIMAX_API_KEY_MISSING. Key is owner-confirmed via `.env`, but not loaded into current shell. The Execution Slice will fail if key is not exported before Pi runs. Operator must `source .env` or otherwise load the key before the Execution Slice — without outputting the value. |
-| `.gitignore` not yet committed | **low** | Owner modified `.gitignore` to add `.env` but has not committed the change. The gitignore rule is active (confirmed via `git check-ignore`) but could be lost on a `git checkout` or `git restore`. Owner should commit before the Execution Slice. |
+| Prompt was placeholder, not real Tier-1 task | **medium** | The run used the literal string `<bounded prompt>` as the prompt. Pi responded as if the prompt was empty. No Tier-1 draft output was produced. A real bounded Tier-1 run requires a concrete, scoped prompt producing actual Markdown draft content. |
+| `.gitignore` committed status | **low** | At Preparation Slice time, the `.gitignore` change was uncommitted. Current status not re-checked in this evidence update. Owner should confirm `.gitignore` is committed before the next run. |
+
+## Resolved Since Preparation Slice
+
+| Item | Resolution |
+|------|-----------|
+| MINIMAX_API_KEY not in shell | Resolved — provider responded successfully in the execution run, confirming key was available when Owner ran the command |
 
 ## Non-Risks
 
-- Evidence scaffold files are preparation-only; no Pi output has been fabricated
-- No secret was exposed; no `.env` was read
-- All governance surfaces are intact; no boundary was crossed
+- No secret was exposed; no `.env` was read by any slice
+- Tier boundary was fully maintained (`--no-tools --no-session --print`)
+- No tools were invoked; no session persisted
+- No files were written by Pi
+- The connectivity proof is valid and evidenced

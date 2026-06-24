@@ -1,9 +1,22 @@
 # Evidence Supplement
 # Date: 2026-06-24
-# Added by: Pi Tier-1 Dry Run Preparation Slice
-# Reason: This slice created new files (evidence scaffold) but made no changes
-# to any previously tracked file. New untracked files do not produce a git diff
-# against HEAD. The files created are documented in files-changed.md.
-# Reconstruction source: not applicable — no prior version of these files exists.
-# This supplement confirms the absence of a diff is expected and correct for a
-# preparation-only slice that creates new untracked evidence files.
+# Added by: Pi Tier-1 Dry Run Execution (connectivity proof run)
+#
+# Why diff.patch is a supplement:
+# The Pi run (`pi --provider minimax --model MiniMax-M3 --no-session --no-tools --print`)
+# produced no file writes. Output was to stdout only (--print mode). No tracked file
+# was modified by Pi. The evidence scaffold files in this run folder were created and
+# updated by the Preparation Slice and Evidence Update steps — they are new files
+# committed to the repo, not modifications of existing files.
+#
+# Per the Evidence Path Contract: when files-changed.md lists created/updated files
+# that are new untracked additions or in-place updates to untracked files, diff.patch
+# must document the reason for absence of a traditional git diff output.
+#
+# Reconstruction source: not applicable — Pi wrote no files; evidence files are
+# governance artifacts created by Claude Code, not Pi output.
+#
+# Pi output (full): captured in commands-run.md
+# Pi exit code: 0
+# Pi tools invoked: none (--no-tools enforced)
+# Pi session persisted: none (--no-session enforced)
