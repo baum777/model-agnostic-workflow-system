@@ -1,0 +1,9 @@
+# Evidence Supplement
+# Date: 2026-06-24
+# Added by: Pi Tier-1 Dry Run Preparation Slice
+# Reason: This slice created new files (evidence scaffold) but made no changes
+# to any previously tracked file. New untracked files do not produce a git diff
+# against HEAD. The files created are documented in files-changed.md.
+# Reconstruction source: not applicable — no prior version of these files exists.
+# This supplement confirms the absence of a diff is expected and correct for a
+# preparation-only slice that creates new untracked evidence files.
