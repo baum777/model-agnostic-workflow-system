@@ -182,21 +182,20 @@
     },
     "evidence_required": {
       "type": "array",
-      "description": "Artifacts that must be created under sandbox/runs/<timestamp>/.",
+      "description": "Artifacts that must be created under sandbox/runs/<timestamp>/. All 8 canonical evidence artifacts are required.",
       "items": { "type": "string" },
-      "minItems": 1,
-      "contains": {
-        "enum": [
-          "intent.md",
-          "files-read.md",
-          "files-changed.md",
-          "commands-run.md",
-          "diff.patch",
-          "validation.md",
-          "risks.md",
-          "next-gate.md"
-        ]
-      }
+      "minItems": 8,
+      "uniqueItems": true,
+      "allOf": [
+        { "contains": { "const": "intent.md" } },
+        { "contains": { "const": "files-read.md" } },
+        { "contains": { "const": "files-changed.md" } },
+        { "contains": { "const": "commands-run.md" } },
+        { "contains": { "const": "diff.patch" } },
+        { "contains": { "const": "validation.md" } },
+        { "contains": { "const": "risks.md" } },
+        { "contains": { "const": "next-gate.md" } }
+      ]
     },
     "abort_conditions": {
       "type": "array",
