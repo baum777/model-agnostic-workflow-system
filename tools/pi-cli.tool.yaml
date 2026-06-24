@@ -1,0 +1,147 @@
+tool_id: pi.cli
+name: Pi CLI
+type: cli
+purpose: >
+  Execute bounded Pi CLI draft-only runs inside Baum-OS governance,
+  using an approved provider/model and command shape, without granting
+  Pi provider status, runtime authority, Vault write access, secret access,
+  or unbounded computer-use authority.
+
+owner_surface: runtime/surfaces/pi
+
+default_provider_model: minimax/MiniMax-M3
+
+authority_refs:
+  provider_decision: docs/pi-provider-default-decision.md
+  tier1_workflow: docs/pi-tier-1-draft-workflow.md
+  session_policy: runtime/surfaces/pi/session-policy.md
+  evidence_template: sandbox/runs/run-evidence-template.md
+  skill_contract: skills/pi/tier1-docs-draft.skill.yaml
+
+provider_boundary:
+  pi_is_provider: false
+  pi_role: execution_surface
+  forbidden_provider_path: providers/pi/
+  provider_changes_require_owner_approval: true
+
+allowed_command_shapes:
+  - name: tier1_markdown_draft_no_tools
+    command_shape:
+      - pi
+      - --provider
+      - minimax
+      - --model
+      - MiniMax-M3
+      - --no-session
+      - --no-tools
+      - --print
+      - "<bounded draft-only prompt>"
+    allowed_for:
+      - draft_only_markdown_output
+      - docs_proposals_output
+    requires_owner_approval: true
+
+allowed_inputs:
+  - bounded_prompt
+  - approved_output_path
+  - owner_approval_string
+  - approved_context_files
+  - evidence_run_directory
+
+allowed_outputs:
+  - markdown_text
+  - approved_draft_file
+  - evidence_artifacts
+
+allowed_paths:
+  - docs/proposals/
+  - drafts/
+  - sandbox/runs/
+
+forbidden_paths:
+  - providers/pi/
+  - runtime/
+  - .env
+  - .env.*
+  - vault/
+  - ~/.ssh/
+  - ~/.config/
+
+allowed_usage:
+  - generate_markdown_draft
+  - prepare_docs_proposal
+  - produce_noncanonical_output_for_review
+  - support_tier1_draft_workflow
+
+forbidden_usage:
+  - runtime_code_execution
+  - provider_adapter_creation
+  - vault_write
+  - secret_read
+  - browser_use
+  - computer_use
+  - network_access_unless_explicitly_approved
+  - automatic_promotion
+  - canonical_file_write_without_promotion_slice
+
+side_effects:
+  filesystem_write: approved_paths_only
+  network: provider_call_only_when_execution_slice_approves
+  process_spawn: pi_cli_only_when_execution_slice_approves
+  git_changes: only_approved_files
+
+auth_and_secret_policy:
+  env_files: forbidden
+  api_keys_in_prompt: forbidden
+  credential_read: forbidden
+  browser_profiles: forbidden
+  provider_credentials: external_to_contract
+  billing_exposure: requires_owner_awareness
+
+prompt_injection_risk:
+  level: medium
+  mitigations:
+    - bounded_prompt_only
+    - no_untrusted_web_context_by_default
+    - no_tools_for_markdown_only_tier1_runs
+    - no_secret_access
+    - evidence_required
+    - review_before_promotion
+
+verification:
+  required_checks:
+    - pi_exit_code_zero_when_executed
+    - output_file_exists
+    - output_is_markdown
+    - evidence_artifacts_complete
+    - providers_pi_absent
+    - runtime_surface_intact
+    - no_secret_access
+    - staged_files_match_allowlist
+
+evidence_required:
+  - intent.md
+  - files-read.md
+  - files-changed.md
+  - commands-run.md
+  - diff.patch
+  - validation.md
+  - risks.md
+  - next-gate.md
+
+abort_conditions:
+  - missing_owner_approval
+  - unapproved_command_shape
+  - requested_path_outside_allowlist
+  - providers_pi_creation_requested
+  - runtime_change_requested
+  - vault_write_requested
+  - secret_access_requested
+  - browser_or_computer_use_requested
+  - network_requested_without_approval
+  - evidence_incomplete
+  - unexpected_dirty_tree
+
+log_target: sandbox/runs/<timestamp>/
+
+last_reviewed: "2026-06-24"
