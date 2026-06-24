@@ -1,0 +1,142 @@
+skill_id: pi.tier1.evidence_audit
+name: Pi Tier-1 Evidence Audit
+purpose: >
+  Audit an existing run folder under sandbox/runs/<timestamp>/ against the
+  canonical Evidence Path Contract (docs/evidence-path-contract.md) and produce
+  a non-canonical audit card with findings, missing artifacts, and a pass/rework/blocked
+  verdict. This skill must not reconstruct evidence, claim evidence that was not
+  captured during the original run, modify canonical files, execute Pi sessions,
+  call providers, write to Vault, or access secrets.
+
+allowed_agents:
+  - pi
+
+allowed_models:
+  - minimax/MiniMax-M3
+
+input_contract:
+  required:
+    - owner_approval_string
+    - run_path
+    - audit_question
+    - output_path
+  output_format: markdown
+  output_scope: draft_or_evidence_only
+
+context_sources:
+  - docs/evidence-path-contract.md
+  - sandbox/runs/run-evidence-template.md
+  - docs/pi-tier-1-draft-workflow.md
+  - docs/pi-tier-1-draft-session-design.md
+  - docs/pi-execution-surface-policy.md
+  - docs/pi-secret-handling-spec.md
+  - skills/pi/tier1-docs-draft.skill.yaml
+  - skills/pi/tier1-contract-review.skill.yaml
+  - tools/pi-cli.tool.yaml
+  - policies/write-modes.policy.yaml
+
+allowed_tools: []
+
+forbidden_tools:
+  - computer_use
+  - browser_use
+  - network
+  - vault_write
+  - secret_read
+  - runtime_write
+  - provider_adapter_write
+
+allowed_paths:
+  - sandbox/runs/
+  - docs/proposals/
+  - drafts/
+
+forbidden_paths:
+  - providers/pi/
+  - runtime/
+  - .env
+  - .env.*
+  - vault/
+  - ~/.ssh/
+  - ~/.config/
+
+write_mode: draft_only
+
+human_approval_required: true
+
+secret_policy:
+  env_files: forbidden
+  api_keys: forbidden
+  credentials: forbidden
+  browser_profiles: forbidden
+  private_config: forbidden
+
+prompt_injection_risk:
+  level: low
+  mitigation:
+    - read_only_evidence_review
+    - no_tools
+    - no_network
+    - no_secret_access
+    - no_vault_write
+    - no_canonical_file_write
+    - output_must_be_noncanonical
+    - human_review_before_promotion
+
+execution_steps:
+  - Confirm owner approval string is present before proceeding.
+  - Confirm run_path is explicitly named and exists under sandbox/runs/.
+  - Confirm output_path is within an approved draft path (docs/proposals/ or drafts/ or sandbox/runs/).
+  - Read docs/evidence-path-contract.md to load the canonical minimal structure contract.
+  - Read sandbox/runs/run-evidence-template.md to load the authoritative field template.
+  - "For the named run_path, check presence of each required artifact: intent.md, commands-run.md, files-read.md, files-changed.md, validation.md, diff.patch, risks.md, next-gate.md."
+  - For each present artifact, check that it is non-empty and contains meaningful content (not blank).
+  - Check that validation.md contains an explicit pass, rework, or blocked verdict.
+  - Check that the secret-check block in the run evidence is present and all fields are negative (no .env read, no API keys, no credentials).
+  - Check that files-changed.md is consistent with diff.patch (if files-changed.md states none, diff.patch must be empty or absent; if files are listed, diff.patch must reference them).
+  - Report each missing, empty, or inconsistent artifact as an audit finding with severity (missing, incomplete, inconsistent).
+  - Do not reconstruct, backfill, or infer evidence that was not captured during the original run.
+  - Produce a non-canonical audit card in the approved output_path with verdict (pass, rework, or blocked), findings list, and next-gate recommendation.
+  - Stop immediately if any step requests canonical file writes, runtime changes, Vault access, secret access, or Pi session execution.
+
+verify_steps:
+  - audit_card_exists_in_approved_path
+  - audit_card_is_markdown
+  - audit_card_contains_verdict_findings_and_next_gate
+  - no_evidence_reconstructed_or_backfilled
+  - no_canonical_source_file_modified
+  - no_runtime_file_modified
+  - providers_pi_absent
+  - no_secrets_read_or_emitted
+  - evidence_artifacts_complete
+
+evidence_required:
+  - intent.md
+  - files-read.md
+  - files-changed.md
+  - commands-run.md
+  - diff.patch
+  - validation.md
+  - risks.md
+  - next-gate.md
+
+abort_conditions:
+  - missing_owner_approval
+  - run_path_not_under_sandbox_runs
+  - run_path_does_not_exist
+  - output_path_outside_allowlist
+  - canonical_file_write_requested
+  - runtime_change_requested
+  - providers_pi_creation_requested
+  - vault_write_requested
+  - secret_access_requested
+  - env_access_requested
+  - browser_or_computer_use_requested
+  - network_requested_without_approval
+  - evidence_reconstruction_requested
+  - evidence_incomplete
+  - unexpected_dirty_tree
+
+log_target: sandbox/runs/<timestamp>/
+
+last_reviewed: "2026-06-24"

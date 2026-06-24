@@ -18,6 +18,7 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 CONTRACTS = [
     ("skills/pi/tier1-docs-draft.skill.yaml", "schemas/skill.schema.json"),
     ("skills/pi/tier1-contract-review.skill.yaml", "schemas/skill.schema.json"),
+    ("skills/pi/tier1-evidence-audit.skill.yaml", "schemas/skill.schema.json"),
     ("tools/pi-cli.tool.yaml", "schemas/tool.schema.json"),
     ("policies/write-modes.policy.yaml", "schemas/policy.schema.json"),
 ]
