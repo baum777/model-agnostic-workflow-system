@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "validate": "node scripts/tools/validate-repo-surface.mjs",
+    "validate-baumos-contracts": "python3 runtime/validators/validate-contracts.py",
     "check": "node scripts/tools/validate-repo-surface.mjs",
     "snake:dev": "node scripts/tools/serve-snake.mjs",
     "snake:test": "node --test examples/snake/snake.test.mjs",
