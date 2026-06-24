@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baum-os/schemas/policy.schema.json",
+  "title": "Baum-OS Policy Contract",
+  "description": "JSON Schema for Baum-OS YAML policy contracts. Validates policy_id, class, status, modes, global_forbidden, promotion_rule, vault_write_preconditions, and authority_refs.",
+  "$comment": "v0.1 policy contract schema targets policies/write-modes.policy.yaml as the first Baum-OS policy YAML contract. It is schema-only and must be reviewed before runtime validator introduction.",
+  "x-baumos-schema-version": "0.1",
+  "x-baumos-canonical-authority": "policies/write-modes.policy.yaml",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policy_id",
+    "name",
+    "class",
+    "version",
+    "status",
+    "purpose",
+    "default_mode",
+    "modes",
+    "global_forbidden",
+    "promotion_rule",
+    "vault_write_preconditions",
+    "authority_refs",
+    "last_reviewed"
+  ],
+  "properties": {
+    "policy_id": {
+      "type": "string",
+      "description": "Unique policy identifier. Dot-separated namespace: e.g. baumos.write_modes.",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9_-]+)+$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable policy name.",
+      "minLength": 3
+    },
+    "class": {
+      "type": "string",
+      "description": "Policy contract class. Must be policy_contract for v0.1.",
+      "enum": ["policy_contract"]
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version string.",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle status of this policy.",
+      "enum": ["draft", "active", "deprecated"]
+    },
+    "purpose": {
+      "type": "string",
+      "description": "What this policy governs and why.",
+      "minLength": 20
+    },
+    "default_mode": {
+      "type": "string",
+      "description": "The write mode that applies when no explicit mode is declared.",
+      "enum": ["read_only", "draft_only", "approved_write"]
+    },
+    "modes": {
+      "type": "object",
+      "description": "Defines the three canonical Baum-OS write modes.",
+      "required": ["read_only", "draft_only", "approved_write"],
+      "additionalProperties": false,
+      "properties": {
+        "read_only": {
+          "type": "object",
+          "description": "Inspection-only mode. No filesystem or system state changes permitted.",
+          "required": ["description", "allowed_effects", "forbidden_effects", "human_approval_required"],
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string",
+              "minLength": 20
+            },
+            "allowed_effects": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "forbidden_effects": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "human_approval_required": {
+              "type": "boolean"
+            }
+          }
+        },
+        "draft_only": {
+          "type": "object",
+          "description": "Draft output mode. Writes only to approved draft/proposal/sandbox paths.",
+          "required": ["description", "allowed_paths", "allowed_effects", "forbidden_effects", "human_approval_required"],
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string",
+              "minLength": 20
+            },
+            "allowed_paths": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "allowed_effects": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "forbidden_effects": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "human_approval_required": {
+              "type": "boolean"
+            }
+          }
+        },
+        "approved_write": {
+          "type": "object",
+          "description": "Owner-approved canonical write mode. Requires named paths, verification, and evidence.",
+          "required": ["description", "required_preconditions", "allowed_effects", "forbidden_effects", "human_approval_required"],
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string",
+              "minLength": 20
+            },
+            "required_preconditions": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "allowed_effects": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "forbidden_effects": {
+              "type": "array",
+              "items": { "type": "string" },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "human_approval_required": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "global_forbidden": {
+      "type": "array",
+      "description": "Effects that are forbidden across all modes and slices.",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "promotion_rule": {
+      "type": "object",
+      "description": "Governs how draft artifacts may be promoted to canonical status.",
+      "required": ["draft_to_canonical_requires", "source_preservation_default"],
+      "additionalProperties": false,
+      "properties": {
+        "draft_to_canonical_requires": {
+          "type": "array",
+          "description": "Preconditions that must all be met before a draft may be promoted.",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "source_preservation_default": {
+          "type": "boolean",
+          "description": "Whether the draft source is preserved by default after promotion."
+        }
+      }
+    },
+    "vault_write_preconditions": {
+      "type": "object",
+      "description": "Preconditions for any Vault write operation. Vault write is blocked unless all conditions are met.",
+      "required": ["requires_all", "subagent_vault_write", "pi_vault_write"],
+      "additionalProperties": false,
+      "properties": {
+        "requires_all": {
+          "type": "array",
+          "description": "All conditions must be satisfied before any Vault write is permitted.",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "subagent_vault_write": {
+          "type": "string",
+          "description": "Vault write policy for subagents. Expected: permanently_blocked."
+        },
+        "pi_vault_write": {
+          "type": "string",
+          "description": "Vault write policy for Pi. Expected: tier2_plus_and_owner_approved_only."
+        }
+      }
+    },
+    "authority_refs": {
+      "type": "object",
+      "description": "References to canonical authority documents.",
+      "required": [
+        "skill_schema",
+        "tool_schema",
+        "tier1_workflow",
+        "session_policy",
+        "evidence_contract",
+        "vault_boundary"
+      ],
+      "properties": {
+        "skill_schema": { "type": "string", "minLength": 1 },
+        "tool_schema": { "type": "string", "minLength": 1 },
+        "tier1_workflow": { "type": "string", "minLength": 1 },
+        "session_policy": { "type": "string", "minLength": 1 },
+        "evidence_contract": { "type": "string", "minLength": 1 },
+        "vault_boundary": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "last_reviewed": {
+      "type": "string",
+      "description": "ISO 8601 date of last review. Format: YYYY-MM-DD.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  }
+}
