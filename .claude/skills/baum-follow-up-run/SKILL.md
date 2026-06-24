@@ -15,8 +15,8 @@ Only run when explicitly invoked. Do not auto-generate follow-up prompts after a
 ## Rules
 
 - Produce exactly one prompt unless the user asks for alternatives.
-- Do not auto-expand into the next micro-step — if the previous gate passed, only generate a follow-up if a meaningful continuation work block is warranted.
-- A completed Closure Gate does not automatically require a new prompt. Assess whether the work block is genuinely done.
+- Do not auto-expand into the next individual step — only generate a follow-up if a meaningful continuation work block is warranted.
+- A completed task closure does not automatically require a new prompt. Assess whether the work block is genuinely done.
 - Preserve all governance constraints from the previous prompt:
   - Repo path
   - Owner/scope
@@ -68,7 +68,7 @@ Result report format:
   Files changed:
   Validation output:
   Risks/gaps:
-  Empfohlener Arbeitsblock (nur wenn nötig — Closure Gate oder neues Scope Gate):
+  Empfohlener Arbeitsblock (nur wenn nötig — bei Risiko, Entscheidung oder echtem Slice-Abschluss):
 ```
 
 ## Required Output

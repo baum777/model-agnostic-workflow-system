@@ -56,7 +56,7 @@ Top 3 next moves:
   2.
   3.
 
-Empfohlener Arbeitsblock (optional — nur wenn ein konkreter Scope Gate sinnvoll ist):
+Empfohlener Arbeitsblock (optional — nur wenn konkreter nächster Schritt nötig ist):
   Ziel:
   Schritte:
   Grenzen:
