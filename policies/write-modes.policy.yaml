@@ -1,0 +1,119 @@
+policy_id: baumos.write_modes
+name: Baum-OS Write Modes Policy
+class: policy_contract
+version: "0.1"
+status: active
+
+purpose: >
+  Define the allowed write authority levels for Baum-OS skills and tools,
+  separating read-only inspection, draft-only output, and owner-approved
+  writes before any runtime validator encodes these semantics.
+
+default_mode: read_only
+
+modes:
+  read_only:
+    description: >
+      Agent may inspect approved context and produce analysis in chat or
+      evidence, but must not modify repository, Vault, runtime, provider,
+      or external system state.
+    allowed_effects:
+      - read_approved_files
+      - summarize_context
+      - classify_scope
+      - propose_next_gate
+    forbidden_effects:
+      - filesystem_write
+      - vault_write
+      - runtime_change
+      - provider_adapter_creation
+      - external_side_effect
+      - secret_read
+    human_approval_required: false
+
+  draft_only:
+    description: >
+      Agent may create or update explicitly approved draft/proposal outputs
+      and required evidence artifacts, but must not write canonical targets
+      unless the slice explicitly authorizes a promotion workflow.
+    allowed_paths:
+      - docs/proposals/
+      - drafts/
+      - sandbox/runs/
+    allowed_effects:
+      - approved_draft_file_write
+      - evidence_artifact_write
+      - scoped_commit_when_slice_approves
+    forbidden_effects:
+      - runtime_change
+      - provider_adapter_creation
+      - vault_write
+      - secret_read
+      - automatic_promotion
+      - unapproved_canonical_write
+    human_approval_required: true
+
+  approved_write:
+    description: >
+      Agent may modify explicitly named canonical files only after owner
+      approval, with bounded scope, verification, evidence, and an allowlisted
+      staged file set.
+    required_preconditions:
+      - explicit_owner_approval
+      - exact_target_paths_named
+      - verification_plan_present
+      - evidence_required
+      - rollback_or_rework_path_known
+    allowed_effects:
+      - approved_canonical_file_write
+      - scoped_commit_when_slice_approves
+    forbidden_effects:
+      - secret_read
+      - unbounded_repo_write
+      - runtime_or_provider_change_without_dedicated_slice
+      - vault_write_without_dedicated_policy
+      - production_side_effect_without_dedicated_approval
+    human_approval_required: true
+
+global_forbidden:
+  - secret_read_without_explicit_dedicated_approval
+  - env_file_read
+  - providers_pi_creation
+  - vault_write_without_curated_write_policy
+  - runtime_code_without_runtime_gate
+  - unbounded_computer_use
+  - automatic_promotion_from_draft_to_canonical
+
+promotion_rule:
+  draft_to_canonical_requires:
+    - separate_owner_approved_promotion_slice
+    - reviewed_source
+    - exact_target_path
+    - evidence_update
+    - scoped_commit
+  source_preservation_default: true
+
+vault_write_preconditions:
+  requires_all:
+    - explicit_owner_approval
+    - target_folder_defined
+    - note_schema_defined
+    - write_mode_defined
+    - rollback_or_cleanup_rule
+    - no_secrets
+    - review_step
+    - evidence_trail
+    - dedicated_write_slice
+    - no_automatic_promotion_to_canonical_truth
+  subagent_vault_write: permanently_blocked
+  pi_vault_write: tier2_plus_and_owner_approved_only
+
+authority_refs:
+  skill_schema: schemas/skill.schema.json
+  tool_schema: schemas/tool.schema.json
+  tier1_workflow: docs/pi-tier-1-draft-workflow.md
+  session_policy: runtime/surfaces/pi/session-policy.md
+  evidence_contract: runtime/surfaces/pi/evidence-contract.md
+  vault_boundary: docs/vault-memory-bridge-boundary-decision.md
+
+last_reviewed: "2026-06-24"
