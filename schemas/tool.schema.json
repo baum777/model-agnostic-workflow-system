@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baum-os/schemas/tool.schema.json",
+  "title": "Baum-OS Tool Contract",
+  "description": "JSON Schema for Baum-OS YAML tool contracts. Validates tool_id, type, provider_boundary, command shapes, allowed/forbidden paths, evidence, and abort conditions.",
+  "$comment": "v0.1 tool contract schema targets tools/pi-cli.tool.yaml as the first Baum-OS tool YAML contract. It is schema-only and must be reviewed before runtime validator introduction.",
+  "x-baumos-schema-version": "0.1",
+  "x-baumos-canonical-authority": "tools/pi-cli.tool.yaml",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tool_id",
+    "name",
+    "type",
+    "purpose",
+    "owner_surface",
+    "default_provider_model",
+    "provider_boundary",
+    "allowed_command_shapes",
+    "allowed_inputs",
+    "allowed_outputs",
+    "allowed_paths",
+    "forbidden_paths",
+    "allowed_usage",
+    "forbidden_usage",
+    "side_effects",
+    "auth_and_secret_policy",
+    "prompt_injection_risk",
+    "verification",
+    "evidence_required",
+    "abort_conditions",
+    "log_target",
+    "last_reviewed"
+  ],
+  "properties": {
+    "tool_id": {
+      "type": "string",
+      "description": "Unique tool identifier. Dot-separated namespace: e.g. pi.cli.",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9_-]+)+$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable tool name.",
+      "minLength": 2
+    },
+    "type": {
+      "type": "string",
+      "description": "Tool category.",
+      "enum": ["cli", "api", "mcp", "browser", "filesystem", "git", "email", "calendar", "computer_use"]
+    },
+    "purpose": {
+      "type": "string",
+      "description": "What the tool does and does not do.",
+      "minLength": 20
+    },
+    "owner_surface": {
+      "type": "string",
+      "description": "Runtime surface that owns this tool contract."
+    },
+    "default_provider_model": {
+      "type": "string",
+      "description": "Default provider/model in format provider/model."
+    },
+    "authority_refs": {
+      "type": "object",
+      "description": "Optional references to authority documents. Not required in v0.1.",
+      "additionalProperties": { "type": "string" }
+    },
+    "provider_boundary": {
+      "type": "object",
+      "description": "Defines the provider role boundary. Pi is an execution surface, not a provider.",
+      "required": [
+        "pi_is_provider",
+        "pi_role",
+        "forbidden_provider_path",
+        "provider_changes_require_owner_approval"
+      ],
+      "properties": {
+        "pi_is_provider": {
+          "type": "boolean",
+          "description": "Must be false. Pi is not an LLM provider."
+        },
+        "pi_role": {
+          "type": "string",
+          "description": "Describes Pi's role. Expected: execution_surface."
+        },
+        "forbidden_provider_path": {
+          "type": "string",
+          "description": "Filesystem path that must never be created. Expected: providers/pi/."
+        },
+        "provider_changes_require_owner_approval": {
+          "type": "boolean",
+          "description": "Must be true. Provider or model changes require a separate owner-approved slice."
+        }
+      },
+      "additionalProperties": false
+    },
+    "allowed_command_shapes": {
+      "type": "array",
+      "description": "Explicit list of permitted command shapes. Each shape is fully specified.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "command_shape", "allowed_for", "requires_owner_approval"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Identifier for this command shape."
+          },
+          "command_shape": {
+            "type": "array",
+            "description": "Ordered list of command tokens. Sensitive values use placeholder strings.",
+            "items": { "type": "string" },
+            "minItems": 2
+          },
+          "allowed_for": {
+            "type": "array",
+            "description": "Use cases this shape is permitted for.",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "requires_owner_approval": {
+            "type": "boolean",
+            "description": "Whether owner approval is required before executing this shape."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "allowed_inputs": {
+      "type": "array",
+      "description": "Input types this tool may accept.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "allowed_outputs": {
+      "type": "array",
+      "description": "Output types this tool may produce.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "allowed_paths": {
+      "type": "array",
+      "description": "Filesystem paths the tool may read or write.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "forbidden_paths": {
+      "type": "array",
+      "description": "Filesystem paths the tool must never access.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "allowed_usage": {
+      "type": "array",
+      "description": "Permitted use cases for this tool.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "forbidden_usage": {
+      "type": "array",
+      "description": "Explicitly forbidden use cases.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "side_effects": {
+      "type": "object",
+      "description": "Declares all side effects the tool may produce.",
+      "required": ["filesystem_write", "network", "process_spawn", "git_changes"],
+      "properties": {
+        "filesystem_write": {
+          "type": "string",
+          "description": "Filesystem write scope. e.g. approved_paths_only or none."
+        },
+        "network": {
+          "type": "string",
+          "description": "Network access scope."
+        },
+        "process_spawn": {
+          "type": "string",
+          "description": "Process spawning scope."
+        },
+        "git_changes": {
+          "type": "string",
+          "description": "Git change scope."
+        }
+      },
+      "additionalProperties": true
+    },
+    "auth_and_secret_policy": {
+      "type": "object",
+      "description": "Controls access to secrets, credentials, and sensitive configuration.",
+      "required": [
+        "env_files",
+        "api_keys_in_prompt",
+        "credential_read",
+        "browser_profiles",
+        "provider_credentials",
+        "billing_exposure"
+      ],
+      "properties": {
+        "env_files": {
+          "type": "string",
+          "description": "Policy for .env file access."
+        },
+        "api_keys_in_prompt": {
+          "type": "string",
+          "description": "Policy for including API keys in prompts."
+        },
+        "credential_read": {
+          "type": "string",
+          "description": "Policy for reading credentials."
+        },
+        "browser_profiles": {
+          "type": "string",
+          "description": "Policy for browser profile access."
+        },
+        "provider_credentials": {
+          "type": "string",
+          "description": "How provider credentials are managed relative to this contract."
+        },
+        "billing_exposure": {
+          "type": "string",
+          "description": "Billing exposure policy."
+        }
+      },
+      "additionalProperties": true
+    },
+    "prompt_injection_risk": {
+      "type": "object",
+      "description": "Risk level and mitigations for prompt injection.",
+      "required": ["level", "mitigations"],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "mitigations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "description": "Checks that must pass after tool execution.",
+      "required": ["required_checks"],
+      "properties": {
+        "required_checks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence_required": {
+      "type": "array",
+      "description": "Artifacts that must be created under sandbox/runs/<timestamp>/. All 8 canonical evidence artifacts are required.",
+      "items": { "type": "string" },
+      "minItems": 8,
+      "uniqueItems": true,
+      "allOf": [
+        { "contains": { "const": "intent.md" } },
+        { "contains": { "const": "files-read.md" } },
+        { "contains": { "const": "files-changed.md" } },
+        { "contains": { "const": "commands-run.md" } },
+        { "contains": { "const": "diff.patch" } },
+        { "contains": { "const": "validation.md" } },
+        { "contains": { "const": "risks.md" } },
+        { "contains": { "const": "next-gate.md" } }
+      ]
+    },
+    "abort_conditions": {
+      "type": "array",
+      "description": "Conditions that must cause immediate abort. Fail-closed.",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "log_target": {
+      "type": "string",
+      "description": "Path pattern for evidence logs. Must be under sandbox/runs/.",
+      "pattern": "^sandbox/runs/"
+    },
+    "last_reviewed": {
+      "type": "string",
+      "description": "ISO 8601 date of last review. Format: YYYY-MM-DD.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  }
+}
