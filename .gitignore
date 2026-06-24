@@ -8,3 +8,6 @@ memory/stores/jsonl/runtime-memory.jsonl
 # Python local cache artifacts
 __pycache__/
 *.pyc
+
+.env
+.env.*
