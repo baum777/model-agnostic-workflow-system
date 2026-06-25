@@ -38,6 +38,7 @@ Provide a stable workflow entrypoint that tells maintainers and agents how work 
 - Use `core/contracts/workflow-routing-map.json` for canonical workflow-to-skill/tool/MCP/output/validation linkage.
 - Use `docs/` for canonical prose authority, `core/` for canonical machine-readable authority, and compatibility mirrors only when backward compatibility is the actual goal.
 - Use `docs/workflows/README.md` for workflow-class deep dives; keep root taxonomy authority in `WORKFLOW.md`.
+- Use `commands/loop-tdd-impl.md` for bounded TDD implementation cycles (Red → Green → Refactor → Validate); the loop definition and phase contract live in `loops/tdd-impl-loop/`.
 - Do not create a new shared skill when an existing shared skill, contract, or validator already covers the task sufficiently.
 
 ## Validation Posture

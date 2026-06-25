@@ -24,6 +24,12 @@
 - No runtime implementation, scheduler, memory store, permission engine, transport, budget engine, or enforcement layer added.
 - No breaking changes to existing consumers.
 
+## 0.2.2 - 2026-06-25
+
+- Added `loops/tdd-impl-loop/` — a 7-phase TDD implementation loop with command contract, stop rules, prompt template, circling integration, and memory save schema.
+- Added `commands/loop-tdd-impl.md` — canonical routing entry for `command/ loop tdd impl <spec>`.
+- Registered tdd-impl-loop in `WORKFLOW.md` Routing Rules.
+
 ## 0.2.1 - 2026-04-09
 
 - Added generated provider export bundles and the certification eval runner.
