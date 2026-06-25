@@ -379,3 +379,5 @@ Gate: `closure.md` ist geschrieben, `next_gate` ist explizit oder `none`.
 - Evidence: `evidence/loop-runs/README.md`
 - Referenz-Loop: `loops/repo-loop/command-contract.md`
 - MCP: `token-savior-recall` (binary: `~/.local/bin/token-savior`)
+- memory_save Schema: `memory-save-schema.md`
+- Circling Integration: `circling-integration.md`

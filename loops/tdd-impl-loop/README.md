@@ -57,6 +57,8 @@ command/ loop impl <task-description> [--path <repo-path>]
 | `command-contract.md` | Vollständige Phase-Definitionen + Input/Output-Schema |
 | `stop-rules.md` | Alle Stop-Bedingungen pro Phase |
 | `prompt-template.md` | Template für Loop-Ausführung |
+| `memory-save-schema.md` | Call-Muster für memory_save (Phase 6 + 7) |
+| `circling-integration.md` | Wie ~/circling/ in Phase 1, 6, 7 eingebunden wird |
 | `README.md` | Diese Datei |
 
 ## Verweise
