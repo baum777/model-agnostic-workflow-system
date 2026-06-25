@@ -61,7 +61,10 @@
     "compare-render-breakpoints": "node scripts/tools/compare-render-breakpoints.mjs --mode certification --json",
     "lint-wcag-structure": "node scripts/tools/lint-wcag-structure.mjs --mode certification --json",
     "eval:render-layout": "node scripts/tools/run-certification-evals.mjs --kind render-layout",
-    "eval:wcag-a11y": "node scripts/tools/run-certification-evals.mjs --kind wcag-a11y"
+    "eval:wcag-a11y": "node scripts/tools/run-certification-evals.mjs --kind wcag-a11y",
+    "baum:loop-repo": "node scripts/tools/baum-loop-repo.mjs",
+    "baum:validate-loop-run": "node scripts/tools/validate-loop-run.mjs",
+    "baum:ci-gate": "node scripts/tools/ci-gate.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.11.2",

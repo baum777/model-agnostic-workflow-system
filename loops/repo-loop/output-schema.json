@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BaumOS Repo Loop Output v0.1",
+  "type": "object",
+  "required": [
+    "result",
+    "repo_path",
+    "repo_state",
+    "task_class",
+    "generated_workblock",
+    "closure_summary"
+  ],
+  "properties": {
+    "result": {
+      "type": "string",
+      "enum": ["pass", "partial", "blocked", "failed"]
+    },
+    "repo_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repo_state": {
+      "type": "string",
+      "enum": ["clean", "dirty", "unknown", "blocked"]
+    },
+    "task_class": {
+      "type": "string",
+      "enum": [
+        "docs-only",
+        "implementation",
+        "validation",
+        "runtime",
+        "deployment",
+        "review",
+        "unknown"
+      ]
+    },
+    "generated_workblock": {
+      "type": "string",
+      "minLength": 1
+    },
+    "closure_summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_path": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
