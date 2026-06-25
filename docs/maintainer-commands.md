@@ -288,3 +288,39 @@ Creates the consumer-local `.qwen` scaffold from the shared template pack. Re-ru
 - use `eval:wcag-a11y` when accessibility verification logic or fixtures change
 - use `init-qwen-bootstrap` for the first consumer-local Qwen scaffold pass only
 - use `validate-qwen-bootstrap` after generating or editing the consumer-local Qwen scaffold
+
+## Repo Loop
+
+Read a repository, generate a governed workblock, and validate the evidence run.
+
+```bash
+node scripts/tools/baum-loop-repo.mjs "command/ loop repo <path>"
+```
+
+Validate the generated evidence (structural):
+
+```bash
+node scripts/tools/validate-loop-run.mjs evidence/loop-runs/<slug>
+```
+
+Validate with quality gate:
+
+```bash
+node scripts/tools/validate-loop-run.mjs --quality evidence/loop-runs/<slug>
+```
+
+Full local CI gate (adapter + validate + quality in one call):
+
+```bash
+node scripts/tools/ci-gate.mjs
+```
+
+Or via npm:
+
+```bash
+npm run baum:ci-gate
+```
+
+Command contract: `commands/loop-repo.md`
+Loop spec: `loops/repo-loop/`
+Evidence: `evidence/loop-runs/`

@@ -347,6 +347,7 @@ Boundary-specific reading:
 - MCP policy: `docs/mcp/policy.md`
 - Overlay boundary: `docs/repo-overlay-contract.md`
 - Maintainer commands: `docs/maintainer-commands.md`
+- Repo Loop Command: `commands/loop-repo.md`
 
 ## Maintenance Notes (Short)
 

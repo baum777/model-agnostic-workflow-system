@@ -1,0 +1,30 @@
+name: loop-repo-ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  loop-repo-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Syntax check
+        run: |
+          node --check scripts/tools/baum-loop-repo.mjs
+          node --check scripts/tools/validate-loop-run.mjs
+          node --check scripts/tools/ci-gate.mjs
+
+      - name: Loop repo CI gate
+        run: node scripts/tools/ci-gate.mjs
