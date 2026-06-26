@@ -6,6 +6,7 @@ id: "command-summary-YYYYMMDDTHHMMSSZ"   # Ersetze mit echtem Timestamp
 source_type: command_output
 raw_source: "sandbox/runs/<timestamp>/raw/command-output.log"
 status: unverified                        # Nie automatisch auf confirmed setzen
+trust_level: raw                          # raw | summarized | accepted | stale | conflicting | proposed
 date: "YYYY-MM-DD"                        # ISO-Datum der Ausführung
 summary:
   result: ""                              # z.B. "npm test: 1 failed, 127 passed"

@@ -5,6 +5,7 @@ id: "repo-map-YYYYMMDDTHHMMSSZ"
 source_type: repo_map
 raw_source: "sandbox/runs/<timestamp>/raw/repo-map.json"
 status: unverified
+trust_level: raw                          # raw | summarized | accepted | stale | conflicting | proposed
 date: "YYYY-MM-DD"
 summary:
   result: ""                              # z.B. "vault-ingest: 8 files affected"

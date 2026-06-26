@@ -5,6 +5,7 @@ id: "tool-summary-YYYYMMDDTHHMMSSZ"
 source_type: tool_output
 raw_source: "sandbox/runs/<timestamp>/raw/tool-output.json"
 status: unverified
+trust_level: raw                          # raw | summarized | accepted | stale | conflicting | proposed
 date: "YYYY-MM-DD"
 summary:
   result: ""                              # z.B. "vault-ingest-validate.sh: exit 0"
