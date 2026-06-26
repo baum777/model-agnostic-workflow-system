@@ -1,0 +1,15 @@
+# vault-approval-record.yaml
+# Pflicht vor jedem /vault-ingest --mode apply
+# Kopiere diese Datei nach sandbox/runs/<timestamp>/propose/approval-record.yaml
+# und fülle alle Felder aus. Leere Felder oder Platzhalter → blocked.
+
+approved_by: owner                          # Immer "owner" — kein anderer Wert gültig
+approved_at: YYYY-MM-DD                     # Datum der Freigabe (ISO-Format)
+target_path: ""                             # Expliziter Vault-Pfad, z.B.
+                                            # agentic_workflow/obsidian-macl-vault/01-raw/inputs/2026-06-26-session-slug.md
+                                            # Kein Glob (*), kein Punkt (.)
+proposal_ref: ""                            # Pfad zum Proposal-Ordner, z.B.
+                                            # agentic_workflow/model-agnostic-workflow-system/sandbox/runs/20260626T120000Z/propose/
+write_scope: single_file                    # single_file | mspr_packet
+evidence_card_created: false                # Auf true setzen nachdem source-card.yaml vorliegt
+no_canonical_promotion: true               # Immer true — nie ändern
