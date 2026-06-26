@@ -1,0 +1,16 @@
+# context-card-tool.yaml — Template für Tool-Output Cards (MCP, API, Script)
+# Kopiere nach sandbox/runs/<timestamp>/cards/tool-summary.yaml
+
+id: "tool-summary-YYYYMMDDTHHMMSSZ"
+source_type: tool_output
+raw_source: "sandbox/runs/<timestamp>/raw/tool-output.json"
+status: unverified
+date: "YYYY-MM-DD"
+summary:
+  result: ""                              # z.B. "vault-ingest-validate.sh: exit 0"
+  signal:
+    - ""                                  # z.B. "[OK] risk_level: low"
+    - ""                                  # z.B. "[OK] Approval-Record vollständig"
+retrieval:
+  expand_available: true
+  full_source_required: false

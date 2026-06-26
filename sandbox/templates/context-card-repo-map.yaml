@@ -1,0 +1,17 @@
+# context-card-repo-map.yaml — Template für Repo-Map und Blast-Radius Cards
+# Kopiere nach sandbox/runs/<timestamp>/cards/repo-map-summary.yaml
+
+id: "repo-map-YYYYMMDDTHHMMSSZ"
+source_type: repo_map
+raw_source: "sandbox/runs/<timestamp>/raw/repo-map.json"
+status: unverified
+date: "YYYY-MM-DD"
+summary:
+  result: ""                              # z.B. "vault-ingest: 8 files affected"
+  signal:
+    - ""                                  # z.B. "commands/vault-ingest.md"
+    - ""                                  # z.B. "scripts/vault-ingest-validate.sh"
+    - ""                                  # z.B. "skills/vault/vault-ingest.skill.yaml"
+retrieval:
+  expand_available: false
+  full_source_required: false

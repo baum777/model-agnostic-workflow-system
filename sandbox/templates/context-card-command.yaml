@@ -1,0 +1,17 @@
+# context-card-command.yaml — Template für Command-Output Cards
+# Kopiere nach sandbox/runs/<timestamp>/cards/command-summary.yaml
+# Fülle alle Felder aus. Leere Felder → Card ungültig.
+
+id: "command-summary-YYYYMMDDTHHMMSSZ"   # Ersetze mit echtem Timestamp
+source_type: command_output
+raw_source: "sandbox/runs/<timestamp>/raw/command-output.log"
+status: unverified                        # Nie automatisch auf confirmed setzen
+date: "YYYY-MM-DD"                        # ISO-Datum der Ausführung
+summary:
+  result: ""                              # z.B. "npm test: 1 failed, 127 passed"
+  signal:
+    - ""                                  # z.B. "FAIL tests/webhook.test.ts::test_retry_to_dlq"
+    - ""                                  # z.B. "expected 202, got 500"
+retrieval:
+  expand_available: true
+  full_source_required: false
