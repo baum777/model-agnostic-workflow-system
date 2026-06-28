@@ -1,0 +1,2 @@
+# Ignore timestamped generated run artifacts.
+runs/20*/
