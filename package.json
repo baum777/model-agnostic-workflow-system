@@ -15,6 +15,7 @@
     "validate-neutral": "node scripts/tools/validate-provider-neutral-core.mjs",
     "validate-secrets": "node scripts/tools/validate-secret-boundaries.mjs",
     "scan-secrets": "node scripts/tools/scan-secrets.mjs",
+    "preinstall-risk-check": "node scripts/tools/preinstall-skill-risk-check.mjs",
     "eval": "node scripts/tools/run-certification-evals.mjs",
     "eval:obs": "node scripts/tools/run-certification-evals.mjs --kind obs",
     "eval:pbc": "node scripts/tools/run-certification-evals.mjs --kind pbc",

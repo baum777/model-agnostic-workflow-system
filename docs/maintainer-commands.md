@@ -37,6 +37,14 @@ npm run build-exports -- --provider openai
 
 Regenerates `providers/<provider>/export.json` from the neutral registry and provider capability profile. Omit `--provider` to rebuild every provider export. Canonical provider names are `openai-codex`, `anthropic-claude`, `qwen-code`, and `kimi-k2_5`.
 
+## Pre-Install SkillSpector Risk Check (validator-backed)
+
+```bash
+npm run preinstall-risk-check -- --type skill --target ./path/to/SKILL.md
+```
+
+Runs the static SkillSpector gate before any install of a skill, extension, theme, MCP server, plugin, package, GitHub repo, ZIP, or local third-party script. The helper writes `skillspector-report.json` and `install-risk-decision.md` under `sandbox/runs/<timestamp>/` and exits non-zero when the target is unclear, the scanner is unavailable, or the report is blocking.
+
 ## Release Certification Gate (validator-backed + helper-only flow)
 
 ```bash

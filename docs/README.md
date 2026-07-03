@@ -39,6 +39,14 @@ Docs-only, non-canonical governance-adjacent slices. None of these change a cont
 - [pi-provider-adapter-specification.md](pi-provider-adapter-specification.md) — describes Pi as a future thin adapter/runtime layer over the Core-Anker; no provider implementation, no `providers/pi/`, no contract change.
 - [skill-schema-extension-proposal.md](skill-schema-extension-proposal.md) — proposal for `allowed_agents`, `allowed_models`, and `write_mode` as future SKILL.md frontmatter fields; no skill migration, no validator, no runtime activation.
 
+## Install Safety
+
+Canonical install gate and its operator-facing companions.
+
+- [security/extension-install-safety-policy.md](security/extension-install-safety-policy.md) — canonical pre-install SkillSpector policy for skills, extensions, themes, MCP servers, plugins, packages, GitHub repos, ZIPs, and local third-party scripts.
+- [pi/skillspector-install-gate.md](pi/skillspector-install-gate.md) — operator gate with the standard static scan command and the optional strict-scan reference.
+- [checklists/pre-install-risk-scan.md](checklists/pre-install-risk-scan.md) — pre-install checklist and minimum evidence set.
+
 ## Documentation Classes
 
 - Canonical: `../WORKFLOW.md`, `architecture.md`, `authority-matrix.md`, `governance/source-hierarchy.md`, `mcp/policy.md`, `workflows/README.md`, `workflows/implementation-and-handoff.md`, `workflows/verification-and-certification.md`, `compatibility.md`, `lock-model.md`, `portability.md`, `provider-capability-matrix.md`, `repo-overlay-contract.md`, `secret-handling.md`, `shared-with-local-inputs.md`, `repo-intake-skill-contract.md`, `runtime-policy-skill-contract.md`, `ui-ux-composition-branch.md`

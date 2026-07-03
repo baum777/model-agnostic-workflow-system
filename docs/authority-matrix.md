@@ -69,6 +69,7 @@ For extension-module migration hardening policy and the opt-in-to-blocking trans
 | `docs/overview.md` | doc | derived | prose-only | summary only | should not be read as governing text |
 | `docs/eval-baseline.md` | doc | derived | prose-only | derived evidence baseline | not a governance source |
 | `docs/pi-agent-kit-adapter-core-anchor-decision.md` | doc | derived | prose-only | non-canonical governance-adjacent decision record by repo convention | documents the Core-Anker decision for Pi; does not redefine canonical contracts or runtime |
+| `docs/security/extension-install-safety-policy.md` | doc | canonical | prose-only | canonical pre-install SkillSpector policy for exact-target install gating | run static scan first; writes and blocks install until evidence exists |
 | `docs/computer-use-policy.md` | doc | derived | prose-only | non-canonical governance-adjacent policy draft by repo convention | prose-governed Computer-Use posture; no validator, no runtime activation |
 | `docs/skill-contract-gap-analysis.md` | doc | derived | prose-only | non-canonical gap analysis by repo convention | enumerates missing skill-contract fields; no schema migration |
 | `docs/human-approval-tier-extension.md` | doc | derived | prose-only | non-canonical governance-adjacent approval-model extension by repo convention | proposes a 5-tier approval model; separates `verified` from `approved` |
@@ -149,6 +150,7 @@ For extension-module migration hardening policy and the opt-in-to-blocking trans
 | `core/skills/ui-ux-composition/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | canonical operational skill surface for UI/UX composition plus semantic visual/layout/color/typography posture and bounded golden-ratio guidance |
 | `core/skills/static-vs-dynamic-rendering-advisor/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | bounded rendering-posture advisor for `static`, server-rendered dynamic, and hydration decisions |
 | `core/skills/secret-boundary-audit/SKILL.md` | shared-exported-skill | n/a | extracted | `core/contracts/portable-skill-manifest.json` | portable audit skill for secret-bearing boundaries, provider switches, trace redaction, and memory persistence |
+| `skills/pi/SKILL.md` | shared-exported-skill | n/a | extracted | `skills/pi/SKILL.md` | Pi safety frontdoor skill for exact-target install gating and fail-closed boundary decisions |
 | `providers/README.md` | doc | operational | prose-only | provider adapter index | adapter boundary, not canonical truth |
 | `docs/workflows/README.md` | doc | canonical | prose-only | canonical workflow deep-dive entrypoint by repo convention | extends class-level workflow mapping context while preserving `WORKFLOW.md` as root taxonomy authority |
 | `docs/workflows/implementation-and-handoff.md` | doc | canonical | prose-only | canonical workflow class deep dive by repo convention | implementation and migration execution/handoff posture aligned to routing map, output contracts, and templates |
@@ -165,6 +167,7 @@ For extension-module migration hardening policy and the opt-in-to-blocking trans
 | `scripts/tools/run-certification-evals.mjs` | validator | n/a | validator-backed | certification eval runner | runs deterministic fixture-backed certification checks |
 | `scripts/tools/validate-provider-neutral-core.mjs` | validator | n/a | validator-backed | neutral registry validator | checks registry, provider scaffolds, and capability profiles |
 | `scripts/tools/validate-secret-boundaries.mjs` | validator | n/a | validator-backed | secret-boundary validator | checks canonical secret policy presence, normalized tool metadata, provider security flags, provider export secret metadata, and blocking leak-scan findings |
+| `scripts/tools/preinstall-skill-risk-check.mjs` | runnable-tool | n/a | validator-backed | `npm run preinstall-risk-check` | static pre-install SkillSpector gate that writes sandbox/runs evidence and blocks on unresolved target/report/finding issues |
 | `scripts/tools/scan-secrets.mjs` | validator | n/a | validator-backed | secret leak scanner | scans governed docs, examples, templates, evals, and env-like files for explicit leak patterns |
 | `scripts/tools/validate-repo-surface.mjs` | validator | n/a | validator-backed | repo-surface validator | combined package and provider-neutral validation entrypoint |
 | `scripts/tools/validate-consumer-linkage.mjs` | validator | n/a | validator-backed | linkage validator | validates shared source, version/fingerprint, overlay files, adopted skills |
