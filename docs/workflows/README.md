@@ -32,6 +32,7 @@ Provide canonical deep-dive references for workflow-class machine-readable routi
 
 - `implementation-and-handoff.md`: class-level guidance for `implementation` and `migration-and-compatibility` execution/handoff evidence posture.
 - `verification-and-certification.md`: class-level guidance for `verification-and-review` and `readiness-and-release-review` validation/certification posture.
+- `daily-reverse-prompting.md`: prose-governed advisory discovery workflow for deriving reusable candidates and product signals from observed daily work.
 
 ## Coverage Posture
 

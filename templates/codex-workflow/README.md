@@ -23,6 +23,12 @@ Map workflow classes to reusable task/review/handoff templates without creating 
 - `handoff-summary-template.md`
   - primary contracts: `workflow-run-summary-v1`, `workflow-handoff-summary-v1`
   - workflow classes: `implementation`, `migration-and-compatibility`, `readiness-and-release-review`
+- `daily-reverse-prompting-template.md`
+  - primary workflow: `docs/workflows/daily-reverse-prompting.md`
+  - posture: advisory daily discovery report; no output contract claimed
+- `daily-reverse-prompting-prompt.md`
+  - primary workflow: `docs/workflows/daily-reverse-prompting.md`
+  - posture: provider-neutral prompt template; no runtime or agent activation claimed
 
 ## Safe Extension Steps
 
