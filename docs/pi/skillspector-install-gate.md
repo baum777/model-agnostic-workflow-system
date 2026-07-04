@@ -50,6 +50,19 @@ The helper writes `skillspector-report.json` and `install-risk-decision.md` unde
 - `sandbox/runs/<timestamp>/skillspector-report.json`
 - `sandbox/runs/<timestamp>/install-risk-decision.md`
 
+## Acceptance Contract
+
+A BLOCKING-branch test passes when ALL of the following conditions are met:
+
+1. **Helper envelope**: `blocked: true` (JSON stdout from the helper)
+2. **Findings**: At least one `CRITICAL` or `HIGH` finding is present in the report (for the golden fixture `tests/fixtures/risky_skill/SKILL.md`, the contract is `critical >= 1`)
+3. **Decision fields**: `install-risk-decision.md` contains all 12 required fields (Evidence path, Target, Type, Scan command, Report path, Findings summary, Block reason, Classification reason, Owner decision, Accepted risk, Scope limit, Rollback path, Date)
+4. **Both reasons populated**: Both `Block reason` (priority-chain) and `Classification reason` (internal classification) are present (the latter may be empty for early exit conditions)
+5. **No install executed**: The target is scanned ONLY; no install command or activation is run
+6. **Residual risk: none**: No global config, shell profile, PATH, secrets, auth, or deploy targets are modified
+
+The golden fixture regression test (`npm run validate-blocked-branch`) enforces this contract.
+
 ## Block When
 
 - The target cannot be resolved to one exact install target.

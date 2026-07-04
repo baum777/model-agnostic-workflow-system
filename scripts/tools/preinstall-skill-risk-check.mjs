@@ -201,12 +201,14 @@ function renderDecisionMarkdown({
   reportPath,
   findingsSummary,
   blockReason,
+  classificationReason,
   ownerDecision,
   acceptedRisk,
   scopeLimit,
   rollbackPath,
   createdAt
 }) {
+  const classificationLine = classificationReason ? `- Classification reason: ${classificationReason}\n` : '';
   return `# Install Risk Decision
 
 - Evidence path: ${evidencePath}
@@ -216,7 +218,7 @@ function renderDecisionMarkdown({
 - Report path: ${reportPath}
 - Findings summary: ${findingsSummary}
 - Block reason: ${blockReason}
-- Owner decision: ${ownerDecision}
+${classificationLine}- Owner decision: ${ownerDecision}
 - Accepted risk: ${acceptedRisk}
 - Scope limit: ${scopeLimit}
 - Rollback path: ${rollbackPath}
@@ -407,6 +409,8 @@ function runPreinstallSkillRiskCheck({
     ? `low=${reportClassification.counts.low}, medium=${reportClassification.counts.medium}, high=${reportClassification.counts.high}, critical=${reportClassification.counts.critical}, unknown=${reportClassification.counts.unknown}`
     : 'no parsed report';
 
+  const classificationReason = reportClassification?.reason ?? null;
+
   writeText(
     decisionPath,
     renderDecisionMarkdown({
@@ -417,6 +421,7 @@ function runPreinstallSkillRiskCheck({
       reportPath,
       findingsSummary,
       blockReason,
+      classificationReason,
       ownerDecision,
       acceptedRisk,
       scopeLimit,

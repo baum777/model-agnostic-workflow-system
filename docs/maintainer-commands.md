@@ -45,6 +45,14 @@ npm run preinstall-risk-check -- --type skill --target ./path/to/SKILL.md
 
 Runs the static SkillSpector gate before any install of a skill, extension, theme, MCP server, plugin, package, GitHub repo, ZIP, or local third-party script. The helper writes `skillspector-report.json` and `install-risk-decision.md` under `sandbox/runs/<timestamp>/` and exits non-zero when the target is unclear, the scanner is unavailable, or the report is blocking.
 
+## Validate Blocked Branch Fixture (regression)
+
+```bash
+npm run validate-blocked-branch
+```
+
+Runs the SkillSpector gate against the known-risky fixture `tests/fixtures/risky_skill/SKILL.md` and asserts that the result is `blocked=true` with at least 1 CRITICAL finding. This serves as a regression test for the blocking-branch logic: if the fixture stops blocking (e.g., due to scanner logic changes or fixture erosion), the check fails. The fixture contains synthetic high-risk patterns (reverse shells, credential exfiltration, prompt injection) and must never be executed.
+
 ## Release Certification Gate (validator-backed + helper-only flow)
 
 ```bash
