@@ -1,0 +1,155 @@
+skill_id: harness.weakness_mining
+name: Harness Weakness Mining
+purpose: >
+  Read-only analysis skill. Mines a single completed sandbox/runs/<timestamp>/
+  evidence bundle (intent, commands, files read/changed, validation, diff, risks,
+  next-gate, optional pi-output/audit-cards/supplements) and emits a bounded
+  YAML weakness report. Identifies recurring failure patterns, weak or absent
+  verifier/evidence signals, agent-behavior anomalies, suspected harness gaps,
+  and candidate surfaces for future hardening. Report is draft-only:
+  proposal_allowed=false and promotion_allowed=false. No writes outside the
+  approved output path, no vault writes, no runtime changes, no provider
+  edits, no secret access, no automatic promotion.
+
+allowed_agents:
+  - weakness-miner
+
+allowed_models:
+  - anthropic/claude-opus-4-5
+
+input_contract:
+  required:
+    - evidence_run_directory
+    - owner_approval
+    - bounded_prompt
+    - approved_output_path
+    - current_session_md
+  output_format: yaml
+  output_scope: draft_or_proposal_only
+
+context_sources:
+  - sandbox/runs/<timestamp>/intent.md
+  - sandbox/runs/<timestamp>/commands-run.md
+  - sandbox/runs/<timestamp>/files-read.md
+  - sandbox/runs/<timestamp>/files-changed.md
+  - sandbox/runs/<timestamp>/validation.md
+  - sandbox/runs/<timestamp>/diff.patch
+  - sandbox/runs/<timestamp>/risks.md
+  - sandbox/runs/<timestamp>/next-gate.md
+  - sandbox/runs/<timestamp>/pi-output.md
+  - sandbox/runs/<timestamp>/audit-cards/
+  - sandbox/runs/<timestamp>/supplements/
+
+allowed_tools:
+  - file_read
+  - glob_search
+  - grep_search
+
+forbidden_tools:
+  - runtime_write
+  - subagent_dispatch
+  - vault_write
+  - secret_read
+  - browser_use
+  - computer_use
+  - network
+  - provider_adapter_write
+
+allowed_paths:
+  - agentic_workflow/model-agnostic-workflow-system/sandbox/runs/
+
+forbidden_paths:
+  - providers/
+  - runtime/
+  - .env
+  - .env.*
+  - ~/.ssh/
+  - ~/.config/
+  - agentic_workflow/obsidian-macl-vault/02-wiki/
+  - agentic_workflow/obsidian-macl-vault/00-schema/
+  - vault/
+
+write_mode: draft_only
+
+human_approval_required: true
+
+secret_policy:
+  env_files: forbidden
+  api_keys: forbidden
+  credentials: forbidden
+  browser_profiles: forbidden
+  private_config: forbidden
+
+prompt_injection_risk:
+  level: medium
+  mitigation:
+    - evidence_run_directory_only
+    - no_untrusted_external_context
+    - no_secret_read_or_network
+    - bounded_prompt_only
+    - structured_yaml_output
+    - human_review_required_before_any_promotion
+
+execution_steps:
+  - confirm_owner_approval_record
+  - confirm_current_session_md_risk_level
+  - resolve_evidence_run_directory_timestamp
+  - inventory_required_evidence_files
+  - inventory_supplementary_artifacts
+  - parse_intent_and_commands_for_drift
+  - cross_check_files_read_against_files_changed
+  - inspect_validation_md_for_verifier_signal_strength
+  - inspect_diff_patch_for_scope_and_blast_radius
+  - inspect_risks_md_and_next_gate_md_for_open_gates
+  - extract_failure_patterns_from_supplements
+  - classify_agent_behavior_anomalies
+  - infer_suspected_harness_gaps
+  - map_affected_surface_candidates
+  - assign_confidence_with_evidence_anchor
+  - draft_yaml_report_to_approved_output_path
+  - emit_proposal_allowed_false_promotion_allowed_false
+  - suggest_recommended_next_slice_without_apply
+
+verify_steps:
+  - output_path_is_outside_forbidden_paths
+  - output_file_exists_and_is_yaml
+  - proposal_allowed_field_equals_false
+  - promotion_allowed_field_equals_false
+  - evidence_required_files_all_listed
+  - no_provider_or_runtime_paths_touched
+  - no_vault_or_schema_paths_touched
+  - no_secrets_or_env_read
+  - no_network_or_browser_invocation
+  - report_fields_present_per_contract
+  - no_apply_or_promotion_side_effects
+
+evidence_required:
+  - intent.md
+  - commands-run.md
+  - files-read.md
+  - files-changed.md
+  - validation.md
+  - diff.patch
+  - risks.md
+  - next-gate.md
+  - pi-output.md
+  - audit-cards/
+  - supplements/
+
+abort_conditions:
+  - secrets_requested
+  - runtime_execution_requested
+  - automatic_promotion_requested
+  - missing_owner_approval
+  - missing_current_session_md_risk_level
+  - evidence_run_directory_missing_required_files
+  - output_path_is_canonical
+  - vault_write_requested
+  - provider_or_runtime_path_in_scope
+  - network_or_browser_invocation_requested
+  - subagent_dispatch_requested
+  - unexpected_dirty_tree
+
+log_target: sandbox/runs/<timestamp>/
+
+last_reviewed: "2026-07-05"
