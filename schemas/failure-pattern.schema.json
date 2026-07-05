@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baum-os/schemas/failure-pattern.schema.json",
+  "title": "Baum-OS Failure Pattern Card",
+  "description": "JSON Schema for Baum-OS failure-pattern YAML cards (Self-Harness Evolution Lab surface). Anchors reproducible weakness signatures with evidence refs, severity, confidence, status, and twin safety gates (proposal_allowed / promotion_allowed). Validated against draft 2020-12 meta-schema before promotion.",
+  "$comment": "v0.1.0 — proposed, opt-in, no runtime. Aligns with skills/harness/weakness-mining.skill.yaml output contract (YAML, draft_only, human_approval_required=true). Does NOT promote Self-Harness Evolution Lab from aspirational to active in the root architecture (docs/architecture/baum-os-harness-family.md §7).",
+  "x-baumos-schema-version": "0.1.0",
+  "x-baumos-canonical-authority": "agentic_workflow/model-agnostic-workflow-system/skills/harness/weakness-mining.skill.yaml",
+  "x-baumos-maturity": "proposed",
+  "x-baumos-runtime": "none",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pattern_id",
+    "name",
+    "discovered_at",
+    "severity",
+    "confidence",
+    "evidence_anchors",
+    "affected_surfaces",
+    "trigger_conditions",
+    "observed_symptoms",
+    "root_cause_hypothesis",
+    "recommended_mitigations",
+    "status",
+    "last_reviewed_at",
+    "proposal_allowed",
+    "promotion_allowed"
+  ],
+  "properties": {
+    "pattern_id": {
+      "type": "string",
+      "description": "Unique failure-pattern identifier. Convention: fp-<slug> where slug is lowercase, dashes allowed. Mirror root doc/evidence naming style.",
+      "pattern": "^fp-[a-z0-9][a-z0-9_-]*$",
+      "minLength": 4,
+      "maxLength": 80
+    },
+    "name": {
+      "type": "string",
+      "description": "Concise human-readable pattern title. One sentence, no trailing punctuation.",
+      "minLength": 8,
+      "maxLength": 160
+    },
+    "discovered_at": {
+      "type": "string",
+      "description": "ISO 8601 date (YYYY-MM-DD) of first observation.",
+      "format": "date"
+    },
+    "severity": {
+      "type": "string",
+      "description": "Operational severity if the pattern triggers. low = cosmetic, medium = workflow friction, high = correctness/audit risk, critical = safety/data-loss boundary.",
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "confidence": {
+      "type": "string",
+      "description": "How well the pattern is anchored. observed = directly reproduced, inferred = reasoned from evidence without live reproduction, consensus = multiple independent observers agree.",
+      "enum": ["observed", "inferred", "consensus"]
+    },
+    "evidence_anchors": {
+      "type": "array",
+      "description": "Ordered list of evidence refs (commits, files, runs, chat turns) that anchor this pattern. Minimum one anchor required.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "ref"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["commit", "file", "run", "chat", "observation", "doc"]
+          },
+          "ref": {
+            "type": "string",
+            "description": "Anchor identifier. commit = sha, file = path, run = sandbox/runs/<ts>, chat = room/timestamp, observation = short label, doc = path.",
+            "minLength": 3
+          },
+          "note": {
+            "type": "string",
+            "description": "Optional human note about why this anchor matters.",
+            "maxLength": 280
+          }
+        }
+      }
+    },
+    "affected_surfaces": {
+      "type": "array",
+      "description": "Repository paths or surface names the pattern touches. Use exact paths when possible.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 2
+      },
+      "uniqueItems": true
+    },
+    "trigger_conditions": {
+      "type": "string",
+      "description": "Conditions under which the pattern reproduces. Concrete state, command, or sequence.",
+      "minLength": 10
+    },
+    "observed_symptoms": {
+      "type": "string",
+      "description": "What an observer actually sees when the pattern fires (logs, dirty tree, missing file, wrong status).",
+      "minLength": 10
+    },
+    "root_cause_hypothesis": {
+      "type": "string",
+      "description": "Best-current explanation for why the pattern occurs. Mark inferred if not proven.",
+      "minLength": 10
+    },
+    "recommended_mitigations": {
+      "type": "array",
+      "description": "Mitigation candidates ordered by preference (cheapest, safest first).",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "description"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["policy", "validator", "doc", "code", "config", "process"]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10
+          },
+          "owner_action_required": {
+            "type": "boolean",
+            "description": "True if mitigation cannot run without human owner approval (push, secret rotation, dependency install, etc.)."
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle status. proposed = draft, accepted = owner-approved for tracking, mitigated = fix verified, rejected = owner-declined, superseded = replaced by a newer pattern_id.",
+      "enum": ["proposed", "accepted", "mitigated", "rejected", "superseded"]
+    },
+    "supersedes": {
+      "type": ["string", "null"],
+      "description": "pattern_id this card replaces (if any).",
+      "pattern": "^fp-[a-z0-9][a-z0-9_-]*$"
+    },
+    "superseded_by": {
+      "type": ["string", "null"],
+      "description": "pattern_id that replaces this card (filled when status=superseded).",
+      "pattern": "^fp-[a-z0-9][a-z0-9_-]*$"
+    },
+    "last_reviewed_at": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date of last owner/curator review. Used to detect stale cards."
+    },
+    "proposal_allowed": {
+      "type": "boolean",
+      "description": "Whether derived tool/skill can auto-propose actions from this card. Default false.",
+      "default": false
+    },
+    "promotion_allowed": {
+      "type": "boolean",
+      "description": "Whether derived tool/skill can auto-apply changes from this card. Hard gate. Default false.",
+      "default": false
+    }
+  }
+}

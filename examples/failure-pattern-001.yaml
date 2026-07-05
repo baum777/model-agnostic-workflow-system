@@ -1,0 +1,65 @@
+# Failure Pattern 001 — Shazam pre-commit hook auto-stages foreign dirty files
+#
+# Anchored to: commit 186fc84 (Feierabend 2026-07-03) + evidence/2026-07-03-feierabend.md
+# + evidence/2026-07-03-husky-implementation.md. Reproduces whenever the Husky
+# pre-commit hook runs while untracked/modified files exist outside the
+# author's slice. The hook runs `git add` on a glob that includes the foreign
+# files; commit then captures them.
+#
+# Status: proposed (awaiting Owner decision on Husky/Hook configuration per
+# priorities/weekly.md §"Shazam Pre-Commit-Hook Review").
+
+pattern_id: fp-husky-auto-stages-foreign-files
+name: Husky pre-commit auto-stages foreign dirty files
+discovered_at: "2026-07-03"
+severity: high
+confidence: observed
+evidence_anchors:
+  - kind: commit
+    ref: 186fc84
+    note: "feierabend-Commit listet untracked/modified Files (gitignore, schemas/agent-contract.schema.json, evidence/, sandbox/runs/) ausserhalb der eigenen Session — auto-gestaged durch shazam-Hook"
+  - kind: file
+    ref: evidence/2026-07-03-feierabend.md
+    note: "Section 'Feierabend — 2026-07-03' listenet dieselben Dateien als Fremdedit; bewusst nicht angefasst"
+  - kind: file
+    ref: evidence/2026-07-03-husky-implementation.md
+    note: "Husky pre-commit + commit-msg Hooks wurden am 2026-07-03 eingeführt (Commit 0d970dc); shazam-Pfad ist Teil dieser Konfiguration"
+  - kind: run
+    ref: sandbox/runs/20260703T132314Z
+    note: "vom selben Tag, parallele Spur"
+  - kind: doc
+    ref: priorities/weekly.md
+    note: "'Shazam Pre-Commit-Hook Review' ist dokumentierte Owner-Entscheidung; effective_risk high, workarounds via --no-verify"
+affected_surfaces:
+  - .husky/pre-commit
+  - .husky/_/pre-commit
+  - schemas/agent-contract.schema.json
+  - evidence/
+  - sandbox/runs/
+trigger_conditions: |
+  Husky pre-commit Hook läuft (husky.sh installiert; core.hooksPath zeigt auf .husky/_/) während das Working Tree zusätzlich zur aktuellen Slice untracked oder modified Files enthält. Der Hook ruft intern ein Skript auf, das via git add / glob eine Stage-Erweiterung auslöst. Beim anschliessenden `git commit` werden diese Files Teil des Commits, obwohl sie nicht zur aktiven Session gehören.
+observed_symptoms: |
+  - git status zeigt nach `git commit` einen sauberen Tree, aber `git show <sha> --stat` enthält Files, die nicht zur Aufgabe gehören.
+  - Commit-Message-Body listet fremde Paths explizit als 'Untracked/modified Files ausserhalb dieses Commits … nicht von dieser Session geändert'.
+  - Workaround in der Session: `git commit --no-verify`, was die Pre-Commit-Verifikation deaktiviert.
+root_cause_hypothesis: |
+  Der Husky-Pfad `.husky/_/pre-commit` führt einen ajv-cli-Validierungsschritt aus, der aus Komfort-Gründen einen `git add -A` oder eine Glob-Stage-Erweiterung triggert (oder ein anderes Tool in der Hook-Kette tut dies). Die Hook-Konfiguration enthält keine '-- only-staged'-Restriktion und keine 'no-add'-Policy. Damit verstösst die automatische Stage-Erweiterung gegen die System-Hygieneregel 'Do not overwrite user or agent work you did not create unless explicitly instructed' (operating_rules.md §9). Die Reproduktion ist deterministisch, sobald fremde Dirty-Files im Tree liegen, weil pre-commit nicht idempotent scoped ist.
+recommended_mitigations:
+  - kind: config
+    description: "Husky pre-commit so umkonfigurieren, dass er NUR gestaged Files prüft (--diff-filter=ACMRT) und keinen git add-Befehl ausführt. --no-verify-Workaround zurückbauen."
+    owner_action_required: true
+  - kind: policy
+    description: "Eine Policy-Datei hooks/safety_rules.md um 'pre-commit darf keinen git add auslösen, keine untracked Files integrieren' ergänzen und im Husky-Setup als Lint prüfen."
+    owner_action_required: true
+  - kind: doc
+    description: "Commit-Konventionen aktualisieren: 'Slice-only Commits required — foreign dirty files out of scope'. In commands/log.md und im EVOLVE-Loop als Vorbedingung."
+    owner_action_required: false
+  - kind: validator
+    description: "Einen Pre-Commit-Wächter schreiben, der pre-flight `git status --porcelain` mit der Liste der vom Slice deklarierten erlaubten Paths vergleicht und blockiert, falls Foreign-Edits vorhanden sind."
+    owner_action_required: false
+status: proposed
+supersedes: null
+superseded_by: null
+last_reviewed_at: "2026-07-05"
+proposal_allowed: false
+promotion_allowed: false
