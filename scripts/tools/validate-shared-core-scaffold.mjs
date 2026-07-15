@@ -7,6 +7,9 @@ import { parseSkillFrontmatter, readJson, repoRoot } from './_shared.mjs';
 const allowedClassifications = new Set(['shared', 'shared-with-local-inputs', 'local-only', 'contract-only', 'deferred']);
 const requiredSkillSections = ['## Trigger', '## When Not To Use', '## Workflow', '## Output', '## Quality Checks'];
 const requiredSkillFields = ['name', 'description', 'version', 'classification', 'requires_repo_inputs', 'produces_structured_output', 'safe_to_auto_run', 'owner', 'status'];
+const contractOnlySkillDirectories = new Map([
+  ['skills/harness', new Set(['weakness-mining.skill.yaml'])]
+]);
 const requiredSkills = [
   'repo-intake-sot-mapper',
   'runtime-policy-auditor',
@@ -25,6 +28,19 @@ const requiredSkills = [
     'long-document-to-knowledge-asset',
     'secret-boundary-audit'
 ];
+
+export function isDeclaredContractOnlySkillDirectory(root, directoryPath) {
+  const relativeDirectory = path.relative(root, directoryPath).replace(/\\/g, '/');
+  const expectedFiles = contractOnlySkillDirectories.get(relativeDirectory);
+  if (!expectedFiles) {
+    return false;
+  }
+
+  const entries = fs.readdirSync(directoryPath, { withFileTypes: true });
+  return entries.length === expectedFiles.size && entries.every(
+    (entry) => entry.isFile() && expectedFiles.has(entry.name)
+  );
+}
 
 const requiredDocMarkers = new Map([
   [
@@ -459,8 +475,12 @@ export function validateSharedCoreScaffold(baseRoot = repoRoot()) {
     }
     for (const entry of fs.readdirSync(skillsRoot, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
-      const skillPath = path.join(skillsRoot, entry.name, 'SKILL.md');
+      const skillDirectory = path.join(skillsRoot, entry.name);
+      const skillPath = path.join(skillDirectory, 'SKILL.md');
       if (!fs.existsSync(skillPath)) {
+        if (isDeclaredContractOnlySkillDirectory(root, skillDirectory)) {
+          continue;
+        }
         issues.push(`Missing skill manifest: ${path.relative(root, skillPath).replace(/\\/g, '/')}`);
         continue;
       }

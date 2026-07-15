@@ -253,8 +253,11 @@ Empfohlene Reihenfolge nach Owner-Acceptance dieses Konzepts:
    auf einem bestehenden Evidence-Ordner, mit nachvollziehbarem Befund-Set
 4. **Owner-Acceptance dieses Konzepts** — Voraussetzung für jeden Slice 2-Schritt
 
-> **Hinweis:** Skill-Registry (`skills/harness/`) bleibt leer, bis ein Slice 2-Design
-> entscheidet, ob Self-Harness-Loop als Skill, als Command oder als Hybrid verfasst wird.
+> **Hinweis:** `skills/harness/` enthält ausschließlich den schema-validierten
+> Contract `weakness-mining.skill.yaml`. Ohne `SKILL.md` bleibt er contract-only
+> und wird nicht in die Codex-/Provider-Skill-Registry oder Exports promoviert.
+> Ein Slice-2-Design entscheidet separat, ob Self-Harness-Loop als ausführbarer
+> Skill, als Command oder als Hybrid verfasst wird.
 
 ## Relation To Existing Docs
 
@@ -276,7 +279,10 @@ test -f docs/harness/self-harness-loop.md && echo CONCEPT_EXISTS || echo CONCEPT
 # → CONCEPT_EXISTS
 
 test -f skills/harness/SKILL.md && echo SKILL_EXISTS || echo SKILL_NOT_EXISTS
-# → SKILL_NOT_EXISTS (absichtlich — Slice 2 entscheidet)
+# → SKILL_NOT_EXISTS (absichtlich — Contract-only, Slice 2 entscheidet Promotion)
+
+python3 runtime/validators/validate-contracts.py
+# → skills/harness/weakness-mining.skill.yaml PASS
 
 grep -c "^##" docs/harness/self-harness-loop.md
 # → Sektionen vorhanden
