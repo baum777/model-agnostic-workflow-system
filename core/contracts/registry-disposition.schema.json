@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/registry-disposition.schema.json",
+  "title": "Registry Disposition Contract",
+  "description": "Provider-neutral run-close classification. The registry is an evidence consumer, not an authority owner.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_disposition"],
+  "properties": {
+    "registry_disposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status", "material_change", "registry_relevant_change", "reason",
+        "registry_baseline_sha", "affected_records", "authority_refs", "source_refs",
+        "supersession_refs", "provenance_refs", "evidence_refs",
+        "implementation_commit_sha", "registry_commit_sha", "validation",
+        "contract_version", "classification_evidence_refs"
+      ],
+      "properties": {
+        "status": { "enum": ["NO_CHANGE", "UPDATED", "REQUIRED_BUT_BLOCKED"] },
+        "material_change": { "type": "boolean" },
+        "registry_relevant_change": { "type": "boolean" },
+        "reason": { "type": "string" },
+        "registry_baseline_sha": { "type": "string" },
+        "affected_records": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/affectedRecord" },
+          "uniqueItems": true
+        },
+        "authority_refs": { "$ref": "#/$defs/stringRefs" },
+        "source_refs": { "$ref": "#/$defs/stringRefs" },
+        "supersession_refs": { "$ref": "#/$defs/stringRefs" },
+        "provenance_refs": { "$ref": "#/$defs/stringRefs" },
+        "evidence_refs": { "$ref": "#/$defs/stringRefs" },
+        "implementation_commit_sha": { "type": "string" },
+        "registry_commit_sha": { "type": ["string", "null"], "minLength": 1 },
+        "validation": { "$ref": "#/$defs/stringRefs" },
+        "contract_version": { "const": "registry-disposition.v1" },
+        "classification_evidence_refs": { "$ref": "#/$defs/stringRefs" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "registry_relevant_change": { "const": true } }, "required": ["registry_relevant_change"] },
+          "then": {
+            "properties": {
+              "status": { "not": { "const": "NO_CHANGE" } },
+              "material_change": { "const": true },
+              "affected_records": { "minItems": 1 },
+              "classification_evidence_refs": { "minItems": 1 }
+            }
+          },
+          "else": { "properties": { "affected_records": { "maxItems": 0 } } }
+        },
+        {
+          "if": { "properties": { "status": { "const": "UPDATED" } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "registry_relevant_change": { "const": true },
+              "registry_commit_sha": { "type": "string", "minLength": 1 },
+              "affected_records": { "minItems": 1 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "REQUIRED_BUT_BLOCKED" } }, "required": ["status"] },
+          "then": {
+            "properties": {
+              "registry_relevant_change": { "const": true },
+              "reason": { "type": "string", "minLength": 1, "pattern": "\\S" },
+              "evidence_refs": { "minItems": 1 },
+              "registry_commit_sha": { "const": null }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "registry_commit_sha": { "type": "string" } }, "required": ["registry_commit_sha"] },
+          "then": { "properties": { "status": { "const": "UPDATED" } } }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "affectedRecord": {
+      "type": "string",
+      "pattern": "^(SOURCE_RECORD|CONTRACT_RECORD|AUTHORITY_MAPPING|DEPENDENCY_BINDING|LIFECYCLE_BINDING|SUPERSESSION|PROVENANCE|REGISTERED_IMPLEMENTATION_BINDING):\\S+$"
+    },
+    "stringRefs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  }
+}

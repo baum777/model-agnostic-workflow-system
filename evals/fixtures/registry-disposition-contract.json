@@ -1,0 +1,72 @@
+{
+  "id": "registry-disposition-contract-v1",
+  "kind": "registry-disposition",
+  "blocking": true,
+  "cases": [
+    {
+      "id": "no-material-change-pass",
+      "expectedPass": true,
+      "input": { "registry_disposition": { "status": "NO_CHANGE", "material_change": false, "registry_relevant_change": false, "reason": "", "registry_baseline_sha": "base", "affected_records": [], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": ["local:run"], "implementation_commit_sha": "", "registry_commit_sha": null, "validation": ["local-review:PASS"], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["local:classification"] } }
+    },
+    {
+      "id": "material-non-relevant-pass",
+      "expectedPass": true,
+      "input": { "registry_disposition": { "status": "NO_CHANGE", "material_change": true, "registry_relevant_change": false, "reason": "implementation detail only", "registry_baseline_sha": "base", "affected_records": [], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": ["git:diff"], "implementation_commit_sha": "impl", "registry_commit_sha": null, "validation": ["tests:PASS"], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["policy:non-relevant"] } }
+    },
+    {
+      "id": "updated-pass",
+      "expectedPass": true,
+      "input": { "registry_disposition": { "status": "UPDATED", "material_change": true, "registry_relevant_change": true, "reason": "contract record changed", "registry_baseline_sha": "base", "affected_records": ["CONTRACT_RECORD:registry-disposition.v1"], "authority_refs": ["shared-core:policy"], "source_refs": ["shared-core:schema"], "supersession_refs": [], "provenance_refs": ["git:impl"], "evidence_refs": ["validator:PASS"], "implementation_commit_sha": "impl", "registry_commit_sha": "registry", "validation": ["registry-check:PASS"], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["taxonomy:CONTRACT_RECORD"] } }
+    },
+    {
+      "id": "blocked-pass",
+      "expectedPass": true,
+      "input": { "registry_disposition": { "status": "REQUIRED_BUT_BLOCKED", "material_change": true, "registry_relevant_change": true, "reason": "independent registry approval pending", "registry_baseline_sha": "base", "affected_records": ["CONTRACT_RECORD:registry-disposition.v1"], "authority_refs": ["shared-core:policy"], "source_refs": ["shared-core:schema"], "supersession_refs": [], "provenance_refs": ["git:diff"], "evidence_refs": ["review:pending"], "implementation_commit_sha": "", "registry_commit_sha": null, "validation": ["contract-tests:PASS"], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["taxonomy:CONTRACT_RECORD"] } }
+    },
+    {
+      "id": "rd-v01-relevant-no-change-fail",
+      "expectedPass": false,
+      "input": { "registry_disposition": { "status": "NO_CHANGE", "material_change": true, "registry_relevant_change": true, "reason": "", "registry_baseline_sha": "base", "affected_records": [], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": [], "implementation_commit_sha": "", "registry_commit_sha": null, "validation": [], "contract_version": "registry-disposition.v1", "classification_evidence_refs": [] } }
+    },
+    {
+      "id": "rd-v02-updated-null-sha-fail",
+      "expectedPass": false,
+      "input": { "registry_disposition": { "status": "UPDATED", "material_change": true, "registry_relevant_change": true, "reason": "", "registry_baseline_sha": "base", "affected_records": ["CONTRACT_RECORD:contract"], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": [], "implementation_commit_sha": "impl", "registry_commit_sha": null, "validation": [], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["taxonomy:CONTRACT_RECORD"] } }
+    },
+    {
+      "id": "rd-v02-updated-empty-records-fail",
+      "expectedPass": false,
+      "input": { "registry_disposition": { "status": "UPDATED", "material_change": true, "registry_relevant_change": true, "reason": "", "registry_baseline_sha": "base", "affected_records": [], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": [], "implementation_commit_sha": "impl", "registry_commit_sha": "registry", "validation": [], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["taxonomy:CONTRACT_RECORD"] } }
+    },
+    {
+      "id": "rd-v03-blocked-not-relevant-fail",
+      "expectedPass": false,
+      "input": { "registry_disposition": { "status": "REQUIRED_BUT_BLOCKED", "material_change": true, "registry_relevant_change": false, "reason": "approval pending", "registry_baseline_sha": "base", "affected_records": [], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": ["review:pending"], "implementation_commit_sha": "", "registry_commit_sha": null, "validation": [], "contract_version": "registry-disposition.v1", "classification_evidence_refs": [] } }
+    },
+    {
+      "id": "rd-v03-blocked-empty-reason-fail",
+      "expectedPass": false,
+      "input": { "registry_disposition": { "status": "REQUIRED_BUT_BLOCKED", "material_change": true, "registry_relevant_change": true, "reason": " ", "registry_baseline_sha": "base", "affected_records": ["CONTRACT_RECORD:contract"], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": ["review:pending"], "implementation_commit_sha": "", "registry_commit_sha": null, "validation": [], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["taxonomy:CONTRACT_RECORD"] } }
+    },
+    {
+      "id": "rd-v03-blocked-registry-sha-fail",
+      "expectedPass": false,
+      "input": { "registry_disposition": { "status": "REQUIRED_BUT_BLOCKED", "material_change": true, "registry_relevant_change": true, "reason": "approval pending", "registry_baseline_sha": "base", "affected_records": ["CONTRACT_RECORD:contract"], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": ["review:pending"], "implementation_commit_sha": "", "registry_commit_sha": "registry", "validation": [], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["taxonomy:CONTRACT_RECORD"] } }
+    },
+    {
+      "id": "rd-v04-sha-without-update-fail",
+      "expectedPass": false,
+      "input": { "registry_disposition": { "status": "NO_CHANGE", "material_change": true, "registry_relevant_change": false, "reason": "", "registry_baseline_sha": "base", "affected_records": [], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": [], "implementation_commit_sha": "impl", "registry_commit_sha": "registry", "validation": [], "contract_version": "registry-disposition.v1", "classification_evidence_refs": [] } }
+    },
+    {
+      "id": "rd-v05-non-material-relevant-fail",
+      "expectedPass": false,
+      "input": { "registry_disposition": { "status": "REQUIRED_BUT_BLOCKED", "material_change": false, "registry_relevant_change": true, "reason": "reconciliation is not supported in v1", "registry_baseline_sha": "base", "affected_records": ["CONTRACT_RECORD:contract"], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": ["classification:invalid"], "implementation_commit_sha": "", "registry_commit_sha": null, "validation": [], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["taxonomy:CONTRACT_RECORD"] } }
+    },
+    {
+      "id": "rd-v06-invalid-taxonomy-fail",
+      "expectedPass": false,
+      "input": { "registry_disposition": { "status": "REQUIRED_BUT_BLOCKED", "material_change": true, "registry_relevant_change": true, "reason": "approval pending", "registry_baseline_sha": "base", "affected_records": ["NOT_A_CLOSED_CLASS:anything"], "authority_refs": [], "source_refs": [], "supersession_refs": [], "provenance_refs": [], "evidence_refs": ["review:pending"], "implementation_commit_sha": "", "registry_commit_sha": null, "validation": [], "contract_version": "registry-disposition.v1", "classification_evidence_refs": ["agent:self-asserted"] } }
+    }
+  ]
+}
