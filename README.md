@@ -13,6 +13,8 @@ This repo bundles reusable, provider-neutral workflow building blocks and the go
 - validators, build scripts, and certification evals
 - templates and examples for adoption
 - repo-local orchestration skills for routing and surface decisions
+- a local-only, artifact-producing runtime with fail-closed service boundaries
+- governed command and loop contracts for bounded repository work
 
 Primary audiences:
 
@@ -36,56 +38,78 @@ Primary audiences:
 4. Governance and Authority: documented class logic and claim logic in `docs/architecture.md` and `docs/authority-matrix.md`.
 5. Enforcement and Gates: validators and evals under `scripts/tools/` and `evals/`.
 6. Workflow Entry: root workflow guidance in `WORKFLOW.md` plus repo-local routing skills under `.agents/skills/`.
+7. Local Runtime: contract-loaded execution, validation, replay, controlled memory, and evidence under `runtime/`, `memory/`, and `artifacts/runtime-runs/`.
+8. Governed Loops: command contracts and bounded loop specifications under `commands/` and `loops/`.
 
 Important: the class model (`canonical`, `operational`, `derived`, `archive`) is logical only. It does not imply a physical directory split by class.
 
 ## Local Root Representation And Data Flow
 
-This is an orientation view of this repository root as the active shared-core node under `C:\workspace\main_projects`. It does not replace the authority model in `AGENTS.md`, `WORKFLOW.md`, `docs/architecture.md`, or `docs/authority-matrix.md`.
+This is an orientation view of this repository as the active shared-core node under the local Baum-OS workspace at `/home/baum/workspace/baum-os`. It shows authority, derived projections, local execution, evidence, and consumer flow; it does not replace the authority model in `AGENTS.md`, `WORKFLOW.md`, `docs/architecture.md`, or `docs/authority-matrix.md`.
 
 ```mermaid
-flowchart TD
-  Workspace["C:/workspace/main_projects"]
-  Portfolio["portfolio/\nworkspace-local governance and evidence"]
-  RepoRoot["model-agnostic-workflow-system/\nshared-core repo root"]
+flowchart LR
+  subgraph LocalWorkspace["Local Baum-OS workspace"]
+    Workspace["/home/baum/workspace/baum-os"]
+    Portfolio["agentic_workflow/portfolio/\nworkspace governance and coordination"]
+    Vault["agentic_workflow/obsidian-macl-vault/\ngovernance-gated external memory surface"]
+    RepoRoot["agentic_workflow/model-agnostic-workflow-system/\nactive shared-core repo"]
+    Workspace --> Portfolio
+    Workspace --> Vault
+    Workspace --> RepoRoot
+    Portfolio -. "routing and evidence pointer" .-> RepoRoot
+    Vault -. "no automatic truth promotion" .-> RepoRoot
+  end
 
-  Governance["AGENTS.md + WORKFLOW.md\nrepo governance and workflow entry"]
-  Docs["docs/\narchitecture, authority, compatibility, usage"]
-  Core["core/\nportable semantics and skill surfaces"]
-  Contracts["core/contracts/\ncanonical machine-readable contracts"]
-  Skills["core/skills/ + skills/\nportable and compatibility skills"]
-  Validators["scripts/tools/ + evals/\nvalidators, builders, certification fixtures"]
-  Mirrors["contracts/ + legacy provider dirs + docs/tool-contracts/catalog.json\ncompatibility mirrors"]
-  Exports["providers/*/export.json\nprovider-specific export projections"]
-  Templates["templates/ + examples/\nadoption and reference artifacts"]
-  Consumers["consumer repos\nlocal overlays and .codex manifests"]
+  subgraph Authority["Repo authority and reusable truth"]
+    Entry["README.md + AGENTS.md + WORKFLOW.md\nfront door, governance, workflow routing"]
+    Docs["docs/ + policies/\nprose authority and policy"]
+    Core["core/contracts/ + core/skills/\ncanonical contracts and portable skills"]
+    Entry --> Docs
+    Entry --> Core
+  end
 
-  Workspace --> Portfolio
-  Workspace --> RepoRoot
-  Portfolio -. "external governance pointer only" .-> RepoRoot
-  RepoRoot --> Governance
-  Governance --> Docs
-  Governance --> Core
-  Core --> Contracts
-  Core --> Skills
-  Contracts --> Validators
-  Contracts --> Mirrors
-  Contracts --> Exports
-  Templates --> Consumers
+  subgraph Projection["Derived and compatibility surfaces"]
+    Builders["scripts/tools/\nbuilders and validators"]
+    Mirrors["contracts/ + skills/ + legacy providers\ncompatibility mirrors"]
+    Exports["providers/*/export.json\nprovider export projections"]
+    Support["templates/ + examples/ + repo-skill-libraries/\nadoption and repo-specific support"]
+    Core --> Builders
+    Builders --> Mirrors
+    Builders --> Exports
+  end
+
+  subgraph LocalExecution["Local-only execution and evidence"]
+    Commands["commands/ + loops/\ngoverned entry and stop contracts"]
+    Runtime["runtime/\ncontract-loaded local execution"]
+    Memory["memory/\ncontrolled local runtime memory"]
+    Evidence["artifacts/runtime-runs/ + evidence/\nignored runtime artifacts and reviewed evidence"]
+    Evals["evals/ + tests/\ncertification fixtures and tests"]
+    Commands --> Runtime
+    Core --> Runtime
+    Runtime --> Memory
+    Runtime --> Evidence
+    Builders --> Evals
+    Evals -. "gate results" .-> Entry
+  end
+
+  Consumers["consumer repositories\nlocal overlays and .codex manifests"]
+  RepoRoot --> Entry
+  Mirrors --> Consumers
   Exports --> Consumers
-  Skills --> Consumers
-  Validators --> RepoRoot
+  Support --> Consumers
 ```
 
 Data flow:
 
 1. Work enters through `AGENTS.md` and `WORKFLOW.md`, which identify the governing sources, workflow class, validation posture, and stop conditions.
-2. Canonical shared semantics are changed in `core/contracts/*`, `core/skills/*`, and policy surfaces when the change is reusable and provider-neutral.
-3. Registry and compatibility projections are regenerated through the builder scripts when canonical contract inputs change.
-4. Provider exports under `providers/*/export.json` are derived packaging projections, not second canonical sources.
-5. Consumer repositories adopt the shared core through local overlays, `.codex` manifests, and repo-local documentation while keeping their own product, runtime, and evidence authority.
-6. Validators and evals check repository consistency and certification fixtures; they do not create runtime readiness unless a concrete runnable path or generated artifact proves it.
-7. The external portfolio layer may route workspace-local governance and evidence back to this repo, but portfolio rules remain outside this shared-core repository.
+2. Canonical shared semantics change in `core/contracts/*`, `core/skills/*`, and `policies/*` when the change is reusable and provider-neutral.
+3. Builders regenerate registry, compatibility, and provider projections from canonical inputs; mirrors and `providers/*/export.json` are not second canonical sources.
+4. Commands and loop contracts route bounded local work into the runtime or repository tooling with explicit gates and stop rules.
+5. The local runtime loads canonical contracts and emits reviewable artifacts, controlled runtime-memory entries, replay data, and validation receipts. It does not activate HTTP, MCP, remote transport, daemons, background scheduling, or automatic canonical promotion.
+6. Validators, tests, and evals check repository consistency and certification fixtures. A passing gate proves only the scope that the named validator or runnable artifact covers.
+7. Consumer repositories adopt projections and support assets through local overlays, `.codex` manifests, and repo-local documentation while retaining their own product, runtime, and evidence authority.
+8. Portfolio and vault surfaces remain outside this repo's authority: they may route context or evidence, but they do not automatically promote workspace memory into shared-core truth.
 
 ## Repository Structure (Meaning Of The Main Directories)
 
@@ -115,6 +139,18 @@ Data flow:
 - `evals/`  
   Deterministic certification fixtures and the eval catalog in `evals/catalog.json`.
 
+- `runtime/`
+  Local-only runtime implementation for contract loading, permission checks, run artifacts, replay, controlled memory writes, resource governance, manual/cron validation, and fail-closed service gates. See `docs/runtime.md` and `docs/runtime-activation-status.md`.
+
+- `memory/`
+  Local runtime-memory contracts, scopes, policies, schemas, and a non-canonical JSONL store. No automatic promotion, SQLite, or remote memory is implied.
+
+- `commands/` and `loops/`
+  Governed command entrypoints plus bounded repo and TDD loop contracts, output schemas, stop rules, and validator specifications.
+
+- `artifacts/` and `evidence/`
+  Generated local runtime artifacts and reviewable evidence surfaces. Artifact existence is not canonical promotion or live-service activation.
+
 - `scripts/tools/`  
   Validators, registry builders, export builders, and helper scripts.
 
@@ -129,6 +165,9 @@ Data flow:
 
 - `examples/`  
   Example artifacts and small reference examples.
+
+- `repo-skill-libraries/`
+  Repo-specific skill-library maps grounded in inspected consumer repositories; these are support surfaces, not portable core authority.
 
 ## Authority And Governance Model
 
@@ -202,6 +241,15 @@ Primary commands:
 - `npm run eval`  
   Runs deterministic certification evals against fixtures.
 
+- `npm run runtime:dry-run` / `npm run runtime:validate -- --latest`
+  Produces and validates local runtime evidence without activating a listener, daemon, or remote transport.
+
+- `npm run memory:validate`
+  Validates the local memory skeleton and policies.
+
+- `npm run baum:ci-gate`
+  Runs the bounded repo-loop adapter, evidence validation, and quality gate.
+
 Important slices:
 
 - `npm run eval:skill-routing`
@@ -270,7 +318,7 @@ Important:
 
 - provider exports remain derived mirrors, not a second canonical truth source
 - compatibility surfaces in `contracts/*`, `skills/*`, `docs/tool-contracts/catalog.json`, and legacy `providers/*` stay explicitly marked as compatibility layers
-- `repo-root memory/` remains planned, and this repo still does not claim a runtime memory subsystem
+- `runtime/` and `memory/` are locally executable, evidence-producing surfaces; live services, remote memory, background scheduling, and automatic canonical promotion remain disabled
 
 ## Phase-8 Consumer Migration and Handoff (Bounded)
 
@@ -359,7 +407,7 @@ Boundary-specific reading:
 <!-- workspace-root-sync:readme:start -->
 ## Workspace Integration
 
-This repository lives under `/home/baum/Schreibtisch/workspace/main_projects`. Its local `README.md`, `AGENTS.md`, `docs/`, manifests, contracts, validators, tests, and workflow files remain the authority for repo-specific product, runtime, archive, and implementation truth.
+This repository lives under `/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system`. Its local `README.md`, `AGENTS.md`, `docs/`, manifests, contracts, validators, tests, and workflow files remain the authority for repo-specific runtime, archive, contract, and implementation truth.
 
 The workspace root is a routing and orientation layer. It points agents and humans to the correct authority surface; it must not be treated as a replacement for this repository's local truth.
 
