@@ -1,0 +1,249 @@
+
+> model-agnostic-workflow-system@0.2.1 eval
+> node scripts/tools/run-certification-evals.mjs
+
+{
+  "ok": false,
+  "root": "/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system",
+  "suite": "provider-neutral-certification",
+  "total": 30,
+  "passed": 28,
+  "failed": 2,
+  "blockingFailures": 2,
+  "filters": null,
+  "results": [
+    {
+      "id": "skill-tool-mcp-builder-decision",
+      "kind": "surface-decision",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "skill-routing",
+      "kind": "skill-routing",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "workflow-routing-map",
+      "kind": "workflow-routing",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "workflow-execution-evidence",
+      "kind": "workflow-evidence",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "provider-export-alignment",
+      "kind": "provider-export-alignment",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "routing-skill-parity",
+      "kind": "routing",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "schema-contract",
+      "kind": "schema",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "core-routing",
+      "kind": "routing",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "core-schema",
+      "kind": "schema",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "tool-selection",
+      "kind": "tool-selection",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "core-provider-parity",
+      "kind": "provider-parity",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "core-failure-mode",
+      "kind": "failure-mode",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "approval-boundary",
+      "kind": "approval-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "provider-parity",
+      "kind": "provider-parity",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "secret-boundary-tool-contracts",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "provider-switch-reminimization",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "context-builder-redaction",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "eval-trace-sanitization",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "memory-secret-rejection",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "failure-mode",
+      "kind": "failure-mode",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "semantic-layout-decisions",
+      "kind": "semantic-layout",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "render-layout-cases",
+      "kind": "render-layout",
+      "blocking": true,
+      "passed": false,
+      "issues": [
+        "render-page-snapshots did not produce snapshot evidence.",
+        "runtime: playwright.chromium.launch failed: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /usr/bin/google-chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-breakpad --disable-crash-reporter --no-first-run --no-default-browser-check --user-data-dir=/tmp/playwright_chromiumdev_profile-XKa5Pp --remote-debugging-pipe --no-startup-window\n<launched> pid=27\n[pid=27][err] [27:27:0907/015656.523150:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)\n[pid=27] <process did exit: exitCode=null, signal=SIGTRAP>\n[pid=27] starting temporary directories cleanup\nCall log:\n\u001b[2m  - <launching> /usr/bin/google-chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-breakpad --disable-crash-reporter --no-first-run --no-default-browser-check --user-data-dir=/tmp/playwright_chromiumdev_profile-XKa5Pp --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=27\u001b[22m\n\u001b[2m  - [pid=27][err] [27:27:0907/015656.523150:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)\u001b[22m\n\u001b[2m  - [pid=27] <process did exit: exitCode=null, signal=SIGTRAP>\u001b[22m\n\u001b[2m  - [pid=27] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=27] <gracefully close start>\u001b[22m\n\u001b[2m  - [pid=27] <kill>\u001b[22m\n\u001b[2m  - [pid=27] <skipped force kill spawnedProcess.killed=false processClosed=true>\u001b[22m\n\u001b[2m  - [pid=27] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=27] <gracefully close end>\u001b[22m\n (chromePath=/usr/bin/google-chrome)"
+      ]
+    },
+    {
+      "id": "wcag-a11y-cases",
+      "kind": "wcag-a11y",
+      "blocking": true,
+      "passed": false,
+      "issues": [
+        "run-axe-accessibility-audit did not produce case reports.",
+        "runtime: playwright.chromium.launch failed: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /usr/bin/google-chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-breakpad --disable-crash-reporter --no-first-run --no-default-browser-check --user-data-dir=/tmp/playwright_chromiumdev_profile-Cq1MV5 --remote-debugging-pipe --no-startup-window\n<launched> pid=29\n[pid=29][err] [29:29:0907/015656.523133:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)\n[pid=29] <process did exit: exitCode=null, signal=SIGTRAP>\n[pid=29] starting temporary directories cleanup\nCall log:\n\u001b[2m  - <launching> /usr/bin/google-chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-breakpad --disable-crash-reporter --no-first-run --no-default-browser-check --user-data-dir=/tmp/playwright_chromiumdev_profile-Cq1MV5 --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=29\u001b[22m\n\u001b[2m  - [pid=29][err] [29:29:0907/015656.523133:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)\u001b[22m\n\u001b[2m  - [pid=29] <process did exit: exitCode=null, signal=SIGTRAP>\u001b[22m\n\u001b[2m  - [pid=29] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=29] <gracefully close start>\u001b[22m\n\u001b[2m  - [pid=29] <kill>\u001b[22m\n\u001b[2m  - [pid=29] <skipped force kill spawnedProcess.killed=false processClosed=true>\u001b[22m\n\u001b[2m  - [pid=29] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=29] <gracefully close end>\u001b[22m\n (chromePath=/usr/bin/google-chrome)",
+        "run-lighthouse-page-audit did not produce case reports.",
+        "runtime: playwright.chromium.launch failed: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /usr/bin/google-chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-breakpad --disable-crash-reporter --no-first-run --no-default-browser-check --user-data-dir=/tmp/playwright_chromiumdev_profile-a0DEq5 --remote-debugging-pipe --no-startup-window\n<launched> pid=39\n[pid=39][err] [39:39:0907/015657.013686:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)\n[pid=39] <process did exit: exitCode=null, signal=SIGTRAP>\n[pid=39] starting temporary directories cleanup\nCall log:\n\u001b[2m  - <launching> /usr/bin/google-chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-breakpad --disable-crash-reporter --no-first-run --no-default-browser-check --user-data-dir=/tmp/playwright_chromiumdev_profile-a0DEq5 --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=39\u001b[22m\n\u001b[2m  - [pid=39][err] [39:39:0907/015657.013686:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)\u001b[22m\n\u001b[2m  - [pid=39] <process did exit: exitCode=null, signal=SIGTRAP>\u001b[22m\n\u001b[2m  - [pid=39] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=39] <gracefully close start>\u001b[22m\n\u001b[2m  - [pid=39] <kill>\u001b[22m\n\u001b[2m  - [pid=39] <skipped force kill spawnedProcess.killed=false processClosed=true>\u001b[22m\n\u001b[2m  - [pid=39] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=39] <gracefully close end>\u001b[22m\n (chromePath=/usr/bin/google-chrome)",
+        "runtime: chrome-launcher.launch failed: listen EPERM: operation not permitted 0.0.0.0 (chromePath=/usr/bin/google-chrome, userDataDir=/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system/astra-safety-harness/runtime/browser-profile)",
+        "lint-wcag-structure did not produce case reports.",
+        "runtime: playwright.chromium.launch failed: browserType.launch: Target page, context or browser has been closed\nBrowser logs:\n\n<launching> /usr/bin/google-chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-breakpad --disable-crash-reporter --no-first-run --no-default-browser-check --user-data-dir=/tmp/playwright_chromiumdev_profile-CObKks --remote-debugging-pipe --no-startup-window\n<launched> pid=45\n[pid=45][err] [45:45:0907/015657.373946:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)\n[pid=45] <process did exit: exitCode=null, signal=SIGTRAP>\n[pid=45] starting temporary directories cleanup\nCall log:\n\u001b[2m  - <launching> /usr/bin/google-chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-breakpad --disable-crash-reporter --no-first-run --no-default-browser-check --user-data-dir=/tmp/playwright_chromiumdev_profile-CObKks --remote-debugging-pipe --no-startup-window\u001b[22m\n\u001b[2m  - <launched> pid=45\u001b[22m\n\u001b[2m  - [pid=45][err] [45:45:0907/015657.373946:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)\u001b[22m\n\u001b[2m  - [pid=45] <process did exit: exitCode=null, signal=SIGTRAP>\u001b[22m\n\u001b[2m  - [pid=45] starting temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=45] <gracefully close start>\u001b[22m\n\u001b[2m  - [pid=45] <kill>\u001b[22m\n\u001b[2m  - [pid=45] <skipped force kill spawnedProcess.killed=false processClosed=true>\u001b[22m\n\u001b[2m  - [pid=45] finished temporary directories cleanup\u001b[22m\n\u001b[2m  - [pid=45] <gracefully close end>\u001b[22m\n (chromePath=/usr/bin/google-chrome)",
+        "Case a11y-clean-pass: Missing Axe report for case.",
+        "Case a11y-clean-pass: Missing Lighthouse report for case.",
+        "Case a11y-known-fail: Missing Axe report for case.",
+        "Case a11y-known-fail: Missing Lighthouse report for case.",
+        "Case a11y-known-fail: Expected fail but no confirmed blocking accessibility finding was detected.",
+        "Case a11y-borderline: Missing Axe report for case.",
+        "Case a11y-borderline: Missing Lighthouse report for case.",
+        "Case a11y-responsive-stress: Missing Axe report for case.",
+        "Case a11y-responsive-stress: Missing Lighthouse report for case.",
+        "Case a11y-semantic-contradiction: Missing Axe report for case.",
+        "Case a11y-semantic-contradiction: Missing Lighthouse report for case.",
+        "Case a11y-semantic-contradiction: Expected fail but no confirmed blocking accessibility finding was detected."
+      ]
+    },
+    {
+      "id": "static-vs-dynamic-rendering-advisor",
+      "kind": "rendering-posture",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "obs-contract-rules",
+      "kind": "obs",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "pbc-contract-rules",
+      "kind": "pbc",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "wmc-contract-rules",
+      "kind": "wmc",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "mahp-contract-rules",
+      "kind": "mahp",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "rgc-contract-rules",
+      "kind": "rgc",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "tsc-contract-rules",
+      "kind": "tsc",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    }
+  ]
+}

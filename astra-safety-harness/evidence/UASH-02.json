@@ -1,0 +1,41 @@
+{
+  "ticket_id": "UASH-02",
+  "repository": "/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system",
+  "start_sha": "a905f7435900f7b16ef4bf949b01c5dfb1d17540",
+  "end_worktree_state": "new untracked astra-safety-harness subtree; index and tracked files unchanged",
+  "files_changed": [
+    "astra-safety-harness/scripts/preflight.py",
+    "astra-safety-harness/tests/test_preflight.py"
+  ],
+  "files_read": [
+    "astra-safety-harness/scripts/manifest.py",
+    "package.json"
+  ],
+  "dependency_outputs": [
+    "evidence/UASH-01.json"
+  ],
+  "acceptance_criteria": [
+    "10 explicit preflight checks",
+    "symbolic and absent commits rejected",
+    "no discovered command executed",
+    "worktree status unchanged by inspection"
+  ],
+  "checks_executed": [
+    "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s astra-safety-harness/tests -v"
+  ],
+  "check_results": [
+    "PASS 8 tests"
+  ],
+  "scope_validation": "PASS",
+  "open_limits": [
+    "Command discovery currently supports package.json; unsupported repositories fail closed at P0-09",
+    "Bound baseline execution deferred",
+    "Required repository certification passed in UASH-01; repeat at final candidate"
+  ],
+  "verdict": "PASS",
+  "review": "Self-review: discovered commands are never executed, Git disables external diff and textconv; strict root and full commit checks",
+  "artifact_digests": {
+    "astra-safety-harness/scripts/preflight.py": "c5a4cd7a2e211d92c6e19efe8d690223503048aae64b62e90cc01582fb6f5175",
+    "astra-safety-harness/tests/test_preflight.py": "c685727e2d1dc8f599b60a2dde0af85d4bf85a7dd3bbcddee01234f35612985f"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "ticket_id": "UASH-04",
+  "repository": "/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system",
+  "start_sha": "a905f7435900f7b16ef4bf949b01c5dfb1d17540",
+  "end_worktree_state": "new untracked astra-safety-harness subtree; index and tracked files unchanged",
+  "files_changed": [
+    "astra-safety-harness/scripts/collect.py",
+    "astra-safety-harness/tests/test_collect.py"
+  ],
+  "files_read": [
+    "astra-safety-harness/scripts/pinned.py"
+  ],
+  "dependency_outputs": [
+    "evidence/UASH-03.json"
+  ],
+  "acceptance_criteria": [
+    "empty diff preserved",
+    "all changed paths inventoried",
+    "context expansion reason mandatory",
+    "context byte budgets enforced",
+    "default generated and lockfile internals excluded from model context"
+  ],
+  "checks_executed": [
+    "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s astra-safety-harness/tests -v"
+  ],
+  "check_results": [
+    "PASS 16 tests"
+  ],
+  "scope_validation": "PASS",
+  "open_limits": [
+    "oversized diffs block instead of truncating",
+    "generated authoritative schema exceptions require later explicit policy support"
+  ],
+  "verdict": "PASS",
+  "review": "Self-review: raw diff retained separately, bounded context diff excludes generated content, no free-form command execution",
+  "artifact_digests": {
+    "astra-safety-harness/scripts/collect.py": "88920de63bd597e7598b8153186c559145493f481b390e4e2cd3f11a7d295bc0",
+    "astra-safety-harness/tests/test_collect.py": "a8563360a2354c978d26380c1f673fcf33260eca06a33860cb265af6b777245c"
+  }
+}

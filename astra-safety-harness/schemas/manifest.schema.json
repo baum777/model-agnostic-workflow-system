@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "unitera.astra.run-manifest.v1"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "prompt_contract_version": {
+      "const": "1.0.0"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^UASH-[a-z0-9][a-z0-9-]*-[a-f0-9]{12}-[a-f0-9]{12}-[0-9]{8}T[0-9]{12}Z$"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "repository_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "base_sha": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "head_sha": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+    },
+    "model": {
+      "const": "gpt-6-astra"
+    },
+    "reasoning_effort": {
+      "const": "low"
+    },
+    "mode": {
+      "const": "read_only_verification"
+    },
+    "authority": {
+      "const": "NON_RELEASE_AUTHORITY"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "schema",
+    "schema_version",
+    "prompt_contract_version",
+    "run_id",
+    "repository",
+    "repository_path",
+    "base_sha",
+    "head_sha",
+    "model",
+    "reasoning_effort",
+    "mode",
+    "authority",
+    "synthetic",
+    "started_at"
+  ]
+}

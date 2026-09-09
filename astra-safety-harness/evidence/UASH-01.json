@@ -1,0 +1,77 @@
+{
+  "ticket_id": "UASH-01",
+  "repository": "/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system",
+  "start_sha": "a905f7435900f7b16ef4bf949b01c5dfb1d17540",
+  "end_worktree_state": "new untracked astra-safety-harness subtree; index and tracked files unchanged",
+  "files_changed": [
+    "astra-safety-harness/requirements.txt",
+    "astra-safety-harness/README.md",
+    "astra-safety-harness/evidence/registry-disposition.json",
+    "astra-safety-harness/evidence/uash-01-eval-unsandboxed.log",
+    "astra-safety-harness/evidence/uash-01-eval.log",
+    "astra-safety-harness/tests/test_manifest.py",
+    "astra-safety-harness/config/binding.json",
+    "astra-safety-harness/scripts/manifest.py",
+    "astra-safety-harness/schemas/manifest.schema.json"
+  ],
+  "files_read": [
+    "AGENTS.md",
+    "README.md",
+    "WORKFLOW.md",
+    "docs/architecture.md",
+    "docs/governance/registry-disposition.md",
+    "package.json",
+    "scripts/tools/validate-registry-disposition.mjs",
+    "core/contracts/registry-disposition.schema.json",
+    "scripts/tools/validate-repo-surface.mjs",
+    "scripts/tools/check-render-a11y-runtime.mjs",
+    "scripts/tools/_render_a11y_shared.mjs"
+  ],
+  "dependency_outputs": [
+    "owner binding UASH-001"
+  ],
+  "acceptance_criteria": [
+    "manifest required fields validated",
+    "run identity bound to immutable SHA syntax",
+    "identity mutation rejected",
+    "subtree bound without collision"
+  ],
+  "checks_executed": [
+    "python3 -m unittest discover -s astra-safety-harness/tests -v",
+    "npm run validate",
+    "npm run validate-neutral",
+    "npm run eval",
+    "git diff --check -- astra-safety-harness",
+    "untracked whitespace and scope audit",
+    "validateRegistryDisposition"
+  ],
+  "check_results": [
+    "PASS 4 tests",
+    "PASS",
+    "PASS",
+    "PASS 30/30 with existing Chrome and sandbox escalation; initial sandbox attempt failed",
+    "PASS",
+    "PASS",
+    "PASS NO_CHANGE"
+  ],
+  "scope_validation": "PASS",
+  "open_limits": [
+    "No real run authorized",
+    "SHA object resolution is UASH-03",
+    "No independent review or adoption",
+    "Python jsonschema runtime dependency required"
+  ],
+  "verdict": "PASS",
+  "review": "Self-review of manifest implementation and schema; no independent-review claim",
+  "artifact_digests": {
+    "astra-safety-harness/requirements.txt": "49026b67905a6c42bd426e6f8b3d2d08dc24ec6fe51cb2f706aea0a3fb5f8e08",
+    "astra-safety-harness/README.md": "cf5072c181474826ac93969d24945127417ace475c3ac2f23da28acb1e657c38",
+    "astra-safety-harness/evidence/registry-disposition.json": "ab3de2b5cc407dda5fc0be039bc092c05fc3047fb7df5d4129ec2303929c754f",
+    "astra-safety-harness/evidence/uash-01-eval-unsandboxed.log": "9e260f7f8113ffed3bd40ac5c167f079dd9406e21473fb0206e2f0c3b3c10e5b",
+    "astra-safety-harness/evidence/uash-01-eval.log": "4d13ba792566776526a47be71ff57eb74a2e7c3e70112dbfdb85feb93f9abbb8",
+    "astra-safety-harness/tests/test_manifest.py": "031d173b29b7da5328700de57f0b4db36458a12aa6cea04777c1c2d4129d13ff",
+    "astra-safety-harness/config/binding.json": "6b62b54b8235085359f2b5c7e298474c1cb55d621052644892e781a9295c186d",
+    "astra-safety-harness/scripts/manifest.py": "d3dc5c34943692c513f085db5f85f1929e0e31e4c5b1378bad8391e45535b682",
+    "astra-safety-harness/schemas/manifest.schema.json": "a6ba071440d33d1d0f943bc727ef553741e54ab381bceb807138f75275f7b805"
+  }
+}

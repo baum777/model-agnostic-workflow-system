@@ -1,0 +1,226 @@
+
+> model-agnostic-workflow-system@0.2.1 eval
+> node scripts/tools/run-certification-evals.mjs
+
+{
+  "ok": true,
+  "root": "/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system",
+  "suite": "provider-neutral-certification",
+  "total": 30,
+  "passed": 30,
+  "failed": 0,
+  "blockingFailures": 0,
+  "filters": null,
+  "results": [
+    {
+      "id": "skill-tool-mcp-builder-decision",
+      "kind": "surface-decision",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "skill-routing",
+      "kind": "skill-routing",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "workflow-routing-map",
+      "kind": "workflow-routing",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "workflow-execution-evidence",
+      "kind": "workflow-evidence",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "provider-export-alignment",
+      "kind": "provider-export-alignment",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "routing-skill-parity",
+      "kind": "routing",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "schema-contract",
+      "kind": "schema",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "core-routing",
+      "kind": "routing",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "core-schema",
+      "kind": "schema",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "tool-selection",
+      "kind": "tool-selection",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "core-provider-parity",
+      "kind": "provider-parity",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "core-failure-mode",
+      "kind": "failure-mode",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "approval-boundary",
+      "kind": "approval-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "provider-parity",
+      "kind": "provider-parity",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "secret-boundary-tool-contracts",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "provider-switch-reminimization",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "context-builder-redaction",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "eval-trace-sanitization",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "memory-secret-rejection",
+      "kind": "secret-boundary",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "failure-mode",
+      "kind": "failure-mode",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "semantic-layout-decisions",
+      "kind": "semantic-layout",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "render-layout-cases",
+      "kind": "render-layout",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "wcag-a11y-cases",
+      "kind": "wcag-a11y",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "static-vs-dynamic-rendering-advisor",
+      "kind": "rendering-posture",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "obs-contract-rules",
+      "kind": "obs",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "pbc-contract-rules",
+      "kind": "pbc",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "wmc-contract-rules",
+      "kind": "wmc",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "mahp-contract-rules",
+      "kind": "mahp",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "rgc-contract-rules",
+      "kind": "rgc",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "tsc-contract-rules",
+      "kind": "tsc",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "task_id": "UASH-01",
+  "repository": "/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system",
+  "bound_harness_root": "/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system/astra-safety-harness",
+  "start_sha": "a905f7435900f7b16ef4bf949b01c5dfb1d17540",
+  "branch": "codex/refresh-root-architecture-map",
+  "initial_status": "clean",
+  "allowed_scope": [
+    "astra-safety-harness/**"
+  ],
+  "adoption_posture": "PREPARED_NOT_ADOPTED",
+  "real_run_authorized": false,
+  "review_repository": "unitera-os",
+  "base_sha": null,
+  "head_sha": null,
+  "path_rationale": "Owner-preferred dedicated subtree; existing architecture defines logical classes, not a mandatory physical split. No existing surface repurposed."
+}

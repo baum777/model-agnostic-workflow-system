@@ -1,0 +1,31 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "New isolated unadopted harness candidate. No registered contract record, provenance binding, or supersession is changed. No canonical UNITERA contract is created.",
+    "registry_baseline_sha": "",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md"
+    ],
+    "source_refs": [
+      "astra-safety-harness/config/binding.json"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [],
+    "evidence_refs": [
+      "astra-safety-harness/evidence/UASH-01.json"
+    ],
+    "implementation_commit_sha": "",
+    "registry_commit_sha": null,
+    "validation": [
+      "validateRegistryDisposition"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "astra-safety-harness/config/binding.json"
+    ]
+  }
+}

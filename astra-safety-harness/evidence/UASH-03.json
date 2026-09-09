@@ -1,0 +1,41 @@
+{
+  "ticket_id": "UASH-03",
+  "repository": "/home/baum/workspace/baum-os/agentic_workflow/model-agnostic-workflow-system",
+  "start_sha": "a905f7435900f7b16ef4bf949b01c5dfb1d17540",
+  "end_worktree_state": "new untracked astra-safety-harness subtree; index and tracked files unchanged",
+  "files_changed": [
+    "astra-safety-harness/scripts/pinned.py",
+    "astra-safety-harness/tests/test_pinned.py",
+    "astra-safety-harness/scripts/preflight.py"
+  ],
+  "files_read": [
+    "astra-safety-harness/scripts/preflight.py"
+  ],
+  "dependency_outputs": [
+    "evidence/UASH-02.json"
+  ],
+  "acceptance_criteria": [
+    "commit objects validated",
+    "reads bound exclusively to base/head",
+    "worktree contents unavailable",
+    "unsafe paths and oversized blobs rejected"
+  ],
+  "checks_executed": [
+    "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s astra-safety-harness/tests -v"
+  ],
+  "check_results": [
+    "PASS 13 tests"
+  ],
+  "scope_validation": "PASS",
+  "open_limits": [
+    "real target SHAs deferred",
+    "branch movement acceptance fixture deferred to UASH-16"
+  ],
+  "verdict": "PASS",
+  "review": "Self-review: exact ls-tree entry match, regular blob modes only, literal pathspecs, no branch fallback",
+  "artifact_digests": {
+    "astra-safety-harness/scripts/pinned.py": "40d0209f57a3d5bacdaa56203011e5b3ce24e5a0e551b494dc6e079eb82b8a9e",
+    "astra-safety-harness/tests/test_pinned.py": "5df8b72e3a66f460f08f5810f81547efae8c5748a8af01e56a20f89c31bc5e6a",
+    "astra-safety-harness/scripts/preflight.py": "a0811c4fb376f607fd52ba4c51ee5e03643bf8ecc663e5e92c08ba0a71bc8b80"
+  }
+}
