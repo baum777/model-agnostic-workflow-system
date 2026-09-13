@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/clg-runtime-state.json",
+  "schemaVersion": "1.0.0",
+  "canonicalOwner": "core/contracts/clg-runtime-state.json",
+  "scope": "portable-core",
+  "maturityLabel": "contract-backed",
+  "validatorStatus": "test-backed",
+  "runtimeStatus": "deferred",
+  "adoptionMode": "opt-in",
+  "clgId": "CLG-002",
+  "decisionBasis": {
+    "existingRuntimeRequirements": [
+      "Run identity and run directory state already owned by runtime/kernel (run-id, runtime-context)"
+    ],
+    "externalSpecRequirements": [
+      "Master spec (external, non-normative input) §4.2 field inventory: task reference, phase/status, active goal/plan, steps, blockers, questions, verification status, retry/replan counts, context generation, checkpoint reference"
+    ],
+    "ownerDisposition": [
+      "P1 contract only; lifecycle state vocabulary and enforcement arrive with P2",
+      "domain_state_ref is opaque and must never be merged with a domain workflow instance (runtime ownership matrix)"
+    ],
+    "newInference": [
+      "verification_status 'passed' requires latest_verification_ref (fail-closed against status inflation)"
+    ]
+  },
+  "title": "CLG RuntimeState",
+  "description": "Generic runtime state envelope for a single task execution. Agent runtime state is not business workflow state: domain_state_ref is an opaque reference the generic runtime must not interpret. lifecycle_state is intentionally a free string in P1; the state vocabulary and fail-closed transition enforcement are P2 scope (clg-transition-vocabulary.json documents decisions, not lifecycle states).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rtc_version",
+    "task_ref",
+    "lifecycle_state"
+  ],
+  "properties": {
+    "rtc_version": { "type": "string", "const": "1.0.0" },
+    "task_ref": { "type": "string", "minLength": 1 },
+    "lifecycle_state": { "type": "string", "minLength": 1 },
+    "active_goal": { "type": "string" },
+    "active_plan_ref": { "type": "string" },
+    "completed_steps": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "pending_steps": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "blockers": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "unresolved_questions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "verification_status": {
+      "type": "string",
+      "enum": ["unverified", "in_progress", "passed", "failed", "partial", "unknown"],
+      "default": "unverified"
+    },
+    "latest_verification_ref": { "type": "string", "minLength": 1 },
+    "retry_count": { "type": "integer", "minimum": 0, "default": 0 },
+    "replan_count": { "type": "integer", "minimum": 0, "default": 0 },
+    "context_generation": { "type": "integer", "minimum": 0, "default": 0 },
+    "checkpoint_ref": { "type": "string", "minLength": 1 },
+    "domain_state_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "ref"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "ref": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "verification_status": { "const": "passed" } }, "required": ["verification_status"] },
+      "then": { "required": ["latest_verification_ref"] }
+    }
+  ]
+}

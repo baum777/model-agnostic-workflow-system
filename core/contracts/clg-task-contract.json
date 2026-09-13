@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/clg-task-contract.json",
+  "schemaVersion": "1.0.0",
+  "canonicalOwner": "core/contracts/clg-task-contract.json",
+  "scope": "portable-core",
+  "maturityLabel": "contract-backed",
+  "validatorStatus": "test-backed",
+  "runtimeStatus": "deferred",
+  "adoptionMode": "opt-in",
+  "clgId": "CLG-001",
+  "decisionBasis": {
+    "existingRuntimeRequirements": [
+      "Ticket-scope vocabulary (task_id, objective, scope, authority, acceptance criteria) as used by governed run records"
+    ],
+    "externalSpecRequirements": [
+      "Master spec (external, non-normative input) §4.1 field inventory: objective, success/failure criteria, constraints, scope, resources, deadline, risk_class, authority requirements"
+    ],
+    "ownerDisposition": [
+      "P1 contract only; no runtime enforcement",
+      "generic only: no external tenancy, admission, capability grants, trust tiers, or domain workflow states — domain concepts belong to their domain authorities"
+    ],
+    "newInference": [
+      "Every success/failure criterion must carry a verification_method_ref so completion claims are evidence-addressable"
+    ]
+  },
+  "title": "CLG TaskContract",
+  "description": "Generic, model-, provider- and domain-independent task contract. Defines what must be achieved. Must not contain volatile execution state. Authority requirements are opaque references to external authority artifacts; this contract never creates, grants, or implies authority. Not verifiable-by-construction: completion is governed by the completion contract (clg-completion-contract.json).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ttc_version",
+    "task_id",
+    "objective",
+    "desired_outcome",
+    "success_criteria",
+    "failure_criteria",
+    "constraints",
+    "scope",
+    "authority_requirements"
+  ],
+  "properties": {
+    "ttc_version": { "type": "string", "const": "1.0.0" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 1 },
+    "desired_outcome": { "type": "string", "minLength": 1 },
+    "success_criteria": {
+      "type": "array", "minItems": 1,
+      "items": { "$ref": "#/$defs/criterion" }
+    },
+    "failure_criteria": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/criterion" }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["constraint_id", "statement"],
+        "properties": {
+          "constraint_id": { "type": "string", "minLength": 1 },
+          "statement": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "scope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["included", "excluded"],
+      "properties": {
+        "included": { "type": "array", "items": { "type": "string" } },
+        "excluded": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "resource_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "limits": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "deadline": { "type": "string" },
+        "max_retries": { "type": "integer", "minimum": 0 },
+        "max_replans": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "risk_class": {
+      "type": "string",
+      "description": "Opaque, owner-defined risk reference. This contract defines no risk taxonomy and no thresholds (owner disposition OQ-4 class)."
+    },
+    "authority_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["requirement_id", "requirement_ref", "kind"],
+        "properties": {
+          "requirement_id": { "type": "string", "minLength": 1 },
+          "requirement_ref": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["approval", "policy", "grant", "unknown"] },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "criterion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["criterion_id", "statement", "verification_method_ref"],
+      "properties": {
+        "criterion_id": { "type": "string", "minLength": 1 },
+        "statement": { "type": "string", "minLength": 1 },
+        "verification_method_ref": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/clg-transition-vocabulary.json",
+  "schemaVersion": "1.0.0",
+  "canonicalOwner": "core/contracts/clg-transition-vocabulary.json",
+  "scope": "portable-core",
+  "maturityLabel": "contract-backed",
+  "validatorStatus": "test-backed",
+  "runtimeStatus": "deferred",
+  "adoptionMode": "opt-in",
+  "clgId": "CLG-003",
+  "decisionBasis": {
+    "existingRuntimeRequirements": [
+      "Governed run records already distinguish continue/retry/replan/escalate/contain/abort classes"
+    ],
+    "externalSpecRequirements": [
+      "Master spec (external, non-normative input) §13 decision outcome enumeration"
+    ],
+    "ownerDisposition": [
+      "P1 defines vocabulary and record shape only; runtime transition enforcement is P2 (state machine remains contract/test artifact until then)"
+    ],
+    "newInference": [
+      "A COMPLETE decision must carry a completion_evidence_ref pointing at the completion contract disposition, so free-form 'looks good' endings cannot drive runtime state"
+    ]
+  },
+  "title": "CLG Transition / Decision Vocabulary",
+  "description": "Generic decision vocabulary for one explicit runtime transition per loop iteration. Contract and invariant surface only — this contract does not enforce transitions. A COMPLETE decision is not task completion; it must reference a completion disposition (clg-completion-contract.json).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tvc_version",
+    "decision"
+  ],
+  "properties": {
+    "tvc_version": { "type": "string", "const": "1.0.0" },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "CONTINUE",
+        "RETRY",
+        "REPAIR",
+        "REPLAN",
+        "ACQUIRE_CONTEXT",
+        "DELEGATE",
+        "WAIT_EXTERNAL_EVENT",
+        "REQUIRE_APPROVAL",
+        "ESCALATE",
+        "COMPLETE",
+        "ABORT"
+      ]
+    },
+    "reason": { "type": "string" },
+    "evidence_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "completion_evidence_ref": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "decision": { "const": "COMPLETE" } }, "required": ["decision"] },
+      "then": { "required": ["completion_evidence_ref"] }
+    }
+  ]
+}

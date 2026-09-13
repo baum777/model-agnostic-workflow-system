@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/clg-completion-contract.json",
+  "schemaVersion": "1.0.0",
+  "canonicalOwner": "core/contracts/clg-completion-contract.json",
+  "scope": "portable-core",
+  "maturityLabel": "contract-backed",
+  "validatorStatus": "test-backed",
+  "runtimeStatus": "deferred",
+  "adoptionMode": "opt-in",
+  "clgId": "CLG-005",
+  "decisionBasis": {
+    "existingRuntimeRequirements": [
+      "Governed completion evals already reject pass-without-evidence and receipt-is-not-verification classes"
+    ],
+    "externalSpecRequirements": [
+      "Master spec (external, non-normative input) §22: OUTPUT_GENERATED, ACTION_EXECUTED, VERIFICATION_PASSED, TASK_COMPLETE are distinct and not equivalent"
+    ],
+    "ownerDisposition": [
+      "P1 contract only; no completion evaluator runtime",
+      "Task completion requires satisfaction of the task contract criteria, never merely a produced output or executed effect"
+    ],
+    "newInference": [
+      "Claiming TASK_COMPLETE requires all preceding stages claimed and non-empty evidence_refs",
+      "Non-accepted dispositions must name unmet criteria"
+    ]
+  },
+  "title": "CLG Completion Contract",
+  "description": "Explicit completion semantics: a generated output, an executed action and a passed verification are different stages; none automatically implies TASK_COMPLETE. This contract defines the completion request/disposition record; evaluation runtime is a later gate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "cc_version",
+    "task_ref",
+    "disposition",
+    "claimed_stages"
+  ],
+  "properties": {
+    "cc_version": { "type": "string", "const": "1.0.0" },
+    "task_ref": { "type": "string", "minLength": 1 },
+    "disposition": {
+      "type": "string",
+      "enum": ["PROPOSED", "ACCEPTED", "REJECTED", "INSUFFICIENT_EVIDENCE"]
+    },
+    "claimed_stages": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["OUTPUT_GENERATED", "ACTION_EXECUTED", "VERIFICATION_PASSED", "TASK_COMPLETE"]
+      }
+    },
+    "evidence_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "unmet_criteria": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "verified_by_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "notes": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "claimed_stages": { "contains": { "const": "VERIFICATION_PASSED" } } }, "required": ["claimed_stages"] },
+      "then": { "required": ["evidence_refs"] }
+    },
+    {
+      "if": { "properties": { "claimed_stages": { "contains": { "const": "TASK_COMPLETE" } } }, "required": ["claimed_stages"] },
+      "then": { "required": ["evidence_refs", "verified_by_refs"] }
+    },
+    {
+      "if": { "properties": { "disposition": { "enum": ["REJECTED", "INSUFFICIENT_EVIDENCE"] } }, "required": ["disposition"] },
+      "then": { "required": ["unmet_criteria"], "properties": { "unmet_criteria": { "minItems": 1 } } }
+    }
+  ]
+}

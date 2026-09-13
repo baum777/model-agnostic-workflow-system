@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/clg-context-manifest.json",
+  "schemaVersion": "1.0.0",
+  "canonicalOwner": "core/contracts/clg-context-manifest.json",
+  "scope": "portable-core",
+  "maturityLabel": "contract-backed",
+  "validatorStatus": "test-backed",
+  "runtimeStatus": "deferred",
+  "adoptionMode": "opt-in",
+  "clgId": "CLG-004",
+  "decisionBasis": {
+    "existingRuntimeRequirements": [
+      "baum-os src/context WorkingContext compositionManifest shape (checkpointId, compressedThroughSequence, tailFromSequence, rehydratedRefs) as the adapted context engine input — mechanics stay in baum-os via the ContextEnginePort"
+    ],
+    "externalSpecRequirements": [
+      "Master spec (external, non-normative input) §4.3 manifest observability fields: source_type, provenance, priority, freshness, trust_level, token_estimate, inclusion_reason, omitted_sources, compression_applied"
+    ],
+    "ownerDisposition": [
+      "OQ-1: shared-core owns the port and manifest contract; baum-os owns context mechanics",
+      "OQ-4: no trust tiers — trust is an opaque policy decision record (policy_ref/subject_ref/decision)",
+      "OQ-5: no trusted-context resolution here; resolver_ref stays a generic opaque reference (the domain resolver authority owns resolution behind its own port)"
+    ],
+    "newInference": [
+      "Sum of section token_estimates must not exceed token_budget (admission arithmetic, checked by validator)"
+    ]
+  },
+  "title": "CLG ContextManifest (+ ContextEnginePort surface)",
+  "description": "Observability contract for why the model saw what it saw. The ContextEnginePort consumer knows only this contract; the concrete context engine (baum-os src/context) remains the implementation. A source being relevant never implies instruction authority: trust decisions are opaque records. The generic runtime must not resolve tenancy facts, principal access, or domain trust.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ctx_version",
+    "context_id",
+    "task_ref",
+    "token_budget",
+    "sections",
+    "omitted_sources",
+    "compression_applied"
+  ],
+  "properties": {
+    "ctx_version": { "type": "string", "const": "1.0.0" },
+    "context_id": { "type": "string", "minLength": 1 },
+    "task_ref": { "type": "string", "minLength": 1 },
+    "session_ref": { "type": "string", "minLength": 1 },
+    "checkpoint_ref": { "type": "string", "minLength": 1 },
+    "generation": { "type": "integer", "minimum": 0 },
+    "engine_ref": {
+      "type": "string",
+      "description": "Opaque reference to the concrete context engine implementation behind the port."
+    },
+    "token_budget": { "type": "integer", "minimum": 1 },
+    "sections": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": [
+          "source_ref",
+          "source_type",
+          "provenance",
+          "token_estimate",
+          "inclusion_reason"
+        ],
+        "properties": {
+          "source_ref": { "type": "string", "minLength": 1 },
+          "source_type": { "type": "string", "minLength": 1 },
+          "resolver_ref": {
+            "type": "string",
+            "description": "Opaque reference to the resolver that produced this section (e.g. a domain resolver behind ContextProviderPort). Generic runtime derives no authority from it."
+          },
+          "provenance": { "type": "string", "minLength": 1 },
+          "priority": { "type": "integer", "minimum": 0 },
+          "freshness": { "type": "string" },
+          "token_estimate": { "type": "integer", "minimum": 0 },
+          "inclusion_reason": { "type": "string", "minLength": 1 },
+          "transform_history": { "type": "array", "items": { "type": "string" } },
+          "trust_decision": { "$ref": "#/$defs/trustDecision" }
+        }
+      }
+    },
+    "omitted_sources": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["source_ref", "omission_reason"],
+        "properties": {
+          "source_ref": { "type": "string", "minLength": 1 },
+          "omission_reason": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "compression_applied": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "trustDecision": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decision", "policy_ref", "subject_ref"],
+      "properties": {
+        "decision": { "type": "string", "enum": ["allow", "deny", "pending", "unknown"] },
+        "policy_ref": { "type": "string", "minLength": 1 },
+        "subject_ref": { "type": "string", "minLength": 1 },
+        "evaluation_ref": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
