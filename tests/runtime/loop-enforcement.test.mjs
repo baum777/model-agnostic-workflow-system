@@ -70,7 +70,7 @@ function makeVerificationRecord(overrides = {}) {
     vrc_version: '1.0.0',
     verification_id: 'vr-1',
     target_ref: 'task-1',
-    method: 'test-suite',
+    method: 'method-1',
     verifier: { verifier_type: 'deterministic', verifier_ref: 'test-runner' },
     evidence_refs: ['evidence-1'],
     result: 'PASS',

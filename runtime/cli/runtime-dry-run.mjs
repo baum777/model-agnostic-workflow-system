@@ -7,6 +7,8 @@ import { validateLoadedContracts } from '../contracts/validate-contracts.mjs';
 import { createRunContext } from '../kernel/runtime-context.mjs';
 import { createLoopController } from '../kernel/loop-controller.mjs';
 import { writeLoopArtifacts } from '../kernel/loop-artifacts.mjs';
+import { createAuthorityPort } from '../kernel/authority-port.mjs';
+import { createEffectPort, executeActionProposal, observeEffect } from '../kernel/action-boundary.mjs';
 import { RuntimeBlockedError } from '../kernel/runtime-errors.mjs';
 import { createPermissionEngine } from '../permissions/permission-engine.mjs';
 import { createEventWriter } from '../observability/event-writer.mjs';
@@ -68,6 +70,47 @@ const dryRunContextPort = Object.freeze({
 });
 
 const dryRunSubjectDigest = 'sha256:runtime-dry-run-selfcheck';
+
+// P3 authority/effect self-check fixtures (generic, opaque refs only).
+const dryRunActionProposal = Object.freeze({
+  proposal_id: 'prp_dryrun_selfcheck',
+  task_ref: 'runtime-dry-run-selfcheck',
+  subject_ref: 'runtime-dry-run-selfcheck',
+  action_ref: 'runtime:self-check-effect',
+  resource_ref: 'runtime/cli/runtime-dry-run.mjs',
+  policy_ref: 'runtime-dry-run-selfcheck-policy',
+  context_ref: 'runtime-dry-run-selfcheck-context'
+});
+
+const dryRunAllowAuthorityPort = createAuthorityPort({
+  authority_ref: 'runtime-dry-run-selfcheck-authority',
+  evaluate: ({ actionProposal }) => ({
+    decision: 'ALLOW',
+    decision_ref: 'dec_dryrun_allow',
+    subject_ref: actionProposal.subject_ref,
+    action_ref: actionProposal.action_ref,
+    evidence_refs: ['runtime-dry-run-selfcheck-authority-evidence']
+  })
+});
+
+const dryRunDenyAuthorityPort = createAuthorityPort({
+  authority_ref: 'runtime-dry-run-selfcheck-authority',
+  evaluate: ({ actionProposal }) => ({
+    decision: 'DENY',
+    decision_ref: 'dec_dryrun_deny',
+    subject_ref: actionProposal.subject_ref,
+    action_ref: actionProposal.action_ref
+  })
+});
+
+let dryRunEffectCalls = 0;
+const dryRunEffectPort = createEffectPort({
+  effect_ref: 'runtime-dry-run-selfcheck-effect',
+  dispatch: ({ actionProposal }) => {
+    dryRunEffectCalls += 1;
+    return { ok: true, action_ref: actionProposal.action_ref, note: 'self-check stub effect' };
+  }
+});
 
 function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
   const context = createRunContext({
@@ -280,7 +323,7 @@ function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
     verification_id: 'vr_dryrun_selfcheck',
     target_ref: 'runtime-dry-run-selfcheck',
     subject_digest: dryRunSubjectDigest,
-    method: 'deterministic dry-run self-check',
+    method: 'runtime/kernel/loop-controller.mjs',
     verifier: { verifier_type: 'deterministic', verifier_ref: 'runtime/cli/runtime-dry-run.mjs' },
     evidence_refs: ['artifacts/runtime-runs/selfcheck'],
     result: 'PASS',
@@ -327,6 +370,82 @@ function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
     name: 'runtime_loop_artifacts_written',
     result: loopArtifacts.ok ? 'pass' : 'blocked',
     details: loopArtifacts.issues
+  });
+
+  // CLG P3 authority/effect boundary self-check: a proposal never authorizes,
+  // DENY and a missing port produce zero side effects, and an ALLOW reaches
+  // exactly one stub effect whose receipt is observed but never treated as
+  // verification and never completes the task by itself.
+  let p3RuntimeState = {
+    rtc_version: '1.0.0',
+    task_ref: 'runtime-dry-run-selfcheck',
+    lifecycle_state: 'candidate',
+    verification_status: 'unverified',
+    retry_count: 0,
+    replan_count: 0,
+    context_generation: 0
+  };
+  for (const step of [
+    { to: 'scoped' },
+    { to: 'planned' },
+    { to: 'policy_checked' },
+    { to: 'ready' },
+    { to: 'running' }
+  ]) {
+    p3RuntimeState = loopController.applyTransition({ runtimeState: p3RuntimeState, to: step.to }).runtimeState;
+  }
+  const deniedAction = executeActionProposal({
+    runtimeState: p3RuntimeState,
+    taskContract: dryRunTaskContract,
+    actionProposal: dryRunActionProposal,
+    authorityPort: dryRunDenyAuthorityPort,
+    effectPort: dryRunEffectPort
+  });
+  const missingAuthorityAction = executeActionProposal({
+    runtimeState: p3RuntimeState,
+    taskContract: dryRunTaskContract,
+    actionProposal: dryRunActionProposal,
+    authorityPort: null,
+    effectPort: dryRunEffectPort
+  });
+  const allowedAction = executeActionProposal({
+    runtimeState: p3RuntimeState,
+    taskContract: dryRunTaskContract,
+    actionProposal: dryRunActionProposal,
+    authorityPort: dryRunAllowAuthorityPort,
+    effectPort: dryRunEffectPort
+  });
+  const observation = allowedAction.receipt
+    ? observeEffect({ receipt: allowedAction.receipt, authority: allowedAction.authority })
+    : null;
+
+  checks.push({
+    name: 'authority_gate_active',
+    result: deniedAction.ok === false
+      && deniedAction.effectInvocations === 0
+      && deniedAction.authority.decision === 'DENY'
+      && missingAuthorityAction.ok === false
+      && missingAuthorityAction.effectInvocations === 0
+      && missingAuthorityAction.authority.decision === 'UNAVAILABLE'
+      && allowedAction.ok === true
+      && allowedAction.effectInvocations === 1
+      ? 'pass'
+      : 'blocked',
+    details: []
+  });
+  checks.push({
+    name: 'action_receipt_observation_boundary',
+    result: Boolean(allowedAction.receipt)
+      && Boolean(observation)
+      && observation.receipt_ref === allowedAction.receipt.receipt_id
+      && observation.interpretation === 'none'
+      && observation.result === undefined
+      && p3RuntimeState.verification_status === 'unverified'
+      && p3RuntimeState.lifecycle_state === 'running'
+      && dryRunEffectCalls === 1
+      ? 'pass'
+      : 'blocked',
+    details: []
   });
 
   const serviceIdentity = resolveAuthContext({ fixtureIdentity: 'local-user' });

@@ -8,6 +8,7 @@ import {
   isKnownState,
   isTerminalState
 } from './loop-state-machine.mjs';
+import { evaluateCompletion } from './completion-evaluator.mjs';
 import { RuntimeBlockedError } from './runtime-errors.mjs';
 import {
   TRANSITION_DECISIONS,
@@ -18,14 +19,16 @@ import {
   validateVerificationRecord
 } from '../contracts/clg-contracts.mjs';
 
-// CLG P2 loop enforcement — the single canonical transition controller for the
-// generic runtime. All runtime lifecycle state changes must go through this
+// CLG P2/P3 loop enforcement — the single canonical transition controller for
+// the generic runtime. All runtime lifecycle state changes must go through this
 // controller: current state + decision + evidence/preconditions in, next state
 // + TransitionRecords out. Direct mutation of lifecycle_state outside this
 // controller is a contract violation. Unspecified transitions and unsupported
 // decisions DENY fail-closed; missing external ports BLOCK instead of faking
 // success. Authority is never invented here: it arrives via external ports
-// (e.g. the deny-by-default permission engine) or is denied.
+// (e.g. the deny-by-default permission engine) or is denied. COMPLETE runs the
+// P3 CompletionEvaluator (deterministic, criterion-bound facts) BEFORE the P2
+// completion guard (transition admissibility); both must agree.
 
 const TRC_VERSION = '1.0.0';
 
@@ -387,8 +390,22 @@ function createLoopController({ stateMachine = CLG_WORKFLOW_STATE_MACHINE } = {}
     }
 
     if (decision === 'COMPLETE') {
+      // P3-A evaluates the facts (criterion-bound, deterministic); the P2 guard
+      // still owns transition admissibility. Fail-closed precedence: any hard
+      // blocker denies as completion_not_met; only if nothing is blocked do
+      // indeterminate verifications contain instead of complete.
+      const evaluation = evaluateCompletion({ taskContract, runtimeState, verificationRecords });
       const guard = evaluateCompletionGuard({ completionDisposition, verificationRecords });
-      const target = completionOutcomeTransition(guard.outcome);
+      const blocked = evaluation.result === 'BLOCKED'
+        || evaluation.result === 'INCOMPLETE'
+        || guard.outcome === 'completion_not_met';
+      const indeterminate = evaluation.result === 'UNKNOWN'
+        || guard.outcome === 'verification_indeterminate';
+      const outcome = blocked
+        ? 'completion_not_met'
+        : (indeterminate ? 'verification_indeterminate' : 'completion_verified');
+      const issues = blocked || indeterminate ? [...evaluation.issues, ...guard.issues] : [];
+      const target = completionOutcomeTransition(outcome);
       const transitionRecords = [];
       let workingState = runtimeState;
       if (from === 'running') {
@@ -411,14 +428,14 @@ function createLoopController({ stateMachine = CLG_WORKFLOW_STATE_MACHINE } = {}
       // Keep RuntimeState coherent with the completion outcome (CLG-002:
       // verification_status 'passed' requires latest_verification_ref).
       const verifiedState = { ...finalHop.runtimeState };
-      if (guard.outcome === 'completion_verified') {
+      if (outcome === 'completion_verified') {
         const passingRef = (completionDisposition.verified_by_refs ?? []).find((ref) => {
           const record = (verificationRecords ?? []).find((entry) => entry?.verification_id === ref);
           return record?.result === 'PASS';
         });
         verifiedState.verification_status = 'passed';
         verifiedState.latest_verification_ref = passingRef ?? 'unknown-verifier';
-      } else if (guard.outcome === 'verification_indeterminate') {
+      } else if (outcome === 'verification_indeterminate') {
         verifiedState.verification_status = 'unknown';
       } else {
         verifiedState.verification_status = 'failed';
@@ -426,11 +443,11 @@ function createLoopController({ stateMachine = CLG_WORKFLOW_STATE_MACHINE } = {}
       // A denied completion is an evaluated outcome, not an illegal operation:
       // the state machine lands on failed/contained and the caller sees ok:false.
       return {
-        ok: guard.outcome === 'completion_verified',
-        outcome: guard.outcome,
+        ok: outcome === 'completion_verified',
+        outcome,
         runtimeState: verifiedState,
         transitionRecords,
-        issues: guard.outcome === 'completion_verified' ? [] : guard.issues
+        issues
       };
     }
 
