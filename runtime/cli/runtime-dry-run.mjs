@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { loadRuntimeContracts } from '../contracts/load-contracts.mjs';
 import { validateLoadedContracts } from '../contracts/validate-contracts.mjs';
 import { createRunContext } from '../kernel/runtime-context.mjs';
+import { createLoopController } from '../kernel/loop-controller.mjs';
+import { writeLoopArtifacts } from '../kernel/loop-artifacts.mjs';
+import { RuntimeBlockedError } from '../kernel/runtime-errors.mjs';
 import { createPermissionEngine } from '../permissions/permission-engine.mjs';
 import { createEventWriter } from '../observability/event-writer.mjs';
 import { writePermissionLog, writeRunManifest } from '../observability/run-manifest.mjs';
@@ -16,6 +19,55 @@ import { runManualTrigger } from '../scheduler/manual-trigger.mjs';
 import { resolveAuthContext } from '../auth/auth-context.mjs';
 import { writeServiceActionReceipts } from '../service/service-action-receipts.mjs';
 import { writeServiceRequestReceipts } from '../service/service-request-receipts.mjs';
+
+// Self-check fixtures for the loop enforcement demonstration below. They are
+// test-grade local constants; no external authority, identity or domain data.
+const dryRunTaskContract = Object.freeze({
+  ttc_version: '1.0.0',
+  task_id: 'runtime-dry-run-selfcheck',
+  objective: 'Validate the CLG P2 loop enforcement surface end-to-end.',
+  desired_outcome: 'Runtime state lands on succeeded via the canonical transition controller.',
+  success_criteria: [
+    {
+      criterion_id: 'crit_loop_enforced',
+      statement: 'All lifecycle transitions pass the canonical transition controller.',
+      verification_method_ref: 'runtime/kernel/loop-controller.mjs'
+    }
+  ],
+  failure_criteria: [],
+  constraints: [],
+  scope: { included: ['runtime self-check'], excluded: ['production workloads'] },
+  authority_requirements: [],
+  limits: { max_retries: 1, max_replans: 1 }
+});
+
+const dryRunTaskContractWithoutBudgets = Object.freeze({
+  ...dryRunTaskContract,
+  limits: {}
+});
+
+const dryRunContextPort = Object.freeze({
+  engine_ref: 'runtime-dry-run-selfcheck-context',
+  assemble: () => ({
+    ctx_version: '1.0.0',
+    context_id: 'ctx_dryrun_selfcheck',
+    task_ref: 'runtime-dry-run-selfcheck',
+    token_budget: 100,
+    sections: [
+      {
+        source_ref: 'runtime/kernel/loop-controller.mjs',
+        source_type: 'repo_file',
+        provenance: 'local runtime self-check fixture',
+        token_estimate: 10,
+        inclusion_reason: 'loop enforcement self-check'
+      }
+    ],
+    omitted_sources: [],
+    compression_applied: []
+  })
+});
+
+const dryRunSubjectDigest = 'sha256:runtime-dry-run-selfcheck';
 
 function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
   const context = createRunContext({
@@ -137,6 +189,144 @@ function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
     name: 'manual_trigger_written',
     result: triggerWrite.ok ? 'pass' : 'blocked',
     details: triggerWrite.issues
+  });
+
+  // CLG P2 loop enforcement self-check: exercise the canonical transition
+  // controller end-to-end, including its fail-closed denials, then persist the
+  // runtime state and transition records as run artifacts.
+  const loopController = createLoopController();
+  const loopDeniedExpectations = [];
+  let loopRuntimeState = {
+    rtc_version: '1.0.0',
+    task_ref: 'runtime-dry-run-selfcheck',
+    lifecycle_state: 'candidate',
+    verification_status: 'unverified',
+    retry_count: 0,
+    replan_count: 0,
+    context_generation: 0
+  };
+  let loopTransitionRecords = [];
+  let loopFailed = false;
+  const loopStep = (call) => {
+    try {
+      const result = call();
+      loopRuntimeState = result.runtimeState;
+      loopTransitionRecords.push(...result.transitionRecords);
+      return result;
+    } catch (error) {
+      if (error instanceof RuntimeBlockedError) {
+        loopFailed = true;
+        loopDeniedExpectations.push({ expected: false, issues: error.issues });
+        return { ok: false, blocked: true, issues: error.issues };
+      }
+      throw error;
+    }
+  };
+  for (const step of [
+    { to: 'scoped', reason: 'scope_accepted' },
+    { to: 'planned', reason: 'plan_created' },
+    { to: 'policy_checked', reason: 'policy_evaluated' },
+    { to: 'ready', reason: 'policy_allow' },
+    { to: 'running', reason: 'execution_started' }
+  ]) {
+    loopStep(() => loopController.applyTransition({
+      runtimeState: loopRuntimeState,
+      to: step.to,
+      decision: step.reason
+    }));
+  }
+  loopStep(() => loopController.applyDecision({
+    runtimeState: loopRuntimeState,
+    taskContract: dryRunTaskContract,
+    decision: 'ACQUIRE_CONTEXT',
+    contextEnginePort: dryRunContextPort
+  }));
+  loopStep(() => loopController.applyDecision({
+    runtimeState: loopRuntimeState,
+    taskContract: dryRunTaskContract,
+    decision: 'CONTINUE'
+  }));
+  let unboundedRetryBlocked = false;
+  try {
+    loopController.applyDecision({
+      runtimeState: loopRuntimeState,
+      taskContract: dryRunTaskContractWithoutBudgets,
+      decision: 'RETRY'
+    });
+  } catch (error) {
+    unboundedRetryBlocked = error instanceof RuntimeBlockedError && error.issues.includes('BUDGET_UNBOUNDED');
+  }
+  const stateBeforeNegative = loopRuntimeState;
+  const negativeComplete = loopController.applyDecision({
+    runtimeState: loopRuntimeState,
+    taskContract: dryRunTaskContract,
+    decision: 'COMPLETE',
+    completionDisposition: {
+      cc_version: '1.0.0',
+      task_ref: 'runtime-dry-run-selfcheck',
+      disposition: 'PROPOSED',
+      claimed_stages: ['OUTPUT_GENERATED'],
+      evidence_refs: []
+    },
+    verificationRecords: []
+  });
+  loopTransitionRecords.push(...negativeComplete.transitionRecords);
+  // The denied completion legitimately landed on `failed` (terminal). The
+  // positive path continues from the pristine pre-denial snapshot while the
+  // denial itself stays on the transition record.
+  loopRuntimeState = stateBeforeNegative;
+  const verificationRecord = {
+    vrc_version: '1.0.0',
+    verification_id: 'vr_dryrun_selfcheck',
+    target_ref: 'runtime-dry-run-selfcheck',
+    subject_digest: dryRunSubjectDigest,
+    method: 'deterministic dry-run self-check',
+    verifier: { verifier_type: 'deterministic', verifier_ref: 'runtime/cli/runtime-dry-run.mjs' },
+    evidence_refs: ['artifacts/runtime-runs/selfcheck'],
+    result: 'PASS',
+    verified_at: new Date().toISOString()
+  };
+  const completionResult = loopController.applyDecision({
+    runtimeState: loopRuntimeState,
+    taskContract: dryRunTaskContract,
+    decision: 'COMPLETE',
+    completionDisposition: {
+      cc_version: '1.0.0',
+      task_ref: 'runtime-dry-run-selfcheck',
+      disposition: 'ACCEPTED',
+      claimed_stages: ['OUTPUT_GENERATED', 'ACTION_EXECUTED', 'VERIFICATION_PASSED', 'TASK_COMPLETE'],
+      evidence_refs: ['artifacts/runtime-runs/selfcheck'],
+      verified_by_refs: ['vr_dryrun_selfcheck'],
+      unmet_criteria: []
+    },
+    verificationRecords: [verificationRecord]
+  });
+  loopRuntimeState = completionResult.runtimeState;
+  loopTransitionRecords.push(...completionResult.transitionRecords);
+
+  checks.push({
+    name: 'loop_controller_active',
+    result: !loopFailed
+      && unboundedRetryBlocked === true
+      && negativeComplete.ok === false
+      && negativeComplete.outcome === 'completion_not_met'
+      && completionResult.ok === true
+      && loopRuntimeState.lifecycle_state === 'succeeded'
+      ? 'pass'
+      : 'blocked',
+    details: loopFailed ? loopDeniedExpectations.flatMap((entry) => entry.issues) : []
+  });
+
+  const loopArtifacts = writeLoopArtifacts({
+    context,
+    permissionEngine,
+    runtimeState: loopRuntimeState,
+    transitionRecords: loopTransitionRecords
+  });
+  checks.push({
+    name: 'runtime_loop_artifacts_written',
+    result: loopArtifacts.ok ? 'pass' : 'blocked',
+    details: loopArtifacts.issues
   });
 
   const serviceIdentity = resolveAuthContext({ fixtureIdentity: 'local-user' });
