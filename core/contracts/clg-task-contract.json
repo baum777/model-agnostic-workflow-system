@@ -83,6 +83,22 @@
         "max_replans": { "type": "integer", "minimum": 0 }
       }
     },
+    "resource_budget": {
+      "type": "object", "additionalProperties": false,
+      "required": ["budget_id", "limits"],
+      "description": "Declared resource budget enforced by the runtime resource ledger (CLG P7). Only resources with real runtime semantics are enforceable (effects, wall clock); retry/replan counters stay canonical in RuntimeState and are not ledger resources. Tokens/cost have no runtime metering source and are admission-UNAVAILABLE, never fake-priced.",
+      "properties": {
+        "budget_id": { "type": "string", "minLength": 1 },
+        "limits": {
+          "type": "object", "additionalProperties": false, "minProperties": 1,
+          "properties": {
+            "max_effects": { "type": "integer", "minimum": 0 },
+            "max_wall_clock_ms": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "policy_ref": { "type": "string", "minLength": 1 }
+      }
+    },
     "risk_class": {
       "type": "string",
       "description": "Opaque, owner-defined risk reference. This contract defines no risk taxonomy and no thresholds (owner disposition OQ-4 class)."

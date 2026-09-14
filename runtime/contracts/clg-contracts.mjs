@@ -66,6 +66,23 @@ function validateTaskContract(candidate) {
   if (!Array.isArray(candidate.authority_requirements)) {
     issues.push('TaskContract.authority_requirements must be an array (may be empty).');
   }
+  if (candidate.resource_budget !== undefined) {
+    const rb = candidate.resource_budget;
+    if (!rb || typeof rb !== 'object' || Array.isArray(rb) || !isNonEmptyString(rb.budget_id) ||
+        !rb.limits || typeof rb.limits !== 'object' || Array.isArray(rb.limits) || Object.keys(rb.limits).length === 0) {
+      issues.push('TaskContract.resource_budget must carry budget_id and a non-empty limits object.');
+    } else {
+      const supportedLimitFields = ['max_effects', 'max_wall_clock_ms'];
+      for (const key of Object.keys(rb.limits)) {
+        if (!supportedLimitFields.includes(key) || !Number.isInteger(rb.limits[key]) || rb.limits[key] < 0) {
+          issues.push(`TaskContract.resource_budget.limits.${key} is not a supported non-negative integer limit.`);
+        }
+      }
+      if (rb.policy_ref !== undefined && !isNonEmptyString(rb.policy_ref)) {
+        issues.push('TaskContract.resource_budget.policy_ref must be a non-empty string when present.');
+      }
+    }
+  }
   return { ok: issues.length === 0, issues };
 }
 

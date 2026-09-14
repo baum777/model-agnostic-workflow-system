@@ -20,6 +20,7 @@ import { writeValidationReceipt } from '../observability/validation-receipt.mjs'
 import { writeRuntimeMemoryEntry } from '../memory/memory-writer.mjs';
 import { writeHandoffEnvelope } from '../handoff/handoff-writer.mjs';
 import { createResourceGovernor } from '../resources/resource-governor.mjs';
+import { createResourceAdmissionPort, createResourceLedger } from '../resources/resource-ledger.mjs';
 import { runManualTrigger } from '../scheduler/manual-trigger.mjs';
 import { resolveAuthContext } from '../auth/auth-context.mjs';
 import { writeServiceActionReceipts } from '../service/service-action-receipts.mjs';
@@ -701,6 +702,54 @@ function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
       ...actionChain.issues,
       ...why.issues,
       ...writeDenied.issues
+    ]
+  });
+
+  // P7 resource ledger: admission before consumption, durable across a fresh
+  // ledger instance, budget exhaustion denies, tokens/cost stay UNAVAILABLE.
+  const ledgerBudget = { budget_id: 'dryrun-budget', limits: { max_effects: 2 } };
+  const ledger = createResourceLedger({
+    repoRoot,
+    runRef: context.runId,
+    taskRef: selfTask,
+    budget: ledgerBudget
+  });
+  const admissionPort = createResourceAdmissionPort({ ledger });
+  const ledgerAdmissionAllowed = admissionPort.admit({});
+  const ledgerConsumed = admissionPort.recordConsumption({
+    receipt: { receipt_id: 'rcp_dryrun_ledger' },
+    correlationRef: 'dryrun-ledger'
+  });
+  const ledgerFresh = createResourceLedger({
+    repoRoot,
+    runRef: context.runId,
+    taskRef: selfTask,
+    budget: ledgerBudget
+  });
+  const ledgerAfterRestart = ledgerFresh.admit({ resourceType: 'effects', amount: 2 });
+  const ledgerSecondConsumed = ledgerFresh.appendUsage({ resourceType: 'effects', amount: 1, sourceRef: 'rcp_dryrun_ledger_2' });
+  const ledgerExhausted = ledgerFresh.admit({ resourceType: 'effects', amount: 1 });
+  const ledgerExternal = ledgerFresh.admit({ resourceType: 'tokens', amount: 1000 });
+  checks.push({
+    name: 'resource_ledger_active',
+    result: ledgerAdmissionAllowed.decision === 'ALLOWED'
+      && ledgerConsumed.ok === true
+      && ledgerAfterRestart.decision === 'DENIED'
+      && ledgerAfterRestart.reason === 'RESOURCE_BUDGET_EXHAUSTED'
+      && ledgerSecondConsumed.ok === true
+      && ledgerExhausted.decision === 'DENIED'
+      && ledgerExhausted.reason === 'RESOURCE_BUDGET_EXHAUSTED'
+      && ledgerExternal.decision === 'UNAVAILABLE'
+      && ledgerExternal.reason === 'EXTERNAL_USAGE_SOURCE'
+      && ledgerFresh.remainingBudget('effects').remaining === 0
+      ? 'pass'
+      : 'blocked',
+    details: [
+      `admission before consumption: ${ledgerAdmissionAllowed.decision} (remainingAfter ${ledgerAdmissionAllowed.remainingAfter})`,
+      `consumption recorded: ${ledgerConsumed.ok === true ? ledgerConsumed.record.usage_id : 'FAILED'}`,
+      `after restart: admit 2 of 1 remaining -> ${ledgerAfterRestart.decision} (${ledgerAfterRestart.reason})`,
+      `second consumption recorded, then admit 1 of 0 remaining -> ${ledgerExhausted.decision} (${ledgerExhausted.reason})`,
+      `tokens admission -> ${ledgerExternal.decision} (${ledgerExternal.reason}); no fake cost model`
     ]
   });
 

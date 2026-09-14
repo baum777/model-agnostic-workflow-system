@@ -49,12 +49,19 @@ function createEffectPort(binding) {
 // Executes one authorized action proposal. Every denial path returns an
 // evaluated result with effectInvocations: 0 — the effect is never attempted,
 // and an ALLOW without a bound EffectPort BLOCKs instead of faking success.
+//
+// P7: when the task contract declares resource_budget, resource admission runs
+// between the authority gate and the effect port (independent gates — budget
+// allowed never implies authority, and vice versa). Actual consumption is
+// recorded through the port only after a receipt exists; a recording failure is
+// fail-closed because the ledger would otherwise silently understate usage.
 function executeActionProposal({
   runtimeState,
   taskContract,
   actionProposal,
   authorityPort = null,
-  effectPort = null
+  effectPort = null,
+  resourceAdmissionPort = null
 }) {
   const proposalCheck = validateActionProposal(actionProposal);
   if (!proposalCheck.ok) {
@@ -70,6 +77,16 @@ function executeActionProposal({
       'TASK_REF_MISMATCH'
     ]);
   }
+  const budgetBound = taskContract.resource_budget !== undefined;
+  if (budgetBound) {
+    const rb = taskContract.resource_budget;
+    if (!rb || typeof rb !== 'object' || Array.isArray(rb) || typeof rb.budget_id !== 'string' || rb.budget_id.length === 0 ||
+        !rb.limits || typeof rb.limits !== 'object' || Array.isArray(rb.limits) || Object.keys(rb.limits).length === 0) {
+      throw new RuntimeBlockedError('TaskContract.resource_budget is malformed (fail-closed).', [
+        'MALFORMED_RESOURCE_BUDGET'
+      ]);
+    }
+  }
 
   const authority = evaluateAction({ authorityPort, actionProposal });
   if (authority.decision !== 'ALLOW') {
@@ -77,10 +94,38 @@ function executeActionProposal({
       ok: false,
       stage: 'authority',
       authority,
+      admission: null,
       effectInvocations: 0,
       receipt: null,
       issues: [`Authority ${authority.decision}: no side effect (${authority.reason}).`]
     };
+  }
+
+  let admission = null;
+  if (budgetBound) {
+    if (!resourceAdmissionPort || resourceAdmissionPort.port !== 'ResourceAdmissionPort' || typeof resourceAdmissionPort.admit !== 'function') {
+      return {
+        ok: false,
+        stage: 'resource_admission',
+        authority,
+        admission: { ok: false, decision: 'UNAVAILABLE', reason: 'RESOURCE_ADMISSION_PORT_UNAVAILABLE' },
+        effectInvocations: 0,
+        receipt: null,
+        issues: ['TaskContract declares resource_budget but no ResourceAdmissionPort is bound (fail-closed).']
+      };
+    }
+    admission = resourceAdmissionPort.admit({ actionProposal });
+    if (admission.decision !== 'ALLOWED') {
+      return {
+        ok: false,
+        stage: 'resource_admission',
+        authority,
+        admission,
+        effectInvocations: 0,
+        receipt: null,
+        issues: [`Resource admission ${admission.decision}: no side effect (${admission.reason}).`]
+      };
+    }
   }
 
   if (!effectPort || effectPort.port !== 'EffectPort' || typeof effectPort.dispatch !== 'function') {
@@ -108,10 +153,20 @@ function executeActionProposal({
     raw_result: rawResult
   });
 
+  if (admission) {
+    const recorded = resourceAdmissionPort.recordConsumption({ receipt, correlationRef: actionProposal.proposal_id });
+    if (!recorded || recorded.ok !== true) {
+      throw new RuntimeBlockedError('Effect executed but resource consumption could not be recorded (ledger fail-closed).', [
+        'CONSUMPTION_RECORDING_FAILED'
+      ]);
+    }
+  }
+
   return {
     ok: true,
     stage: 'effect',
     authority,
+    admission,
     effectInvocations: 1,
     receipt,
     issues: []
