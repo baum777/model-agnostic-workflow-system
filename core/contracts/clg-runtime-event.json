@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/clg-runtime-event.json",
+  "schemaVersion": "1.0.0",
+  "canonicalOwner": "core/contracts/clg-runtime-event.json",
+  "scope": "portable-core",
+  "maturityLabel": "contract-backed",
+  "validatorStatus": "test-backed",
+  "runtimeStatus": "deferred",
+  "clgId": "CLG-P8-ALIGN-01",
+  "decisionBasis": {
+    "existingRuntimeRequirements": [
+      "P5 runtime event envelope: strict field allowlist (runtime-event-log.mjs), payload_digest over semantic content INCLUDING runtime_version; event_id and timestamp live OUTSIDE the digest",
+      "closed 12-type event vocabulary; append-only stream with monotone sequence; tampered line taints the whole stream fail-closed",
+      "deny semantics: unknown event_type, unexpected fields, malformed ids/digests"
+    ],
+    "externalSpecRequirements": [
+      "Master spec (external, non-normative) DoD 16: observability across transitions must be independently machine-validatable"
+    ],
+    "ownerDisposition": [
+      "P8 contract alignment: this schema DESCRIBES the existing P5 envelope; it invents no new event types and no new runtime semantics",
+      "the event vocabulary is CLOSED; extending it is a contract change requiring explicit owner disposition (P7-R8 disposition unchanged)"
+    ],
+    "newInference": [
+      "runtime_version pinned to the value the current runtime writes (0.1.0); a future version change is a contract change requiring explicit owner disposition"
+    ]
+  },
+  "title": "CLG Runtime Event",
+  "description": "Machine-validatable projection of the append-only lifecycle event envelope produced by runtime/kernel/runtime-event-log.mjs since CLG-P5 (loop-events.jsonl). Payload content is opaque to this contract; digest binding is enforced inline by the runtime validator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "run_ref",
+    "task_ref",
+    "sequence",
+    "event_type",
+    "timestamp",
+    "actor_ref",
+    "subject_ref",
+    "correlation_ref",
+    "payload_digest",
+    "payload",
+    "runtime_version"
+  ],
+  "properties": {
+    "event_id": { "type": "string", "pattern": "^evt_[A-Za-z0-9_-]+$" },
+    "run_ref": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "task_ref": { "type": "string", "minLength": 1 },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "RUN_CREATED",
+        "DECISION_RECORDED",
+        "TRANSITION_APPLIED",
+        "AUTHORITY_EVALUATED",
+        "EFFECT_ATTEMPTED",
+        "EFFECT_RECEIPT_RECORDED",
+        "OBSERVATION_RECORDED",
+        "VERIFICATION_RECORDED",
+        "CHECKPOINT_CREATED",
+        "RESUME_PERFORMED",
+        "RUN_CONTAINED",
+        "RUN_TERMINATED"
+      ]
+    },
+    "timestamp": { "type": "string", "minLength": 1 },
+    "actor_ref": { "type": "string", "minLength": 1 },
+    "subject_ref": { "type": "string", "minLength": 1 },
+    "correlation_ref": { "type": "string", "minLength": 1 },
+    "causation_ref": { "type": ["string", "null"], "minLength": 1 },
+    "payload_ref": { "type": ["string", "null"], "minLength": 1 },
+    "payload_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "payload": { "type": "object" },
+    "runtime_version": { "type": "string", "const": "0.1.0" }
+  }
+}

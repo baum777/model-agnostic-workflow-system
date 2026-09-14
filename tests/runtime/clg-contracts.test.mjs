@@ -67,7 +67,7 @@ const taskContractPositive = {
 const runtimeStatePositive = {
   rtc_version: '1.0.0',
   task_ref: 'TASK-1',
-  lifecycle_state: 'executing',
+  lifecycle_state: 'running',  // P8 alignment: kernel SM vocabulary (was non-runtime 'executing')
   verification_status: 'passed',
   latest_verification_ref: 'VR-1',
   domain_state_ref: { type: 'opaque-domain', ref: 'domain/instance-42' }

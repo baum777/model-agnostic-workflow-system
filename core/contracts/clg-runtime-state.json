@@ -18,14 +18,15 @@
     ],
     "ownerDisposition": [
       "P1 contract only; lifecycle state vocabulary and enforcement arrive with P2",
-      "domain_state_ref is opaque and must never be merged with a domain workflow instance (runtime ownership matrix)"
+      "domain_state_ref is opaque and must never be merged with a domain workflow instance (runtime ownership matrix)",
+      "P8 contract alignment: lifecycle_state enum encodes the closed 14-state vocabulary the kernel state machine has enforced since P2; describes enforced reality, invents no new states"
     ],
     "newInference": [
       "verification_status 'passed' requires latest_verification_ref (fail-closed against status inflation)"
     ]
   },
   "title": "CLG RuntimeState",
-  "description": "Generic runtime state envelope for a single task execution. Agent runtime state is not business workflow state: domain_state_ref is an opaque reference the generic runtime must not interpret. lifecycle_state is intentionally a free string in P1; the state vocabulary and fail-closed transition enforcement are P2 scope (clg-transition-vocabulary.json documents decisions, not lifecycle states).",
+  "description": "Generic runtime state envelope for a single task execution. Agent runtime state is not business workflow state: domain_state_ref is an opaque reference the generic runtime must not interpret. lifecycle_state was a free string in P1 and is, since CLG-P8 contract alignment, the closed vocabulary enforced by the canonical CLG workflow state machine (unspecified transitions are DENY).",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -36,7 +37,25 @@
   "properties": {
     "rtc_version": { "type": "string", "const": "1.0.0" },
     "task_ref": { "type": "string", "minLength": 1 },
-    "lifecycle_state": { "type": "string", "minLength": 1 },
+    "lifecycle_state": {
+      "type": "string",
+      "enum": [
+        "candidate",
+        "scoped",
+        "planned",
+        "policy_checked",
+        "waiting_for_input",
+        "waiting_for_approval",
+        "ready",
+        "running",
+        "validating",
+        "recovering",
+        "contained",
+        "succeeded",
+        "failed",
+        "cancelled"
+      ]
+    },
     "active_goal": { "type": "string" },
     "active_plan_ref": { "type": "string" },
     "completed_steps": { "type": "array", "items": { "type": "string", "minLength": 1 } },

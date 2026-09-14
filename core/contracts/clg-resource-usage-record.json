@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/clg-resource-usage-record.json",
+  "schemaVersion": "1.0.0",
+  "canonicalOwner": "core/contracts/clg-resource-usage-record.json",
+  "scope": "portable-core",
+  "maturityLabel": "contract-backed",
+  "validatorStatus": "test-backed",
+  "runtimeStatus": "deferred",
+  "clgId": "CLG-P8-ALIGN-01",
+  "decisionBasis": {
+    "existingRuntimeRequirements": [
+      "P7 resource usage record: strict field allowlist (resource-ledger.mjs), record_digest over the ten semantic fields; record_digest itself lives OUTSIDE the digest",
+      "closed resource type set: effects/wall_clock_ms are admission-enforced; tokens/cost are admission-UNAVAILABLE (EXTERNAL_USAGE_SOURCE, never fabricated)",
+      "amount must be a finite positive number; unit is type-bound; duplicate usage_id is denied (append-only, no overwrite); tampered records taint the whole ledger fail-closed"
+    ],
+    "externalSpecRequirements": [
+      "Master spec (external, non-normative): configured budget limits require durable, independently machine-validatable consumption accounting"
+    ],
+    "ownerDisposition": [
+      "P8 contract alignment: this schema DESCRIBES the existing P7 record; it invents no new resource types and no cost semantics",
+      "resource_usage != authority != verification != event log != runtime state; retry/replan counters stay canonical in RuntimeState"
+    ],
+    "newInference": [
+      "record_version '1.0.0' is envelope metadata written from CLG-P8 onward, OUTSIDE the digest; records WITHOUT record_version are historical pre-P8 records and remain readable; a PRESENT record_version other than 1.0.0 is DENIED (no migration without explicit owner disposition)"
+    ]
+  },
+  "title": "CLG Resource Usage Record",
+  "description": "Machine-validatable projection of the append-only consumption record produced by runtime/resources/resource-ledger.mjs since CLG-P7 (resource-usage.jsonl). Digest binding and ledger taint semantics are enforced inline by the runtime validator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "usage_id",
+    "run_ref",
+    "task_ref",
+    "resource_type",
+    "amount",
+    "unit",
+    "source_ref",
+    "correlation_ref",
+    "timestamp",
+    "sequence",
+    "record_digest"
+  ],
+  "properties": {
+    "usage_id": { "type": "string", "pattern": "^usg_[A-Za-z0-9_-]+$" },
+    "run_ref": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "task_ref": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "resource_type": {
+      "type": "string",
+      "enum": ["effects", "wall_clock_ms", "tokens", "cost"]
+    },
+    "amount": { "type": "number", "exclusiveMinimum": 0 },
+    "unit": { "type": "string", "enum": ["count", "ms", "tokens", "currency"] },
+    "source_ref": { "type": "string", "minLength": 1 },
+    "correlation_ref": { "type": ["string", "null"], "minLength": 1 },
+    "timestamp": { "type": "string", "minLength": 1 },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "record_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "record_version": { "type": "string", "enum": ["1.0.0"] }
+  }
+}

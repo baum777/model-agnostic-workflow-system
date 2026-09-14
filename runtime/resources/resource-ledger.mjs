@@ -36,8 +36,13 @@ const RESOURCE_LIMIT_FIELDS = Object.freeze({
 });
 const ALLOWED_RECORD_FIELDS = Object.freeze([
   'usage_id', 'run_ref', 'task_ref', 'resource_type', 'amount', 'unit',
-  'source_ref', 'correlation_ref', 'timestamp', 'sequence', 'record_digest'
+  'source_ref', 'correlation_ref', 'timestamp', 'sequence', 'record_digest',
+  'record_version'
 ]);
+// P8 contract alignment: envelope metadata written from CLG-P8 onward. It sits
+// OUTSIDE record_digest so historical pre-P8 records (no field) stay valid;
+// a PRESENT but unknown version is denied (no migration without owner order).
+const USAGE_RECORD_VERSION = '1.0.0';
 const RUN_REF_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const USAGE_ID_PATTERN = /^usg_[A-Za-z0-9_-]+$/;
 const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
@@ -145,6 +150,9 @@ function validateUsageRecord(candidate, { runRef, taskRef }) {
   }
   if (!isNonEmptyString(candidate.timestamp)) {
     issues.push('ResourceUsageRecord.timestamp must be a non-empty string.');
+  }
+  if (candidate.record_version !== undefined && candidate.record_version !== USAGE_RECORD_VERSION) {
+    issues.push(`ResourceUsageRecord.record_version ${String(candidate.record_version)} is unknown (DENY; no migration without explicit owner disposition).`);
   }
   if (!Number.isInteger(candidate.sequence) || candidate.sequence < 1) {
     issues.push('ResourceUsageRecord.sequence must be a positive integer.');
@@ -254,6 +262,7 @@ export function createResourceLedger({ repoRoot, runRef, taskRef, budget, now = 
       correlation_ref: correlationRef ?? null,
       timestamp: timestamp ?? now ?? new Date().toISOString(),
       sequence: latestSequence(ledger.records) + 1,
+      record_version: USAGE_RECORD_VERSION,
       record_digest: null
     });
     const sealed = Object.freeze({ ...record, record_digest: sha256OfCanonical(digestTarget(record)) });

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/clg-checkpoint-envelope.json",
+  "schemaVersion": "1.0.0",
+  "canonicalOwner": "core/contracts/clg-checkpoint-envelope.json",
+  "scope": "portable-core",
+  "maturityLabel": "contract-backed",
+  "validatorStatus": "test-backed",
+  "runtimeStatus": "deferred",
+  "clgId": "CLG-P8-ALIGN-01",
+  "decisionBasis": {
+    "existingRuntimeRequirements": [
+      "P4 checkpoint envelope: strict field allowlist (checkpoint-integrity.mjs), dual digest (runtime_state_digest over canonical runtime_state, integrity.payload_digest over envelope minus integrity)",
+      "identity: checkpoint_id chk_* path-safe, run_ref path-safe, sequence >= 1, task_ref identity-binding to runtime_state.task_ref",
+      "compatibility: resume DENIES unknown contract_version/runtime_version (no best-effort coercion)"
+    ],
+    "externalSpecRequirements": [
+      "Master spec (external, non-normative): durable checkpointing must be independently machine-validatable"
+    ],
+    "ownerDisposition": [
+      "P8 contract alignment: this schema DESCRIBES the existing P4 envelope; it invents no new runtime semantics",
+      "inline JS validators remain the semantic authority (runtimeStatus deferred: the runtime does not consume this schema)"
+    ],
+    "newInference": [
+      "runtime_version/contract_version are pinned to the values the current runtime writes (0.1.0/1.0.0); a future version change is a contract change requiring explicit owner disposition"
+    ]
+  },
+  "title": "CLG Checkpoint Envelope",
+  "description": "Machine-validatable projection of the persisted checkpoint envelope produced by runtime/kernel/checkpoint-store.mjs since CLG-P4. Deep runtime_state semantics are owned by clg-runtime-state.json and enforced inline; this contract covers the envelope surface and integrity metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "checkpoint_id",
+    "task_ref",
+    "run_ref",
+    "runtime_state_digest",
+    "runtime_version",
+    "contract_version",
+    "created_at",
+    "reason",
+    "sequence",
+    "integrity",
+    "runtime_state"
+  ],
+  "properties": {
+    "checkpoint_id": { "type": "string", "pattern": "^chk_[A-Za-z0-9_-]+$" },
+    "task_ref": { "type": "string", "minLength": 1 },
+    "run_ref": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "runtime_state_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "runtime_version": { "type": "string", "const": "0.1.0" },
+    "contract_version": { "type": "string", "const": "1.0.0" },
+    "created_at": { "type": "string", "minLength": 1 },
+    "reason": {
+      "type": "string",
+      "enum": ["manual", "before_external_wait", "before_containment", "after_verified_state_update"]
+    },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "previous_checkpoint_ref": {
+      "type": ["string", "null"],
+      "minLength": 1
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "payload_digest"],
+      "properties": {
+        "algorithm": { "type": "string", "const": "sha256" },
+        "payload_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+      }
+    },
+    "runtime_state": {
+      "type": "object",
+      "description": "Deep semantics owned by core/contracts/clg-runtime-state.json; enforced inline by validateRuntimeState including task_ref identity binding to the envelope."
+    }
+  }
+}
