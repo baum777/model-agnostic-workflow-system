@@ -244,6 +244,11 @@ function acquireContext({ runtimeState, contextEnginePort }) {
   if (!manifestCheck.ok) {
     throw new RuntimeBlockedError('ContextEnginePort returned an invalid ContextManifest.', manifestCheck.issues);
   }
+  if (manifest.task_ref !== runtimeState.task_ref) {
+    throw new RuntimeBlockedError('ContextEnginePort returned a manifest for a foreign task (fail-closed).', [
+      'CONTEXT_TASK_BINDING_MISMATCH'
+    ]);
+  }
   return {
     runtimeState: {
       ...runtimeState,
