@@ -11,6 +11,7 @@ import { createAuthorityPort } from '../kernel/authority-port.mjs';
 import { createEffectPort, executeActionProposal, observeEffect } from '../kernel/action-boundary.mjs';
 import { createCheckpoint } from '../kernel/checkpoint-store.mjs';
 import { createResumeRequest, resumeFromCheckpoint } from '../kernel/resume-controller.mjs';
+import { appendEvent, explainState, getEventChain, listEvents } from '../kernel/runtime-event-log.mjs';
 import { RuntimeBlockedError } from '../kernel/runtime-errors.mjs';
 import { createPermissionEngine } from '../permissions/permission-engine.mjs';
 import { createEventWriter } from '../observability/event-writer.mjs';
@@ -536,6 +537,171 @@ function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
       ? 'pass'
       : 'blocked',
     details: [...cp1.issues, ...cp2.issues, ...resumeLatest.issues, ...resumeRolledBack.issues, ...resumeTerminal.issues]
+  });
+
+  // CLG P5 event log self-check: a correlated lifecycle stream (run -> decision
+  // -> transitions -> authority -> effect -> receipt -> observation ->
+  // verification -> checkpoints -> resume -> terminated), restart-readable,
+  // with a deterministic why-state query and classified write failures.
+  const eventIssues = [];
+  const selfTask = 'runtime-dry-run-selfcheck';
+  const emitEvent = (args) => appendEvent({
+    repoRoot,
+    permissionEngine,
+    runRef: context.runId,
+    taskRef: selfTask,
+    ...args
+  });
+  const runCreated = emitEvent({
+    eventType: 'RUN_CREATED',
+    actorRef: 'runtime/cli/runtime-dry-run.mjs',
+    subjectRef: selfTask,
+    correlationRef: context.runId,
+    payload: { mode: 'dry-run' }
+  });
+  if (!runCreated.ok) eventIssues.push(...runCreated.issues);
+  let lastEventId = runCreated.ok ? runCreated.event.event_id : null;
+  for (const record of loopTransitionRecords) {
+    const applied = emitEvent({
+      eventType: 'TRANSITION_APPLIED',
+      actorRef: 'runtime/kernel/loop-controller.mjs',
+      subjectRef: selfTask,
+      correlationRef: record.transition_id,
+      causationRef: lastEventId,
+      payload: { from: record.from, to: record.to, reason_code: record.reason_code }
+    });
+    if (!applied.ok) eventIssues.push(...applied.issues);
+    else lastEventId = applied.event.event_id;
+  }
+  const authorityDeny = emitEvent({
+    eventType: 'AUTHORITY_EVALUATED',
+    actorRef: 'runtime/kernel/authority-port.mjs',
+    subjectRef: selfTask,
+    correlationRef: dryRunActionProposal.proposal_id,
+    payload: { decision: 'DENY', decision_ref: deniedAction.authority.decision_ref }
+  });
+  const authorityAllow = emitEvent({
+    eventType: 'AUTHORITY_EVALUATED',
+    actorRef: 'runtime/kernel/authority-port.mjs',
+    subjectRef: selfTask,
+    correlationRef: dryRunActionProposal.proposal_id,
+    payload: { decision: 'ALLOW', decision_ref: allowedAction.authority.decision_ref }
+  });
+  const effectAttempted = emitEvent({
+    eventType: 'EFFECT_ATTEMPTED',
+    actorRef: 'runtime/kernel/action-boundary.mjs',
+    subjectRef: selfTask,
+    correlationRef: dryRunActionProposal.proposal_id,
+    causationRef: authorityAllow.ok ? authorityAllow.event.event_id : null,
+    payload: { action_ref: dryRunActionProposal.action_ref }
+  });
+  const receiptEvent = emitEvent({
+    eventType: 'EFFECT_RECEIPT_RECORDED',
+    actorRef: 'runtime/kernel/action-boundary.mjs',
+    subjectRef: selfTask,
+    correlationRef: dryRunActionProposal.proposal_id,
+    causationRef: effectAttempted.ok ? effectAttempted.event.event_id : null,
+    payloadRef: allowedAction.receipt ? `receipt:${allowedAction.receipt.receipt_id}` : null,
+    payload: { receipt_id: allowedAction.receipt ? allowedAction.receipt.receipt_id : null }
+  });
+  const observationEvent = emitEvent({
+    eventType: 'OBSERVATION_RECORDED',
+    actorRef: 'runtime/kernel/action-boundary.mjs',
+    subjectRef: selfTask,
+    correlationRef: dryRunActionProposal.proposal_id,
+    causationRef: receiptEvent.ok ? receiptEvent.event.event_id : null,
+    payload: { observation_id: observation ? observation.observation_id : null }
+  });
+  const verificationEvent = emitEvent({
+    eventType: 'VERIFICATION_RECORDED',
+    actorRef: 'runtime/cli/runtime-dry-run.mjs',
+    subjectRef: selfTask,
+    correlationRef: 'vr_dryrun_selfcheck',
+    causationRef: observationEvent.ok ? observationEvent.event.event_id : null,
+    payload: { verification_id: 'vr_dryrun_selfcheck', result: 'PASS' }
+  });
+  const checkpointEvents = [
+    cp1.ok ? cp1.checkpointRef : null,
+    cp2.ok ? cp2.checkpointRef : null,
+    terminalCheckpoint.ok ? terminalCheckpoint.checkpointRef : null
+  ].filter(Boolean)
+    .map((checkpointRef) => emitEvent({
+      eventType: 'CHECKPOINT_CREATED',
+      actorRef: 'runtime/kernel/checkpoint-store.mjs',
+      subjectRef: selfTask,
+      correlationRef: checkpointRef,
+      causationRef: lastEventId,
+      payload: { checkpoint_ref: checkpointRef }
+    }));
+  const resumeEvent = cp2.ok
+    ? emitEvent({
+      eventType: 'RESUME_PERFORMED',
+      actorRef: 'runtime/kernel/resume-controller.mjs',
+      subjectRef: selfTask,
+      correlationRef: cp2.checkpointRef,
+      causationRef: checkpointEvents.length > 0 ? checkpointEvents[checkpointEvents.length - 1].event.event_id : lastEventId,
+      payload: { checkpoint_ref: cp2.checkpointRef }
+    })
+    : { ok: false, issues: ['skipped: no checkpoint'] };
+  const terminated = emitEvent({
+    eventType: 'RUN_TERMINATED',
+    actorRef: 'runtime/kernel/loop-controller.mjs',
+    subjectRef: selfTask,
+    correlationRef: context.runId,
+    causationRef: verificationEvent.ok ? verificationEvent.event.event_id : lastEventId,
+    payload: { lifecycle_state: loopRuntimeState.lifecycle_state }
+  });
+  if (!terminated.ok) eventIssues.push(...terminated.issues);
+
+  // Fresh-context read (restart): the stream is read from disk with no cached
+  // in-memory state, chronological, sequence-monotone.
+  const restartList = listEvents({ repoRoot, runRef: context.runId });
+  const sequenceMonotone = restartList.events.every((event, index) => event.sequence === index + 1);
+  const actionChain = getEventChain({ repoRoot, runRef: context.runId, correlationRef: dryRunActionProposal.proposal_id });
+  const why = explainState({ repoRoot, runRef: context.runId, taskRef: selfTask });
+  const writeDenied = appendEvent({
+    repoRoot,
+    permissionEngine: { decide: () => ({ decision: 'deny', reason: 'self-check gate' }) },
+    runRef: context.runId,
+    taskRef: selfTask,
+    eventType: 'RUN_CREATED',
+    actorRef: 'runtime/cli/runtime-dry-run.mjs',
+    subjectRef: selfTask,
+    correlationRef: 'selfcheck-denied-write'
+  });
+
+  const terminationChainTypes = why.chain.map((event) => event.event_type);
+  checks.push({
+    name: 'runtime_event_log_active',
+    result: runCreated.ok
+      && restartList.ok === true
+      && sequenceMonotone
+      && restartList.events.some((event) => event.event_type === 'TRANSITION_APPLIED')
+      && actionChain.ok === true
+      && actionChain.events.length === 5
+      && actionChain.events[0].event_type === 'AUTHORITY_EVALUATED'
+      && actionChain.events[actionChain.events.length - 1].event_type === 'OBSERVATION_RECORDED'
+      && why.ok === true
+      && why.current_state.event_type === 'RUN_TERMINATED'
+      && JSON.stringify(terminationChainTypes) === JSON.stringify([
+        'AUTHORITY_EVALUATED',
+        'EFFECT_ATTEMPTED',
+        'EFFECT_RECEIPT_RECORDED',
+        'OBSERVATION_RECORDED',
+        'VERIFICATION_RECORDED',
+        'RUN_TERMINATED'
+      ])
+      && writeDenied.ok === false
+      && writeDenied.denied === 'EVENT_WRITE_DENIED'
+      ? 'pass'
+      : 'blocked',
+    details: [
+      ...eventIssues,
+      ...restartList.issues,
+      ...actionChain.issues,
+      ...why.issues,
+      ...writeDenied.issues
+    ]
   });
 
   const serviceIdentity = resolveAuthContext({ fixtureIdentity: 'local-user' });
