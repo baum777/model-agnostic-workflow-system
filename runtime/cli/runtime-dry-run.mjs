@@ -9,6 +9,8 @@ import { createLoopController } from '../kernel/loop-controller.mjs';
 import { writeLoopArtifacts } from '../kernel/loop-artifacts.mjs';
 import { createAuthorityPort } from '../kernel/authority-port.mjs';
 import { createEffectPort, executeActionProposal, observeEffect } from '../kernel/action-boundary.mjs';
+import { createCheckpoint } from '../kernel/checkpoint-store.mjs';
+import { createResumeRequest, resumeFromCheckpoint } from '../kernel/resume-controller.mjs';
 import { RuntimeBlockedError } from '../kernel/runtime-errors.mjs';
 import { createPermissionEngine } from '../permissions/permission-engine.mjs';
 import { createEventWriter } from '../observability/event-writer.mjs';
@@ -446,6 +448,94 @@ function runRuntimeDryRun({ repoRoot = process.cwd() } = {}) {
       ? 'pass'
       : 'blocked',
     details: []
+  });
+
+  // CLG P4 checkpoint/resume self-check: explicit safepoint checkpoints,
+  // digest-verified resume with replay consistency, implicit rollback denied,
+  // terminal resume denied.
+  const p4StateBase = {
+    rtc_version: '1.0.0',
+    task_ref: 'runtime-dry-run-selfcheck',
+    lifecycle_state: 'candidate',
+    verification_status: 'unverified',
+    retry_count: 0,
+    replan_count: 0,
+    context_generation: 0
+  };
+  let p4State = { ...p4StateBase, lifecycle_state: 'running' };
+  const cp1 = createCheckpoint({
+    repoRoot,
+    permissionEngine,
+    runRef: context.runId,
+    runtimeState: p4State,
+    reason: 'manual'
+  });
+  const cp2 = cp1.ok
+    ? createCheckpoint({
+      repoRoot,
+      permissionEngine,
+      runRef: context.runId,
+      runtimeState: { ...p4State, retry_count: 1 },
+      reason: 'after_verified_state_update',
+      previousCheckpointRef: cp1.checkpointRef
+    })
+    : { ok: false, issues: ['skipped: first checkpoint failed'] };
+  const resumeLatest = cp2.ok
+    ? resumeFromCheckpoint({
+      repoRoot,
+      resumeRequest: createResumeRequest({
+        checkpointRef: cp2.checkpointRef,
+        expectedTaskRef: 'runtime-dry-run-selfcheck',
+        expectedRunRef: context.runId
+      })
+    })
+    : { ok: false, issues: ['skipped: second checkpoint failed'] };
+  const resumeRolledBack = cp2.ok
+    ? resumeFromCheckpoint({
+      repoRoot,
+      resumeRequest: createResumeRequest({
+        checkpointRef: cp1.checkpointRef,
+        expectedTaskRef: 'runtime-dry-run-selfcheck',
+        expectedRunRef: context.runId
+      })
+    })
+    : { ok: false, issues: ['skipped: second checkpoint failed'] };
+  const terminalCheckpoint = createCheckpoint({
+    repoRoot,
+    permissionEngine,
+    runRef: context.runId,
+    runtimeState: { ...p4StateBase, lifecycle_state: 'succeeded', verification_status: 'unverified' },
+    reason: 'after_verified_state_update',
+    previousCheckpointRef: cp2.ok ? cp2.checkpointRef : null
+  });
+  const resumeTerminal = terminalCheckpoint.ok
+    ? resumeFromCheckpoint({
+      repoRoot,
+      resumeRequest: createResumeRequest({
+        checkpointRef: terminalCheckpoint.checkpointRef,
+        expectedTaskRef: 'runtime-dry-run-selfcheck',
+        expectedRunRef: context.runId
+      })
+    })
+    : { ok: false, issues: ['skipped: terminal checkpoint failed'] };
+  const snapshotForCompare = cp2.ok ? { ...p4State, retry_count: 1 } : null;
+  const { checkpoint_ref: _resumeMetadata, ...rehydratedRest } = resumeLatest.runtimeState ?? {};
+  checks.push({
+    name: 'checkpoint_resume_active',
+    result: cp1.ok
+      && cp2.ok
+      && resumeLatest.ok === true
+      && resumeLatest.runtimeState.lifecycle_state === 'running'
+      && resumeLatest.runtimeState.retry_count === 1
+      && snapshotForCompare !== null
+      && JSON.stringify(rehydratedRest) === JSON.stringify(snapshotForCompare)
+      && resumeRolledBack.ok === false
+      && resumeRolledBack.denied === 'ROLLBACK_DENIED'
+      && resumeTerminal.ok === false
+      && resumeTerminal.denied === 'TERMINAL_RESUME_DENIED'
+      ? 'pass'
+      : 'blocked',
+    details: [...cp1.issues, ...cp2.issues, ...resumeLatest.issues, ...resumeRolledBack.issues, ...resumeTerminal.issues]
   });
 
   const serviceIdentity = resolveAuthContext({ fixtureIdentity: 'local-user' });
