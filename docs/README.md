@@ -47,9 +47,20 @@ Canonical install gate and its operator-facing companions.
 - [pi/skillspector-install-gate.md](pi/skillspector-install-gate.md) — operator gate with the standard static scan command and the optional strict-scan reference.
 - [checklists/pre-install-risk-scan.md](checklists/pre-install-risk-scan.md) — pre-install checklist and minimum evidence set.
 
+## Generic Runtime Core (frozen baseline, 2026-09-14)
+
+Canonical freeze artifacts for the Context+Loop generic runtime kernel. Freeze is not production readiness, not domain activation, and not security certification.
+
+- [runtime/README.md](runtime/README.md) — freeze surface frontdoor.
+- [runtime/GENERIC-RUNTIME-BASELINE.md](runtime/GENERIC-RUNTIME-BASELINE.md) — FROZEN_BASELINE: version pins, test/validation baseline, durability vocabulary, architecture invariants.
+- [runtime/GENERIC-RUNTIME-CAPABILITY-MATRIX.md](runtime/GENERIC-RUNTIME-CAPABILITY-MATRIX.md) — per-capability state at freeze and what each assurance family proves.
+- [runtime/GENERIC-RUNTIME-OPEN-GAPS.md](runtime/GENERIC-RUNTIME-OPEN-GAPS.md) — every open point with exactly one work class (no hidden gaps).
+- [runtime/GENERIC-RUNTIME-CHANGE-POLICY.md](runtime/GENERIC-RUNTIME-CHANGE-POLICY.md) — freeze invariants and per-change gates.
+- [runtime/ADAPTER-ACTIVATION-GATES.md](runtime/ADAPTER-ACTIVATION-GATES.md) — G1–G5 adapter gate sequence and surface matrix.
+
 ## Documentation Classes
 
-- Canonical: `../WORKFLOW.md`, `architecture.md`, `authority-matrix.md`, `governance/source-hierarchy.md`, `mcp/policy.md`, `workflows/README.md`, `workflows/implementation-and-handoff.md`, `workflows/verification-and-certification.md`, `compatibility.md`, `lock-model.md`, `portability.md`, `provider-capability-matrix.md`, `repo-overlay-contract.md`, `secret-handling.md`, `shared-with-local-inputs.md`, `repo-intake-skill-contract.md`, `runtime-policy-skill-contract.md`, `ui-ux-composition-branch.md`
+- Canonical: `../WORKFLOW.md`, `architecture.md`, `authority-matrix.md`, `governance/source-hierarchy.md`, `mcp/policy.md`, `workflows/README.md`, `workflows/implementation-and-handoff.md`, `workflows/verification-and-certification.md`, `compatibility.md`, `lock-model.md`, `portability.md`, `provider-capability-matrix.md`, `repo-overlay-contract.md`, `secret-handling.md`, `shared-with-local-inputs.md`, `repo-intake-skill-contract.md`, `runtime-policy-skill-contract.md`, `ui-ux-composition-branch.md`, `runtime/README.md`, `runtime/GENERIC-RUNTIME-*.md`, `runtime/ADAPTER-ACTIVATION-GATES.md`
 - Agent-team composition (proposed, opt-in): `agent-teams/README.md`, `agent-teams/swarm_roles_extended_spec.md`, `agent-teams/swarm_presets.md`
 - Operational: `README.md`, `usage.md`, `adoption-playbook.md`, `consumer-rollout-playbook.md`, `maintainer-commands.md`, `validation-checklist.md`, `authoring-guides.md`
 - Derived: `overview.md`, `eval-baseline.md`, `ui-ux-composition/*`
