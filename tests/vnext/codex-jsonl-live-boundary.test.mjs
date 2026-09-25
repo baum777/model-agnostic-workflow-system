@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { createCodexExecutor } from '../../runtime/executors/codex-executor.mjs';
 
-const CODEX_TEST_ENV = { PATH: '/bin', HOME: '/tmp', MAWS_CODEX_MODEL: 'zai/glm-4.7' };
+const CODEX_TEST_ENV = { PATH: '/bin', HOME: '/tmp' };
 
 function fakeSpawn(stdoutText, exitCode = 0) {
   return () => {

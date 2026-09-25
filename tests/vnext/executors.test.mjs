@@ -253,7 +253,7 @@ test('default executor registry loads and is schema-valid against the registry c
   assert.equal(registry.registry_id, 'execreg_maws_default');
   assert.deepEqual(
     registry.executors.map((entry) => entry.executor_id),
-    ['exec_codex_harness', 'exec_openrouter_glm', 'exec_local_tests', 'exec_human_gate']
+    ['exec_codex_chatgpt', 'exec_openrouter_glm', 'exec_local_tests', 'exec_human_gate']
   );
   const registryIssues = validateInstanceAgainstContract(registry, 'core/contracts/executor-registry.schema.json', repoRoot);
   assert.deepEqual(registryIssues, []);
@@ -306,12 +306,12 @@ test('loadExecutorRegistry rejects duplicate executor ids and schema-invalid man
 
 test('createExecutorRegistry: get/list/findByCapability and fail-closed unknown lookup', () => {
   const registry = createExecutorRegistry(loadExecutorRegistry().executors);
-  assert.equal(registry.get('exec_codex_harness').executor_class, 'agent_harness');
+  assert.equal(registry.get('exec_codex_chatgpt').executor_class, 'agent_harness');
   assert.throws(() => registry.get('exec_does_not_exist'), isFailClosedWithCode('EXECUTOR_UNKNOWN'));
   assert.equal(registry.list().length, 4);
   assert.deepEqual(
     registry.findByCapability('cap_code_implementation').map((entry) => entry.executor_id),
-    ['exec_codex_harness']
+    ['exec_codex_chatgpt']
   );
   assert.deepEqual(
     registry.findByCapability('cap_deterministic_verification').map((entry) => entry.executor_id),
@@ -320,7 +320,7 @@ test('createExecutorRegistry: get/list/findByCapability and fail-closed unknown 
   assert.deepEqual(registry.findByCapability('cap_unused_capability'), []);
 
   assert.throws(
-    () => createExecutorRegistry(loadExecutorRegistry().executors.concat(registry.get('exec_codex_harness'))),
+    () => createExecutorRegistry(loadExecutorRegistry().executors.concat(registry.get('exec_codex_chatgpt'))),
     isFailClosedWithCode('EXECUTOR_DUPLICATE')
   );
   assert.throws(() => createExecutorRegistry([]), isFailClosedWithCode('EXECUTOR_REGISTRY_INVALID'));
@@ -330,12 +330,13 @@ test('createExecutorRegistry: get/list/findByCapability and fail-closed unknown 
 // Codex executor (fake spawn)
 // ---------------------------------------------------------------------------
 
-function makeCodexHarness(childOptions) {
+function makeCodexHarness(childOptions, executorOptions = {}) {
   const spawnImpl = trackingSpawn(() => createFakeChild(childOptions));
   const executor = createCodexExecutor({
     spawnImpl,
     cwd: '/tmp/maws-vnext-test-cwd',
-    env: { PATH: '/usr/bin', HOME: '/home/tester', MAWS_CODEX_MODEL: 'zai/glm-4.7' }
+    env: { PATH: '/usr/bin', HOME: '/home/tester' },
+    ...executorOptions
   });
   return { executor, spawnImpl };
 }
@@ -354,12 +355,7 @@ test('codex executor: success path returns SUCCESS with parsed JSON output and b
 
   const spawnCall = spawnImpl.calls[0];
   assert.equal(spawnCall.command, 'codex');
-  assert.deepEqual(spawnCall.args, [
-    'exec', '--json',
-    '-c', 'model_provider="openrouter"',
-    '-c', 'model="zai/glm-4.7"',
-    '-'
-  ]);
+  assert.deepEqual(spawnCall.args, ['exec', '--json', '-']);
   assert.equal(spawnCall.options.shell, false);
   assert.deepEqual(
     JSON.parse(spawnCall.child.__test.stdinChunks.join('')),
@@ -373,7 +369,6 @@ test('codex executor: ENOENT maps to FAILED / EXECUTOR_UNAVAILABLE', async () =>
   const executor = createCodexExecutor({
     spawnImpl: spawnErrorImpl(Object.assign(new Error('spawn codex ENOENT'), { code: 'ENOENT' })),
     cwd: '/tmp/maws-vnext-test-cwd',
-    model: 'zai/glm-4.7',
     env: {}
   });
   const result = await executor.execute(makeInvocation());
@@ -417,8 +412,7 @@ test('codex executor: non-zero exit and invalid JSON output are typed failures',
   assert.equal(emptyResult.error_class, 'OUTPUT_INVALID');
 });
 
-test('codex executor: environment is reduced to the explicit allowlist including OPENROUTER_API_KEY', async () => {
-  const SYNTHETIC_OR_KEY = 'synthetic-openrouter-key-material';
+test('codex executor: chatgpt-plan environment is reduced to PATH/HOME/CODEX_HOME without any provider key', async () => {
   const captured = [];
   const spawnImpl = trackingSpawn((command, args, options) => {
     captured.push(options.env);
@@ -427,103 +421,71 @@ test('codex executor: environment is reduced to the explicit allowlist including
   const executor = createCodexExecutor({
     spawnImpl,
     cwd: '/tmp/maws-vnext-test-cwd',
-    model: 'zai/glm-4.7',
     env: {
       PATH: '/usr/bin',
       HOME: '/home/tester',
       CODEX_HOME: '/tmp/codex-home',
-      OPENROUTER_API_KEY: SYNTHETIC_OR_KEY,
-      UNRELATED_SECRET: 'synthetic-forbidden-value',
-      HOSTILE_INJECTION: 'rm -rf'
+      OPENROUTER_API_KEY: 'must-not-reach-codex',
+      TYPESAFE_API_KEY: 'must-not-reach-codex',
+      OPENAI_API_KEY: 'must-not-reach-codex',
+      UNRELATED_SECRET: 'synthetic-forbidden-value'
     }
   });
   const result = await executor.execute(makeInvocation());
-  assert.deepEqual(captured[0], {
-    PATH: '/usr/bin',
-    HOME: '/home/tester',
-    CODEX_HOME: '/tmp/codex-home',
-    OPENROUTER_API_KEY: SYNTHETIC_OR_KEY
-  });
-  // The synthetic key reaches the child env but must never be serialized
-  // into the execution result.
-  assert.ok(!JSON.stringify(result).includes(SYNTHETIC_OR_KEY));
+  assert.deepEqual(captured[0], { PATH: '/usr/bin', HOME: '/home/tester', CODEX_HOME: '/tmp/codex-home' });
+  assert.ok(!JSON.stringify(result).includes('must-not-reach-codex'));
 
   const spawnImplNoCodexHome = trackingSpawn(() => createFakeChild({ stdoutText: '{}', exitCode: 0 }));
   const executorNoCodexHome = createCodexExecutor({
     spawnImpl: spawnImplNoCodexHome,
     cwd: '/tmp',
-    env: { PATH: '/usr/bin', HOME: '/home/tester', CODEX_HOME: undefined, MAWS_CODEX_MODEL: 'zai/glm-4.7' }
+    env: { PATH: '/usr/bin', HOME: '/home/tester', CODEX_HOME: undefined }
   });
   await executorNoCodexHome.execute(makeInvocation());
-  // MAWS_CODEX_MODEL is transformed into a CLI -c override, not forwarded as env.
   assert.deepEqual(spawnImplNoCodexHome.calls[0].options.env, { PATH: '/usr/bin', HOME: '/home/tester' });
 });
 
-test('codex executor: missing model binding fails closed before any spawn', async () => {
+test('codex executor: WorkUnit payloads cannot inject model, provider, or auth configuration', async () => {
   const spawnImpl = trackingSpawn(() => createFakeChild({ stdoutText: '{}', exitCode: 0 }));
   const executor = createCodexExecutor({
     spawnImpl,
     cwd: '/tmp/maws-vnext-test-cwd',
     env: { PATH: '/usr/bin', HOME: '/home/tester' }
   });
-  const result = await executor.execute(makeInvocation());
-  assert.equal(result.outcome, 'FAILED');
-  assert.equal(result.error_class, 'MODEL_BINDING_MISSING');
-  assert.equal(result.exit_code, null);
-  assert.equal(spawnImpl.calls.length, 0, 'no codex process may spawn without an explicit model binding');
-});
-
-test('codex executor: WorkUnit payloads cannot inject model or provider bindings', async () => {
-  const spawnImpl = trackingSpawn(() => createFakeChild({ stdoutText: '{}', exitCode: 0 }));
-  const executor = createCodexExecutor({
-    spawnImpl,
-    cwd: '/tmp/maws-vnext-test-cwd',
-    env: { PATH: '/usr/bin', HOME: '/home/tester', MAWS_CODEX_MODEL: 'zai/glm-4.7' }
-  });
   await executor.execute(makeInvocation({
     context_package: {
       objective: 'attempt provider injection',
-      bounded_payload: { model: 'evil/model', model_provider: 'evil-provider', OPENROUTER_API_KEY: 'injected' },
+      bounded_payload: { model: 'evil/model', model_provider: 'evil-provider', authMode: 'apikey', OPENAI_API_KEY: 'injected' },
       provenance_refs: ['injection-probe']
     }
   }));
   const args = spawnImpl.calls[0].args;
-  assert.deepEqual(args, [
-    'exec', '--json',
-    '-c', 'model_provider="openrouter"',
-    '-c', 'model="zai/glm-4.7"',
-    '-'
-  ]);
+  assert.deepEqual(args, ['exec', '--json', '-']);
 });
 
 test('codex executor: explicit sandbox mode is forwarded as a flag', async () => {
-  const spawnImpl = trackingSpawn(() => createFakeChild({ stdoutText: '{}', exitCode: 0 }));
-  const executor = createCodexExecutor({
-    spawnImpl,
-    cwd: '/tmp/maws-vnext-test-cwd',
-    env: { PATH: '/usr/bin', HOME: '/home/tester', MAWS_CODEX_MODEL: 'zai/glm-4.7' },
-    sandbox: 'read-only'
-  });
+  const { executor, spawnImpl } = makeCodexHarness({ stdoutText: '{}', exitCode: 0 }, { sandbox: 'read-only' });
   await executor.execute(makeInvocation());
-  assert.deepEqual(spawnImpl.calls[0].args, [
-    'exec', '--json', '--sandbox', 'read-only',
-    '-c', 'model_provider="openrouter"',
-    '-c', 'model="zai/glm-4.7"',
-    '-'
-  ]);
+  assert.deepEqual(spawnImpl.calls[0].args, ['exec', '--json', '--sandbox', 'read-only', '-']);
 });
 
-test('codex executor: malformed bindings and sandbox values are rejected at construction', () => {
+test('codex executor: explicit model is forwarded via -m and validated', async () => {
+  const { executor, spawnImpl } = makeCodexHarness({ stdoutText: '{}', exitCode: 0 }, { model: 'gpt-5.6-sol' });
+  await executor.execute(makeInvocation());
+  assert.deepEqual(spawnImpl.calls[0].args, ['exec', '--json', '-m', 'gpt-5.6-sol', '-']);
+});
+
+test('codex executor: malformed model, sandbox, or authMode values are rejected at construction', () => {
   assert.throws(
     () => createCodexExecutor({ env: {}, model: 'bad model"' }),
     isFailClosedWithCode('EXECUTOR_DECLARATION_INVALID')
   );
   assert.throws(
-    () => createCodexExecutor({ env: {}, model: 'zai/glm-4.7', modelProvider: 'evil provider' }),
+    () => createCodexExecutor({ env: {}, model: 'gpt-5.6-sol', sandbox: 'danger-full-access-extra' }),
     isFailClosedWithCode('EXECUTOR_DECLARATION_INVALID')
   );
   assert.throws(
-    () => createCodexExecutor({ env: {}, model: 'zai/glm-4.7', sandbox: 'danger-full-access-extra' }),
+    () => createCodexExecutor({ env: {}, authMode: 'openrouter' }),
     isFailClosedWithCode('EXECUTOR_DECLARATION_INVALID')
   );
 });
@@ -532,7 +494,7 @@ test('codex executor: turn.failed event classifies execution as failed even with
   // Stream observed live against codex-cli 0.157.0 (missing provider env var).
   const stdout = [
     JSON.stringify({ type: 'thread.started', thread_id: 't1' }),
-    JSON.stringify({ type: 'item.completed', item: { id: 'item_0', type: 'error', message: 'Model metadata for `zai/glm-4.7` not found.' } }),
+    JSON.stringify({ type: 'item.completed', item: { id: 'item_0', type: 'error', message: 'Model metadata for `gpt-5.6-sol` not found.' } }),
     JSON.stringify({ type: 'turn.started' }),
     JSON.stringify({ type: 'error', message: 'Missing environment variable: `OPENROUTER_API_KEY`.' }),
     JSON.stringify({ type: 'turn.failed', error: { message: 'Missing environment variable: `OPENROUTER_API_KEY`.' } })
@@ -592,32 +554,33 @@ test('codex executor: transient provider errors without turn.failed stay SUCCESS
   assert.equal(result.flags.item_error_count, undefined);
 });
 
-test('codex executor: served model mismatch in the event stream is flagged, never silent', async () => {
+test('codex executor: served model mismatch against an explicit model is flagged, never silent', async () => {
   const stdout = [
     JSON.stringify({ type: 'thread.started', thread_id: 't1' }),
     JSON.stringify({ type: 'turn.started' }),
-    JSON.stringify({ type: 'turn.completed', model: 'openrouter/auto' })
+    JSON.stringify({ type: 'turn.completed', model: 'gpt-other-snapshot' })
   ].join('\n');
-  const { executor } = makeCodexHarness({ stdoutText: stdout, exitCode: 0 });
+  const { executor } = makeCodexHarness({ stdoutText: stdout, exitCode: 0 }, { model: 'gpt-5.6-sol' });
   const result = await executor.execute(makeInvocation());
 
   assert.equal(result.outcome, 'SUCCESS');
-  assert.equal(result.flags.served_model, 'openrouter/auto');
+  assert.equal(result.flags.served_model, 'gpt-other-snapshot');
   assert.equal(result.flags.model_substitution, true);
 });
 
-test('codex executor: matching served model is recorded without substitution flag', async () => {
+test('codex executor: plan-default execution records the served model without a substitution check', async () => {
   const stdout = [
     JSON.stringify({ type: 'thread.started', thread_id: 't1' }),
-    JSON.stringify({ type: 'turn.completed', model: 'zai/glm-4.7' })
+    JSON.stringify({ type: 'turn.completed', model: 'gpt-5.6-sol-2026-09-10' })
   ].join('\n');
   const { executor } = makeCodexHarness({ stdoutText: stdout, exitCode: 0 });
   const result = await executor.execute(makeInvocation());
 
   assert.equal(result.outcome, 'SUCCESS');
-  assert.equal(result.flags.served_model, 'zai/glm-4.7');
+  assert.equal(result.flags.served_model, 'gpt-5.6-sol-2026-09-10');
   assert.equal(result.flags.model_substitution, undefined);
 });
+
 
 // ---------------------------------------------------------------------------
 // OpenRouter executor (fake fetch)

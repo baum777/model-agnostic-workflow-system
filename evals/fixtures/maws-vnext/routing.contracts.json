@@ -31,7 +31,7 @@
         "eligible_executor_ids": ["exec_openrouter_glm"],
         "policy_context_ref": "policies/maws-vnext-defaults.yaml",
         "workload_safety_class": "safe",
-        "session_model_forced_executor": "exec_codex_harness"
+        "session_model_forced_executor": "exec_codex_chatgpt"
       }
     },
     {
@@ -184,7 +184,7 @@
         },
         "routing_decision": {
           "request_ref": "route_0001",
-          "selected_executor_id": "exec_codex_harness",
+          "selected_executor_id": "exec_codex_chatgpt",
           "workload_safety_class": "safe"
         }
       }
@@ -274,7 +274,7 @@
           "participants": [
             { "executor_id": "exec_openrouter_glm", "routing_decision_ref": "rd_0001" },
             { "executor_id": "exec_local_tests", "routing_decision_ref": "rd_0002" },
-            { "executor_id": "exec_codex_harness", "routing_decision_ref": "rd_0003" }
+            { "executor_id": "exec_codex_chatgpt", "routing_decision_ref": "rd_0003" }
           ]
         }
       }

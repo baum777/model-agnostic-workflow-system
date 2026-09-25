@@ -86,7 +86,7 @@ test('rejecting submitter yields typed BLOCKED error, run recorded', async () =>
 
 test('session may not call unapproved methods (override_executor_binding rejected)', async () => {
   const { responses } = await drive([
-    { id: 1, method: 'override_executor_binding', params: { run_id: 'r', executor: 'exec_codex_harness' } },
+    { id: 1, method: 'override_executor_binding', params: { run_id: 'r', executor: 'exec_codex_chatgpt' } },
     { id: 2, method: 'mutate_bound_graph', params: { run_id: 'r' } },
     { id: 3, method: 'not a method' }
   ], async () => ({}));

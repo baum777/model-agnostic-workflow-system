@@ -1,15 +1,17 @@
-// MAWS vNext — Codex harness executor (MAWS-VN-401).
+// MAWS vNext — Codex harness executor, ChatGPT plan path (MAWS-VN-401).
 //
 // Executor class: agent_harness (OD-01: the harness is an executor class,
-// NOT a model entry and NOT a provider adapter). Inference is routed through
-// the OpenRouter provider configured inside the isolated CODEX_HOME; the
-// executor binds model + provider explicitly via `-c` config overrides.
+// NOT a model entry and NOT a provider adapter). Inference runs on the
+// owner's ChatGPT Codex plan through the locally authenticated Codex CLI
+// (auth_mode "chatgpt", billing "chatgpt_plan"). This executor path has NO
+// dependency on OPENROUTER_API_KEY, OPENAI_API_KEY, or any OpenRouter
+// provider configuration — OpenRouter is a separate executor surface.
 //
-// Binding boundary (MAWS-VN-401 activation lane): the model comes ONLY from
-// executor construction config (default env.MAWS_CODEX_MODEL). A WorkUnit
-// can never set model, provider, or secret configuration — missing binding
-// fails closed BEFORE any spawn, so the ambient Codex login/config default
-// is never silently used as a fallback inference path.
+// Authentication boundary: auth is executor configuration (authMode), never
+// WorkUnit-selectable. A WorkUnit can never inject model, provider,
+// credential, or authentication configuration. When no explicit model is
+// configured, the Codex CLI resolves its plan default model; the observed
+// served model is recorded from the event stream where exposed.
 //
 // Live boundary (verified against codex-cli 0.157.0): `codex exec --json`
 // emits pure JSONL on stdout (diagnostics go to stderr). Every non-empty
@@ -29,16 +31,17 @@ import { runLocalProcess } from '../transports/local-process.mjs';
 import { FailClosedError } from '../vnext/util.mjs';
 
 const CODEX_COMMAND = 'codex';
-// Confirmed-at-activation flag set: ['exec', '--json', '-', plus -c overrides]
+// Confirmed-at-activation flag set: ['exec', '--json', '-', plus optional
+// '--sandbox' and '-m' executor configuration]
 const CODEX_BASE_ARGS = ['exec', '--json'];
-// Minimal environment allowlist: binary resolution, home, codex auth home,
-// and the OpenRouter credential consumed by the configured provider.
-// Everything else from the caller environment is dropped.
-const CODEX_ENV_ALLOWLIST = ['PATH', 'HOME', 'CODEX_HOME', 'OPENROUTER_API_KEY'];
-const DEFAULT_MODEL_PROVIDER = 'openrouter';
-// Model slugs / provider ids travel inside a TOML string override; keep the
-// accepted charset closed so the value can never escape the quotes.
-const CODEX_BINDING_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._/:+-]*$/;
+// Minimal environment allowlist: binary resolution, home, codex auth home.
+// The ChatGPT OAuth session lives inside CODEX_HOME (default ~/.codex) and
+// is never copied into ExecutionResults. Everything else is dropped.
+const CODEX_ENV_ALLOWLIST = ['PATH', 'HOME', 'CODEX_HOME'];
+const CODEX_AUTH_MODES = new Set(['chatgpt']);
+// An explicitly configured model travels as one argv value after -m; keep the
+// accepted charset closed.
+const CODEX_MODEL_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._/:+-]*$/;
 const SANDBOX_MODES = new Set(['read-only', 'workspace-write', 'danger-full-access']);
 const EVENT_DETAIL_MAX_CHARS = 300;
 const MODEL_SCAN_DEPTH_LIMIT = 6;
@@ -106,6 +109,8 @@ function findServedModelValue(value, depth = 0) {
  * Classify a parsed JSONL event stream against the live codex-cli 0.157.0
  * event vocabulary. Fatal: top-level `turn.failed`. Non-fatal but surfaced:
  * top-level `error` events (transient reconnects) and nested item errors.
+ * `boundModel` may be null (plan-default model): the served model is then
+ * recorded without a substitution comparison.
  */
 function classifyCodexEvents(events, boundModel) {
   let turnFailedMessage = null;
@@ -140,7 +145,7 @@ function classifyCodexEvents(events, boundModel) {
   const servedModel = findServedModelValue(events);
   if (servedModel !== null) {
     flags.served_model = servedModel;
-    if (servedModel !== boundModel) {
+    if (boundModel !== null && servedModel !== boundModel) {
       // Provider-side substitution is surfaced, never silently accepted.
       flags.model_substitution = true;
     }
@@ -149,37 +154,38 @@ function classifyCodexEvents(events, boundModel) {
 }
 
 /**
- * Create the Codex harness executor.
+ * Create the Codex harness executor (ChatGPT plan path).
  *
  * @param {object} [options]
- * @param {Function} [options.spawnImpl]     - injectable spawn for tests (default node:child_process.spawn)
- * @param {string} [options.cwd]             - working directory (default: this repository root)
- * @param {Object} [options.env]             - source environment for the allowlist (default: process.env)
- * @param {string} [options.modelProvider]   - inference provider id bound via -c override (default: 'openrouter')
- * @param {string} [options.model]           - explicit model slug (default: env.MAWS_CODEX_MODEL); required
- *                                             for execution — missing binding fails closed before spawn
- * @param {string} [options.sandbox]         - optional codex sandbox mode (read-only | workspace-write | danger-full-access)
+ * @param {Function} [options.spawnImpl] - injectable spawn for tests (default node:child_process.spawn)
+ * @param {string} [options.cwd]         - working directory (default: this repository root)
+ * @param {Object} [options.env]         - source environment for the allowlist (default: process.env)
+ * @param {string} [options.authMode]    - authentication class; executor configuration, never
+ *                                         WorkUnit-selectable (default: 'chatgpt')
+ * @param {string} [options.model]       - optional explicit model slug passed via -m; when absent the
+ *                                         Codex CLI resolves the plan default model
+ * @param {string} [options.sandbox]     - optional codex sandbox mode (read-only | workspace-write | danger-full-access)
  * @returns {object} executor (defineExecutor shape)
  */
 export function createCodexExecutor({
   spawnImpl,
   cwd,
   env = process.env,
-  modelProvider = DEFAULT_MODEL_PROVIDER,
-  model = env?.MAWS_CODEX_MODEL,
+  authMode = 'chatgpt',
+  model,
   sandbox
 } = {}) {
-  if (typeof modelProvider !== 'string' || !CODEX_BINDING_PATTERN.test(modelProvider)) {
+  if (!CODEX_AUTH_MODES.has(authMode)) {
     throw new FailClosedError(
       'EXECUTOR_DECLARATION_INVALID',
-      `modelProvider must match ${CODEX_BINDING_PATTERN}`
+      `authMode must be one of ${[...CODEX_AUTH_MODES].join(', ')}`
     );
   }
   if (model !== undefined && model !== null) {
-    if (typeof model !== 'string' || model.length === 0 || !CODEX_BINDING_PATTERN.test(model)) {
+    if (typeof model !== 'string' || model.length === 0 || !CODEX_MODEL_PATTERN.test(model)) {
       throw new FailClosedError(
         'EXECUTOR_DECLARATION_INVALID',
-        `model must match ${CODEX_BINDING_PATTERN} when provided`
+        `model must match ${CODEX_MODEL_PATTERN} when provided`
       );
     }
   }
@@ -193,28 +199,20 @@ export function createCodexExecutor({
   const boundModel = typeof model === 'string' && model.length > 0 ? model : null;
 
   return defineExecutor({
-    executorId: 'exec_codex_harness',
+    executorId: 'exec_codex_chatgpt',
     executorClass: 'agent_harness',
-    displayName: 'Codex Harness (codex exec)',
+    displayName: 'Codex Harness (ChatGPT plan)',
     transport: 'codex_exec',
     declaredCapabilities: ['cap_code_implementation'],
     execute: async (invocation) => {
-      // Binding gate: never spawn codex without an explicit model binding.
-      // This keeps the ambient Codex login (ChatGPT auth) from becoming an
-      // implicit inference fallback path.
-      if (boundModel === null) {
-        return { outcome: 'FAILED', error_class: 'MODEL_BINDING_MISSING', exit_code: null };
-      }
-
       const args = [...CODEX_BASE_ARGS];
       if (sandbox !== undefined) {
         args.push('--sandbox', sandbox);
       }
-      args.push(
-        '-c', `model_provider="${modelProvider}"`,
-        '-c', `model="${boundModel}"`,
-        '-'
-      );
+      if (boundModel !== null) {
+        args.push('-m', boundModel);
+      }
+      args.push('-');
 
       const childEnv = buildAllowlistedEnv(env);
       let proc;

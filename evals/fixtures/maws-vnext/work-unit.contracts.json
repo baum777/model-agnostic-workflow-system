@@ -58,7 +58,7 @@
       "instance": {
         "work_unit_id": "wu_audit_repo_002",
         "objective": "WorkUnit must not fix its executor",
-        "executor_id": "exec_codex_harness",
+        "executor_id": "exec_codex_chatgpt",
         "required_capabilities": [{ "capability_id": "cap_repository_analysis" }],
         "context_envelope_ref": "ctx/run_0001/envelope",
         "authority_ceiling": {

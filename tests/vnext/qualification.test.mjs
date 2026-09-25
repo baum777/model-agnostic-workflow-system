@@ -107,7 +107,7 @@ const MANIFEST_GLM = {
 
 // Declares a different capability: no decision may be emitted for it.
 const MANIFEST_CODEX = {
-  executor_id: 'exec_codex_harness',
+  executor_id: 'exec_codex_chatgpt',
   executor_class: 'agent_harness',
   declared_capabilities: [{ capability_id: 'cap_code_implementation' }],
   transport: 'codex_exec',
