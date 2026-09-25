@@ -187,6 +187,8 @@ test('FM-05 OpenRouter unavailable: typed FAILED execution, completion blocked',
 
 test('FM-06 Codex unavailable: typed EXECUTOR_UNAVAILABLE, not a crash', async () => {
   const executor = createCodexExecutor({
+    model: 'zai/glm-4.7',
+    env: { PATH: '/bin' },
     spawnImpl: () => {
       const error = new Error('spawn ENOENT');
       error.code = 'ENOENT';
