@@ -1,0 +1,72 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "MAWS vNext implementation stream introduces 33 new canonical contracts under core/contracts (28 spine schemas from MAWS-VN-100..106 plus decision-threshold-policy, decision-receipt, interaction-session, execution-surface-boundary) and additively extends permission-boundary.json and output-contracts.json. These are CONTRACT_RECORD-class changes. The registry update itself is outside this implementation run's authority (owner gate); no registry write was performed.",
+    "registry_baseline_sha": "a84aa7d44ab900201233b7ee104671e6a1ff136e",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/maws-vnext-common.schema.json",
+      "CONTRACT_RECORD:core/contracts/work-unit.schema.json",
+      "CONTRACT_RECORD:core/contracts/capability-definition.schema.json",
+      "CONTRACT_RECORD:core/contracts/execution-profile.schema.json",
+      "CONTRACT_RECORD:core/contracts/profile-subsumption.schema.json",
+      "CONTRACT_RECORD:core/contracts/executor-manifest.schema.json",
+      "CONTRACT_RECORD:core/contracts/executor-registry.schema.json",
+      "CONTRACT_RECORD:core/contracts/qualification-record.schema.json",
+      "CONTRACT_RECORD:core/contracts/qualification-fingerprint.schema.json",
+      "CONTRACT_RECORD:core/contracts/materiality-decision.schema.json",
+      "CONTRACT_RECORD:core/contracts/eligibility-decision.schema.json",
+      "CONTRACT_RECORD:core/contracts/execution-plan-template.schema.json",
+      "CONTRACT_RECORD:core/contracts/candidate-graph.schema.json",
+      "CONTRACT_RECORD:core/contracts/bound-execution-graph.schema.json",
+      "CONTRACT_RECORD:core/contracts/decomposition-request.schema.json",
+      "CONTRACT_RECORD:core/contracts/decomposition-decision.schema.json",
+      "CONTRACT_RECORD:core/contracts/plan-revision-request.schema.json",
+      "CONTRACT_RECORD:core/contracts/plan-revision-decision.schema.json",
+      "CONTRACT_RECORD:core/contracts/graph-supersession-record.schema.json",
+      "CONTRACT_RECORD:core/contracts/arbitration-policy.schema.json",
+      "CONTRACT_RECORD:core/contracts/arbitration-decision.schema.json",
+      "CONTRACT_RECORD:core/contracts/disagreement-policy.schema.json",
+      "CONTRACT_RECORD:core/contracts/disagreement-decision.schema.json",
+      "CONTRACT_RECORD:core/contracts/routing-request.schema.json",
+      "CONTRACT_RECORD:core/contracts/routing-decision.schema.json",
+      "CONTRACT_RECORD:core/contracts/composition-policy.schema.json",
+      "CONTRACT_RECORD:core/contracts/composition-decision.schema.json",
+      "CONTRACT_RECORD:core/contracts/completion-contract.schema.json",
+      "CONTRACT_RECORD:core/contracts/completion-decision.schema.json",
+      "CONTRACT_RECORD:core/contracts/decision-threshold-policy.schema.json",
+      "CONTRACT_RECORD:core/contracts/decision-receipt.schema.json",
+      "CONTRACT_RECORD:core/contracts/interaction-session.schema.json",
+      "CONTRACT_RECORD:core/contracts/execution-surface-boundary.schema.json"
+    ],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "docs/maws-vnext-working-plan.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "PR #6 design baseline merge a84aa7d44ab900201233b7ee104671e6a1ff136e"
+    ],
+    "evidence_refs": [
+      "tests/vnext/ (169 tests pass: planner 11, jev 25, qualification 37, executors 27, routing 22, completion 13, e2e 3, failure-matrix 24, zcode 7)",
+      "npm run validate-maws-vnext (PASS: contract fixtures 104 cases, OD coverage, OD protection, maturity drift)",
+      "npm run eval:maws-vnext (11/11 fixtures)",
+      "npm run validate / validate-neutral / validate-secrets / scan-secrets (all EXIT=0)",
+      "tests/runtime regression (67/67 pass)"
+    ],
+    "implementation_commit_sha": "af66a3e309565a259e4468ce0677c0e7af0ec386",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/maws-vnext-implementation-2026-09-25/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "docs/authority-matrix.md#maws-vnext-extension-snapshot",
+      "evals/fixtures/maws-vnext-baseline.json"
+    ]
+  }
+}

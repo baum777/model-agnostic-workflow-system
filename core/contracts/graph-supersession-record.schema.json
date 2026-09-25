@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/graph-supersession-record.schema.json",
+  "title": "GraphSupersessionRecord Contract",
+  "description": "OD-05: superseded graph versions remain immutable history. A supersession record references versions and its originating revision decision; it never embeds or rewrites past execution evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["record_id", "superseded_graph_version", "superseded_by_graph_version", "effective_at", "reason", "revision_request_ref"],
+  "properties": {
+    "record_id": { "type": "string", "pattern": "^sup_[a-z0-9_]+$" },
+    "superseded_graph_version": { "type": "integer", "minimum": 1 },
+    "superseded_by_graph_version": { "type": "integer", "minimum": 1 },
+    "effective_at": { "type": "string", "minLength": 1 },
+    "reason": { "type": "string", "minLength": 1 },
+    "revision_request_ref": { "type": "string", "minLength": 1 }
+  }
+}

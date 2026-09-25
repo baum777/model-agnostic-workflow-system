@@ -31,6 +31,16 @@
     "fixtures/wmc-contract-rules.json",
     "fixtures/mahp-contract-rules.json",
     "fixtures/rgc-contract-rules.json",
-    "fixtures/tsc-contract-rules.json"
+    "fixtures/tsc-contract-rules.json",
+    "fixtures/maws-vnext/work-unit.contracts.json",
+    "fixtures/maws-vnext/capability-profile.contracts.json",
+    "fixtures/maws-vnext/executor.contracts.json",
+    "fixtures/maws-vnext/qualification.contracts.json",
+    "fixtures/maws-vnext/planning.contracts.json",
+    "fixtures/maws-vnext/revision.contracts.json",
+    "fixtures/maws-vnext/routing.contracts.json",
+    "fixtures/maws-vnext/completion.contracts.json",
+    "fixtures/maws-vnext/decision-engine.contracts.json",
+    "fixtures/maws-vnext/interaction.contracts.json"
   ]
 }

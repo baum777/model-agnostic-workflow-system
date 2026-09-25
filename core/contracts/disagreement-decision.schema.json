@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/disagreement-decision.schema.json",
+  "title": "DisagreementDecision Contract",
+  "description": "OD-16: typed disagreement resolution. authority_conflict can never be RESOLVED by the runtime; it escalates or blocks. A synthesizer never carries independent authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision_id", "disagreement_class", "policy_ref", "outcome", "resolved_by", "synthesizer_independent_authority", "evidence_refs"],
+  "properties": {
+    "decision_id": { "type": "string", "pattern": "^dgd_[a-z0-9_]+$" },
+    "disagreement_class": { "$ref": "maws-vnext-common.schema.json#/$defs/disagreementClass" },
+    "policy_ref": { "type": "string", "minLength": 1 },
+    "outcome": { "enum": ["RESOLVED", "ESCALATED", "BLOCKED"] },
+    "resolved_by": { "enum": ["evidence_review", "independent_verification", "human_gate", "deterministic_policy"] },
+    "synthesizer_independent_authority": { "const": false },
+    "evidence_refs": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+    "decided_at": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "disagreement_class": { "const": "authority_conflict" } }, "required": ["disagreement_class"] },
+      "then": { "properties": { "outcome": { "enum": ["ESCALATED", "BLOCKED"] } } }
+    }
+  ]
+}

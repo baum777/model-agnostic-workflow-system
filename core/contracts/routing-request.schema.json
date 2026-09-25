@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/routing-request.schema.json",
+  "title": "RoutingRequest Contract",
+  "description": "OD-09/OD-18: routing starts from WorkUnit capability requirements and a deterministic eligible candidate set. A session model preference is inert metadata; it never narrows or forces the candidate set.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_id", "work_unit_id", "capability_requirements", "eligible_executor_ids", "policy_context_ref", "workload_safety_class"],
+  "properties": {
+    "request_id": { "type": "string", "pattern": "^route_[a-z0-9_]+$" },
+    "work_unit_id": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+    "capability_requirements": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" }
+    },
+    "eligible_executor_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" }
+    },
+    "policy_context_ref": { "type": "string", "minLength": 1 },
+    "workload_safety_class": { "$ref": "maws-vnext-common.schema.json#/$defs/workloadSafetyClass" },
+    "session_model_preference": { "type": ["null", "string"] }
+  }
+}

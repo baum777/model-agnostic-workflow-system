@@ -1,0 +1,321 @@
+{
+  "id": "maws-vnext-planning-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "plan-template-valid",
+      "schema": "core/contracts/execution-plan-template.schema.json",
+      "valid": true,
+      "guards": ["OD-02"],
+      "instance": {
+        "template_id": "tpl_audit_repair_v1",
+        "workflow_class": "implementation",
+        "version": "1",
+        "mandatory_stages": ["analysis", "implementation", "verification"],
+        "decomposition_limits": { "max_depth": 2, "max_children_per_node": 4, "max_total_work_units": 12 },
+        "composition_policy_ref": "comp_default_v1",
+        "authority_ceiling_default": {
+          "scope_ref": "scope/run_default",
+          "allowed_effects": ["ephemeral", "workspace"],
+          "delegation_depth_max": 1,
+          "authority_source_refs": ["policies/maws-vnext-defaults.yaml"]
+        },
+        "verification_requirements": { "required": true, "independent": true }
+      }
+    },
+    {
+      "case_id": "plan-template-rejects-zero-depth",
+      "schema": "core/contracts/execution-plan-template.schema.json",
+      "valid": false,
+      "guards": ["OD-03"],
+      "instance": {
+        "template_id": "tpl_invalid_depth",
+        "workflow_class": "implementation",
+        "mandatory_stages": ["analysis"],
+        "decomposition_limits": { "max_depth": 0, "max_children_per_node": 4, "max_total_work_units": 12 },
+        "composition_policy_ref": "comp_default_v1",
+        "authority_ceiling_default": {
+          "scope_ref": "scope/run_default",
+          "allowed_effects": ["ephemeral"],
+          "delegation_depth_max": 0,
+          "authority_source_refs": ["policies/maws-vnext-defaults.yaml"]
+        },
+        "verification_requirements": { "required": true, "independent": false }
+      }
+    },
+    {
+      "case_id": "candidate-graph-valid",
+      "schema": "core/contracts/candidate-graph.schema.json",
+      "valid": true,
+      "guards": ["OD-02"],
+      "instance": {
+        "candidate_id": "cand_0001",
+        "template_ref": "tpl_audit_repair_v1",
+        "root_work_unit_id": "wu_audit_repo_001",
+        "nodes": [
+          { "node_id": "node_analysis", "work_unit_id": "wu_audit_repo_001", "stage": "analysis", "depends_on": [], "status": "candidate" },
+          { "node_id": "node_implementation", "work_unit_id": "wu_audit_impl_child_001", "stage": "implementation", "depends_on": ["node_analysis"], "status": "candidate" },
+          { "node_id": "node_verification", "work_unit_id": "wu_audit_repo_001", "stage": "verification", "depends_on": ["node_implementation"], "status": "candidate" }
+        ],
+        "validation": { "checked": true, "result": "passed" }
+      }
+    },
+    {
+      "case_id": "candidate-graph-rejects-node-executor-binding",
+      "schema": "core/contracts/candidate-graph.schema.json",
+      "valid": false,
+      "guards": ["OD-02"],
+      "instance": {
+        "candidate_id": "cand_0002",
+        "template_ref": "tpl_audit_repair_v1",
+        "root_work_unit_id": "wu_audit_repo_001",
+        "nodes": [
+          { "node_id": "node_analysis", "work_unit_id": "wu_audit_repo_001", "stage": "analysis", "depends_on": [], "status": "candidate", "executor_binding": { "executor_id": "exec_openrouter_glm" } }
+        ],
+        "validation": { "checked": false, "result": "pending" }
+      }
+    },
+    {
+      "case_id": "candidate-graph-cross-check-valid",
+      "cross_check": "candidate_graph_vs_template",
+      "valid": true,
+      "guards": ["OD-02"],
+      "payload": {
+        "candidate": {
+          "candidate_id": "cand_0001",
+          "template_ref": "tpl_audit_repair_v1",
+          "nodes": [
+            { "node_id": "node_analysis", "stage": "analysis", "depends_on": [] },
+            { "node_id": "node_implementation", "stage": "implementation", "depends_on": ["node_analysis"] },
+            { "node_id": "node_verification", "stage": "verification", "depends_on": ["node_implementation"] }
+          ]
+        },
+        "template": {
+          "template_id": "tpl_audit_repair_v1",
+          "mandatory_stages": ["analysis", "implementation", "verification"]
+        }
+      }
+    },
+    {
+      "case_id": "candidate-graph-cross-check-rejects-missing-mandatory-stage",
+      "cross_check": "candidate_graph_vs_template",
+      "valid": false,
+      "guards": ["OD-02"],
+      "payload": {
+        "candidate": {
+          "candidate_id": "cand_0003",
+          "template_ref": "tpl_audit_repair_v1",
+          "nodes": [
+            { "node_id": "node_analysis", "stage": "analysis", "depends_on": [] },
+            { "node_id": "node_implementation", "stage": "implementation", "depends_on": ["node_analysis"] }
+          ]
+        },
+        "template": {
+          "template_id": "tpl_audit_repair_v1",
+          "mandatory_stages": ["analysis", "implementation", "verification"]
+        }
+      }
+    },
+    {
+      "case_id": "bound-graph-valid",
+      "schema": "core/contracts/bound-execution-graph.schema.json",
+      "valid": true,
+      "guards": ["OD-05", "OD-13"],
+      "instance": {
+        "graph_id": "graph_run_0001",
+        "graph_version": 1,
+        "candidate_ref": "cand_0001",
+        "nodes": [
+          {
+            "node_id": "node_analysis",
+            "work_unit_id": "wu_audit_repo_001",
+            "stage": "analysis",
+            "depends_on": [],
+            "executor_binding": {
+              "executor_id": "exec_openrouter_glm",
+              "routing_decision_ref": "rd_0001",
+              "qualification_ref": "qual_or_glm_ana_0001",
+              "selection_mode": "NORMAL_SELECTION"
+            }
+          },
+          {
+            "node_id": "node_verification",
+            "work_unit_id": "wu_audit_repo_001",
+            "stage": "verification",
+            "depends_on": ["node_analysis"],
+            "executor_binding": {
+              "executor_id": "exec_local_tests",
+              "routing_decision_ref": "rd_0002",
+              "qualification_ref": "qual_local_tests_verify_0001",
+              "selection_mode": "NORMAL_SELECTION"
+            }
+          }
+        ],
+        "immutable": true,
+        "superseded_by": null,
+        "created_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "bound-graph-rejects-mutable-marker",
+      "schema": "core/contracts/bound-execution-graph.schema.json",
+      "valid": false,
+      "guards": ["OD-05"],
+      "instance": {
+        "graph_id": "graph_run_0001",
+        "graph_version": 1,
+        "candidate_ref": "cand_0001",
+        "nodes": [
+          {
+            "node_id": "node_analysis",
+            "work_unit_id": "wu_audit_repo_001",
+            "stage": "analysis",
+            "depends_on": [],
+            "executor_binding": {
+              "executor_id": "exec_openrouter_glm",
+              "routing_decision_ref": "rd_0001",
+              "qualification_ref": "qual_or_glm_ana_0001",
+              "selection_mode": "NORMAL_SELECTION"
+            }
+          }
+        ],
+        "immutable": false,
+        "created_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "bound-graph-rejects-binding-without-routing-decision",
+      "schema": "core/contracts/bound-execution-graph.schema.json",
+      "valid": false,
+      "guards": ["OD-13"],
+      "instance": {
+        "graph_id": "graph_run_0001",
+        "graph_version": 1,
+        "candidate_ref": "cand_0001",
+        "nodes": [
+          {
+            "node_id": "node_analysis",
+            "work_unit_id": "wu_audit_repo_001",
+            "stage": "analysis",
+            "depends_on": [],
+            "executor_binding": {
+              "executor_id": "exec_openrouter_glm",
+              "qualification_ref": "qual_or_glm_ana_0001",
+              "selection_mode": "NORMAL_SELECTION"
+            }
+          }
+        ],
+        "immutable": true,
+        "created_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "decomposition-request-valid-from-executor",
+      "schema": "core/contracts/decomposition-request.schema.json",
+      "valid": true,
+      "guards": ["OD-04"],
+      "instance": {
+        "request_id": "decomp_0001",
+        "source": "executor",
+        "parent_work_unit_id": "wu_audit_repo_001",
+        "requested_children": [
+          {
+            "objective": "Analyze test battery failures",
+            "required_capabilities": ["cap_repository_analysis"],
+            "context_subset_ref": "ctx/run_0001/envelope#tests",
+            "effects_subset": ["ephemeral"],
+            "authority_depth_requested": 0
+          }
+        ],
+        "limits_snapshot": { "current_depth": 1, "max_depth": 2, "current_total_work_units": 3, "max_total_work_units": 12 }
+      }
+    },
+    {
+      "case_id": "decomposition-request-rejects-direct-child-binding",
+      "schema": "core/contracts/decomposition-request.schema.json",
+      "valid": false,
+      "guards": ["OD-04"],
+      "instance": {
+        "request_id": "decomp_0002",
+        "source": "executor",
+        "parent_work_unit_id": "wu_audit_repo_001",
+        "requested_children": [
+          {
+            "objective": "Spawn own helper",
+            "required_capabilities": ["cap_repository_analysis"],
+            "context_subset_ref": "ctx/run_0001/envelope",
+            "effects_subset": ["ephemeral"],
+            "authority_depth_requested": 0,
+            "child_executor_binding": "exec_codex_harness"
+          }
+        ],
+        "limits_snapshot": { "current_depth": 1, "max_depth": 2, "current_total_work_units": 3, "max_total_work_units": 12 }
+      }
+    },
+    {
+      "case_id": "decomposition-decision-valid-approved",
+      "schema": "core/contracts/decomposition-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-03", "OD-04"],
+      "instance": {
+        "decision_id": "ddec_0001",
+        "request_ref": "decomp_0001",
+        "decision": "APPROVED",
+        "envelope_check": {
+          "scope_subset": true,
+          "context_subset": true,
+          "effects_subset": true,
+          "authority_not_widened": true,
+          "limits_respected": true
+        },
+        "child_work_unit_ids": ["wu_audit_analysis_child_001"],
+        "decided_by": "planner",
+        "reason": "Child envelope verified as subset of parent envelope within limits"
+      }
+    },
+    {
+      "case_id": "decomposition-decision-rejects-approval-with-scope-widening",
+      "schema": "core/contracts/decomposition-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-03"],
+      "instance": {
+        "decision_id": "ddec_0002",
+        "request_ref": "decomp_0001",
+        "decision": "APPROVED",
+        "envelope_check": {
+          "scope_subset": false,
+          "context_subset": true,
+          "effects_subset": true,
+          "authority_not_widened": true,
+          "limits_respected": true
+        },
+        "child_work_unit_ids": ["wu_audit_analysis_child_001"],
+        "decided_by": "planner",
+        "reason": "invalid approval"
+      }
+    },
+    {
+      "case_id": "decomposition-decision-rejects-executor-as-decider",
+      "schema": "core/contracts/decomposition-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-04"],
+      "instance": {
+        "decision_id": "ddec_0003",
+        "request_ref": "decomp_0001",
+        "decision": "APPROVED",
+        "envelope_check": {
+          "scope_subset": true,
+          "context_subset": true,
+          "effects_subset": true,
+          "authority_not_widened": true,
+          "limits_respected": true
+        },
+        "child_work_unit_ids": ["wu_audit_analysis_child_001"],
+        "decided_by": "executor",
+        "reason": "executor may not instantiate children"
+      }
+    }
+  ]
+}

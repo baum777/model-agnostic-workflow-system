@@ -15,6 +15,7 @@ import { evaluateWmcContractFixture } from './eval-wmc-contract.mjs';
 import { evaluateMahpContractFixture } from './eval-mahp-contract.mjs';
 import { evaluateRgcContractFixture } from './eval-rgc-contract.mjs';
 import { evaluateTscContractFixture } from './eval-tsc-contract.mjs';
+import { evaluateVnextContractFixture } from './validate-maws-vnext-contracts.mjs';
 
 function normalize(filePath) {
   return path.resolve(filePath).replace(/\\/g, '/');
@@ -1215,6 +1216,10 @@ async function evaluateFixture(root, registry, providerExports, outputContractCa
     result.issues.push(...check.issues);
   } else if (fixture.kind === 'secret-boundary') {
     const check = evaluateSecretBoundaryFixture(fixture);
+    result.passed = check.passed;
+    result.issues.push(...check.issues);
+  } else if (fixture.kind === 'maws-vnext') {
+    const check = evaluateVnextContractFixture(fixture, root);
     result.passed = check.passed;
     result.issues.push(...check.issues);
   } else {

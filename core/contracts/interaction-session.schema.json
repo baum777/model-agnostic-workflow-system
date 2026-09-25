@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/interaction-session.schema.json",
+  "title": "InteractionSession Contract",
+  "description": "OD-18: an interaction session is metadata about the host that submits work (e.g. a ZCode session). The session model is never a WorkUnit executor, never a verifier executor, and carries no routing authority. No secrets appear in session metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["session_id", "interaction_host", "session_model", "orchestration_owner", "submitted_at"],
+  "properties": {
+    "session_id": { "type": "string", "pattern": "^sess_[a-z0-9_]+$" },
+    "interaction_host": { "enum": ["zcode", "codex_cli", "human_cli", "test_harness"] },
+    "session_model": { "type": ["string", "null"], "minLength": 1 },
+    "orchestration_owner": { "const": "maws" },
+    "transport": { "enum": ["local_stdio", "in_process"] },
+    "identity": { "type": "string", "minLength": 1 },
+    "submitted_at": { "type": "string", "minLength": 1 }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/eligibility-decision.schema.json",
+  "title": "EligibilityDecision Contract",
+  "description": "OD-09/OD-10: eligibility is the closed deterministic filter applied to a WorkUnit capability requirement. eligible=true requires a currently applicable QUALIFIED qualification reference and every compatibility check passing. The Jev decision plane receives only the resulting candidate set.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eligibility_id", "work_unit_id", "executor_id", "capability_id",
+    "eligible", "exclusion_reasons", "qualification_ref", "checks"
+  ],
+  "properties": {
+    "eligibility_id": { "type": "string", "pattern": "^elig_[a-z0-9_]+$" },
+    "work_unit_id": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+    "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+    "capability_id": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" },
+    "eligible": { "type": "boolean" },
+    "exclusion_reasons": {
+      "type": "array",
+      "items": { "enum": ["NOT_DECLARED", "NOT_QUALIFIED", "DISQUALIFIED", "EXPIRED", "REVOKED", "MATERIAL_FINGERPRINT_DRIFT", "UNKNOWN_FINGERPRINT_DRIFT", "PROFILE_NOT_APPLICABLE", "PROVIDER_UNAVAILABLE", "POLICY_INCOMPATIBLE", "BUDGET_INCOMPATIBLE", "AUTHORITY_INCOMPATIBLE", "CONTEXT_INCOMPATIBLE"] }
+    },
+    "qualification_ref": { "type": ["string", "null"], "minLength": 1 },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availability", "policy_compatible", "budget_compatible", "authority_compatible", "context_compatible"],
+      "properties": {
+        "availability": { "type": "boolean" },
+        "policy_compatible": { "type": "boolean" },
+        "budget_compatible": { "type": "boolean" },
+        "authority_compatible": { "type": "boolean" },
+        "context_compatible": { "type": "boolean" }
+      }
+    },
+    "decided_at": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "eligible": { "const": true } }, "required": ["eligible"] },
+      "then": {
+        "properties": {
+          "qualification_ref": { "type": "string", "minLength": 1 },
+          "exclusion_reasons": { "maxItems": 0 },
+          "checks": {
+            "properties": {
+              "availability": { "const": true },
+              "policy_compatible": { "const": true },
+              "budget_compatible": { "const": true },
+              "authority_compatible": { "const": true },
+              "context_compatible": { "const": true }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "id": "maws-vnext-decision-engine-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "threshold-policy-valid",
+      "schema": "core/contracts/decision-threshold-policy.schema.json",
+      "valid": true,
+      "guards": ["OD-18"],
+      "instance": {
+        "policy_id": "decision-thresholds-default",
+        "version": "1",
+        "model_thresholds": [
+          { "model": "*", "min_confidence": 0.7, "low_confidence_action": "HUMAN_GATE" },
+          { "model": "jev-1.13.0", "min_confidence": 0.8, "low_confidence_action": "DETERMINISTIC_FALLBACK" }
+        ]
+      }
+    },
+    {
+      "case_id": "threshold-policy-rejects-authority-widening-action",
+      "schema": "core/contracts/decision-threshold-policy.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "policy_id": "decision-thresholds-invalid",
+        "version": "1",
+        "model_thresholds": [
+          { "model": "*", "min_confidence": 0.7, "low_confidence_action": "WIDEN_AUTHORITY" }
+        ]
+      }
+    },
+    {
+      "case_id": "threshold-policy-rejects-negative-confidence",
+      "schema": "core/contracts/decision-threshold-policy.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "policy_id": "decision-thresholds-invalid-2",
+        "version": "1",
+        "model_thresholds": [
+          { "model": "*", "min_confidence": -0.1, "low_confidence_action": "BLOCKED" }
+        ]
+      }
+    },
+    {
+      "case_id": "decision-receipt-valid",
+      "schema": "core/contracts/decision-receipt.schema.json",
+      "valid": true,
+      "guards": ["OD-18"],
+      "instance": {
+        "receipt_id": "jevr_0001",
+        "question_id": "preferred_executor",
+        "choices": ["exec_openrouter_glm", "exec_local_tests"],
+        "answer": "exec_openrouter_glm",
+        "confidence": 0.9,
+        "requested_model": "jev-latest",
+        "resolved_model": "jev-1.13.0",
+        "decision_contract_version": "jev.decision.v1",
+        "threshold_policy_version": "1",
+        "mode": "fixture",
+        "created_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "decision-receipt-rejects-confidence-above-one",
+      "schema": "core/contracts/decision-receipt.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "receipt_id": "jevr_0002",
+        "question_id": "preferred_executor",
+        "choices": ["exec_openrouter_glm"],
+        "answer": "exec_openrouter_glm",
+        "confidence": 1.5,
+        "requested_model": "jev-latest",
+        "resolved_model": "jev-1.13.0",
+        "decision_contract_version": "jev.decision.v1",
+        "threshold_policy_version": "1",
+        "mode": "fixture",
+        "created_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "decision-receipt-cross-check-rejects-answer-outside-choices",
+      "cross_check": "receipt_answer_in_choices",
+      "valid": false,
+      "guards": ["OD-18", "OD-13"],
+      "payload": {
+        "receipt": {
+          "receipt_id": "jevr_0003",
+          "question_id": "preferred_executor",
+          "choices": ["exec_openrouter_glm", "exec_local_tests"],
+          "answer": "exec_codex_harness",
+          "confidence": 0.95,
+          "requested_model": "jev-latest",
+          "resolved_model": "jev-1.13.0",
+          "decision_contract_version": "jev.decision.v1",
+          "threshold_policy_version": "1",
+          "mode": "fixture",
+          "created_at": "2026-09-25T00:00:00Z"
+        }
+      }
+    }
+  ]
+}

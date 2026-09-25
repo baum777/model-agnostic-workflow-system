@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/bound-execution-graph.schema.json",
+  "title": "BoundExecutionGraph Contract",
+  "description": "OD-05/OD-13: a bound graph is immutable and versioned. Every node binding references a RoutingDecision and a QualificationRecord; executors are never bound without routing and qualification evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["graph_id", "graph_version", "candidate_ref", "nodes", "immutable", "created_at"],
+  "properties": {
+    "graph_id": { "type": "string", "pattern": "^graph_[a-z0-9_]+$" },
+    "graph_version": { "type": "integer", "minimum": 1 },
+    "candidate_ref": { "type": "string", "minLength": 1 },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["node_id", "work_unit_id", "stage", "depends_on", "executor_binding"],
+        "properties": {
+          "node_id": { "type": "string", "pattern": "^node_[a-z0-9_]+$" },
+          "work_unit_id": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+          "stage": { "type": "string", "minLength": 1 },
+          "depends_on": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^node_[a-z0-9_]+$" },
+            "uniqueItems": true
+          },
+          "executor_binding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["executor_id", "routing_decision_ref", "qualification_ref", "selection_mode"],
+            "properties": {
+              "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+              "routing_decision_ref": { "type": "string", "minLength": 1 },
+              "qualification_ref": { "type": "string", "minLength": 1 },
+              "selection_mode": { "$ref": "maws-vnext-common.schema.json#/$defs/selectionMode" }
+            }
+          }
+        }
+      }
+    },
+    "immutable": { "const": true },
+    "superseded_by": {
+      "type": ["null", "object"],
+      "additionalProperties": false,
+      "required": ["graph_version"],
+      "properties": { "graph_version": { "type": "integer", "minimum": 1 } }
+    },
+    "created_at": { "type": "string", "minLength": 1 }
+  }
+}

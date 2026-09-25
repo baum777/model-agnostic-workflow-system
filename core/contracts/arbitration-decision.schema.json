@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/arbitration-decision.schema.json",
+  "title": "ArbitrationDecision Contract",
+  "description": "OD-08: arbitration applies policy and produces evidence. Synthesis is never used; authority conflicts can only escalate or block, resolved by a human gate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision_id", "policy_ref", "request_refs", "conflict_involves_authority", "disposition", "resolved_by", "synthesis_used", "evidence_refs"],
+  "properties": {
+    "decision_id": { "type": "string", "pattern": "^adec_[a-z0-9_]+$" },
+    "policy_ref": { "type": "string", "minLength": 1 },
+    "request_refs": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+    "conflict_involves_authority": { "type": "boolean" },
+    "disposition": { "$ref": "maws-vnext-common.schema.json#/$defs/disposition" },
+    "resolved_by": { "enum": ["deterministic_policy", "human_gate"] },
+    "synthesis_used": { "const": false },
+    "evidence_refs": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+    "decided_at": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "conflict_involves_authority": { "const": true } }, "required": ["conflict_involves_authority"] },
+      "then": {
+        "properties": {
+          "disposition": { "enum": ["ESCALATE", "BLOCKED"] },
+          "resolved_by": { "const": "human_gate" }
+        }
+      }
+    }
+  ]
+}

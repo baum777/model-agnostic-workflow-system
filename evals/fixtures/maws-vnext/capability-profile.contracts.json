@@ -1,0 +1,204 @@
+{
+  "id": "maws-vnext-capability-profile-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "capability-valid-analysis",
+      "schema": "core/contracts/capability-definition.schema.json",
+      "valid": true,
+      "guards": ["OD-01"],
+      "instance": {
+        "capability_id": "cap_repository_analysis",
+        "description": "Read-bounded repository analysis",
+        "version": "1",
+        "dimension_requirements": {
+          "tools": "read",
+          "effects": "ephemeral",
+          "context": "bounded",
+          "network": "none",
+          "delegation": 0,
+          "verification": "self_reported"
+        }
+      }
+    },
+    {
+      "case_id": "capability-rejects-authority-grant",
+      "schema": "core/contracts/capability-definition.schema.json",
+      "valid": false,
+      "guards": ["OD-01"],
+      "instance": {
+        "capability_id": "cap_repository_analysis",
+        "description": "Capability is not authority",
+        "grants_authority": true,
+        "dimension_requirements": {
+          "tools": "read",
+          "effects": "ephemeral",
+          "context": "bounded",
+          "network": "none",
+          "delegation": 0,
+          "verification": "self_reported"
+        }
+      }
+    },
+    {
+      "case_id": "profile-valid-workspace-write",
+      "schema": "core/contracts/execution-profile.schema.json",
+      "valid": true,
+      "guards": ["OD-10"],
+      "instance": {
+        "profile_id": "profile_workspace_write_v1",
+        "description": "Bounded workspace write profile",
+        "dimensions": {
+          "tools": "write",
+          "effects": "workspace",
+          "context": "bounded",
+          "network": "none",
+          "delegation": 0,
+          "verification": "verified"
+        }
+      }
+    },
+    {
+      "case_id": "profile-valid-readonly",
+      "schema": "core/contracts/execution-profile.schema.json",
+      "valid": true,
+      "guards": ["OD-10"],
+      "instance": {
+        "profile_id": "profile_readonly_v1",
+        "description": "Read-only analysis profile",
+        "dimensions": {
+          "tools": "read",
+          "effects": "ephemeral",
+          "context": "bounded",
+          "network": "none",
+          "delegation": 0,
+          "verification": "self_reported"
+        }
+      }
+    },
+    {
+      "case_id": "profile-rejects-missing-dimension",
+      "schema": "core/contracts/execution-profile.schema.json",
+      "valid": false,
+      "guards": ["OD-11"],
+      "instance": {
+        "profile_id": "profile_incomplete_v1",
+        "description": "All six dimensions are mandatory; no scalar shortcut",
+        "dimensions": {
+          "tools": "read",
+          "effects": "ephemeral",
+          "context": "bounded",
+          "network": "none",
+          "verification": "self_reported"
+        }
+      }
+    },
+    {
+      "case_id": "subsumption-valid-downward-reuse",
+      "schema": "core/contracts/profile-subsumption.schema.json",
+      "valid": true,
+      "guards": ["OD-11"],
+      "instance": {
+        "subsumption_id": "psub_workspace_over_readonly",
+        "subsuming_profile_ref": "profile_workspace_write_v1",
+        "subsumed_profile_ref": "profile_readonly_v1",
+        "dimension_comparison": {
+          "tools": { "subsuming_level": "write", "subsumed_level": "read", "holds": true },
+          "effects": { "subsuming_level": "workspace", "subsumed_level": "ephemeral", "holds": true },
+          "context": { "subsuming_level": "bounded", "subsumed_level": "bounded", "holds": true },
+          "network": { "subsuming_level": "none", "subsumed_level": "none", "holds": true },
+          "delegation": { "subsuming_level": 0, "subsumed_level": 0, "holds": true },
+          "verification": { "subsuming_level": "verified", "subsumed_level": "self_reported", "holds": true }
+        },
+        "relation": "subsumes",
+        "declared_by": "owner_policy",
+        "evidence_ref": "evals/fixtures/maws-vnext/capability-profile.contracts.json"
+      }
+    },
+    {
+      "case_id": "subsumption-rejects-claimed-holds-mismatch",
+      "schema": "core/contracts/profile-subsumption.schema.json",
+      "valid": false,
+      "guards": ["OD-11"],
+      "instance": {
+        "subsumption_id": "psub_false_holds",
+        "subsuming_profile_ref": "profile_readonly_v1",
+        "subsumed_profile_ref": "profile_workspace_write_v1",
+        "dimension_comparison": {
+          "tools": { "subsuming_level": "read", "subsumed_level": "write", "holds": false },
+          "effects": { "subsuming_level": "ephemeral", "subsumed_level": "workspace", "holds": true },
+          "context": { "subsuming_level": "bounded", "subsumed_level": "bounded", "holds": true },
+          "network": { "subsuming_level": "none", "subsumed_level": "none", "holds": true },
+          "delegation": { "subsuming_level": 0, "subsumed_level": 0, "holds": true },
+          "verification": { "subsuming_level": "self_reported", "subsumed_level": "verified", "holds": true }
+        },
+        "relation": "subsumes",
+        "declared_by": "owner_policy"
+      }
+    },
+    {
+      "case_id": "subsumption-cross-check-valid",
+      "cross_check": "subsumption_vs_profiles",
+      "valid": true,
+      "guards": ["OD-11"],
+      "payload": {
+        "subsumption": {
+          "subsumption_id": "psub_check_valid",
+          "subsuming_profile_ref": "profile_workspace_write_v1",
+          "subsumed_profile_ref": "profile_readonly_v1",
+          "dimension_comparison": {
+            "tools": { "subsuming_level": "write", "subsumed_level": "read", "holds": true },
+            "effects": { "subsuming_level": "workspace", "subsumed_level": "ephemeral", "holds": true },
+            "context": { "subsuming_level": "bounded", "subsumed_level": "bounded", "holds": true },
+            "network": { "subsuming_level": "none", "subsumed_level": "none", "holds": true },
+            "delegation": { "subsuming_level": 0, "subsumed_level": 0, "holds": true },
+            "verification": { "subsuming_level": "verified", "subsumed_level": "self_reported", "holds": true }
+          },
+          "relation": "subsumes",
+          "declared_by": "owner_policy"
+        },
+        "subsuming_profile": {
+          "profile_id": "profile_workspace_write_v1",
+          "dimensions": { "tools": "write", "effects": "workspace", "context": "bounded", "network": "none", "delegation": 0, "verification": "verified" }
+        },
+        "subsumed_profile": {
+          "profile_id": "profile_readonly_v1",
+          "dimensions": { "tools": "read", "effects": "ephemeral", "context": "bounded", "network": "none", "delegation": 0, "verification": "self_reported" }
+        }
+      }
+    },
+    {
+      "case_id": "subsumption-cross-check-rejects-upward-inference",
+      "cross_check": "subsumption_vs_profiles",
+      "valid": false,
+      "guards": ["OD-11"],
+      "payload": {
+        "subsumption": {
+          "subsumption_id": "psub_check_upward",
+          "subsuming_profile_ref": "profile_readonly_v1",
+          "subsumed_profile_ref": "profile_workspace_write_v1",
+          "dimension_comparison": {
+            "tools": { "subsuming_level": "read", "subsumed_level": "write", "holds": true },
+            "effects": { "subsuming_level": "ephemeral", "subsumed_level": "workspace", "holds": true },
+            "context": { "subsuming_level": "bounded", "subsumed_level": "bounded", "holds": true },
+            "network": { "subsuming_level": "none", "subsumed_level": "none", "holds": true },
+            "delegation": { "subsuming_level": 0, "subsumed_level": 0, "holds": true },
+            "verification": { "subsuming_level": "self_reported", "subsumed_level": "verified", "holds": true }
+          },
+          "relation": "subsumes",
+          "declared_by": "owner_policy"
+        },
+        "subsuming_profile": {
+          "profile_id": "profile_readonly_v1",
+          "dimensions": { "tools": "read", "effects": "ephemeral", "context": "bounded", "network": "none", "delegation": 0, "verification": "self_reported" }
+        },
+        "subsumed_profile": {
+          "profile_id": "profile_workspace_write_v1",
+          "dimensions": { "tools": "write", "effects": "workspace", "context": "bounded", "network": "none", "delegation": 0, "verification": "verified" }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/arbitration-policy.schema.json",
+  "title": "ArbitrationPolicy Contract",
+  "description": "OD-08: conflicting valid requests resolve through explicit policy. Authority conflicts may only fail closed or escalate to a human gate; synthesis and majority are not in the resolution vocabulary at all.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["policy_id", "conflict_class", "resolution_order", "tie_break"],
+  "properties": {
+    "policy_id": { "type": "string", "pattern": "^arb_[a-z0-9_]+$" },
+    "conflict_class": { "enum": ["resource_conflict", "priority_conflict", "revision_conflict", "scope_conflict", "authority_conflict"] },
+    "resolution_order": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["plan_revision", "reroute", "budget_adjustment", "human_gate", "fail_closed"] }
+    },
+    "tie_break": { "enum": ["deterministic_priority", "human_gate", "fail_closed"] }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "conflict_class": { "const": "authority_conflict" } }, "required": ["conflict_class"] },
+      "then": {
+        "properties": {
+          "resolution_order": { "items": { "enum": ["human_gate", "fail_closed"] } },
+          "tie_break": { "enum": ["human_gate", "fail_closed"] }
+        }
+      }
+    }
+  ]
+}

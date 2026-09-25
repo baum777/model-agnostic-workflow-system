@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/maws-vnext-common.schema.json",
+  "title": "MAWS vNext Common Vocabulary",
+  "description": "Shared definitions for the vNext contract spine. Dimension levels are ordered from narrowest to broadest; profile subsumption compares these orders per dimension. Ordered levels: tools [none, read, write, execute]; effects [none, ephemeral, workspace, external]; context [none, bounded, session_full]; network [none, allowlisted, open]; verification [none, self_reported, verified, independently_verified]; delegation is an integer depth 0..3 where 0 means no delegation.",
+  "type": "object",
+  "$defs": {
+    "executorClass": { "enum": ["llm", "agent_harness", "deterministic_service", "human"] },
+    "qualificationState": { "enum": ["UNKNOWN", "DECLARED", "QUALIFICATION_PENDING", "QUALIFIED", "DISQUALIFIED", "EXPIRED", "REVOKED"] },
+    "selectionMode": { "enum": ["NORMAL_SELECTION", "EXPLORATION", "FALLBACK", "FORCED_BINDING", "HUMAN_SELECTION"] },
+    "disposition": { "enum": ["RETRY", "REVALIDATE", "REROUTE", "ESCALATE", "BLOCKED", "FAILED"] },
+    "riskClass": { "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+    "compositionMode": { "enum": ["independent_parallel", "producer_verifier", "specialist_synthesis"] },
+    "disagreementClass": { "enum": ["factual_conflict", "implementation_conflict", "verification_conflict", "evidence_conflict", "policy_conflict", "authority_conflict"] },
+    "revalidationResult": { "enum": ["STILL_VALID", "CONFLICTING", "OBSOLETE", "REQUIRES_REBASE"] },
+    "materialityClass": { "enum": ["NON_MATERIAL", "MATERIAL", "UNKNOWN"] },
+    "workloadSafetyClass": { "enum": ["safe", "reversible_only", "high_risk", "production_critical", "irreversible"] },
+    "workUnitId": { "type": "string", "pattern": "^wu_[a-z0-9_]+$" },
+    "executorId": { "type": "string", "pattern": "^exec_[a-z0-9_]+$" },
+    "capabilityId": { "type": "string", "pattern": "^cap_[a-z0-9_]+$" },
+    "profileId": { "type": "string", "pattern": "^profile_[a-z0-9_]+$" },
+    "toolsLevel": { "enum": ["none", "read", "write", "execute"] },
+    "effectsLevel": { "enum": ["none", "ephemeral", "workspace", "external"] },
+    "contextLevel": { "enum": ["none", "bounded", "session_full"] },
+    "networkLevel": { "enum": ["none", "allowlisted", "open"] },
+    "verificationLevel": { "enum": ["none", "self_reported", "verified", "independently_verified"] },
+    "delegationDepth": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "authorityCeiling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_ref", "allowed_effects", "delegation_depth_max", "authority_source_refs"],
+      "properties": {
+        "scope_ref": { "type": "string", "minLength": 1 },
+        "allowed_effects": { "type": "array", "items": { "$ref": "#/$defs/effectsLevel" }, "uniqueItems": true },
+        "delegation_depth_max": { "$ref": "#/$defs/delegationDepth" },
+        "authority_source_refs": { "$ref": "#/$defs/stringRefs" }
+      }
+    },
+    "stringRefs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  }
+}

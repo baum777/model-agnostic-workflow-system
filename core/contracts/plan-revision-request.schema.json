@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/plan-revision-request.schema.json",
+  "title": "PlanRevisionRequest Contract",
+  "description": "OD-06/OD-07: revisions use declared request types only and always record base_graph_version. No component mutates the active graph directly; requests without a version anchor are invalid.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_id", "base_graph_version", "request_type", "source", "motivation"],
+  "properties": {
+    "request_id": { "type": "string", "pattern": "^rev_[a-z0-9_]+$" },
+    "base_graph_version": { "type": "integer", "minimum": 1 },
+    "request_type": {
+      "enum": ["add_node", "remove_node", "rebind_executor", "change_dependencies", "cancel_work_unit", "update_context", "update_budget"]
+    },
+    "source": { "enum": ["executor", "verifier", "runtime", "human", "policy_governance"] },
+    "motivation": { "type": "string", "minLength": 1 },
+    "payload": { "type": "object" }
+  }
+}

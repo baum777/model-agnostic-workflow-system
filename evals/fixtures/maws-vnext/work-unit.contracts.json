@@ -1,0 +1,138 @@
+{
+  "id": "maws-vnext-work-unit-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "work-unit-valid-root",
+      "schema": "core/contracts/work-unit.schema.json",
+      "valid": true,
+      "guards": ["OD-01"],
+      "instance": {
+        "work_unit_id": "wu_audit_repo_001",
+        "objective": "Audit and repair repository",
+        "required_capabilities": [{ "capability_id": "cap_repository_analysis" }],
+        "context_envelope_ref": "ctx/run_0001/envelope",
+        "authority_ceiling": {
+          "scope_ref": "scope/run_0001",
+          "allowed_effects": ["ephemeral", "workspace"],
+          "delegation_depth_max": 1,
+          "authority_source_refs": ["policies/maws-vnext-defaults.yaml"]
+        },
+        "decomposition_policy_ref": "tpl_audit_repair_v1",
+        "completion_contract_ref": "cc_audit_repo_001",
+        "created_by": "interaction_session",
+        "run_ref": "run_0001"
+      }
+    },
+    {
+      "case_id": "work-unit-valid-child",
+      "schema": "core/contracts/work-unit.schema.json",
+      "valid": true,
+      "guards": ["OD-03"],
+      "instance": {
+        "work_unit_id": "wu_audit_impl_child_001",
+        "parent_work_unit_id": "wu_audit_repo_001",
+        "objective": "Implement repair patch for audit findings",
+        "required_capabilities": [{ "capability_id": "cap_code_implementation" }],
+        "context_envelope_ref": "ctx/run_0001/envelope/child-001",
+        "authority_ceiling": {
+          "scope_ref": "scope/run_0001/child-001",
+          "allowed_effects": ["workspace"],
+          "delegation_depth_max": 0,
+          "authority_source_refs": ["policies/maws-vnext-defaults.yaml"]
+        },
+        "decomposition_policy_ref": "tpl_audit_repair_v1",
+        "completion_contract_ref": "cc_audit_impl_child_001",
+        "dependencies": ["wu_audit_repo_001"],
+        "created_by": "planner_decomposition",
+        "run_ref": "run_0001"
+      }
+    },
+    {
+      "case_id": "work-unit-rejects-executor-binding",
+      "schema": "core/contracts/work-unit.schema.json",
+      "valid": false,
+      "guards": ["OD-01", "OD-18"],
+      "instance": {
+        "work_unit_id": "wu_audit_repo_002",
+        "objective": "WorkUnit must not fix its executor",
+        "executor_id": "exec_codex_harness",
+        "required_capabilities": [{ "capability_id": "cap_repository_analysis" }],
+        "context_envelope_ref": "ctx/run_0001/envelope",
+        "authority_ceiling": {
+          "scope_ref": "scope/run_0001",
+          "allowed_effects": ["ephemeral"],
+          "delegation_depth_max": 0,
+          "authority_source_refs": ["policies/maws-vnext-defaults.yaml"]
+        },
+        "decomposition_policy_ref": "tpl_audit_repair_v1",
+        "completion_contract_ref": "cc_audit_repo_002",
+        "created_by": "interaction_session",
+        "run_ref": "run_0001"
+      }
+    },
+    {
+      "case_id": "work-unit-rejects-session-model-executor",
+      "schema": "core/contracts/work-unit.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "work_unit_id": "wu_audit_repo_003",
+        "objective": "Session model must not become the WorkUnit executor",
+        "session_model": "glm-5.3",
+        "required_capabilities": [{ "capability_id": "cap_repository_analysis" }],
+        "context_envelope_ref": "ctx/run_0001/envelope",
+        "authority_ceiling": {
+          "scope_ref": "scope/run_0001",
+          "allowed_effects": ["ephemeral"],
+          "delegation_depth_max": 0,
+          "authority_source_refs": ["policies/maws-vnext-defaults.yaml"]
+        },
+        "decomposition_policy_ref": "tpl_audit_repair_v1",
+        "completion_contract_ref": "cc_audit_repo_003",
+        "created_by": "interaction_session",
+        "run_ref": "run_0001"
+      }
+    },
+    {
+      "case_id": "work-unit-requires-authority-ceiling",
+      "schema": "core/contracts/work-unit.schema.json",
+      "valid": false,
+      "guards": ["OD-03"],
+      "instance": {
+        "work_unit_id": "wu_audit_repo_004",
+        "objective": "Authority ceiling is mandatory",
+        "required_capabilities": [{ "capability_id": "cap_repository_analysis" }],
+        "context_envelope_ref": "ctx/run_0001/envelope",
+        "decomposition_policy_ref": "tpl_audit_repair_v1",
+        "completion_contract_ref": "cc_audit_repo_004",
+        "created_by": "interaction_session",
+        "run_ref": "run_0001"
+      }
+    },
+    {
+      "case_id": "work-unit-rejects-out-of-range-delegation-depth",
+      "schema": "core/contracts/work-unit.schema.json",
+      "valid": false,
+      "guards": ["OD-03"],
+      "instance": {
+        "work_unit_id": "wu_audit_repo_005",
+        "objective": "Delegation depth is bounded",
+        "required_capabilities": [{ "capability_id": "cap_repository_analysis" }],
+        "context_envelope_ref": "ctx/run_0001/envelope",
+        "authority_ceiling": {
+          "scope_ref": "scope/run_0001",
+          "allowed_effects": ["ephemeral"],
+          "delegation_depth_max": 7,
+          "authority_source_refs": ["policies/maws-vnext-defaults.yaml"]
+        },
+        "decomposition_policy_ref": "tpl_audit_repair_v1",
+        "completion_contract_ref": "cc_audit_repo_005",
+        "created_by": "interaction_session",
+        "run_ref": "run_0001"
+      }
+    }
+  ]
+}

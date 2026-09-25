@@ -1,0 +1,156 @@
+{
+  "id": "maws-vnext-baseline",
+  "kind": "maws-vnext-baseline",
+  "target": { "name": "maws-vnext-baseline" },
+  "blocking": true,
+  "description": "MAWS-VN-001 baseline drift fixture. Anchors the design baseline and maps every vNext surface family to its maturity evidence sources. The maturity drift check in scripts/tools/validate-maws-vnext-contracts.mjs computes actual maturity (ABSENT, CONTRACT_ONLY, VALIDATOR_BACKED, RUNTIME_IMPLEMENTED) from repository state and fails closed when docs/authority-matrix.md claims more than the evidence supports.",
+  "baseline_commit": "a84aa7d44ab900201233b7ee104671e6a1ff136e",
+  "baseline_merge": "PR #6 (design baseline merge, 2026-09-25)",
+  "package_version_at_baseline": "0.2.1",
+  "design_baseline_docs": [
+    "docs/maws-vnext-owner-decisions.md",
+    "docs/maws-vnext-working-plan.md"
+  ],
+  "required_canonical_surfaces": [
+    "core/contracts/workflow-routing-map.json",
+    "core/contracts/provider-capabilities.json",
+    "core/contracts/permission-boundary.json",
+    "core/contracts/resource-governor.json",
+    "core/contracts/observability-spine.json",
+    "core/contracts/output-contracts.json",
+    "runtime/adapters/provider-adapter-base.mjs",
+    "runtime/permissions/permission-engine.mjs"
+  ],
+  "absence_markers_phase0": {
+    "note": "surfaces that must not be claimed as runtime-implemented until their phase lands",
+    "runtime_paths": [
+      "runtime/decision-engine",
+      "runtime/executors",
+      "runtime/qualification",
+      "runtime/planner",
+      "runtime/routing",
+      "runtime/completion",
+      "runtime/zcode"
+    ]
+  },
+  "maturity_states": ["ABSENT", "CONTRACT_ONLY", "VALIDATOR_BACKED", "RUNTIME_IMPLEMENTED"],
+  "vnext_surfaces": [
+    {
+      "family": "work-unit",
+      "contracts": ["core/contracts/work-unit.schema.json"],
+      "fixture_covered": true,
+      "runtime": ["runtime/planner/work-unit-store.mjs"]
+    },
+    {
+      "family": "capability-profile",
+      "contracts": [
+        "core/contracts/capability-definition.schema.json",
+        "core/contracts/execution-profile.schema.json",
+        "core/contracts/profile-subsumption.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": ["runtime/qualification/profile-subsumption.mjs"]
+    },
+    {
+      "family": "executor-registry",
+      "contracts": [
+        "core/contracts/executor-manifest.schema.json",
+        "core/contracts/executor-registry.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": ["runtime/executors/registry.mjs"]
+    },
+    {
+      "family": "qualification-eligibility",
+      "contracts": [
+        "core/contracts/qualification-record.schema.json",
+        "core/contracts/qualification-fingerprint.schema.json",
+        "core/contracts/materiality-decision.schema.json",
+        "core/contracts/eligibility-decision.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": ["runtime/qualification/eligibility.mjs"]
+    },
+    {
+      "family": "planning-graph",
+      "contracts": [
+        "core/contracts/execution-plan-template.schema.json",
+        "core/contracts/candidate-graph.schema.json",
+        "core/contracts/bound-execution-graph.schema.json",
+        "core/contracts/decomposition-request.schema.json",
+        "core/contracts/decomposition-decision.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": ["runtime/planner/hybrid-planner.mjs"]
+    },
+    {
+      "family": "revision-arbitration-disagreement",
+      "contracts": [
+        "core/contracts/plan-revision-request.schema.json",
+        "core/contracts/plan-revision-decision.schema.json",
+        "core/contracts/graph-supersession-record.schema.json",
+        "core/contracts/arbitration-policy.schema.json",
+        "core/contracts/arbitration-decision.schema.json",
+        "core/contracts/disagreement-policy.schema.json",
+        "core/contracts/disagreement-decision.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": ["runtime/planner/revision-engine.mjs", "runtime/planner/arbitration-engine.mjs"]
+    },
+    {
+      "family": "routing-composition",
+      "contracts": [
+        "core/contracts/routing-request.schema.json",
+        "core/contracts/routing-decision.schema.json",
+        "core/contracts/composition-policy.schema.json",
+        "core/contracts/composition-decision.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": ["runtime/routing/routing-engine.mjs"]
+    },
+    {
+      "family": "completion",
+      "contracts": [
+        "core/contracts/completion-contract.schema.json",
+        "core/contracts/completion-decision.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": ["runtime/completion/completion-engine.mjs"]
+    },
+    {
+      "family": "jev-decision-engine",
+      "contracts": [
+        "core/contracts/decision-threshold-policy.schema.json",
+        "core/contracts/decision-receipt.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": [
+        "runtime/decision-engine/jev/client.mjs",
+        "tests/vnext/jev-engine.test.mjs"
+      ]
+    },
+    {
+      "family": "executor-transports",
+      "contracts": [],
+      "fixture_covered": false,
+      "runtime": [
+        "runtime/executors/executor-base.mjs",
+        "runtime/executors/codex-executor.mjs",
+        "runtime/executors/openrouter-executor.mjs",
+        "tests/vnext/executors.test.mjs"
+      ]
+    },
+    {
+      "family": "zcode-surface",
+      "contracts": [
+        "core/contracts/interaction-session.schema.json",
+        "core/contracts/execution-surface-boundary.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": [
+        "runtime/zcode/stdio-bridge.mjs",
+        "tests/vnext/zcode.test.mjs"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/execution-surface-boundary.schema.json",
+  "title": "ExecutionSurfaceBoundary Contract",
+  "description": "OD-18: the interaction host may submit, query, present, cancel, and hand human approvals to MAWS. It may not override executor bindings, mutate bound graphs, spawn MAWS children, grant authority, or bypass qualification. MAWS is the orchestration owner; executor authority comes only from MAWS routing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["boundary_id", "orchestration_owner", "session_may", "session_must_not", "executor_authority_source"],
+  "properties": {
+    "boundary_id": { "type": "string", "pattern": "^esb_[a-z0-9_]+$" },
+    "orchestration_owner": { "const": "maws" },
+    "session_may": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": { "enum": ["submit_work", "query_status", "inspect_graph", "present_results", "request_cancel", "submit_human_approval"] }
+    },
+    "session_must_not": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": { "enum": ["override_executor_binding", "mutate_bound_graph", "spawn_maws_children", "grant_authority", "bypass_qualification"] }
+    },
+    "executor_authority_source": { "const": "maws_routing_only" },
+    "notes": { "type": "string" }
+  }
+}

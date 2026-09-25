@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/routing-decision.schema.json",
+  "title": "RoutingDecision Contract",
+  "description": "OD-13/OD-14/OD-18: every binding-relevant routing decision records selection mode, mandatory qualification reference, verified-only scoring signals, and bounded exploration metadata. Jev preference is advisory input recorded via jev_receipt_ref; the deterministic gate owns the outcome.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision_id", "request_ref", "selected_executor_id", "selection_mode", "qualification_ref", "workload_safety_class", "scoring_evidence", "jev_receipt_ref"],
+  "properties": {
+    "decision_id": { "type": "string", "pattern": "^rd_[a-z0-9_]+$" },
+    "request_ref": { "type": "string", "minLength": 1 },
+    "selected_executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+    "selection_mode": { "$ref": "maws-vnext-common.schema.json#/$defs/selectionMode" },
+    "qualification_ref": { "type": "string", "minLength": 1 },
+    "workload_safety_class": { "$ref": "maws-vnext-common.schema.json#/$defs/workloadSafetyClass" },
+    "scoring_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["signal", "evidence_ref"],
+        "properties": {
+          "signal": { "enum": ["verified_success", "verification_failure_rate", "latency", "cost", "retry_rate", "timeout_rate", "provider_availability"] },
+          "scope": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+              "capability_id": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" },
+              "execution_profile_ref": { "$ref": "maws-vnext-common.schema.json#/$defs/profileId" },
+              "workload_class": { "type": "string", "minLength": 1 }
+            }
+          },
+          "evidence_ref": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "jev_receipt_ref": { "type": ["null", "string"], "minLength": 1 },
+    "exploration": {
+      "type": ["null", "object"],
+      "additionalProperties": false,
+      "required": ["policy_ref", "traffic_share"],
+      "properties": {
+        "policy_ref": { "type": "string", "minLength": 1 },
+        "traffic_share": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "fallback_of": { "type": ["null", "string"], "minLength": 1 },
+    "decided_at": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "selection_mode": { "const": "EXPLORATION" } }, "required": ["selection_mode"] },
+      "then": {
+        "properties": {
+          "exploration": { "type": "object", "required": ["policy_ref", "traffic_share"] },
+          "workload_safety_class": { "enum": ["safe", "reversible_only"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "selection_mode": { "const": "FALLBACK" } }, "required": ["selection_mode"] },
+      "then": { "properties": { "fallback_of": { "type": "string", "minLength": 1 } } }
+    }
+  ]
+}

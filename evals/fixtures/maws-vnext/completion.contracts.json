@@ -1,0 +1,126 @@
+{
+  "id": "maws-vnext-completion-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "completion-contract-valid",
+      "schema": "core/contracts/completion-contract.schema.json",
+      "valid": true,
+      "guards": ["OD-17"],
+      "instance": {
+        "contract_id": "cc_audit_repo_001",
+        "work_unit_id": "wu_audit_repo_001",
+        "clauses": {
+          "execution_success": { "required": true },
+          "required_outputs": [{ "output_id": "audit_report", "artifact_ref": "artifacts/runtime-runs/run_0001/outputs/audit-report.json" }],
+          "required_evidence": ["evidence/run_0001/execution-receipt-ana.json"],
+          "verification": { "required": true, "independent": true },
+          "dependency_closure": { "required": true },
+          "child_closure": { "required": true },
+          "disagreement_closure": ["factual_conflict"],
+          "graph_conditions": [{ "condition": "all_nodes_completed", "expected": true }]
+        }
+      }
+    },
+    {
+      "case_id": "completion-decision-valid-completed",
+      "schema": "core/contracts/completion-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-17"],
+      "instance": {
+        "decision_id": "cdec_0001",
+        "work_unit_id": "wu_audit_repo_001",
+        "contract_ref": "cc_audit_repo_001",
+        "result": "COMPLETED",
+        "execution_succeeded": true,
+        "verification_satisfied": true,
+        "satisfied_clauses": ["execution_success", "required_outputs", "required_evidence", "verification", "dependency_closure", "child_closure", "disagreement_closure", "graph_conditions"],
+        "unsatisfied_clauses": [],
+        "blocking_reasons": [],
+        "evidence_refs": [
+          "evidence/run_0001/execution-receipt-ana.json",
+          "evidence/run_0001/verification-receipt-001.json"
+        ],
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "completion-decision-rejects-completed-with-unsatisfied-clause",
+      "schema": "core/contracts/completion-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-17"],
+      "instance": {
+        "decision_id": "cdec_0002",
+        "work_unit_id": "wu_audit_repo_001",
+        "contract_ref": "cc_audit_repo_001",
+        "result": "COMPLETED",
+        "execution_succeeded": true,
+        "verification_satisfied": true,
+        "satisfied_clauses": ["execution_success"],
+        "unsatisfied_clauses": ["child_closure"],
+        "blocking_reasons": [],
+        "evidence_refs": [],
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "completion-decision-rejects-completed-without-execution-success",
+      "schema": "core/contracts/completion-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-17"],
+      "instance": {
+        "decision_id": "cdec_0003",
+        "work_unit_id": "wu_audit_repo_001",
+        "contract_ref": "cc_audit_repo_001",
+        "result": "COMPLETED",
+        "execution_succeeded": false,
+        "verification_satisfied": true,
+        "satisfied_clauses": [],
+        "unsatisfied_clauses": [],
+        "blocking_reasons": [],
+        "evidence_refs": [],
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "completion-decision-rejects-completed-with-blocking-reason",
+      "schema": "core/contracts/completion-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-17"],
+      "instance": {
+        "decision_id": "cdec_0004",
+        "work_unit_id": "wu_audit_repo_001",
+        "contract_ref": "cc_audit_repo_001",
+        "result": "COMPLETED",
+        "execution_succeeded": true,
+        "verification_satisfied": true,
+        "satisfied_clauses": [],
+        "unsatisfied_clauses": [],
+        "blocking_reasons": ["verification receipt missing"],
+        "evidence_refs": [],
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "completion-decision-valid-not-completed",
+      "schema": "core/contracts/completion-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-17"],
+      "instance": {
+        "decision_id": "cdec_0005",
+        "work_unit_id": "wu_audit_repo_001",
+        "contract_ref": "cc_audit_repo_001",
+        "result": "NOT_COMPLETED",
+        "execution_succeeded": true,
+        "verification_satisfied": false,
+        "satisfied_clauses": ["execution_success"],
+        "unsatisfied_clauses": ["verification"],
+        "blocking_reasons": ["independent verification receipt missing"],
+        "evidence_refs": ["evidence/run_0001/execution-receipt-ana.json"],
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    }
+  ]
+}
