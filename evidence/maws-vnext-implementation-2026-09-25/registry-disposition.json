@@ -1,9 +1,9 @@
 {
   "registry_disposition": {
-    "status": "REQUIRED_BUT_BLOCKED",
+    "status": "UPDATED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "MAWS vNext implementation stream introduces 33 new canonical contracts under core/contracts (28 spine schemas from MAWS-VN-100..106 plus decision-threshold-policy, decision-receipt, interaction-session, execution-surface-boundary) and additively extends permission-boundary.json and output-contracts.json. These are CONTRACT_RECORD-class changes. The registry update itself is outside this implementation run's authority (owner gate); no registry write was performed.",
+    "reason": "MAWS vNext implementation stream introduces 33 new canonical contracts under core/contracts (28 spine schemas from MAWS-VN-100..106 plus decision-threshold-policy, decision-receipt, interaction-session, execution-surface-boundary) and additively extends permission-boundary.json and output-contracts.json. These are CONTRACT_RECORD-class changes. Originally classified REQUIRED_BUT_BLOCKED because the registry update was outside the implementation run's authority; the registry projection has since landed via baum777/unitera-registry PR #94 (merged 2026-09-25T17:45:12Z, see registry_commit_sha), closing the block.",
     "registry_baseline_sha": "a84aa7d44ab900201233b7ee104671e6a1ff136e",
     "affected_records": [
       "CONTRACT_RECORD:core/contracts/maws-vnext-common.schema.json",
@@ -59,7 +59,7 @@
       "tests/runtime regression (67/67 pass)"
     ],
     "implementation_commit_sha": "af66a3e309565a259e4468ce0677c0e7af0ec386",
-    "registry_commit_sha": null,
+    "registry_commit_sha": "f5dd6b01cab907d9dba62d7d9aec694576f6b239",
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/maws-vnext-implementation-2026-09-25/registry-disposition.json"
     ],

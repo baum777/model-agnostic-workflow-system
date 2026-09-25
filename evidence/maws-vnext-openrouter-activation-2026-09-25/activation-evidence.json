@@ -1,0 +1,48 @@
+{
+  "schema": "maws.live-activation.v1",
+  "started_at": "2026-09-25T18:08:53.368Z",
+  "finished_at": "2026-09-25T18:08:53.401Z",
+  "status": "BLOCKED",
+  "scope": "transport_qualification_probe",
+  "mutation_allowed": false,
+  "requested_jev_model": "jev-latest",
+  "openrouter_model": null,
+  "requested_codex_model": null,
+  "codex_provider": "openrouter",
+  "preflight": {
+    "typesafe_api_key_present": false,
+    "openrouter_api_key_present": false,
+    "openrouter_model_present": false,
+    "codex_binary_available": true,
+    "codex_version": "0.157.0",
+    "codex_home": "/home/baum/workspace/baum-os/agentic_workflow/maws-vnext-wt/artifacts/codex-home",
+    "codex_home_source": "maws_default",
+    "codex_home_state": "rewritten",
+    "codex_config_valid": true,
+    "codex_wire_api": "responses",
+    "codex_model_present": false
+  },
+  "blockers": [
+    "TYPESAFE_API_KEY_MISSING",
+    "OPENROUTER_API_KEY_MISSING",
+    "MAWS_OPENROUTER_MODEL_MISSING",
+    "MAWS_CODEX_MODEL_MISSING"
+  ],
+  "probes": [
+    {
+      "name": "typesafe_jev",
+      "status": "NOT_RUN",
+      "reason": "PREFLIGHT_BLOCKED"
+    },
+    {
+      "name": "openrouter",
+      "status": "NOT_RUN",
+      "reason": "PREFLIGHT_BLOCKED"
+    },
+    {
+      "name": "codex",
+      "status": "NOT_RUN",
+      "reason": "PREFLIGHT_BLOCKED"
+    }
+  ]
+}
