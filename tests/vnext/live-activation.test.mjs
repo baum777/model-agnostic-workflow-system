@@ -1,19 +1,17 @@
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import test from 'node:test';
 
 import { runLiveActivation } from '../../runtime/activation/live-activation.mjs';
 
 const ENV = {
-  TYPESAFE_API_KEY: 'test-typesafe-key',
   OPENROUTER_API_KEY: 'test-openrouter-key',
-  MAWS_OPENROUTER_MODEL: 'test/provider-model',
-  MAWS_CODEX_MODEL: 'zai/glm-4.7'
+  MAWS_OPENROUTER_MODEL: 'test/provider-model'
 };
 
-const VERSION_PROBE_OK = async () => ({ available: true, version: '0.157.0' });
+const PROBES_OK = {
+  codexVersionProbe: async () => ({ available: true, version: '0.157.0' }),
+  codexAuthProbe: async () => ({ authenticated: true, auth_mode: 'chatgpt' })
+};
 
 function jevPass() {
   return {
@@ -22,7 +20,7 @@ function jevPass() {
         ok: true,
         answer: 'exec_openrouter_glm',
         confidence: 0.93,
-        resolved_model: 'jev-1.13.0',
+        resolved_model: 'typesafe/jev-1.13-20260917',
         receipt: { receipt_id: 'jevr_activation' },
         threshold: { action: 'PROCEED', applied_threshold: 0.8 }
       };
@@ -44,29 +42,47 @@ function executorPass(flags = null) {
   };
 }
 
-function tmpRoot() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'maws-live-activation-'));
+function codexExecutorPass() {
+  return {
+    async execute() {
+      return {
+        outcome: 'SUCCESS',
+        error_class: null,
+        metrics: { latency_ms: 10, cost_units: 0, tokens_in: 5, tokens_out: 5 },
+        flags: { stream_format: 'jsonl', event_count: 4 },
+        outputs: [{
+          inline_payload: {
+            format: 'jsonl',
+            events: [
+              { type: 'item.completed', item: { type: 'agent_message', text: 'MAWS CODEX CHATGPT AUTH PASS' } }
+            ]
+          }
+        }],
+        exit_code: 0
+      };
+    }
+  };
 }
 
 function baseOptions(overrides = {}) {
   return {
     env: ENV,
-    codexVersionProbe: VERSION_PROBE_OK,
     thresholdPolicy: {},
     writeEvidence: false,
+    ...PROBES_OK,
     ...overrides
   };
 }
 
-test('live activation passes only when Jev, OpenRouter and Codex all pass', async () => {
+test('live activation passes only when all three independent probes pass', async () => {
   const result = await runLiveActivation(baseOptions({
-    root: tmpRoot(),
+    root: '/tmp/maws-live-activation-pass',
     jevClient: jevPass(),
     openRouterExecutor: executorPass(),
-    codexExecutor: executorPass({ stream_format: 'jsonl', event_count: 2 }),
+    codexExecutor: codexExecutorPass(),
     now: (() => {
-      const values = ['2026-09-25T14:30:00.000Z', '2026-09-25T14:30:01.000Z'];
-      return () => values.shift() ?? '2026-09-25T14:30:01.000Z';
+      const values = ['2026-09-25T20:30:00.000Z', '2026-09-25T20:30:01.000Z'];
+      return () => values.shift() ?? '2026-09-25T20:30:01.000Z';
     })()
   }));
 
@@ -74,151 +90,131 @@ test('live activation passes only when Jev, OpenRouter and Codex all pass', asyn
   assert.deepEqual(result.blockers, []);
   assert.equal(result.probes.length, 3);
   assert.ok(result.probes.every((probe) => probe.status === 'PASS'));
-  assert.equal(result.preflight.typesafe_api_key_present, true);
-  assert.equal(result.preflight.openrouter_api_key_present, true);
-  assert.equal(result.preflight.codex_binary_available, true);
+  assert.equal(result.preflight.codex_chatgpt_authenticated, true);
   assert.equal(result.preflight.codex_version, '0.157.0');
-  assert.equal(result.preflight.codex_config_valid, true);
-  assert.equal(result.preflight.codex_model_present, true);
-  assert.equal(result.preflight.codex_wire_api, 'responses');
-  assert.equal(JSON.stringify(result).includes(ENV.TYPESAFE_API_KEY), false);
+  assert.equal(result.preflight.typesafe_key_required, false);
+  assert.equal(result.schema, 'maws.live-activation.v2');
+  const codex = result.probes.find((probe) => probe.name === 'codex_chatgpt');
+  assert.equal(codex.auth_class, 'chatgpt_oauth');
+  assert.equal(codex.billing_class, 'chatgpt_plan');
+  assert.equal(codex.executor_id, 'exec_codex_chatgpt');
+  assert.equal(codex.expected_phrase_observed, true);
+  const jev = result.probes.find((probe) => probe.name === 'openrouter_jev');
+  assert.equal(jev.decision_transport, 'openrouter_decisions');
+  assert.equal(jev.requested_model, '~typesafe/jev-latest');
+  assert.equal(jev.resolved_model, 'typesafe/jev-1.13-20260917');
   assert.equal(JSON.stringify(result).includes(ENV.OPENROUTER_API_KEY), false);
 });
 
-test('missing credentials block activation before any live probe runs', async () => {
-  let calls = 0;
-  const never = {
-    async ask() { calls += 1; throw new Error('must not run'); },
-    async execute() { calls += 1; throw new Error('must not run'); }
-  };
+test('missing OpenRouter key does not mask the independent Codex lane: PARTIAL', async () => {
   const result = await runLiveActivation(baseOptions({
-    root: tmpRoot(),
+    root: '/tmp/maws-live-activation-partial',
     env: {},
-    jevClient: never,
-    openRouterExecutor: never,
-    codexExecutor: never
+    codexExecutor: codexExecutorPass()
   }));
 
-  assert.equal(result.status, 'BLOCKED');
-  assert.ok(result.blockers.includes('TYPESAFE_API_KEY_MISSING'));
+  assert.equal(result.status, 'PARTIAL');
   assert.ok(result.blockers.includes('OPENROUTER_API_KEY_MISSING'));
   assert.ok(result.blockers.includes('MAWS_OPENROUTER_MODEL_MISSING'));
-  assert.ok(result.blockers.includes('MAWS_CODEX_MODEL_MISSING'));
-  assert.equal(calls, 0);
-  assert.ok(result.probes.every((probe) => probe.status === 'NOT_RUN'));
+  const byName = Object.fromEntries(result.probes.map((probe) => [probe.name, probe]));
+  assert.equal(byName.codex_chatgpt.status, 'PASS');
+  assert.equal(byName.openrouter_jev.status, 'NOT_RUN');
+  assert.equal(byName.openrouter_model.status, 'NOT_RUN');
 });
 
-test('missing MAWS_CODEX_MODEL alone blocks the Codex lane preflight', async () => {
+test('unauthenticated Codex blocks only the Codex lane (CODEX_CHATGPT_AUTH_MISSING)', async () => {
   const result = await runLiveActivation(baseOptions({
-    root: tmpRoot(),
-    env: { ...ENV, MAWS_CODEX_MODEL: '' }
+    root: '/tmp/maws-live-activation-noauth',
+    codexAuthProbe: async () => ({ authenticated: false, auth_mode: null }),
+    jevClient: jevPass(),
+    openRouterExecutor: executorPass()
   }));
-  assert.equal(result.status, 'BLOCKED');
-  assert.deepEqual(result.blockers, ['MAWS_CODEX_MODEL_MISSING']);
-  assert.ok(result.probes.every((probe) => probe.status === 'NOT_RUN'));
+
+  assert.equal(result.status, 'PARTIAL');
+  assert.ok(result.blockers.includes('CODEX_CHATGPT_AUTH_MISSING'));
+  const byName = Object.fromEntries(result.probes.map((probe) => [probe.name, probe]));
+  assert.equal(byName.codex_chatgpt.status, 'NOT_RUN');
+  assert.equal(byName.openrouter_jev.status, 'PASS');
+  assert.equal(byName.openrouter_model.status, 'PASS');
 });
 
-test('missing codex binary blocks activation with CODEX_BINARY_MISSING', async () => {
+test('missing codex binary blocks the Codex lane with CODEX_BINARY_MISSING', async () => {
   const result = await runLiveActivation(baseOptions({
-    root: tmpRoot(),
+    root: '/tmp/maws-live-activation-nobin',
     codexVersionProbe: async () => ({ available: false, version: null })
   }));
-  assert.equal(result.status, 'BLOCKED');
   assert.ok(result.blockers.includes('CODEX_BINARY_MISSING'));
+  assert.equal(result.probes.find((probe) => probe.name === 'codex_chatgpt').status, 'NOT_RUN');
 });
 
-test('unsupported wire api value blocks activation with CODEX_WIRE_API_INVALID', async () => {
+test('Codex success without the expected agent phrase is BLOCKED, not PASS', async () => {
+  const silentCodex = {
+    async execute() {
+      return {
+        outcome: 'SUCCESS',
+        error_class: null,
+        metrics: { latency_ms: 5 },
+        flags: { stream_format: 'jsonl', event_count: 2 },
+        outputs: [{ inline_payload: { format: 'jsonl', events: [
+          { type: 'item.completed', item: { type: 'agent_message', text: 'sure, no problem' } }
+        ] } }],
+        exit_code: 0
+      };
+    }
+  };
   const result = await runLiveActivation(baseOptions({
-    root: tmpRoot(),
-    env: { ...ENV, MAWS_CODEX_WIRE_API: 'grpc' }
+    root: '/tmp/maws-live-activation-nophrase',
+    codexExecutor: silentCodex
   }));
-  assert.equal(result.status, 'BLOCKED');
-  assert.ok(result.blockers.includes('CODEX_WIRE_API_INVALID'));
-  assert.equal(result.preflight.codex_config_valid, false);
+  const codex = result.probes.find((probe) => probe.name === 'codex_chatgpt');
+  assert.equal(codex.status, 'BLOCKED');
+  assert.equal(codex.reason, 'EXPECTED_AGENT_MESSAGE_MISSING');
 });
 
-test('default codex home is bootstrapped with the canonical OpenRouter provider config', async () => {
-  const root = tmpRoot();
-  await runLiveActivation(baseOptions({ root }));
-  const configPath = path.join(root, 'artifacts', 'codex-home', 'config.toml');
-  const configText = fs.readFileSync(configPath, 'utf8');
-  assert.ok(configText.includes('model_provider = "openrouter"'));
-  assert.ok(configText.includes('[model_providers.openrouter]'));
-  assert.ok(configText.includes('base_url = "https://openrouter.ai/api/v1"'));
-  assert.ok(configText.includes('env_key = "OPENROUTER_API_KEY"'));
-  assert.ok(configText.includes('wire_api = "responses"'));
-  assert.ok(configText.includes('requires_openai_auth = false'));
-});
-
-test('an invalid external CODEX_HOME config blocks activation and is never rewritten', async () => {
-  const root = tmpRoot();
-  const externalHome = path.join(root, 'external-codex-home');
-  fs.mkdirSync(externalHome, { recursive: true });
-  const configPath = path.join(externalHome, 'config.toml');
-  fs.writeFileSync(configPath, 'model_provider = "builtin"\n', 'utf8');
-
+test('OpenRouter model substitution blocks the model lane even on execution success', async () => {
   const result = await runLiveActivation(baseOptions({
-    root,
-    env: { ...ENV, CODEX_HOME: externalHome }
-  }));
-  assert.equal(result.status, 'BLOCKED');
-  assert.ok(result.blockers.includes('CODEX_CONFIG_INVALID'));
-  assert.equal(result.preflight.codex_home_source, 'env');
-  assert.equal(fs.readFileSync(configPath, 'utf8'), 'model_provider = "builtin"\n', 'external home must never be rewritten');
-});
-
-test('OpenRouter model substitution blocks activation even when execution succeeds', async () => {
-  const result = await runLiveActivation(baseOptions({
-    root: tmpRoot(),
+    root: '/tmp/maws-live-activation-subst',
     jevClient: jevPass(),
     openRouterExecutor: executorPass({ model_substitution: true, served_model: 'other/model' }),
-    codexExecutor: executorPass()
+    codexExecutor: codexExecutorPass()
   }));
-
-  assert.equal(result.status, 'BLOCKED');
-  const openrouter = result.probes.find((probe) => probe.name === 'openrouter');
+  assert.equal(result.status, 'PARTIAL');
+  const openrouter = result.probes.find((probe) => probe.name === 'openrouter_model');
   assert.equal(openrouter.status, 'BLOCKED');
   assert.equal(openrouter.reason, 'MODEL_SUBSTITUTION');
 });
 
-test('Codex-side model substitution blocks activation even when execution succeeds', async () => {
+test('low-confidence Jev outcome blocks the Jev lane instead of widening authority', async () => {
   const result = await runLiveActivation(baseOptions({
-    root: tmpRoot(),
-    jevClient: jevPass(),
-    openRouterExecutor: executorPass(),
-    codexExecutor: executorPass({ stream_format: 'jsonl', event_count: 3, served_model: 'other/model', model_substitution: true })
-  }));
-
-  assert.equal(result.status, 'BLOCKED');
-  const codex = result.probes.find((probe) => probe.name === 'codex');
-  assert.equal(codex.status, 'BLOCKED');
-  assert.equal(codex.reason, 'MODEL_SUBSTITUTION');
-  assert.equal(codex.requested_model, 'zai/glm-4.7');
-  assert.equal(codex.model_provider, 'openrouter');
-  assert.equal(codex.codex_version, '0.157.0');
-});
-
-test('low-confidence Jev outcome blocks activation instead of widening authority', async () => {
-  const result = await runLiveActivation(baseOptions({
-    root: tmpRoot(),
+    root: '/tmp/maws-live-activation-lowconf',
     jevClient: {
       async ask() {
         return {
           ok: true,
-          answer: 'exec_codex_harness',
+          answer: 'exec_codex_chatgpt',
           confidence: 0.2,
-          resolved_model: 'jev-1.13.0',
+          resolved_model: 'typesafe/jev-1.13-20260917',
           receipt: { receipt_id: 'jevr_low' },
           threshold: { action: 'HUMAN_GATE', applied_threshold: 0.8 }
         };
       }
     },
     openRouterExecutor: executorPass(),
-    codexExecutor: executorPass()
+    codexExecutor: codexExecutorPass()
   }));
 
-  assert.equal(result.status, 'BLOCKED');
-  const jev = result.probes.find((probe) => probe.name === 'typesafe_jev');
+  assert.equal(result.status, 'PARTIAL');
+  const jev = result.probes.find((probe) => probe.name === 'openrouter_jev');
   assert.equal(jev.status, 'BLOCKED');
   assert.equal(jev.threshold_action, 'HUMAN_GATE');
+});
+
+test('no lane ready yields BLOCKED with all probes NOT_RUN', async () => {
+  const result = await runLiveActivation(baseOptions({
+    root: '/tmp/maws-live-activation-none',
+    env: {},
+    codexAuthProbe: async () => ({ authenticated: false, auth_mode: null })
+  }));
+  assert.equal(result.status, 'BLOCKED');
+  assert.ok(result.probes.every((probe) => probe.status === 'NOT_RUN'));
 });
