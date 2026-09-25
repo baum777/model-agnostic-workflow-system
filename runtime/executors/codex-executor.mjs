@@ -8,9 +8,11 @@
 // material (Codex login/session state) stays inside CODEX_HOME and is never
 // copied into ExecutionResults.
 //
-// NOTE: the exact codex CLI flag set used here ('exec', '--json', '-') is the
-// planned invocation shape and must be confirmed at first live activation;
-// tests inject a fake spawnImpl, so no live codex binary is required.
+// Live boundary: OpenAI documents `codex exec --json` stdout as JSONL
+// (one structured event per non-empty line), not one monolithic JSON object.
+// The executor therefore accepts one or many JSON values, preserving the
+// historical single-line payload shape while wrapping multi-event traces.
+// Tests still inject spawnImpl; live activation proves the local CLI/auth path.
 //
 // OD-04: this executor performs exactly one bounded invocation; it never
 // spawns MAWS-governed children and carries no decomposition authority.
@@ -89,21 +91,33 @@ export function createCodexExecutor({ spawnImpl, cwd, env = process.env } = {}) 
         return { outcome: 'FAILED', error_class: 'NON_ZERO_EXIT', exit_code: proc.exit_code };
       }
 
-      // Exit 0: stdout must be a JSON document (codex --json output shape).
+      // Exit 0: `codex exec --json` emits JSONL. Parse every non-empty
+      // event line fail-closed; a malformed event invalidates the execution.
       const stdoutText = typeof proc.stdout === 'string' ? proc.stdout.trim() : '';
       if (stdoutText.length === 0) {
         return { outcome: 'FAILED', error_class: 'OUTPUT_INVALID', exit_code: proc.exit_code };
       }
-      let parsed;
+      const lines = stdoutText.split(/\r?\n/).filter((line) => line.trim().length > 0);
+      const events = [];
       try {
-        parsed = JSON.parse(stdoutText);
+        for (const line of lines) {
+          events.push(JSON.parse(line));
+        }
       } catch {
         return { outcome: 'FAILED', error_class: 'OUTPUT_INVALID', exit_code: proc.exit_code };
       }
+      if (events.length === 0) {
+        return { outcome: 'FAILED', error_class: 'OUTPUT_INVALID', exit_code: proc.exit_code };
+      }
+
+      const payload = events.length === 1
+        ? events[0]
+        : { format: 'jsonl', events };
 
       return {
         outcome: 'SUCCESS',
-        outputs: [{ inline_payload: parsed }],
+        outputs: [{ inline_payload: payload }],
+        flags: { stream_format: 'jsonl', event_count: events.length },
         exit_code: proc.exit_code
       };
     }
