@@ -8,7 +8,9 @@
 // was made, not that its outcome was executed or accepted.
 import { FailClosedError, newId, nowIso } from '../../vnext/util.mjs';
 
-const MODES = ['fixture', 'live'];
+// 'openrouter' = canonical live path via the OpenRouter Decisions API;
+// 'live' = optional direct-TypeSafe compatibility provider.
+const MODES = ['fixture', 'live', 'openrouter'];
 const STRING_FIELDS = [
   'question_id',
   'requested_model',

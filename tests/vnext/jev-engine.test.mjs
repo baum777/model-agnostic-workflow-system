@@ -604,3 +604,22 @@ test('live mode: injection through a live response is BLOCKED, not adopted', asy
     { ok: false, disposition: 'BLOCKED', error_class: 'ANSWER_OUTSIDE_ALLOWED_SPACE' }
   );
 });
+
+test('recordResolution classifies OpenRouter dated snapshots as concrete and drift MATERIAL', () => {
+  // First resolution of the alias: no drift.
+  assert.deepEqual(
+    recordResolution('~typesafe/jev-latest', 'typesafe/jev-1.13-20260917', null),
+    { requested_model: '~typesafe/jev-latest', resolved_model: 'typesafe/jev-1.13-20260917', alias_drift: false, drift_class: 'NON_MATERIAL' }
+  );
+  // Snapshot change under the same alias: both concrete -> MATERIAL.
+  assert.equal(
+    recordResolution('~typesafe/jev-latest', 'typesafe/jev-1.13-20260924', 'typesafe/jev-1.13-20260917').drift_class,
+    'MATERIAL'
+  );
+  // Pinned release ids remain concrete; aliases never do.
+  assert.equal(recordResolution('jev-latest', 'jev-1.13.0', null).drift_class, 'NON_MATERIAL');
+  assert.equal(
+    recordResolution('~typesafe/jev-latest', 'typesafe/jev-1.13-20260924', 'jev-latest-ish').drift_class,
+    'UNKNOWN'
+  );
+});
