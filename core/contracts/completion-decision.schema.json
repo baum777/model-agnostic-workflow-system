@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/completion-decision.schema.json",
+  "title": "CompletionDecision Contract",
+  "description": "OD-17: the deterministic completion evaluation result. result=COMPLETED requires execution success, satisfied verification, no unsatisfied clauses, and no blocking reasons. Every decision names satisfied and unsatisfied clauses with evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision_id", "work_unit_id", "contract_ref", "result", "execution_succeeded", "verification_satisfied", "satisfied_clauses", "unsatisfied_clauses", "blocking_reasons", "evidence_refs", "decided_at"],
+  "properties": {
+    "decision_id": { "type": "string", "pattern": "^cdec_[a-z0-9_]+$" },
+    "work_unit_id": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+    "contract_ref": { "type": "string", "minLength": 1 },
+    "result": { "enum": ["COMPLETED", "NOT_COMPLETED"] },
+    "execution_succeeded": { "type": "boolean" },
+    "verification_satisfied": { "type": "boolean" },
+    "satisfied_clauses": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+    "unsatisfied_clauses": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+    "blocking_reasons": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+    "evidence_refs": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+    "decided_at": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "result": { "const": "COMPLETED" } }, "required": ["result"] },
+      "then": {
+        "properties": {
+          "execution_succeeded": { "const": true },
+          "verification_satisfied": { "const": true },
+          "unsatisfied_clauses": { "maxItems": 0 },
+          "blocking_reasons": { "maxItems": 0 }
+        }
+      }
+    }
+  ]
+}

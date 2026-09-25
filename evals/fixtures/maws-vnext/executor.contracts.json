@@ -1,0 +1,135 @@
+{
+  "id": "maws-vnext-executor-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "executor-manifest-valid-codex-harness",
+      "schema": "core/contracts/executor-manifest.schema.json",
+      "valid": true,
+      "guards": ["OD-01"],
+      "instance": {
+        "executor_id": "exec_codex_harness",
+        "executor_class": "agent_harness",
+        "display_name": "Codex Harness",
+        "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
+        "provider": { "provider_id": "openai", "model_id": "codex-main" },
+        "transport": "codex_exec",
+        "session_model_can_bind": false,
+        "notes": "Codex subscription-backed agent harness; declaration only, not qualification"
+      }
+    },
+    {
+      "case_id": "executor-manifest-valid-openrouter",
+      "schema": "core/contracts/executor-manifest.schema.json",
+      "valid": true,
+      "guards": ["OD-01"],
+      "instance": {
+        "executor_id": "exec_openrouter_glm",
+        "executor_class": "llm",
+        "display_name": "OpenRouter GLM",
+        "declared_capabilities": [{ "capability_id": "cap_repository_analysis" }],
+        "provider": { "provider_id": "openrouter", "model_id": "zai/glm-4.7" },
+        "transport": "openrouter_api",
+        "session_model_can_bind": false
+      }
+    },
+    {
+      "case_id": "executor-manifest-valid-human-gate",
+      "schema": "core/contracts/executor-manifest.schema.json",
+      "valid": true,
+      "guards": ["OD-01"],
+      "instance": {
+        "executor_id": "exec_human_gate",
+        "executor_class": "human",
+        "display_name": "Human Gate",
+        "declared_capabilities": [{ "capability_id": "cap_human_decision" }],
+        "transport": "human_gate",
+        "session_model_can_bind": false
+      }
+    },
+    {
+      "case_id": "executor-manifest-rejects-qualification-claim",
+      "schema": "core/contracts/executor-manifest.schema.json",
+      "valid": false,
+      "guards": ["OD-09"],
+      "instance": {
+        "executor_id": "exec_codex_harness",
+        "executor_class": "agent_harness",
+        "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
+        "transport": "codex_exec",
+        "session_model_can_bind": false,
+        "qualified": true
+      }
+    },
+    {
+      "case_id": "executor-manifest-rejects-authority-claim",
+      "schema": "core/contracts/executor-manifest.schema.json",
+      "valid": false,
+      "guards": ["OD-01"],
+      "instance": {
+        "executor_id": "exec_codex_harness",
+        "executor_class": "agent_harness",
+        "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
+        "transport": "codex_exec",
+        "session_model_can_bind": false,
+        "authority": "may approve own work"
+      }
+    },
+    {
+      "case_id": "executor-manifest-rejects-session-model-binding",
+      "schema": "core/contracts/executor-manifest.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "executor_id": "exec_codex_harness",
+        "executor_class": "agent_harness",
+        "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
+        "transport": "codex_exec",
+        "session_model_can_bind": true
+      }
+    },
+    {
+      "case_id": "executor-registry-valid",
+      "schema": "core/contracts/executor-registry.schema.json",
+      "valid": true,
+      "guards": ["OD-01", "OD-09"],
+      "instance": {
+        "registry_id": "execreg_maws_v1",
+        "version": "1",
+        "executors": [
+          {
+            "executor_id": "exec_codex_harness",
+            "executor_class": "agent_harness",
+            "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
+            "transport": "codex_exec",
+            "session_model_can_bind": false
+          },
+          {
+            "executor_id": "exec_local_tests",
+            "executor_class": "deterministic_service",
+            "declared_capabilities": [{ "capability_id": "cap_deterministic_verification" }],
+            "transport": "in_process",
+            "session_model_can_bind": false
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "executor-registry-cross-check-rejects-duplicate-ids",
+      "cross_check": "registry_unique_ids",
+      "valid": false,
+      "guards": ["OD-09"],
+      "payload": {
+        "registry": {
+          "registry_id": "execreg_maws_v1",
+          "executors": [
+            { "executor_id": "exec_openrouter_glm", "executor_class": "llm", "declared_capabilities": [{ "capability_id": "cap_repository_analysis" }], "transport": "openrouter_api", "session_model_can_bind": false },
+            { "executor_id": "exec_openrouter_glm", "executor_class": "llm", "declared_capabilities": [{ "capability_id": "cap_repository_analysis" }], "transport": "openrouter_api", "session_model_can_bind": false }
+          ]
+        }
+      }
+    }
+  ]
+}

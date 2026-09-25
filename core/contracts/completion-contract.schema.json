@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/completion-contract.schema.json",
+  "title": "CompletionContract Contract",
+  "description": "OD-17: contract-driven completion. A WorkUnit's CompletionContract enumerates every clause that must hold for COMPLETED: execution success, required outputs, required evidence, verification, dependency/child closure, disagreement closure, and graph conditions. Executor success alone never completes a WorkUnit.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_id", "work_unit_id", "clauses"],
+  "properties": {
+    "contract_id": { "type": "string", "pattern": "^cc_[a-z0-9_]+$" },
+    "work_unit_id": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+    "clauses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["execution_success", "required_outputs", "required_evidence", "verification", "dependency_closure", "child_closure", "disagreement_closure", "graph_conditions"],
+      "properties": {
+        "execution_success": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required"],
+          "properties": { "required": { "type": "boolean" } }
+        },
+        "required_outputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["output_id", "artifact_ref"],
+            "properties": {
+              "output_id": { "type": "string", "minLength": 1 },
+              "artifact_ref": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "required_evidence": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+        "verification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "independent"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "independent": { "type": "boolean" }
+          }
+        },
+        "dependency_closure": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required"],
+          "properties": { "required": { "type": "boolean" } }
+        },
+        "child_closure": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required"],
+          "properties": { "required": { "type": "boolean" } }
+        },
+        "disagreement_closure": {
+          "type": "array",
+          "items": { "$ref": "maws-vnext-common.schema.json#/$defs/disagreementClass" },
+          "uniqueItems": true
+        },
+        "graph_conditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["condition", "expected"],
+            "properties": {
+              "condition": { "enum": ["all_nodes_completed", "active_graph_version_matches"] },
+              "expected": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

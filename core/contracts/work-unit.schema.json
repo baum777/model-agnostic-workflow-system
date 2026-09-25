@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/work-unit.schema.json",
+  "title": "WorkUnit Contract",
+  "description": "OD-01/OD-03/OD-18: a WorkUnit declares objective, capability requirements, context envelope, authority ceiling, and contract references. It never fixes an executor, model, or session model; executor binding happens only through a RoutingDecision recorded in a BoundExecutionGraph.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "work_unit_id", "objective", "required_capabilities", "context_envelope_ref",
+    "authority_ceiling", "decomposition_policy_ref", "completion_contract_ref",
+    "created_by", "run_ref"
+  ],
+  "properties": {
+    "work_unit_id": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+    "objective": { "type": "string", "minLength": 1 },
+    "parent_work_unit_id": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+    "required_capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["capability_id"],
+        "properties": {
+          "capability_id": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" },
+          "min_profile_ref": { "$ref": "maws-vnext-common.schema.json#/$defs/profileId" }
+        }
+      }
+    },
+    "context_envelope_ref": { "type": "string", "minLength": 1 },
+    "authority_ceiling": { "$ref": "maws-vnext-common.schema.json#/$defs/authorityCeiling" },
+    "decomposition_policy_ref": { "type": "string", "minLength": 1 },
+    "completion_contract_ref": { "type": "string", "minLength": 1 },
+    "dependencies": {
+      "type": "array",
+      "items": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+      "uniqueItems": true
+    },
+    "created_by": { "enum": ["interaction_session", "planner_decomposition", "policy_governance"] },
+    "run_ref": { "type": "string", "minLength": 1 },
+    "graph_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["graph_id", "graph_version"],
+      "properties": {
+        "graph_id": { "type": "string", "minLength": 1 },
+        "graph_version": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

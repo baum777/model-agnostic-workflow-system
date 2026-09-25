@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/disagreement-policy.schema.json",
+  "title": "DisagreementPolicy Contract",
+  "description": "OD-16: each typed disagreement class resolves only through its declared policy. A synthesizer never gains independent authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["policy_id", "disagreement_class", "required_actions", "synthesizer_authority", "fail_closed"],
+  "properties": {
+    "policy_id": { "type": "string", "pattern": "^dis_[a-z0-9_]+$" },
+    "disagreement_class": { "$ref": "maws-vnext-common.schema.json#/$defs/disagreementClass" },
+    "required_actions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["independent_verification", "evidence_review", "human_gate"],
+      "properties": {
+        "independent_verification": { "type": "boolean" },
+        "evidence_review": { "type": "boolean" },
+        "human_gate": { "type": "boolean" }
+      }
+    },
+    "synthesizer_authority": { "const": "none" },
+    "fail_closed": { "type": "boolean" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "disagreement_class": { "const": "authority_conflict" } }, "required": ["disagreement_class"] },
+      "then": {
+        "properties": {
+          "required_actions": {
+            "properties": {
+              "human_gate": { "const": true },
+              "independent_verification": { "const": false }
+            }
+          },
+          "fail_closed": { "const": true }
+        }
+      }
+    }
+  ]
+}

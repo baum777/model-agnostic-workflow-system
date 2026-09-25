@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/executor-manifest.schema.json",
+  "title": "ExecutorManifest Contract",
+  "description": "OD-01/OD-09: an executor manifest is a DECLARATION only. It separates executor identity from provider identity and model identity, and it carries no qualification, authority, or routing claim. Qualification exists only in QualificationRecords backed by evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "executor_id", "executor_class", "declared_capabilities", "transport",
+    "session_model_can_bind"
+  ],
+  "properties": {
+    "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+    "executor_class": { "$ref": "maws-vnext-common.schema.json#/$defs/executorClass" },
+    "display_name": { "type": "string", "minLength": 1 },
+    "declared_capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["capability_id"],
+        "properties": {
+          "capability_id": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" }
+        }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider_id"],
+      "properties": {
+        "provider_id": { "type": "string", "minLength": 1 },
+        "model_id": { "type": ["string", "null"], "minLength": 1 }
+      }
+    },
+    "transport": { "enum": ["codex_exec", "openrouter_api", "local_process", "in_process", "human_gate"] },
+    "session_model_can_bind": { "const": false },
+    "notes": { "type": "string" }
+  }
+}

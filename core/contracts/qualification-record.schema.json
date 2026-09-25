@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/qualification-record.schema.json",
+  "title": "QualificationRecord Contract",
+  "description": "OD-09/OD-10: qualification is evidence-backed and scoped to one capability under one execution profile with a fingerprint. A QUALIFIED record without evidence is invalid. A qualification score never overrides authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "qualification_id", "executor_id", "capability_id", "execution_profile_ref",
+    "state", "evidence_refs", "fingerprint_ref", "decided_at"
+  ],
+  "properties": {
+    "qualification_id": { "type": "string", "pattern": "^qual_[a-z0-9_]+$" },
+    "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+    "capability_id": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" },
+    "execution_profile_ref": { "$ref": "maws-vnext-common.schema.json#/$defs/profileId" },
+    "state": { "$ref": "maws-vnext-common.schema.json#/$defs/qualificationState" },
+    "evidence_refs": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+    "fingerprint_ref": { "type": "string", "minLength": 1 },
+    "decided_at": { "type": "string", "minLength": 1 },
+    "expires_at": { "type": "string", "minLength": 1 },
+    "revoked_at": { "type": "string", "minLength": 1 },
+    "revocation_reason": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "state": { "const": "QUALIFIED" } }, "required": ["state"] },
+      "then": {
+        "properties": {
+          "evidence_refs": { "minItems": 1 },
+          "fingerprint_ref": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ]
+}

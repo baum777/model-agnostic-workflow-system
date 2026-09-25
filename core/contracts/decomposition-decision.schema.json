@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/decomposition-decision.schema.json",
+  "title": "DecompositionDecision Contract",
+  "description": "OD-03/OD-04: planner decision over a DecompositionRequest. APPROVED requires every inheritance envelope check true (child scope/context/effects subsets, authority not widened, limits respected) and at least one instantiated child WorkUnit.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision_id", "request_ref", "decision", "envelope_check", "decided_by", "reason"],
+  "properties": {
+    "decision_id": { "type": "string", "pattern": "^ddec_[a-z0-9_]+$" },
+    "request_ref": { "type": "string", "minLength": 1 },
+    "decision": { "enum": ["APPROVED", "REJECTED"] },
+    "envelope_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_subset", "context_subset", "effects_subset", "authority_not_widened", "limits_respected"],
+      "properties": {
+        "scope_subset": { "type": "boolean" },
+        "context_subset": { "type": "boolean" },
+        "effects_subset": { "type": "boolean" },
+        "authority_not_widened": { "type": "boolean" },
+        "limits_respected": { "type": "boolean" }
+      }
+    },
+    "child_work_unit_ids": {
+      "type": "array",
+      "items": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+      "uniqueItems": true
+    },
+    "decided_by": { "const": "planner" },
+    "reason": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "decision": { "const": "APPROVED" } }, "required": ["decision"] },
+      "then": {
+        "properties": {
+          "envelope_check": {
+            "properties": {
+              "scope_subset": { "const": true },
+              "context_subset": { "const": true },
+              "effects_subset": { "const": true },
+              "authority_not_widened": { "const": true },
+              "limits_respected": { "const": true }
+            }
+          },
+          "child_work_unit_ids": { "minItems": 1 }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/qualification-fingerprint.schema.json",
+  "title": "QualificationFingerprint Contract",
+  "description": "OD-12: a fingerprint captures all qualification-relevant execution state: model/executor identity, provider/API surface, harness/runtime, tool contracts, execution profile, and qualification/eval profile. Configuration drift is classified by MaterialityDecision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fingerprint_id", "executor_id", "capability_id", "execution_profile_ref",
+    "components", "digest"
+  ],
+  "properties": {
+    "fingerprint_id": { "type": "string", "pattern": "^fp_[a-z0-9_]+$" },
+    "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+    "capability_id": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" },
+    "execution_profile_ref": { "$ref": "maws-vnext-common.schema.json#/$defs/profileId" },
+    "components": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_id", "provider_id", "runtime_harness", "tool_contract_refs",
+        "api_surface_version", "qualification_profile_ref"
+      ],
+      "properties": {
+        "model_id": { "type": ["string", "null"], "minLength": 1 },
+        "provider_id": { "type": ["string", "null"], "minLength": 1 },
+        "runtime_harness": { "type": "string", "minLength": 1 },
+        "tool_contract_refs": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+        "api_surface_version": { "type": "string", "minLength": 1 },
+        "qualification_profile_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

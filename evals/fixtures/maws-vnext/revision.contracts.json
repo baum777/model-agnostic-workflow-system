@@ -1,0 +1,310 @@
+{
+  "id": "maws-vnext-revision-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "revision-request-valid",
+      "schema": "core/contracts/plan-revision-request.schema.json",
+      "valid": true,
+      "guards": ["OD-06", "OD-07"],
+      "instance": {
+        "request_id": "rev_0001",
+        "base_graph_version": 1,
+        "request_type": "rebind_executor",
+        "source": "verifier",
+        "motivation": "Verifier failed the analysis output; request rebind to alternate qualified executor",
+        "payload": { "node_id": "node_analysis", "reason_code": "verification_failed" }
+      }
+    },
+    {
+      "case_id": "revision-request-rejects-missing-base-version",
+      "schema": "core/contracts/plan-revision-request.schema.json",
+      "valid": false,
+      "guards": ["OD-07"],
+      "instance": {
+        "request_id": "rev_0002",
+        "request_type": "add_node",
+        "source": "runtime",
+        "motivation": "Version anchor is mandatory"
+      }
+    },
+    {
+      "case_id": "revision-request-rejects-undeclared-type",
+      "schema": "core/contracts/plan-revision-request.schema.json",
+      "valid": false,
+      "guards": ["OD-06"],
+      "instance": {
+        "request_id": "rev_0003",
+        "base_graph_version": 1,
+        "request_type": "direct_mutation",
+        "source": "executor",
+        "motivation": "Only declared request types exist"
+      }
+    },
+    {
+      "case_id": "revision-decision-valid-accepted",
+      "schema": "core/contracts/plan-revision-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-05", "OD-07"],
+      "instance": {
+        "decision_id": "rdec_0001",
+        "request_ref": "rev_0001",
+        "base_graph_version": 1,
+        "active_graph_version": 1,
+        "revalidation": "STILL_VALID",
+        "outcome": "ACCEPTED",
+        "new_graph_version": 2,
+        "supersession_ref": "sup_0001",
+        "decided_at": "2026-09-25T00:00:00Z",
+        "reason": "Request anchored at active version; accepted and rebinding recorded in v2"
+      }
+    },
+    {
+      "case_id": "revision-decision-rejects-accepted-after-rebase-required",
+      "schema": "core/contracts/plan-revision-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-07"],
+      "instance": {
+        "decision_id": "rdec_0002",
+        "request_ref": "rev_0001",
+        "base_graph_version": 1,
+        "active_graph_version": 2,
+        "revalidation": "REQUIRES_REBASE",
+        "outcome": "ACCEPTED",
+        "new_graph_version": 3,
+        "supersession_ref": "sup_0002",
+        "decided_at": "2026-09-25T00:00:00Z",
+        "reason": "invalid: silent rebase"
+      }
+    },
+    {
+      "case_id": "revision-decision-valid-stale",
+      "schema": "core/contracts/plan-revision-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-07"],
+      "instance": {
+        "decision_id": "rdec_0003",
+        "request_ref": "rev_0001",
+        "base_graph_version": 1,
+        "active_graph_version": 3,
+        "revalidation": "OBSOLETE",
+        "outcome": "STALE",
+        "new_graph_version": null,
+        "supersession_ref": null,
+        "decided_at": "2026-09-25T00:00:00Z",
+        "reason": "Target node no longer exists in active graph"
+      }
+    },
+    {
+      "case_id": "revision-decision-cross-check-rejects-silent-rebase",
+      "cross_check": "revision_stale",
+      "valid": false,
+      "guards": ["OD-07"],
+      "payload": {
+        "revision_decision": {
+          "base_graph_version": 1,
+          "active_graph_version": 3,
+          "revalidation": "STILL_VALID",
+          "outcome": "ACCEPTED",
+          "new_graph_version": 4
+        }
+      }
+    },
+    {
+      "case_id": "supersession-record-valid",
+      "schema": "core/contracts/graph-supersession-record.schema.json",
+      "valid": true,
+      "guards": ["OD-05"],
+      "instance": {
+        "record_id": "sup_0001",
+        "superseded_graph_version": 1,
+        "superseded_by_graph_version": 2,
+        "effective_at": "2026-09-25T00:00:00Z",
+        "reason": "Accepted revision rev_0001",
+        "revision_request_ref": "rev_0001"
+      }
+    },
+    {
+      "case_id": "supersession-cross-check-rejects-non-monotonic-version",
+      "cross_check": "supersession_monotonic",
+      "valid": false,
+      "guards": ["OD-05"],
+      "payload": {
+        "superseded_graph_version": 2,
+        "superseded_by_graph_version": 2
+      }
+    },
+    {
+      "case_id": "arbitration-policy-valid-authority-conflict",
+      "schema": "core/contracts/arbitration-policy.schema.json",
+      "valid": true,
+      "guards": ["OD-08"],
+      "instance": {
+        "policy_id": "arb_authority_v1",
+        "conflict_class": "authority_conflict",
+        "resolution_order": ["human_gate", "fail_closed"],
+        "tie_break": "human_gate"
+      }
+    },
+    {
+      "case_id": "arbitration-policy-valid-revision-conflict",
+      "schema": "core/contracts/arbitration-policy.schema.json",
+      "valid": true,
+      "guards": ["OD-08"],
+      "instance": {
+        "policy_id": "arb_revision_v1",
+        "conflict_class": "revision_conflict",
+        "resolution_order": ["plan_revision", "reroute", "human_gate"],
+        "tie_break": "deterministic_priority"
+      }
+    },
+    {
+      "case_id": "arbitration-policy-rejects-deterministic-authority-tiebreak",
+      "schema": "core/contracts/arbitration-policy.schema.json",
+      "valid": false,
+      "guards": ["OD-08"],
+      "instance": {
+        "policy_id": "arb_authority_invalid",
+        "conflict_class": "authority_conflict",
+        "resolution_order": ["reroute", "plan_revision"],
+        "tie_break": "deterministic_priority"
+      }
+    },
+    {
+      "case_id": "arbitration-decision-valid-escalated",
+      "schema": "core/contracts/arbitration-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-08"],
+      "instance": {
+        "decision_id": "adec_0001",
+        "policy_ref": "arb_authority_v1",
+        "request_refs": ["rev_0001", "rev_0004"],
+        "conflict_involves_authority": true,
+        "disposition": "ESCALATE",
+        "resolved_by": "human_gate",
+        "synthesis_used": false,
+        "evidence_refs": ["evidence/arbitration/adec_0001.json"],
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "arbitration-decision-rejects-synthesis",
+      "schema": "core/contracts/arbitration-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-08"],
+      "instance": {
+        "decision_id": "adec_0002",
+        "policy_ref": "arb_revision_v1",
+        "request_refs": ["rev_0001"],
+        "conflict_involves_authority": false,
+        "disposition": "RETRY",
+        "resolved_by": "deterministic_policy",
+        "synthesis_used": true,
+        "evidence_refs": []
+      }
+    },
+    {
+      "case_id": "arbitration-decision-rejects-deterministic-resolution-of-authority-conflict",
+      "schema": "core/contracts/arbitration-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-08"],
+      "instance": {
+        "decision_id": "adec_0003",
+        "policy_ref": "arb_authority_v1",
+        "request_refs": ["rev_0001"],
+        "conflict_involves_authority": true,
+        "disposition": "REROUTE",
+        "resolved_by": "deterministic_policy",
+        "synthesis_used": false,
+        "evidence_refs": ["evidence/arbitration/adec_0003.json"]
+      }
+    },
+    {
+      "case_id": "disagreement-policy-valid-factual",
+      "schema": "core/contracts/disagreement-policy.schema.json",
+      "valid": true,
+      "guards": ["OD-16"],
+      "instance": {
+        "policy_id": "dis_factual_v1",
+        "disagreement_class": "factual_conflict",
+        "required_actions": { "independent_verification": true, "evidence_review": true, "human_gate": false },
+        "synthesizer_authority": "none",
+        "fail_closed": false
+      }
+    },
+    {
+      "case_id": "disagreement-policy-valid-authority",
+      "schema": "core/contracts/disagreement-policy.schema.json",
+      "valid": true,
+      "guards": ["OD-16"],
+      "instance": {
+        "policy_id": "dis_authority_v1",
+        "disagreement_class": "authority_conflict",
+        "required_actions": { "independent_verification": false, "evidence_review": false, "human_gate": true },
+        "synthesizer_authority": "none",
+        "fail_closed": true
+      }
+    },
+    {
+      "case_id": "disagreement-policy-rejects-non-fail-closed-authority",
+      "schema": "core/contracts/disagreement-policy.schema.json",
+      "valid": false,
+      "guards": ["OD-16"],
+      "instance": {
+        "policy_id": "dis_authority_invalid",
+        "disagreement_class": "authority_conflict",
+        "required_actions": { "independent_verification": true, "evidence_review": true, "human_gate": false },
+        "synthesizer_authority": "none",
+        "fail_closed": false
+      }
+    },
+    {
+      "case_id": "disagreement-decision-valid-resolved-factual",
+      "schema": "core/contracts/disagreement-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-16"],
+      "instance": {
+        "decision_id": "dgd_0001",
+        "disagreement_class": "factual_conflict",
+        "policy_ref": "dis_factual_v1",
+        "outcome": "RESOLVED",
+        "resolved_by": "independent_verification",
+        "synthesizer_independent_authority": false,
+        "evidence_refs": ["evidence/disagreement/dgd_0001.json"],
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "disagreement-decision-rejects-resolved-authority-conflict",
+      "schema": "core/contracts/disagreement-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-16"],
+      "instance": {
+        "decision_id": "dgd_0002",
+        "disagreement_class": "authority_conflict",
+        "policy_ref": "dis_authority_v1",
+        "outcome": "RESOLVED",
+        "resolved_by": "deterministic_policy",
+        "synthesizer_independent_authority": false,
+        "evidence_refs": []
+      }
+    },
+    {
+      "case_id": "disagreement-decision-rejects-synthesizer-authority",
+      "schema": "core/contracts/disagreement-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-16"],
+      "instance": {
+        "decision_id": "dgd_0003",
+        "disagreement_class": "implementation_conflict",
+        "policy_ref": "dis_impl_v1",
+        "outcome": "RESOLVED",
+        "resolved_by": "deterministic_policy",
+        "synthesizer_independent_authority": true,
+        "evidence_refs": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,277 @@
+{
+  "id": "maws-vnext-qualification-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "qualification-record-valid-qualified",
+      "schema": "core/contracts/qualification-record.schema.json",
+      "valid": true,
+      "guards": ["OD-09", "OD-10"],
+      "instance": {
+        "qualification_id": "qual_codex_impl_0001",
+        "executor_id": "exec_codex_harness",
+        "capability_id": "cap_code_implementation",
+        "execution_profile_ref": "profile_workspace_write_v1",
+        "state": "QUALIFIED",
+        "evidence_refs": ["evidence/qualification/codex-impl-0001.json"],
+        "fingerprint_ref": "fp_codex_impl_0001",
+        "decided_at": "2026-09-25T00:00:00Z",
+        "expires_at": "2026-12-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "qualification-record-valid-declared",
+      "schema": "core/contracts/qualification-record.schema.json",
+      "valid": true,
+      "guards": ["OD-09"],
+      "instance": {
+        "qualification_id": "qual_or_glm_ana_0001",
+        "executor_id": "exec_openrouter_glm",
+        "capability_id": "cap_repository_analysis",
+        "execution_profile_ref": "profile_readonly_v1",
+        "state": "DECLARED",
+        "evidence_refs": [],
+        "fingerprint_ref": "fp_or_glm_ana_0001",
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "qualification-record-rejects-qualified-without-evidence",
+      "schema": "core/contracts/qualification-record.schema.json",
+      "valid": false,
+      "guards": ["OD-09"],
+      "instance": {
+        "qualification_id": "qual_or_glm_ana_0002",
+        "executor_id": "exec_openrouter_glm",
+        "capability_id": "cap_repository_analysis",
+        "execution_profile_ref": "profile_readonly_v1",
+        "state": "QUALIFIED",
+        "evidence_refs": [],
+        "fingerprint_ref": "fp_or_glm_ana_0001",
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "qualification-record-rejects-global-scope",
+      "schema": "core/contracts/qualification-record.schema.json",
+      "valid": false,
+      "guards": ["OD-10"],
+      "instance": {
+        "qualification_id": "qual_or_glm_global",
+        "executor_id": "exec_openrouter_glm",
+        "capability_id": "cap_repository_analysis",
+        "state": "QUALIFIED",
+        "evidence_refs": ["evidence/qualification/or-glm-global.json"],
+        "fingerprint_ref": "fp_or_glm_ana_0001",
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "qualification-fingerprint-valid",
+      "schema": "core/contracts/qualification-fingerprint.schema.json",
+      "valid": true,
+      "guards": ["OD-12"],
+      "instance": {
+        "fingerprint_id": "fp_codex_impl_0001",
+        "executor_id": "exec_codex_harness",
+        "capability_id": "cap_code_implementation",
+        "execution_profile_ref": "profile_workspace_write_v1",
+        "components": {
+          "model_id": "codex-main",
+          "provider_id": "openai",
+          "runtime_harness": "codex-exec/1.0",
+          "tool_contract_refs": ["docs/tool-contracts/catalog.json"],
+          "api_surface_version": "2026-09",
+          "qualification_profile_ref": "qualprofile_impl_v1"
+        },
+        "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+      }
+    },
+    {
+      "case_id": "qualification-fingerprint-rejects-non-sha256-digest",
+      "schema": "core/contracts/qualification-fingerprint.schema.json",
+      "valid": false,
+      "guards": ["OD-12"],
+      "instance": {
+        "fingerprint_id": "fp_codex_impl_0002",
+        "executor_id": "exec_codex_harness",
+        "capability_id": "cap_code_implementation",
+        "execution_profile_ref": "profile_workspace_write_v1",
+        "components": {
+          "model_id": "codex-main",
+          "provider_id": "openai",
+          "runtime_harness": "codex-exec/1.0",
+          "tool_contract_refs": ["docs/tool-contracts/catalog.json"],
+          "api_surface_version": "2026-09",
+          "qualification_profile_ref": "qualprofile_impl_v1"
+        },
+        "digest": "sha256:not-a-digest"
+      }
+    },
+    {
+      "case_id": "materiality-valid-non-material",
+      "schema": "core/contracts/materiality-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-12"],
+      "instance": {
+        "decision_id": "mat_codex_0001",
+        "qualified_fingerprint_ref": "fp_codex_impl_0001",
+        "current_fingerprint_ref": "fp_codex_impl_0001b",
+        "deltas": [
+          { "component": "api_surface_version", "from": "2026-09", "to": "2026-09", "classification": "NON_MATERIAL" }
+        ],
+        "overall_class": "NON_MATERIAL",
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "materiality-rejects-non-material-with-unknown-delta",
+      "schema": "core/contracts/materiality-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-12"],
+      "instance": {
+        "decision_id": "mat_codex_0002",
+        "qualified_fingerprint_ref": "fp_codex_impl_0001",
+        "current_fingerprint_ref": "fp_codex_impl_0001c",
+        "deltas": [
+          { "component": "model_id", "from": "codex-main", "to": "codex-main-plus", "classification": "UNKNOWN" },
+          { "component": "api_surface_version", "from": "2026-09", "to": "2026-09", "classification": "NON_MATERIAL" }
+        ],
+        "overall_class": "NON_MATERIAL",
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "eligibility-valid-eligible",
+      "schema": "core/contracts/eligibility-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-09"],
+      "instance": {
+        "eligibility_id": "elig_wu_ana_or_glm",
+        "work_unit_id": "wu_audit_repo_001",
+        "executor_id": "exec_openrouter_glm",
+        "capability_id": "cap_repository_analysis",
+        "eligible": true,
+        "exclusion_reasons": [],
+        "qualification_ref": "qual_or_glm_ana_0001",
+        "checks": {
+          "availability": true,
+          "policy_compatible": true,
+          "budget_compatible": true,
+          "authority_compatible": true,
+          "context_compatible": true
+        },
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "eligibility-rejects-eligible-without-qualification",
+      "schema": "core/contracts/eligibility-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-09"],
+      "instance": {
+        "eligibility_id": "elig_wu_ana_none",
+        "work_unit_id": "wu_audit_repo_001",
+        "executor_id": "exec_local_tests",
+        "capability_id": "cap_repository_analysis",
+        "eligible": true,
+        "exclusion_reasons": [],
+        "qualification_ref": null,
+        "checks": {
+          "availability": true,
+          "policy_compatible": true,
+          "budget_compatible": true,
+          "authority_compatible": true,
+          "context_compatible": true
+        }
+      }
+    },
+    {
+      "case_id": "eligibility-cross-check-valid-qualified",
+      "cross_check": "eligibility_vs_qualification",
+      "valid": true,
+      "guards": ["OD-09", "OD-10"],
+      "payload": {
+        "eligibility": {
+          "eligibility_id": "elig_check_ok",
+          "work_unit_id": "wu_audit_repo_001",
+          "executor_id": "exec_openrouter_glm",
+          "capability_id": "cap_repository_analysis",
+          "eligible": true,
+          "exclusion_reasons": [],
+          "qualification_ref": "qual_or_glm_ana_0001",
+          "checks": { "availability": true, "policy_compatible": true, "budget_compatible": true, "authority_compatible": true, "context_compatible": true }
+        },
+        "qualification": {
+          "qualification_id": "qual_or_glm_ana_0001",
+          "executor_id": "exec_openrouter_glm",
+          "capability_id": "cap_repository_analysis",
+          "execution_profile_ref": "profile_readonly_v1",
+          "state": "QUALIFIED",
+          "evidence_refs": ["evidence/qualification/or-glm-ana.json"],
+          "fingerprint_ref": "fp_or_glm_ana_0001",
+          "decided_at": "2026-09-25T00:00:00Z"
+        }
+      }
+    },
+    {
+      "case_id": "eligibility-cross-check-rejects-declared-as-eligible",
+      "cross_check": "eligibility_vs_qualification",
+      "valid": false,
+      "guards": ["OD-09"],
+      "payload": {
+        "eligibility": {
+          "eligibility_id": "elig_check_declared",
+          "work_unit_id": "wu_audit_repo_001",
+          "executor_id": "exec_openrouter_glm",
+          "capability_id": "cap_repository_analysis",
+          "eligible": true,
+          "exclusion_reasons": [],
+          "qualification_ref": "qual_or_glm_ana_0001",
+          "checks": { "availability": true, "policy_compatible": true, "budget_compatible": true, "authority_compatible": true, "context_compatible": true }
+        },
+        "qualification": {
+          "qualification_id": "qual_or_glm_ana_0001",
+          "executor_id": "exec_openrouter_glm",
+          "capability_id": "cap_repository_analysis",
+          "execution_profile_ref": "profile_readonly_v1",
+          "state": "DECLARED",
+          "evidence_refs": [],
+          "fingerprint_ref": "fp_or_glm_ana_0001",
+          "decided_at": "2026-09-25T00:00:00Z"
+        }
+      }
+    },
+    {
+      "case_id": "eligibility-cross-check-rejects-expired-as-eligible",
+      "cross_check": "eligibility_vs_qualification",
+      "valid": false,
+      "guards": ["OD-09", "OD-12"],
+      "payload": {
+        "eligibility": {
+          "eligibility_id": "elig_check_expired",
+          "work_unit_id": "wu_audit_repo_001",
+          "executor_id": "exec_openrouter_glm",
+          "capability_id": "cap_repository_analysis",
+          "eligible": true,
+          "exclusion_reasons": [],
+          "qualification_ref": "qual_or_glm_ana_0009",
+          "checks": { "availability": true, "policy_compatible": true, "budget_compatible": true, "authority_compatible": true, "context_compatible": true }
+        },
+        "qualification": {
+          "qualification_id": "qual_or_glm_ana_0009",
+          "executor_id": "exec_openrouter_glm",
+          "capability_id": "cap_repository_analysis",
+          "execution_profile_ref": "profile_readonly_v1",
+          "state": "EXPIRED",
+          "evidence_refs": ["evidence/qualification/or-glm-ana.json"],
+          "fingerprint_ref": "fp_or_glm_ana_0001",
+          "decided_at": "2026-03-25T00:00:00Z",
+          "expires_at": "2026-06-25T00:00:00Z"
+        }
+      }
+    }
+  ]
+}

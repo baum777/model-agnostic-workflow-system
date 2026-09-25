@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/profile-subsumption.schema.json",
+  "title": "ProfileSubsumption Contract",
+  "description": "OD-11: qualification reuse requires an explicit formal subsumption relation with per-dimension comparison. relation=subsumes is only valid when every dimension comparison holds; no heuristic similarity and no upward inference.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["subsumption_id", "subsuming_profile_ref", "subsumed_profile_ref", "dimension_comparison", "relation", "declared_by"],
+  "properties": {
+    "subsumption_id": { "type": "string", "pattern": "^psub_[a-z0-9_]+$" },
+    "subsuming_profile_ref": { "$ref": "maws-vnext-common.schema.json#/$defs/profileId" },
+    "subsumed_profile_ref": { "$ref": "maws-vnext-common.schema.json#/$defs/profileId" },
+    "dimension_comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tools", "effects", "context", "network", "delegation", "verification"],
+      "properties": {
+        "tools": { "$ref": "#/$defs/dimensionComparison" },
+        "effects": { "$ref": "#/$defs/dimensionComparison" },
+        "context": { "$ref": "#/$defs/dimensionComparison" },
+        "network": { "$ref": "#/$defs/dimensionComparison" },
+        "delegation": { "$ref": "#/$defs/dimensionComparison" },
+        "verification": { "$ref": "#/$defs/dimensionComparison" }
+      }
+    },
+    "relation": { "enum": ["subsumes", "not_subsumes"] },
+    "declared_by": { "enum": ["owner_policy", "qualification_authority"] },
+    "evidence_ref": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "relation": { "const": "subsumes" } }, "required": ["relation"] },
+      "then": {
+        "properties": {
+          "dimension_comparison": {
+            "properties": {
+              "tools": { "properties": { "holds": { "const": true } }, "required": ["holds"] },
+              "effects": { "properties": { "holds": { "const": true } }, "required": ["holds"] },
+              "context": { "properties": { "holds": { "const": true } }, "required": ["holds"] },
+              "network": { "properties": { "holds": { "const": true } }, "required": ["holds"] },
+              "delegation": { "properties": { "holds": { "const": true } }, "required": ["holds"] },
+              "verification": { "properties": { "holds": { "const": true } }, "required": ["holds"] }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "dimensionComparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subsuming_level", "subsumed_level", "holds"],
+      "properties": {
+        "subsuming_level": true,
+        "subsumed_level": true,
+        "holds": { "type": "boolean" }
+      }
+    }
+  }
+}

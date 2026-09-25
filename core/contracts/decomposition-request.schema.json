@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/decomposition-request.schema.json",
+  "title": "DecompositionRequest Contract",
+  "description": "OD-04: executors (and other declared sources) may REQUEST decomposition but never create executable child bindings directly. A request carries proposed child envelopes as subsets; the planner validates inheritance and limits.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_id", "source", "parent_work_unit_id", "requested_children", "limits_snapshot"],
+  "properties": {
+    "request_id": { "type": "string", "pattern": "^decomp_[a-z0-9_]+$" },
+    "source": { "enum": ["executor", "verifier", "runtime", "human", "policy_governance"] },
+    "parent_work_unit_id": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+    "requested_children": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["objective", "required_capabilities", "context_subset_ref", "effects_subset", "authority_depth_requested"],
+        "properties": {
+          "objective": { "type": "string", "minLength": 1 },
+          "required_capabilities": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" }
+          },
+          "context_subset_ref": { "type": "string", "minLength": 1 },
+          "effects_subset": {
+            "type": "array",
+            "items": { "$ref": "maws-vnext-common.schema.json#/$defs/effectsLevel" },
+            "uniqueItems": true
+          },
+          "authority_depth_requested": { "$ref": "maws-vnext-common.schema.json#/$defs/delegationDepth" }
+        }
+      }
+    },
+    "limits_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current_depth", "max_depth", "current_total_work_units", "max_total_work_units"],
+      "properties": {
+        "current_depth": { "type": "integer", "minimum": 0 },
+        "max_depth": { "type": "integer", "minimum": 1 },
+        "current_total_work_units": { "type": "integer", "minimum": 0 },
+        "max_total_work_units": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

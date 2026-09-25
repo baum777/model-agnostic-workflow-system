@@ -43,6 +43,25 @@ The generated `.qwen` scaffold is a consumer-local operating overlay. It is not 
 Runtime/enforcement note: Phase 1 adds a local dry-run runtime surface for OBS artifact writing and a PBC deny-by-default permission gate. Phase 3 adds controlled runtime-scoped JSONL memory writes with run-artifact provenance and secret/scope blocking. Phase 5 adds local handoff envelope write/read plus timeout, budget, and cancellation checks. Phase 6 adds explicit local manual trigger artifacts and cron declaration validation only. Phase 7 adds service-mode readiness gates only. Phase 8 adds local service auth/permission preflight only. Phase 9 adds local-only service action execution contracts and permission coverage checks only. Phase 10 writes local service action receipts into run artifacts. Phase 11 adds spec-only local service API design mapping only. Phase 12 adds local service request envelope validation only. Phase 13 writes local service request receipts into run artifacts only. Scheduler daemon, auto-start scheduling, background jobs, handoff transport/receiver, HTTP service, MCP server, remote transport, remote queue, SQLite, remote memory, and canonical promotion remain deferred.
 For extension-module migration hardening policy and the opt-in-to-blocking transition boundary, see `docs/compatibility.md` -> `0.3.0 Migration Timeline Decision Record`.
 
+## MAWS vNext Extension Snapshot
+
+Design baseline: PR #6 (`docs/maws-vnext-owner-decisions.md`, `docs/maws-vnext-working-plan.md`, OD-01..OD-18).
+Maturity drift is enforced by `npm run validate-maws-vnext` against `evals/fixtures/maws-vnext-baseline.json`; rows below may never claim more maturity than repository evidence supports. No vNext runtime, executor transport, Jev call path, or ZCode surface is activated by this table.
+
+| surface | surface kind | doc class | enforcement status | authority / enforcement path | note |
+| --- | --- | --- | --- | --- | --- |
+| `maws-vnext:work-unit` | config surface | n/a | validator-backed | `core/contracts/work-unit.schema.json` + `npm run validate-maws-vnext` / `eval:maws-vnext` | OD-01/OD-03/OD-18 contract; runtime work-unit store deferred to Phase 5 |
+| `maws-vnext:capability-profile` | config surface | n/a | validator-backed | capability/execution-profile/profile-subsumption schemas + vNext fixture family | OD-10/OD-11 dimensioned profiles; qualification runtime deferred |
+| `maws-vnext:executor-registry` | config surface | n/a | validator-backed | executor-manifest/executor-registry schemas + vNext fixture family | OD-01/OD-09 declarations only; no qualification implied |
+| `maws-vnext:qualification-eligibility` | config surface | n/a | validator-backed | qualification/fingerprint/materiality/eligibility schemas + vNext fixture family | OD-09/OD-10/OD-12 fail-closed semantics; runtime engine deferred |
+| `maws-vnext:planning-graph` | config surface | n/a | validator-backed | plan-template/candidate/bound-graph/decomposition schemas + vNext fixture family | OD-02..OD-05 graph semantics; planner runtime deferred |
+| `maws-vnext:revision-arbitration-disagreement` | config surface | n/a | validator-backed | revision/supersession/arbitration/disagreement schemas + vNext fixture family | OD-06..OD-08/OD-16 explicit revalidation; runtime deferred |
+| `maws-vnext:routing-composition` | config surface | n/a | validator-backed | routing/composition schemas + vNext fixture family | OD-13..OD-15 verified-signal-only routing; runtime deferred |
+| `maws-vnext:completion` | config surface | n/a | validator-backed | completion-contract/completion-decision schemas + vNext fixture family | OD-17 execution != completion; completion engine deferred |
+| `maws-vnext:jev-decision-engine` | repo surface | n/a | planned | `docs/maws-vnext-owner-decisions.md` OD-18 | Phase 2; no live TypeSafe call path yet |
+| `maws-vnext:executor-transports` | repo surface | n/a | planned | OD-01/OD-09 + working plan Phase 4 | Codex harness / OpenRouter transports not implemented; provider adapters stay pure |
+| `maws-vnext:zcode-surface` | repo surface | n/a | planned | OD-18 + working plan Phase 8 | local stdio bridge not implemented; no HTTP/SSE/daemon activation |
+
 | surface | surface kind | doc class | enforcement status | authority / enforcement path | note |
 | --- | --- | --- | --- | --- | --- |
 | `README.md` | doc | canonical | prose-only | canonical front door by repo convention | shortest practical entrypoint; points to the docs index |

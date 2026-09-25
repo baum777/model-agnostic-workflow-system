@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/execution-plan-template.schema.json",
+  "title": "ExecutionPlanTemplate Contract",
+  "description": "OD-02: the workflow owns mandatory stages, dependencies, authority ceilings, decomposition limits, and verification requirements. The planner binds executors only inside this envelope; mandatory stages cannot be removed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "template_id", "workflow_class", "mandatory_stages", "decomposition_limits",
+    "composition_policy_ref", "authority_ceiling_default", "verification_requirements"
+  ],
+  "properties": {
+    "template_id": { "type": "string", "pattern": "^tpl_[a-z0-9_]+$" },
+    "workflow_class": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "mandatory_stages": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "decomposition_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_depth", "max_children_per_node", "max_total_work_units"],
+      "properties": {
+        "max_depth": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "max_children_per_node": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "max_total_work_units": { "type": "integer", "minimum": 1, "maximum": 200 }
+      }
+    },
+    "composition_policy_ref": { "type": "string", "minLength": 1 },
+    "authority_ceiling_default": { "$ref": "maws-vnext-common.schema.json#/$defs/authorityCeiling" },
+    "verification_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "independent"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "independent": { "type": "boolean" }
+      }
+    }
+  }
+}

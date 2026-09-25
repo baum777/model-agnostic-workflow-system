@@ -1,0 +1,283 @@
+{
+  "id": "maws-vnext-routing-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "routing-request-valid",
+      "schema": "core/contracts/routing-request.schema.json",
+      "valid": true,
+      "guards": ["OD-09", "OD-18"],
+      "instance": {
+        "request_id": "route_0001",
+        "work_unit_id": "wu_audit_repo_001",
+        "capability_requirements": ["cap_repository_analysis"],
+        "eligible_executor_ids": ["exec_openrouter_glm", "exec_local_tests"],
+        "policy_context_ref": "policies/maws-vnext-defaults.yaml",
+        "workload_safety_class": "safe",
+        "session_model_preference": null
+      }
+    },
+    {
+      "case_id": "routing-request-rejects-forced-session-executor",
+      "schema": "core/contracts/routing-request.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "request_id": "route_0002",
+        "work_unit_id": "wu_audit_repo_001",
+        "capability_requirements": ["cap_repository_analysis"],
+        "eligible_executor_ids": ["exec_openrouter_glm"],
+        "policy_context_ref": "policies/maws-vnext-defaults.yaml",
+        "workload_safety_class": "safe",
+        "session_model_forced_executor": "exec_codex_harness"
+      }
+    },
+    {
+      "case_id": "routing-decision-valid-normal-selection",
+      "schema": "core/contracts/routing-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-13"],
+      "instance": {
+        "decision_id": "rd_0001",
+        "request_ref": "route_0001",
+        "selected_executor_id": "exec_openrouter_glm",
+        "selection_mode": "NORMAL_SELECTION",
+        "qualification_ref": "qual_or_glm_ana_0001",
+        "workload_safety_class": "safe",
+        "scoring_evidence": [
+          {
+            "signal": "verified_success",
+            "scope": { "executor_id": "exec_openrouter_glm", "capability_id": "cap_repository_analysis", "execution_profile_ref": "profile_readonly_v1", "workload_class": "analysis" },
+            "evidence_ref": "evidence/scoring/or-glm-analysis.json"
+          }
+        ],
+        "jev_receipt_ref": "jevr_0001",
+        "exploration": null,
+        "fallback_of": null,
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "routing-decision-rejects-missing-qualification-ref",
+      "schema": "core/contracts/routing-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-13"],
+      "instance": {
+        "decision_id": "rd_0002",
+        "request_ref": "route_0001",
+        "selected_executor_id": "exec_local_tests",
+        "selection_mode": "NORMAL_SELECTION",
+        "qualification_ref": null,
+        "workload_safety_class": "safe",
+        "scoring_evidence": [],
+        "jev_receipt_ref": null
+      }
+    },
+    {
+      "case_id": "routing-decision-rejects-unverified-self-score",
+      "schema": "core/contracts/routing-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-13"],
+      "instance": {
+        "decision_id": "rd_0003",
+        "request_ref": "route_0001",
+        "selected_executor_id": "exec_local_tests",
+        "selection_mode": "NORMAL_SELECTION",
+        "qualification_ref": "qual_local_tests_verify_0001",
+        "workload_safety_class": "safe",
+        "scoring_evidence": [
+          {
+            "signal": "executor_self_score",
+            "scope": { "executor_id": "exec_local_tests" },
+            "evidence_ref": "self-reported"
+          }
+        ],
+        "jev_receipt_ref": null
+      }
+    },
+    {
+      "case_id": "routing-decision-valid-exploration",
+      "schema": "core/contracts/routing-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-14"],
+      "instance": {
+        "decision_id": "rd_0004",
+        "request_ref": "route_0001",
+        "selected_executor_id": "exec_local_tests",
+        "selection_mode": "EXPLORATION",
+        "qualification_ref": "qual_local_tests_verify_0001",
+        "workload_safety_class": "safe",
+        "scoring_evidence": [],
+        "jev_receipt_ref": null,
+        "exploration": { "policy_ref": "exploration_default_v1", "traffic_share": 0.1 },
+        "fallback_of": null,
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "routing-decision-rejects-exploration-on-high-risk",
+      "schema": "core/contracts/routing-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-14"],
+      "instance": {
+        "decision_id": "rd_0005",
+        "request_ref": "route_0001",
+        "selected_executor_id": "exec_local_tests",
+        "selection_mode": "EXPLORATION",
+        "qualification_ref": "qual_local_tests_verify_0001",
+        "workload_safety_class": "high_risk",
+        "scoring_evidence": [],
+        "jev_receipt_ref": null,
+        "exploration": { "policy_ref": "exploration_default_v1", "traffic_share": 0.1 },
+        "fallback_of": null
+      }
+    },
+    {
+      "case_id": "routing-decision-rejects-exploration-without-policy",
+      "schema": "core/contracts/routing-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-14"],
+      "instance": {
+        "decision_id": "rd_0006",
+        "request_ref": "route_0001",
+        "selected_executor_id": "exec_local_tests",
+        "selection_mode": "EXPLORATION",
+        "qualification_ref": "qual_local_tests_verify_0001",
+        "workload_safety_class": "safe",
+        "scoring_evidence": [],
+        "jev_receipt_ref": null,
+        "exploration": null,
+        "fallback_of": null
+      }
+    },
+    {
+      "case_id": "routing-decision-valid-fallback",
+      "schema": "core/contracts/routing-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-13"],
+      "instance": {
+        "decision_id": "rd_0007",
+        "request_ref": "route_0001",
+        "selected_executor_id": "exec_local_tests",
+        "selection_mode": "FALLBACK",
+        "qualification_ref": "qual_local_tests_verify_0001",
+        "workload_safety_class": "safe",
+        "scoring_evidence": [],
+        "jev_receipt_ref": null,
+        "exploration": null,
+        "fallback_of": "exec_openrouter_glm",
+        "decided_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "routing-cross-check-rejects-out-of-set-selection",
+      "cross_check": "routing_vs_request",
+      "valid": false,
+      "guards": ["OD-13", "OD-18"],
+      "payload": {
+        "routing_request": {
+          "request_id": "route_0001",
+          "eligible_executor_ids": ["exec_openrouter_glm", "exec_local_tests"],
+          "workload_safety_class": "safe"
+        },
+        "routing_decision": {
+          "request_ref": "route_0001",
+          "selected_executor_id": "exec_codex_harness",
+          "workload_safety_class": "safe"
+        }
+      }
+    },
+    {
+      "case_id": "composition-policy-valid",
+      "schema": "core/contracts/composition-policy.schema.json",
+      "valid": true,
+      "guards": ["OD-15"],
+      "instance": {
+        "policy_id": "comp_default_v1",
+        "allowed_modes": ["independent_parallel", "producer_verifier"],
+        "max_executors": 2,
+        "max_parallelism": 2,
+        "max_total_cost_units": 100,
+        "workload_safety_classes_allowed": ["safe", "reversible_only"]
+      }
+    },
+    {
+      "case_id": "composition-decision-valid-producer-verifier",
+      "schema": "core/contracts/composition-decision.schema.json",
+      "valid": true,
+      "guards": ["OD-15"],
+      "instance": {
+        "decision_id": "cd_0001",
+        "policy_ref": "comp_default_v1",
+        "mode": "producer_verifier",
+        "participants": [
+          { "executor_id": "exec_openrouter_glm", "routing_decision_ref": "rd_0001" },
+          { "executor_id": "exec_local_tests", "routing_decision_ref": "rd_0002" }
+        ],
+        "authority_aggregation": "none",
+        "authority_ceiling_ref": "scope/run_0001",
+        "created_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "composition-decision-rejects-authority-aggregation",
+      "schema": "core/contracts/composition-decision.schema.json",
+      "valid": false,
+      "guards": ["OD-15"],
+      "instance": {
+        "decision_id": "cd_0002",
+        "policy_ref": "comp_default_v1",
+        "mode": "independent_parallel",
+        "participants": [
+          { "executor_id": "exec_openrouter_glm", "routing_decision_ref": "rd_0001" },
+          { "executor_id": "exec_local_tests", "routing_decision_ref": "rd_0002" }
+        ],
+        "authority_aggregation": "union",
+        "authority_ceiling_ref": "scope/run_0001",
+        "created_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "composition-cross-check-rejects-disallowed-mode",
+      "cross_check": "composition_vs_policy",
+      "valid": false,
+      "guards": ["OD-15"],
+      "payload": {
+        "composition_policy": {
+          "policy_id": "comp_default_v1",
+          "allowed_modes": ["independent_parallel", "producer_verifier"],
+          "max_executors": 2
+        },
+        "composition_decision": {
+          "policy_ref": "comp_default_v1",
+          "mode": "specialist_synthesis",
+          "participants": [{ "executor_id": "exec_openrouter_glm", "routing_decision_ref": "rd_0001" }]
+        }
+      }
+    },
+    {
+      "case_id": "composition-cross-check-rejects-participant-overflow",
+      "cross_check": "composition_vs_policy",
+      "valid": false,
+      "guards": ["OD-15"],
+      "payload": {
+        "composition_policy": {
+          "policy_id": "comp_default_v1",
+          "allowed_modes": ["independent_parallel"],
+          "max_executors": 2
+        },
+        "composition_decision": {
+          "policy_ref": "comp_default_v1",
+          "mode": "independent_parallel",
+          "participants": [
+            { "executor_id": "exec_openrouter_glm", "routing_decision_ref": "rd_0001" },
+            { "executor_id": "exec_local_tests", "routing_decision_ref": "rd_0002" },
+            { "executor_id": "exec_codex_harness", "routing_decision_ref": "rd_0003" }
+          ]
+        }
+      }
+    }
+  ]
+}
