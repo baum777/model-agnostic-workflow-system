@@ -90,7 +90,10 @@
         "filesystem.write",
         "human_gate.request",
         "provider.model_call",
-        "provider.tool_call"
+        "provider.tool_call",
+        "provider.typesafe.ask",
+        "provider.openrouter.completion",
+        "process.codex.exec"
       ]
     },
     "scopeLevel": {

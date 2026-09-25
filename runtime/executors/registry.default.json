@@ -1,0 +1,54 @@
+{
+  "registry_id": "execreg_maws_default",
+  "version": "1",
+  "executors": [
+    {
+      "executor_id": "exec_codex_harness",
+      "executor_class": "agent_harness",
+      "display_name": "Codex Harness (codex exec)",
+      "declared_capabilities": [
+        { "capability_id": "cap_code_implementation" }
+      ],
+      "transport": "codex_exec",
+      "session_model_can_bind": false,
+      "notes": "Agent harness executor over the local codex binary; declaration only (OD-09), no qualification implied."
+    },
+    {
+      "executor_id": "exec_openrouter_glm",
+      "executor_class": "llm",
+      "display_name": "OpenRouter GLM (direct model executor)",
+      "declared_capabilities": [
+        { "capability_id": "cap_repository_analysis" }
+      ],
+      "provider": {
+        "provider_id": "openrouter",
+        "model_id": "zai/glm-4.7"
+      },
+      "transport": "openrouter_api",
+      "session_model_can_bind": false,
+      "notes": "Direct model executor; requested model id is explicit and provider-side substitution is surfaced, never silent."
+    },
+    {
+      "executor_id": "exec_local_tests",
+      "executor_class": "deterministic_service",
+      "display_name": "Local deterministic verification service",
+      "declared_capabilities": [
+        { "capability_id": "cap_deterministic_verification" }
+      ],
+      "transport": "in_process",
+      "session_model_can_bind": false,
+      "notes": "In-process deterministic verification (e.g. local test suites); no network, no authority."
+    },
+    {
+      "executor_id": "exec_human_gate",
+      "executor_class": "human",
+      "display_name": "Human decision gate",
+      "declared_capabilities": [
+        { "capability_id": "cap_human_decision" }
+      ],
+      "transport": "human_gate",
+      "session_model_can_bind": false,
+      "notes": "Human gate executor for owner decisions; declaration only, binding requires explicit permission evidence."
+    }
+  ]
+}

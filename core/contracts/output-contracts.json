@@ -583,6 +583,193 @@
         "Fail closed when project binding, secret inventory, or migration order cannot be proven."
       ],
       "failure_or_partial_completion_behavior": "If deployment evidence is missing or contradictory, return BLOCKED and enumerate the missing project, environment, or verification paths."
+    },
+    {
+      "contract_id": "jev-decision-receipt-v1",
+      "skill": "maws-vnext-jev-decision",
+      "required_sections": [
+        "receipt_id",
+        "decision_type",
+        "question_ref",
+        "allowed_choices",
+        "selected_choice",
+        "confidence",
+        "resolved_model",
+        "decision_space_bound",
+        "provenance",
+        "decided_at"
+      ],
+      "optional_sections": [
+        "threshold_policy_ref",
+        "deterministic_gate_refs"
+      ],
+      "validation_notes": [
+        "Runtime receipt contract owned by the MAWS vNext decision engine (OD-18); the skill field names the owning runtime surface, not a prose skill.",
+        "allowed_choices must be constructed only from deterministically pre-filtered candidates; a selected_choice outside allowed_choices is invalid fail closed.",
+        "resolved_model must record the resolved TypeSafe model version actually used, never the requested alias alone.",
+        "decision_space_bound must keep JevDecisionSpace subset DeterministicallyAllowedStateSpace; the receipt grants no authority, permission, qualification revival, or scope widening.",
+        "Low confidence must map to re-evaluation, deterministic fallback, or human gate, never to wider authority.",
+        "Secrets (API keys, credentials) must never appear in the receipt."
+      ],
+      "failure_or_partial_completion_behavior": "If the decision space, resolved model, or confidence is missing, or the selected choice is outside the deterministically allowed set, return BLOCKED and name the missing or violated receipt fields."
+    },
+    {
+      "contract_id": "qualification-applicability-v1",
+      "skill": "maws-vnext-qualification",
+      "required_sections": [
+        "applicability_id",
+        "qualification_ref",
+        "capability_id",
+        "execution_profile_ref",
+        "fingerprint_ref",
+        "materiality_class",
+        "applicable",
+        "exclusion_reasons",
+        "decided_at"
+      ],
+      "optional_sections": [
+        "subsumption_refs"
+      ],
+      "validation_notes": [
+        "Runtime receipt contract owned by the MAWS vNext qualification engine; the skill field names the owning runtime surface, not a prose skill.",
+        "Applicability is capability plus execution-profile scoped; global executor-level statements are invalid (OD-10).",
+        "MATERIAL and UNKNOWN fingerprint materiality must yield applicable=false fail closed (OD-12).",
+        "Reuse through profile subsumption requires an explicit subsumption reference; heuristic similarity is invalid (OD-11).",
+        "Secrets must never appear in the receipt."
+      ],
+      "failure_or_partial_completion_behavior": "If qualification, fingerprint, or materiality references are missing, or materiality is MATERIAL or UNKNOWN, return applicable=false and enumerate the fail-closed exclusion reasons."
+    },
+    {
+      "contract_id": "routing-decision-v1",
+      "skill": "maws-vnext-routing",
+      "required_sections": [
+        "routing_decision_id",
+        "request_ref",
+        "work_unit_id",
+        "selected_executor_id",
+        "selection_mode",
+        "eligible_executor_ids",
+        "qualification_refs",
+        "graph_version",
+        "decided_at"
+      ],
+      "optional_sections": [
+        "composition_policy_ref",
+        "scoring_evidence_refs"
+      ],
+      "validation_notes": [
+        "Runtime receipt contract owned by the MAWS vNext routing engine; the skill field names the owning runtime surface, not a prose skill.",
+        "selected_executor_id must be a member of the deterministic eligible set; selection outside the eligible set is invalid (OD-13).",
+        "Every decision must reference the qualification(s) that made the selected executor eligible (OD-09, OD-10).",
+        "selection_mode must be explicit; EXPLORATION is valid only inside policy bounds and the qualified candidate set (OD-14).",
+        "Unverified self-reported signals must not appear as routing justification.",
+        "Secrets must never appear in the receipt."
+      ],
+      "failure_or_partial_completion_behavior": "If the eligible set, qualification references, or selection mode are missing, or the selected executor is outside the eligible set, return BLOCKED and enumerate the invalid or missing routing fields."
+    },
+    {
+      "contract_id": "composition-decision-v1",
+      "skill": "maws-vnext-composition",
+      "required_sections": [
+        "composition_decision_id",
+        "policy_ref",
+        "work_unit_id",
+        "mode",
+        "participants",
+        "decided_at"
+      ],
+      "optional_sections": [
+        "parallelism_bound",
+        "budget_bound"
+      ],
+      "validation_notes": [
+        "Runtime receipt contract owned by the MAWS vNext composition engine; the skill field names the owning runtime surface, not a prose skill.",
+        "mode must be one of the policy-allowed composition modes and the participant count must stay within the policy maximum (OD-15).",
+        "Composition must not aggregate authority: the receipt must not widen any participant authority ceiling, effects, or delegation depth.",
+        "Secrets must never appear in the receipt."
+      ],
+      "failure_or_partial_completion_behavior": "If the composition mode or participant count is outside the declared policy, return BLOCKED and name the violated policy bound."
+    },
+    {
+      "contract_id": "execution-attempt-v1",
+      "skill": "maws-vnext-executors",
+      "required_sections": [
+        "execution_attempt_id",
+        "work_unit_id",
+        "executor_binding_ref",
+        "routing_decision_ref",
+        "graph_version",
+        "outcome",
+        "started_at",
+        "completed_at"
+      ],
+      "optional_sections": [
+        "metrics",
+        "normalized_result_ref",
+        "failure_class"
+      ],
+      "validation_notes": [
+        "Runtime receipt contract owned by the MAWS vNext executor transports; the skill field names the owning runtime surface, not a prose skill.",
+        "outcome must be a normalized terminal state; process exit, timeout, and cancellation must be normalized into it.",
+        "The receipt must reference the routing decision that produced the executor binding.",
+        "Secrets, credentials, and full context payloads must never appear in the receipt or its metrics.",
+        "An execution attempt receipt alone never proves completion (OD-17)."
+      ],
+      "failure_or_partial_completion_behavior": "If the attempt cannot record a normalized terminal outcome with its binding and routing references, return BLOCKED and name the missing receipt fields."
+    },
+    {
+      "contract_id": "verification-receipt-v1",
+      "skill": "maws-vnext-verification",
+      "required_sections": [
+        "verification_receipt_id",
+        "work_unit_id",
+        "verifier_executor_id",
+        "independent",
+        "outcome",
+        "evidence_refs",
+        "checks",
+        "created_at"
+      ],
+      "optional_sections": [
+        "graph_version",
+        "execution_attempt_ref"
+      ],
+      "validation_notes": [
+        "Runtime receipt contract owned by the MAWS vNext verification engine; the skill field names the owning runtime surface, not a prose skill.",
+        "outcome must be PASS or FAIL; a missing or unknown outcome is invalid, never a default PASS (Receipt != Verification).",
+        "independent=true must mean the verifier is not the producing executor.",
+        "A FAIL receipt is blocking evidence for completion and must never be silently downgraded.",
+        "Secrets must never appear in the receipt."
+      ],
+      "failure_or_partial_completion_behavior": "If the verifier identity, independence flag, or outcome is missing, return BLOCKED and treat verification as not satisfied fail closed."
+    },
+    {
+      "contract_id": "completion-decision-v1",
+      "skill": "maws-vnext-completion",
+      "required_sections": [
+        "decision_id",
+        "work_unit_id",
+        "contract_ref",
+        "result",
+        "execution_succeeded",
+        "verification_satisfied",
+        "satisfied_clauses",
+        "unsatisfied_clauses",
+        "blocking_reasons",
+        "evidence_refs",
+        "decided_at"
+      ],
+      "optional_sections": [
+        "graph_version"
+      ],
+      "validation_notes": [
+        "Runtime receipt contract owned by the MAWS vNext completion engine; the skill field names the owning runtime surface, not a prose skill.",
+        "result=COMPLETED requires execution success, satisfied verification, no unsatisfied clauses, and no blocking reasons; executor success alone never completes a WorkUnit (OD-17).",
+        "Every clause (execution success, required outputs, required evidence, verification, dependency closure, child closure, disagreement closure, graph conditions) must be accounted for as satisfied or unsatisfied with evidence.",
+        "Unresolved mandatory disagreement classes and unmet graph conditions are blocking, not advisory.",
+        "Secrets must never appear in the decision."
+      ],
+      "failure_or_partial_completion_behavior": "If any required clause cannot be evaluated from present evidence, return NOT_COMPLETED with the clause listed as unsatisfied and a human-readable blocking reason."
     }
   ]
 }

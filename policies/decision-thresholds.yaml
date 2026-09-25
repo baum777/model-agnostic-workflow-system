@@ -1,0 +1,9 @@
+policy_id: decision-thresholds-default
+version: "1"
+model_thresholds:
+  - model: "*"
+    min_confidence: 0.7
+    low_confidence_action: HUMAN_GATE
+  - model: "jev-1.13.0"
+    min_confidence: 0.8
+    low_confidence_action: DETERMINISTIC_FALLBACK
