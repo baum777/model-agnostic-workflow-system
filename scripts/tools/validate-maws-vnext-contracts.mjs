@@ -372,6 +372,17 @@ function crossCheckRegistryUniqueIds(payload) {
   return issues;
 }
 
+function crossCheckReceiptAnswerInChoices(payload) {
+  const issues = [];
+  const { receipt } = payload;
+  if (!Array.isArray(receipt.choices) || receipt.choices.length === 0) {
+    issues.push('receipt.choices must be a non-empty array');
+  } else if (!receipt.choices.includes(receipt.answer)) {
+    issues.push(`receipt answer "${receipt.answer}" is outside the deterministic choice set`);
+  }
+  return issues;
+}
+
 const CROSS_CHECKS = {
   eligibility_vs_qualification: crossCheckEligibilityVsQualification,
   subsumption_vs_profiles: crossCheckSubsumptionVsProfiles,
@@ -380,7 +391,8 @@ const CROSS_CHECKS = {
   composition_vs_policy: crossCheckCompositionVsPolicy,
   supersession_monotonic: crossCheckSupersessionMonotonic,
   revision_stale: crossCheckRevisionStale,
-  registry_unique_ids: crossCheckRegistryUniqueIds
+  registry_unique_ids: crossCheckRegistryUniqueIds,
+  receipt_answer_in_choices: crossCheckReceiptAnswerInChoices
 };
 
 // ---------------------------------------------------------------------------
@@ -496,13 +508,23 @@ const DOC_CLAIM_TO_MATURITY = {
 export function computeVnextMaturity(root, baseline) {
   const families = [];
   for (const surface of baseline.vnext_surfaces) {
-    const contractExists = (surface.contracts || []).length > 0 && (surface.contracts || []).every((contractPath) => fs.existsSync(path.join(root, contractPath)));
-    const validatorBacked = contractExists && Boolean(surface.fixture_covered);
-    const runtimeImplemented = validatorBacked && (surface.runtime || []).every((runtimePath) => fs.existsSync(path.join(root, runtimePath)));
+    const contractList = surface.contracts || [];
+    const contractExists = contractList.length > 0 && contractList.every((contractPath) => fs.existsSync(path.join(root, contractPath)));
+    const runtimeExists = (surface.runtime || []).length > 0 && (surface.runtime || []).every((runtimePath) => fs.existsSync(path.join(root, runtimePath)));
     let maturity = 'ABSENT';
-    if (contractExists) maturity = 'CONTRACT_ONLY';
-    if (validatorBacked) maturity = 'VALIDATOR_BACKED';
-    if (runtimeImplemented) maturity = 'RUNTIME_IMPLEMENTED';
+    if (contractList.length === 0) {
+      // Contractless families (pure runtime surfaces): implemented iff all
+      // declared runtime paths (including their test file) exist.
+      if (runtimeExists) {
+        maturity = 'RUNTIME_IMPLEMENTED';
+      }
+    } else {
+      const validatorBacked = contractExists && Boolean(surface.fixture_covered);
+      const runtimeImplemented = validatorBacked && runtimeExists;
+      if (contractExists) maturity = 'CONTRACT_ONLY';
+      if (validatorBacked) maturity = 'VALIDATOR_BACKED';
+      if (runtimeImplemented) maturity = 'RUNTIME_IMPLEMENTED';
+    }
     families.push({ family: surface.family, maturity, expected_claim: surface.expected_claim });
   }
   return families;

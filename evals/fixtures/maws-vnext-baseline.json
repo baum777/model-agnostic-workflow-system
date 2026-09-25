@@ -119,9 +119,15 @@
     },
     {
       "family": "jev-decision-engine",
-      "contracts": ["core/contracts/decision-threshold-policy.schema.json"],
-      "fixture_covered": false,
-      "runtime": ["runtime/decision-engine/jev/client.mjs"]
+      "contracts": [
+        "core/contracts/decision-threshold-policy.schema.json",
+        "core/contracts/decision-receipt.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": [
+        "runtime/decision-engine/jev/client.mjs",
+        "tests/vnext/jev-engine.test.mjs"
+      ]
     },
     {
       "family": "executor-transports",
@@ -130,7 +136,8 @@
       "runtime": [
         "runtime/executors/executor-base.mjs",
         "runtime/executors/codex-executor.mjs",
-        "runtime/executors/openrouter-executor.mjs"
+        "runtime/executors/openrouter-executor.mjs",
+        "tests/vnext/executors.test.mjs"
       ]
     },
     {
@@ -139,8 +146,11 @@
         "core/contracts/interaction-session.schema.json",
         "core/contracts/execution-surface-boundary.schema.json"
       ],
-      "fixture_covered": false,
-      "runtime": ["runtime/zcode/stdio-bridge.mjs"]
+      "fixture_covered": true,
+      "runtime": [
+        "runtime/zcode/stdio-bridge.mjs",
+        "tests/vnext/zcode.test.mjs"
+      ]
     }
   ]
 }

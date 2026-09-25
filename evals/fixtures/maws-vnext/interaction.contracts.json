@@ -1,0 +1,89 @@
+{
+  "id": "maws-vnext-interaction-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "interaction-session-valid-zcode",
+      "schema": "core/contracts/interaction-session.schema.json",
+      "valid": true,
+      "guards": ["OD-18"],
+      "instance": {
+        "session_id": "sess_zcode_0001",
+        "interaction_host": "zcode",
+        "session_model": "glm-5.3",
+        "orchestration_owner": "maws",
+        "transport": "local_stdio",
+        "identity": "local-user",
+        "submitted_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "interaction-session-rejects-forced-executor",
+      "schema": "core/contracts/interaction-session.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "session_id": "sess_zcode_0002",
+        "interaction_host": "zcode",
+        "session_model": "glm-5.3",
+        "orchestration_owner": "maws",
+        "work_unit_executor": "exec_codex_harness",
+        "submitted_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "interaction-session-rejects-zcode-as-orchestration-owner",
+      "schema": "core/contracts/interaction-session.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "session_id": "sess_zcode_0003",
+        "interaction_host": "zcode",
+        "session_model": "glm-5.3",
+        "orchestration_owner": "zcode",
+        "submitted_at": "2026-09-25T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "execution-surface-boundary-valid",
+      "schema": "core/contracts/execution-surface-boundary.schema.json",
+      "valid": true,
+      "guards": ["OD-18"],
+      "instance": {
+        "boundary_id": "esb_zcode_v1",
+        "orchestration_owner": "maws",
+        "session_may": ["submit_work", "query_status", "inspect_graph", "present_results", "request_cancel", "submit_human_approval"],
+        "session_must_not": ["override_executor_binding", "mutate_bound_graph", "spawn_maws_children", "grant_authority", "bypass_qualification"],
+        "executor_authority_source": "maws_routing_only"
+      }
+    },
+    {
+      "case_id": "execution-surface-boundary-rejects-partial-must-not",
+      "schema": "core/contracts/execution-surface-boundary.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "boundary_id": "esb_weak_v1",
+        "orchestration_owner": "maws",
+        "session_may": ["submit_work", "query_status", "inspect_graph", "present_results", "request_cancel", "submit_human_approval"],
+        "session_must_not": ["override_executor_binding", "mutate_bound_graph"],
+        "executor_authority_source": "maws_routing_only"
+      }
+    },
+    {
+      "case_id": "execution-surface-boundary-rejects-session-override-in-may",
+      "schema": "core/contracts/execution-surface-boundary.schema.json",
+      "valid": false,
+      "guards": ["OD-18"],
+      "instance": {
+        "boundary_id": "esb_invalid_v1",
+        "orchestration_owner": "maws",
+        "session_may": ["submit_work", "query_status", "inspect_graph", "present_results", "request_cancel", "override_executor_binding"],
+        "session_must_not": ["override_executor_binding", "mutate_bound_graph", "spawn_maws_children", "grant_authority", "bypass_qualification"],
+        "executor_authority_source": "maws_routing_only"
+      }
+    }
+  ]
+}

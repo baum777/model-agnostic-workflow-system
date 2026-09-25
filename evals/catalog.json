@@ -39,6 +39,8 @@
     "fixtures/maws-vnext/planning.contracts.json",
     "fixtures/maws-vnext/revision.contracts.json",
     "fixtures/maws-vnext/routing.contracts.json",
-    "fixtures/maws-vnext/completion.contracts.json"
+    "fixtures/maws-vnext/completion.contracts.json",
+    "fixtures/maws-vnext/decision-engine.contracts.json",
+    "fixtures/maws-vnext/interaction.contracts.json"
   ]
 }

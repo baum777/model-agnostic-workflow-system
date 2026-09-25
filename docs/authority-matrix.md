@@ -46,21 +46,21 @@ For extension-module migration hardening policy and the opt-in-to-blocking trans
 ## MAWS vNext Extension Snapshot
 
 Design baseline: PR #6 (`docs/maws-vnext-owner-decisions.md`, `docs/maws-vnext-working-plan.md`, OD-01..OD-18).
-Maturity drift is enforced by `npm run validate-maws-vnext` against `evals/fixtures/maws-vnext-baseline.json`; rows below may never claim more maturity than repository evidence supports. No vNext runtime, executor transport, Jev call path, or ZCode surface is activated by this table.
+Maturity drift is enforced by `npm run validate-maws-vnext` against `evals/fixtures/maws-vnext-baseline.json`; rows below may never claim more maturity than repository evidence supports. vNext runtime evidence is LOCAL and fixture-backed: the E2E reference run, failure matrix, and all engine tests execute with in-process fixture executors (`npm run test:vnext`). No live TypeSafe call path, no live OpenRouter/Codex transport activation, no HTTP/SSE/daemon, and no ZCode production wiring is claimed by this table.
 
 | surface | surface kind | doc class | enforcement status | authority / enforcement path | note |
 | --- | --- | --- | --- | --- | --- |
-| `maws-vnext:work-unit` | config surface | n/a | validator-backed | `core/contracts/work-unit.schema.json` + `npm run validate-maws-vnext` / `eval:maws-vnext` | OD-01/OD-03/OD-18 contract; runtime work-unit store deferred to Phase 5 |
-| `maws-vnext:capability-profile` | config surface | n/a | validator-backed | capability/execution-profile/profile-subsumption schemas + vNext fixture family | OD-10/OD-11 dimensioned profiles; qualification runtime deferred |
-| `maws-vnext:executor-registry` | config surface | n/a | validator-backed | executor-manifest/executor-registry schemas + vNext fixture family | OD-01/OD-09 declarations only; no qualification implied |
-| `maws-vnext:qualification-eligibility` | config surface | n/a | validator-backed | qualification/fingerprint/materiality/eligibility schemas + vNext fixture family | OD-09/OD-10/OD-12 fail-closed semantics; runtime engine deferred |
-| `maws-vnext:planning-graph` | config surface | n/a | validator-backed | plan-template/candidate/bound-graph/decomposition schemas + vNext fixture family | OD-02..OD-05 graph semantics; planner runtime deferred |
-| `maws-vnext:revision-arbitration-disagreement` | config surface | n/a | validator-backed | revision/supersession/arbitration/disagreement schemas + vNext fixture family | OD-06..OD-08/OD-16 explicit revalidation; runtime deferred |
-| `maws-vnext:routing-composition` | config surface | n/a | validator-backed | routing/composition schemas + vNext fixture family | OD-13..OD-15 verified-signal-only routing; runtime deferred |
-| `maws-vnext:completion` | config surface | n/a | validator-backed | completion-contract/completion-decision schemas + vNext fixture family | OD-17 execution != completion; completion engine deferred |
-| `maws-vnext:jev-decision-engine` | repo surface | n/a | planned | `docs/maws-vnext-owner-decisions.md` OD-18 | Phase 2; no live TypeSafe call path yet |
-| `maws-vnext:executor-transports` | repo surface | n/a | planned | OD-01/OD-09 + working plan Phase 4 | Codex harness / OpenRouter transports not implemented; provider adapters stay pure |
-| `maws-vnext:zcode-surface` | repo surface | n/a | planned | OD-18 + working plan Phase 8 | local stdio bridge not implemented; no HTTP/SSE/daemon activation |
+| `maws-vnext:work-unit` | config surface | n/a | runtime-implemented | `core/contracts/work-unit.schema.json` + `runtime/planner/work-unit-store.mjs` + vNext fixture family | local runtime store, contract-validated at creation |
+| `maws-vnext:capability-profile` | config surface | n/a | runtime-implemented | capability/execution-profile/profile-subsumption schemas + `runtime/qualification/profile-subsumption.mjs` | formal per-dimension subsumption, no heuristics |
+| `maws-vnext:executor-registry` | config surface | n/a | runtime-implemented | executor-manifest/executor-registry schemas + `runtime/executors/registry.mjs` | declarations only; duplicate/alias rejection fail-closed |
+| `maws-vnext:qualification-eligibility` | config surface | n/a | runtime-implemented | qualification/fingerprint/materiality/eligibility schemas + `runtime/qualification/eligibility.mjs` | evidence-backed, fail-closed, runtime success never creates qualification |
+| `maws-vnext:planning-graph` | config surface | n/a | runtime-implemented | planning schemas + `runtime/planner/hybrid-planner.mjs` | immutable bound graphs; mandatory stages enforced |
+| `maws-vnext:revision-arbitration-disagreement` | config surface | n/a | runtime-implemented | revision/arbitration/disagreement schemas + `runtime/planner/revision-engine.mjs` + `runtime/planner/arbitration-engine.mjs` | version-anchored requests, explicit revalidation, no synthesis of authority |
+| `maws-vnext:routing-composition` | config surface | n/a | runtime-implemented | routing/composition schemas + `runtime/routing/routing-engine.mjs` | verified-signal scoring only; bounded exploration; session model never binds |
+| `maws-vnext:completion` | config surface | n/a | runtime-implemented | completion schemas + `runtime/completion/completion-engine.mjs` | execution != completion; missing evidence blocks |
+| `maws-vnext:jev-decision-engine` | config surface | n/a | runtime-implemented | decision-threshold-policy + decision-receipt schemas + `runtime/decision-engine/jev/` | fixture-mode typed decisions, receipts record requested+resolved model; live TypeSafe call path NOT activated |
+| `maws-vnext:executor-transports` | repo surface | n/a | runtime-implemented | `runtime/executors/` + `runtime/transports/local-process.mjs` + `tests/vnext/executors.test.mjs` | Codex (agent_harness, codex exec) and OpenRouter transports implemented with injectable spawn/fetch; live activation deferred; provider adapters stay pure |
+| `maws-vnext:zcode-surface` | config surface | n/a | runtime-implemented | interaction-session + execution-surface-boundary schemas + `runtime/zcode/stdio-bridge.mjs` + `runtime/orchestrator/run-engine.mjs` | local stdio bridge only (submit/get/approve/cancel); no HTTP/SSE/daemon |
 
 | surface | surface kind | doc class | enforcement status | authority / enforcement path | note |
 | --- | --- | --- | --- | --- | --- |
