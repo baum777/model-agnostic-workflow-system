@@ -1,0 +1,41 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "Corrective ChatGPT+OpenRouter routing run extends the adopted decision-receipt contract record: core/contracts/decision-receipt.schema.json mode enum gains the additive value \"openrouter\" (canonical Jev live path via the OpenRouter Decisions API; decision-receipt.mjs MODES extended in lockstep). This is a CONTRACT_RECORD-class change to a record already projected by unitera-registry PR #94 (f5dd6b01). All other changes (executor rename to exec_codex_chatgpt, activation runner refactor, openrouter-decisions transport, tests, docs) are runtime/test/doc surfaces outside the closed relevance taxonomy. The registry update is outside this run's authority (owner gate); no registry write was performed.",
+    "registry_baseline_sha": "f5dd6b01cab907d9dba62d7d9aec694576f6b239",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/decision-receipt.schema.json"
+    ],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "docs/maws-vnext-live-activation.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "unitera-registry PR #94 merge f5dd6b01cab907d9dba62d7d9aec694576f6b239 (prior vNext contract projection)"
+    ],
+    "evidence_refs": [
+      "evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25/activation-summary.md",
+      "evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25/activation-evidence.json",
+      "npm run test:activation (13/13 pass)",
+      "npm run test:vnext (202/202 pass)",
+      "npm run validate-maws-vnext / eval:maws-vnext / validate / validate-neutral / validate-secrets / scan-secrets (all EXIT=0)",
+      "live codex_chatgpt probe PASS + bounded write tracer byte-verified (see activation-summary.md)"
+    ],
+    "implementation_commit_sha": "",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/decision-receipt.schema.json (mode enum, additive \"openrouter\")",
+      "runtime/decision-engine/jev/decision-receipt.mjs (MODES)"
+    ]
+  }
+}
