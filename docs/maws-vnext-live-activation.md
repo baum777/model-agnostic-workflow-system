@@ -1,7 +1,7 @@
 # MAWS vNext Live Activation Runbook
 
 Class: operational.
-Status: ChatGPT Codex plan lane LIVE_VERIFIED_LOCAL; OpenRouter lanes implemented, credential-blocked locally.
+Status: ChatGPT Codex plan lane LIVE_VERIFIED_LOCAL with auth-health gating (2026-09-26); OpenRouter lanes implemented, owner-shell-credential-gated (live transport proven by the owner's 2026-09-26T00:08Z run).
 Owner: model-agnostic-workflow-system.
 
 ## Purpose
@@ -28,6 +28,70 @@ OpenRouter       = single API provider for Jev (Decisions API) and other
 TypeSafe direct  = optional compatibility provider (mode "live"), not the
                    default live path; TYPESAFE_API_KEY is NOT required
 ```
+
+## Codex ChatGPT OAuth lifecycle (auth controller)
+
+`runtime/auth/codex-chatgpt-auth.mjs` owns ONLY auth health classification.
+Codex owns the OAuth protocol and the credential store: `~/.codex/auth.json`
+is private Codex implementation state — MAWS never reads, parses, copies,
+hashes, or persists it, and never decodes tokens. Authentication is NOT
+authority: no auth state creates filesystem, network, shell, deployment,
+scope, capability, or authority grants.
+
+State machine (explicit, never collapsed):
+
+```text
+UNKNOWN -> (binary missing)              CODEX_UNAVAILABLE
+        -> (status: not logged in)       NOT_LOGGED_IN
+        -> (status: logged in w/ API key) WRONG_AUTH_MODE   # never auto-converted
+        -> (status: ChatGPT present)     CHATGPT_STATUS_PRESENT
+CHATGPT_STATUS_PRESENT + live probe PASS -> AUTH_HEALTHY
+CHATGPT_STATUS_PRESENT + live auth-fail  -> AUTH_STALE      # 401/token-expired class
+explicit codex login -> LOGIN_IN_PROGRESS -> (status + probe PASS) AUTHENTICATED
+                      -> (command fail)   LOGIN_FAILED      # post-status re-observed
+headless/no-TTY or unsupported --device   AUTH_INTERACTION_REQUIRED
+```
+
+Critical invariant: `codex login status` == "Logged in using ChatGPT" does
+NOT imply usable authenticated execution. CHATGPT_STATUS_PRESENT and
+AUTH_HEALTHY are distinct states; only the read-only live probe through the
+real executor (phrase `MAWS CODEX AUTH HEALTH PASS`) upgrades to AUTH_HEALTHY,
+and an auth-class live failure (401 / unauthorized / token expired /
+refresh-token / authentication-required signatures) classifies AUTH_STALE,
+not an executor implementation failure.
+
+Safety rules (all test-enforced):
+
+- never auto-logout, never delete auth state, never touch a healthy session
+  (`requestLogin` on AUTH_HEALTHY short-circuits with `login_invoked: false`);
+- login is explicit-only (`runtime:codex-auth:login`), exactly ONE attempt
+  per invocation, no retry loops; activation and check NEVER trigger OAuth;
+- the interactive login child runs `stdio: inherit` — MAWS never captures,
+  echoes, or persists OAuth output; child env stays PATH/HOME/CODEX_HOME;
+- after any login outcome the truth is re-observed (`codex login status` +
+  live probe), never assumed; login-command success alone is NOT sufficient
+  for AUTHENTICATED;
+- `--device-auth` support is discovered from the installed CLI
+  (`codex login --help`), never assumed; device mode maps to the official
+  `codex login --device-auth`.
+
+Commands and exit codes:
+
+```bash
+npm run runtime:codex-auth:check   # non-interactive; never logs in
+npm run runtime:codex-auth:login   # explicit interactive official flow
+npm run runtime:codex-auth:login -- --device
+```
+
+```text
+0 = AUTH_HEALTHY / AUTHENTICATED
+2 = user authentication required (NOT_LOGGED_IN / WRONG_AUTH_MODE / AUTH_INTERACTION_REQUIRED)
+3 = stale or invalid authentication (AUTH_STALE / LOGIN_FAILED)
+4 = environment/executor failure (CODEX_UNAVAILABLE / UNKNOWN / probe failure)
+```
+
+Receipts are runtime-only (`maws.codex-auth-health.v1`, no core contract):
+auth facts only — never tokens, account ids, emails, or OAuth URLs/state.
 
 ## Preconditions
 
@@ -71,15 +135,27 @@ artifacts/runtime-runs/live-activation-*/activation-evidence.json
 ## Preflight semantics
 
 ```text
-codex_chatgpt:    binary present, version probed, ChatGPT auth present
+codex_chatgpt:    auth controller verdict AUTH_HEALTHY (binary + version +
+                  stored login status + live read-only health probe)
 openrouter_jev:   OPENROUTER_API_KEY present, jev model configured
 openrouter_model: OPENROUTER_API_KEY present, explicit model configured
 ```
 
-Blockers: `CODEX_BINARY_MISSING`, `CODEX_CHATGPT_AUTH_MISSING`,
+Blockers: `CODEX_BINARY_MISSING`, `CODEX_AUTH_NOT_LOGGED_IN`,
+`CODEX_AUTH_WRONG_MODE`, `CODEX_AUTH_STALE`, `CODEX_AUTH_HEALTH_PROBE_FAILED`,
+`CODEX_AUTH_TIMEOUT`, `CODEX_AUTH_STATUS_UNKNOWN`,
 `OPENROUTER_API_KEY_MISSING`, `MAWS_JEV_MODEL_MISSING`,
 `MAWS_OPENROUTER_MODEL_MISSING`. TYPESAFE_API_KEY is not checked for normal
 activation (recorded as presence-only metadata for the compat provider).
+Preflight records `codex_login_status`, `codex_auth_mode`,
+`codex_auth_health`, and `codex_interaction_required` — no secret values.
+
+The Jev transport probe asks the decidable typed `work_class` question over
+its closed answer space; executor preference over a synthetic probe state is
+undecidable by design and would force a permanent HUMAN_GATE. Executor
+routing is exercised separately by the Jev routing tracer with a real
+WorkUnit-shaped state (see evidence
+`evidence/codex-chatgpt-auth-controller-2026-09-26/run-jev-routing-tracer.mjs`).
 
 ## Codex probe contract
 
@@ -110,6 +186,40 @@ WorkUnit can never select credentials, auth mode, provider, or model.
 codex child env      = PATH, HOME, CODEX_HOME only (no OPENROUTER/TYPESAFE/OPENAI key)
 openrouter clients   = OPENROUTER_API_KEY env-bound only (no Codex OAuth material)
 receipts / evidence  = neither secret class ever appears
+```
+
+## Local verification record (2026-09-26, auth controller run)
+
+- `npm run runtime:codex-auth:check` (real binary, real login, real live
+  probe): **AUTH_HEALTHY**, exit 0; stored status PRESENT, live health PASS,
+  `login_invoked: false` — the healthy session was never touched.
+- Activation run through the auth controller: `PARTIAL` — codex_chatgpt
+  PASS (auth_health PASS, phrase observed, ~5 s); OpenRouter lanes NOT_RUN
+  (`OPENROUTER_API_KEY_MISSING` in the agent shell; the owner exported the
+  key in their terminal session, which agent shells do not inherit).
+- Owner-side live run 2026-09-26T00:08Z (key exported in the owner shell):
+  codex PASS; openrouter_jev reached the live Decisions API (resolved
+  snapshot `typesafe/jev-1.13-20260917`) and returned confidence 0.23 —
+  correctly HUMAN_GATE'd by the deterministic threshold on the then-asked
+  executor-preference question (fixed by the decidable `work_class` probe);
+  openrouter_model answered HTTP 400 `OR_BAD_RESPONSE` — catalogue-verified
+  diagnosis: `MAWS_OPENROUTER_MODEL` was set to `zai/glm-4.7`, which does
+  not exist; the live catalogue lists `z-ai/glm-4.7` (z-ai, hyphenated).
+  Owner fix: `export MAWS_OPENROUTER_MODEL=z-ai/glm-4.7` (or any other
+  catalogue-listed slug) in the invoking shell.
+- §47 Codex tracer (auth health + JSONL + turn.failed absence + phrase +
+  child secret isolation): **PASS**.
+- §48 CompletionDecision for the auth-controller slice: **COMPLETED**
+  (scope-limited to the Codex lane; the OpenRouter lanes are not claimed).
+
+For `LIVE_ACTIVATION_PASS` the owner runs, in a shell with the key exported:
+
+```bash
+export OPENROUTER_API_KEY="..."
+export MAWS_OPENROUTER_MODEL="z-ai/glm-4.7"    # catalogue-verified slug
+npm run runtime:activate-vnext                  # target: all three lanes PASS
+node evidence/codex-chatgpt-auth-controller-2026-09-26/run-jev-routing-tracer.mjs
+node evidence/codex-chatgpt-auth-controller-2026-09-26/run-openrouter-model-tracer.mjs
 ```
 
 ## Local verification record (2026-09-25)
