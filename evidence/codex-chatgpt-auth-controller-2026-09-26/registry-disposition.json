@@ -1,0 +1,39 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Codex ChatGPT OAuth auth controller run is runtime/test/doc/evidence surface only: runtime/auth/codex-chatgpt-auth.mjs (state machine, live health probe, explicit single-attempt official login), runtime/cli/runtime-codex-auth.mjs (+npm scripts), activation-runner integration replacing ad-hoc auth detection, and the Jev transport-qualification probe switch to the decidable typed work_class question. No core/contracts/* file was touched and no adopted contract record changed (the decision-receipt mode-enum change remains exactly the one CONTRACT_RECORD delta already dispositioned REQUIRED_BUT_BLOCKED in evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25 and carried by unitera-registry PR #96). The runtime-only CodexAuthHealthReceipt deliberately introduces no new shared schema to avoid an unnecessary new Registry consequence. Authentication lifecycle is explicitly not authority: no qualification, routing, or authority record is created or widened by this change.",
+    "registry_baseline_sha": "f5dd6b01cab907d9dba62d7d9aec694576f6b239",
+    "affected_records": [],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "docs/maws-vnext-live-activation.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "unitera-registry PR #94 merge f5dd6b01cab907d9dba62d7d9aec694576f6b239 (prior vNext contract projection)",
+      "unitera-registry PR #96 (pending owner merge; sole remaining registry candidate for the decision-receipt mode enum)"
+    ],
+    "evidence_refs": [
+      "evidence/codex-chatgpt-auth-controller-2026-09-26/summary.md",
+      "evidence/codex-chatgpt-auth-controller-2026-09-26/codex-auth-check-receipt.json (live AUTH_HEALTHY)",
+      "evidence/codex-chatgpt-auth-controller-2026-09-26/activation-evidence.json (codex lane PASS through the auth controller)",
+      "npm run test:activation (39/39 pass)",
+      "npm run test:vnext (228/228 pass)",
+      "npm run validate-maws-vnext / eval:maws-vnext / validate / validate-neutral / validate-secrets / scan-secrets (all EXIT=0)"
+    ],
+    "implementation_commit_sha": "",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/codex-chatgpt-auth-controller-2026-09-26/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "git diff --stat vs origin/main (no core/contracts/ path touched by this run)"
+    ]
+  }
+}

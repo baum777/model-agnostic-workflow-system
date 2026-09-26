@@ -1,0 +1,10 @@
+{
+  "schema": "maws.openrouter-model-tracer.v1",
+  "traced_at": "2026-09-26T00:31:12.838Z",
+  "status": "NOT_RUN",
+  "blockers": [
+    "OPENROUTER_API_KEY_MISSING",
+    "MAWS_OPENROUTER_MODEL_MISSING"
+  ],
+  "note": "Owner re-run: export OPENROUTER_API_KEY and MAWS_OPENROUTER_MODEL in the invoking shell. Catalogue-verified 2026-09-26: the live OpenRouter /api/v1/models catalogue lists 'z-ai/glm-4.7' (z-ai, hyphenated) and does NOT contain 'zai/glm-4.7'; the owner's 2026-09-26T00:08Z activation run used zai/glm-4.7 and the model lane answered HTTP 400 OR_BAD_RESPONSE — consistent with an unknown-model slug, not a MAWS regression."
+}

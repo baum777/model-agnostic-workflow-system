@@ -1,0 +1,12 @@
+{
+  "schema": "maws.jev-routing-tracer.v1",
+  "traced_at": "2026-09-26T00:31:12.802Z",
+  "status": "NOT_RUN",
+  "blocker": "OPENROUTER_API_KEY_MISSING",
+  "eligible_executor_set": [
+    "exec_codex_chatgpt",
+    "exec_openrouter_glm"
+  ],
+  "requested_jev_model": "~typesafe/jev-latest",
+  "note": "Re-run with OPENROUTER_API_KEY exported in the invoking shell (the owner exported it in their terminal session on 2026-09-26; agent shells do not inherit it)."
+}
