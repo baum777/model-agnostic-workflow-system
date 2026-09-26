@@ -1,7 +1,7 @@
 # MAWS vNext Live Activation Runbook
 
 Class: operational.
-Status: ChatGPT Codex plan lane and OpenRouter Jev lane LIVE_VERIFIED_LOCAL (2026-09-26, auth-health gated); OpenRouter model lane implemented, blocked by the owner's workspace guardrail (owner console action; see verification record).
+Status: **LIVE_ACTIVATION_PASS (2026-09-26T01:04Z)** — all three transport lanes live-verified locally (Codex ChatGPT plan, Jev via OpenRouter Decisions API, direct OpenRouter model `deepseek/deepseek-v4.1-flash`). Local activation proof only; no production deployment is claimed.
 Owner: model-agnostic-workflow-system.
 
 ## Purpose
@@ -187,6 +187,36 @@ codex child env      = PATH, HOME, CODEX_HOME only (no OPENROUTER/TYPESAFE/OPENA
 openrouter clients   = OPENROUTER_API_KEY env-bound only (no Codex OAuth material)
 receipts / evidence  = neither secret class ever appears
 ```
+
+## Local verification record (2026-09-26, FINAL: LIVE_ACTIVATION_PASS)
+
+- Credential surface: `~/.config/maws/openrouter.env` (mode 600, sourced by
+  `~/.bashrc`/`~/.profile`) exports `OPENROUTER_API_KEY` and
+  `MAWS_OPENROUTER_MODEL=deepseek/deepseek-v4.1-flash` (owner-selected,
+  catalogue-verified slug).
+- `npm run runtime:activate-vnext`: **LIVE_ACTIVATION_PASS, exit 0, zero
+  blockers** — codex_chatgpt PASS (auth-health gated, phrase observed);
+  openrouter_jev PASS (`work_class`=`verification`, 0.83 ≥ 0.7, snapshot
+  `typesafe/jev-1.13-20260917`); openrouter_model PASS (requested == served
+  `deepseek/deepseek-v4.1-flash`, no substitution, usage normalized).
+- Jev routing tracer PASS end-to-end (DecisionReceipt → threshold PROCEED →
+  RoutingDecision NORMAL_SELECTION → ExecutorBinding); Codex tracer PASS with
+  the live key present in the parent (child isolation held); model tracer
+  PASS. Full-slice CompletionDecision: **COMPLETED**.
+- Blocking-defect fix surfaced by the live run: without an explicit
+  `max_tokens`, OpenRouter pre-flight-checks the model's full output ceiling
+  (e.g. 131072 tokens) against account credit and rejects with HTTP 402 even
+  for short acknowledgements. The direct model executor now bounds every
+  request (`max_tokens`, default 1024, executor configuration never
+  WorkUnit-selectable) and maps HTTP 402 to `OR_PAYMENT_REQUIRED`.
+- Attempt history: attempt 1 BLOCKED (key not inherited by agent shells);
+  attempt 2 PARTIAL 2/3 (model lane first guardrail-blocked on
+  `z-ai/glm-4.7`, then HTTP 402 on the unbounded request after the owner
+  relaxed the guardrails and switched to `deepseek/deepseek-v4.1-flash`);
+  final attempt PASS. Preserved under
+  `evidence/maws-vnext-final-live-closure-2026-09-26/` (`attempt1-*`,
+  `attempt2-*`, final PASS set, full-slice completion decision, NO_CHANGE
+  registry disposition).
 
 ## Local verification record (2026-09-26, auth controller run)
 
