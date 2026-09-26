@@ -19,8 +19,11 @@ Registry:              PR #96 MERGED, 300ffe16dc5b02fc2f8d9a229a3c720624926be1
                        MAWS_VNEXT_DECISION_RECEIPT_OPENROUTER_001;
                        registry_authority reference_only; authority_effect NONE)
 Registry disposition:  UPDATED (bound to 300ffe16, at MAWS fe3a397)
-baum-os root:          6782a0f142b64bc469b8dcbb3633a80b763847f0
-MAWS root pin:         fe3a3973a87b5e76bb5f6efab6d3e82201ccca6b
+baum-os root:          tracks MAWS main via deliberate advancement commits
+                       (closure-moment advancement 6782a0f142b64bc469b8dcbb
+                       3633a80b763847f0; later advancements are hygiene-only
+                       and visible in root git history)
+MAWS root pin:         current canonical MAWS main (see root gitlink)
 CI:                    CI_INFRA_BLOCKED / NOT_CI_PASS (Actions startup-level
                        failure, zero steps, no runner; persists on main as of
                        2026-09-26T01:12Z; local deterministic gates provide

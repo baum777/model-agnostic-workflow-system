@@ -22,13 +22,13 @@
   "registry_authority_effect": "NONE",
   "registry_disposition": "UPDATED",
   "root_pin": "ADVANCED",
-  "root_pin_sha": "fe3a3973a87b5e76bb5f6efab6d3e82201ccca6b",
-  "root_advancement_commit": "6782a0f142b64bc469b8dcbb3633a80b763847f0",
   "ci_classification": "CI_INFRA_BLOCKED",
   "ci_claim": "NOT_CI_PASS",
   "full_eval_classification": "ENVIRONMENT_BLOCKED_BROWSER",
   "production_activation": "NOT_CLAIMED",
   "semver_current": "0.2.1",
   "semver_recommendation": "0.3.0",
-  "release_state": "RELEASE_SCOPE_PENDING_SEPARATELY"
+  "release_state": "RELEASE_SCOPE_PENDING_SEPARATELY",
+  "root_pin_follows": "maws_main_current",
+  "root_closure_moment_advancement_commit": "6782a0f142b64bc469b8dcbb3633a80b763847f0"
 }
