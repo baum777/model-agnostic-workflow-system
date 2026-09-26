@@ -1,9 +1,9 @@
 {
   "registry_disposition": {
-    "status": "REQUIRED_BUT_BLOCKED",
+    "status": "UPDATED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "Corrective ChatGPT+OpenRouter routing run extends the adopted decision-receipt contract record: core/contracts/decision-receipt.schema.json mode enum gains the additive value \"openrouter\" (canonical Jev live path via the OpenRouter Decisions API; decision-receipt.mjs MODES extended in lockstep). This is a CONTRACT_RECORD-class change to a record already projected by unitera-registry PR #94 (f5dd6b01). All other changes (executor rename to exec_codex_chatgpt, activation runner refactor, openrouter-decisions transport, tests, docs) are runtime/test/doc surfaces outside the closed relevance taxonomy. The registry update is outside this run's authority (owner gate); no registry write was performed.",
+    "reason": "UPDATED 2026-09-26: the contract-record change (core/contracts/decision-receipt.schema.json mode enum gains the additive value \"openrouter\"; decision-receipt.mjs MODES in lockstep) is now canonical — the owner change merged to MAWS main via PR #9 (merge commit f481c2f2908fe18751b33c3470e1d57397d05add, branch final head 19ef2c6) and the registry projection merged via unitera-registry PR #96 (merge commit 300ffe16dc5b02fc2f8d9a229a3c720624926be1; record MAWS_VNEXT_DECISION_RECEIPT_OPENROUTER_001 updated to merged/canonical adoption state, validate_registry.py PASS). Historical basis (2026-09-25, REQUIRED_BUT_BLOCKED): CONTRACT_RECORD-class change to a record already projected by unitera-registry PR #94 (f5dd6b01); all other branch changes were runtime/test/doc surfaces outside the closed relevance taxonomy.",
     "registry_baseline_sha": "f5dd6b01cab907d9dba62d7d9aec694576f6b239",
     "affected_records": [
       "CONTRACT_RECORD:core/contracts/decision-receipt.schema.json"
@@ -17,20 +17,24 @@
     ],
     "supersession_refs": [],
     "provenance_refs": [
-      "unitera-registry PR #94 merge f5dd6b01cab907d9dba62d7d9aec694576f6b239 (prior vNext contract projection)"
+      "unitera-registry PR #94 merge f5dd6b01cab907d9dba62d7d9aec694576f6b239 (prior vNext contract projection)",
+      "MAWS PR #9 merge f481c2f2908fe18751b33c3470e1d57397d05add (owner canonicalization of this branch)",
+      "unitera-registry PR #96 merge 300ffe16dc5b02fc2f8d9a229a3c720624926be1 (canonical projection of this disposition)"
     ],
     "evidence_refs": [
       "evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25/activation-summary.md",
       "evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25/activation-evidence.json",
-      "npm run test:activation (13/13 pass)",
-      "npm run test:vnext (202/202 pass)",
+      "evidence/maws-vnext-final-live-closure-2026-09-26/ (LIVE_ACTIVATION_PASS + full-slice CompletionDecision COMPLETED)",
+      "npm run test:activation (39/39 pass at merge; 13/13 at candidate)",
+      "npm run test:vnext (230/230 pass at merge; 202/202 at candidate)",
       "npm run validate-maws-vnext / eval:maws-vnext / validate / validate-neutral / validate-secrets / scan-secrets (all EXIT=0)",
       "live codex_chatgpt probe PASS + bounded write tracer byte-verified (see activation-summary.md)"
     ],
-    "implementation_commit_sha": "",
-    "registry_commit_sha": null,
+    "implementation_commit_sha": "f481c2f2908fe18751b33c3470e1d57397d05add",
+    "registry_commit_sha": "300ffe16dc5b02fc2f8d9a229a3c720624926be1",
     "validation": [
-      "node scripts/tools/validate-registry-disposition.mjs evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25/registry-disposition.json"
+      "node scripts/tools/validate-registry-disposition.mjs evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25/registry-disposition.json",
+      "python3 scripts/validate_registry.py (unitera-registry @ 300ffe16: PASS)"
     ],
     "contract_version": "registry-disposition.v1",
     "classification_evidence_refs": [
