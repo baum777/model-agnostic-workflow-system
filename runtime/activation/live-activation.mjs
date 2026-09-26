@@ -8,6 +8,18 @@
 //   openrouter_model — direct OpenRouter model executor
 //                      (OPENROUTER_API_KEY + explicit model id).
 //
+// Codex lane preflight runs the Codex ChatGPT auth controller
+// (runtime/auth/codex-chatgpt-auth.mjs): stored login status alone is NOT
+// authentication proof — the lane is ready only when the live read-only
+// auth health probe PASSes (AUTH_HEALTHY). Activation never triggers OAuth
+// interaction; a lane needing login reports NOT_RUN with a typed blocker
+// and the OpenRouter lanes stay independently runnable.
+//
+// The Jev transport probe asks the decidable typed `work_class` question
+// (executor preference over a synthetic state is undecidable by design and
+// would force a permanent HUMAN_GATE); executor routing is exercised
+// separately by the routing tracer with a real WorkUnit-shaped state.
+//
 // Each probe reports PASS / BLOCKED / NOT_RUN against its own preflight, so
 // one blocked lane never masks another. Status: LIVE_ACTIVATION_PASS only
 // when all three PASS; PARTIAL when at least one PASSes; BLOCKED otherwise.
@@ -17,16 +29,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { createJevClient } from '../decision-engine/jev/client.mjs';
-import { buildPreferredExecutorQuestion } from '../decision-engine/jev/questions/registry.mjs';
+import { getQuestion } from '../decision-engine/jev/questions/registry.mjs';
 import { loadThresholdPolicy } from '../decision-engine/jev/threshold-policy.mjs';
 import { createOpenRouterExecutor } from '../executors/openrouter-executor.mjs';
 import { createCodexExecutor } from '../executors/codex-executor.mjs';
-import { runLocalProcess } from '../transports/local-process.mjs';
+import { collectAgentMessagesFromCodexPayload, createCodexChatGptAuthController } from '../auth/codex-chatgpt-auth.mjs';
 import { nowIso } from '../vnext/util.mjs';
 
 const CODEX_PROBE_TIMEOUT_MS = 120000;
-const CODEX_VERSION_TIMEOUT_MS = 5000;
-const CODEX_LOGIN_TIMEOUT_MS = 15000;
 const DEFAULT_JEV_MODEL = '~typesafe/jev-latest';
 const CODEX_PROBE_PHRASE = 'MAWS CODEX CHATGPT AUTH PASS';
 
@@ -46,52 +56,28 @@ function defaultEvidenceWriter(root, startedAt, evidence) {
   return evidencePath;
 }
 
-async function defaultCodexVersionProbe({ env, spawnImpl }) {
-  try {
-    const proc = await runLocalProcess({
-      command: 'codex',
-      args: ['--version'],
-      env: { PATH: env.PATH, HOME: env.HOME, ...(typeof env.CODEX_HOME === 'string' ? { CODEX_HOME: env.CODEX_HOME } : {}) },
-      timeoutMs: CODEX_VERSION_TIMEOUT_MS,
-      spawnImpl
-    });
-    if (proc.exit_code !== 0 || proc.timed_out || proc.cancelled) {
-      return { available: false, version: null };
-    }
-    const match = /codex-cli\s+(\S+)/.exec(proc.stdout);
-    return { available: true, version: match ? match[1] : proc.stdout.trim() };
-  } catch {
-    return { available: false, version: null };
-  }
-}
-
 /**
- * ChatGPT auth preflight: `codex login status` must report an active login.
- * Only the boolean and a normalized auth mode string are recorded; token
- * material never leaves CODEX_HOME.
+ * Typed blocker for every non-healthy Codex auth state. Stored-status
+ * presence never passes; missing login, wrong mode, stale session, and
+ * probe failures are separate blockers.
  */
-async function defaultCodexAuthProbe({ env, spawnImpl }) {
-  try {
-    const proc = await runLocalProcess({
-      command: 'codex',
-      args: ['login', 'status'],
-      env: { PATH: env.PATH, HOME: env.HOME, ...(typeof env.CODEX_HOME === 'string' ? { CODEX_HOME: env.CODEX_HOME } : {}) },
-      timeoutMs: CODEX_LOGIN_TIMEOUT_MS,
-      spawnImpl
-    });
-    if (proc.exit_code !== 0 || proc.timed_out || proc.cancelled) {
-      return { authenticated: false, auth_mode: null };
-    }
-    const text = `${proc.stdout}\n${proc.stderr}`;
-    if (/logged in using chatgpt/i.test(text)) {
-      return { authenticated: true, auth_mode: 'chatgpt' };
-    }
-    if (/logged in/i.test(text)) {
-      return { authenticated: true, auth_mode: 'other' };
-    }
-    return { authenticated: false, auth_mode: null };
-  } catch {
-    return { authenticated: false, auth_mode: null };
+function codexBlockerForAuthReceipt(receipt) {
+  switch (receipt.auth_status) {
+    case 'AUTH_HEALTHY':
+      return null;
+    case 'CODEX_UNAVAILABLE':
+      return receipt.error_class === 'CODEX_AUTH_TIMEOUT' ? 'CODEX_AUTH_TIMEOUT' : 'CODEX_BINARY_MISSING';
+    case 'NOT_LOGGED_IN':
+      return 'CODEX_AUTH_NOT_LOGGED_IN';
+    case 'WRONG_AUTH_MODE':
+      return 'CODEX_AUTH_WRONG_MODE';
+    case 'AUTH_STALE':
+      return 'CODEX_AUTH_STALE';
+    case 'UNKNOWN':
+      return 'CODEX_AUTH_STATUS_UNKNOWN';
+    default:
+      // CHATGPT_STATUS_PRESENT with a failing/undecidable live probe.
+      return receipt.error_class ?? 'CODEX_AUTH_HEALTH_PROBE_FAILED';
   }
 }
 
@@ -129,25 +115,6 @@ function sanitizedExecutorResult(result) {
   };
 }
 
-/**
- * Collect agent message texts from a Codex executor payload (single event
- * or { format: 'jsonl', events }) for the expected-phrase check.
- */
-function collectAgentMessages(payload) {
-  if (payload === null || typeof payload !== 'object') {
-    return [];
-  }
-  const events = Array.isArray(payload.events) ? payload.events : [payload];
-  const messages = [];
-  for (const event of events) {
-    if (event && typeof event === 'object' && event.item && typeof event.item === 'object'
-      && event.item.type === 'agent_message' && typeof event.item.text === 'string') {
-      messages.push(event.item.text);
-    }
-  }
-  return messages;
-}
-
 export async function runLiveActivation(options = {}) {
   const root = options.root ?? repoRootFromModule();
   const env = options.env ?? process.env;
@@ -165,16 +132,23 @@ export async function runLiveActivation(options = {}) {
   const jevModelPresent = typeof jevModelId === 'string' && jevModelId.length > 0;
 
   // --- Lane preflights (independent; one blocked lane never masks another) ---
-  const codexVersion = await (options.codexVersionProbe ?? defaultCodexVersionProbe)({ env });
-  const codexAuth = codexVersion.available
-    ? await (options.codexAuthProbe ?? defaultCodexAuthProbe)({ env })
-    : { authenticated: false, auth_mode: null };
+  // Codex auth preflight = the auth controller: stored status + live
+  // read-only health probe. AUTH_HEALTHY is the only lane-ready state.
+  const codexAuthController = options.codexAuthController ?? createCodexChatGptAuthController({
+    env,
+    cwd: root,
+    ...(options.spawnImpl ? { spawnImpl: options.spawnImpl } : {})
+  });
+  const codexAuth = await codexAuthController.verifyAuthHealth();
+  const codexBlocker = codexBlockerForAuthReceipt(codexAuth);
 
   const preflight = {
-    codex_binary_available: codexVersion.available === true,
-    codex_version: codexVersion.version,
-    codex_chatgpt_authenticated: codexAuth.authenticated === true,
+    codex_binary_available: codexAuth.codex_available === true,
+    codex_version: codexAuth.codex_version,
+    codex_login_status: codexAuth.login_status,
     codex_auth_mode: codexAuth.auth_mode,
+    codex_auth_health: codexAuth.health_probe,
+    codex_interaction_required: codexAuth.interaction_required === true,
     openrouter_api_key_present: openRouterKeyPresent,
     openrouter_model_present: openRouterModelPresent,
     jev_model: jevModelId,
@@ -183,13 +157,12 @@ export async function runLiveActivation(options = {}) {
     typesafe_key_required: false
   };
 
-  const codexLaneReady = preflight.codex_binary_available && preflight.codex_chatgpt_authenticated;
+  const codexLaneReady = codexBlocker === null;
   const jevLaneReady = openRouterKeyPresent && jevModelPresent;
   const modelLaneReady = openRouterKeyPresent && openRouterModelPresent;
 
   const blockers = [];
-  if (!preflight.codex_binary_available) blockers.push('CODEX_BINARY_MISSING');
-  if (!preflight.codex_chatgpt_authenticated) blockers.push('CODEX_CHATGPT_AUTH_MISSING');
+  if (codexBlocker !== null) blockers.push(codexBlocker);
   if (!openRouterKeyPresent) blockers.push('OPENROUTER_API_KEY_MISSING');
   if (!jevModelPresent) blockers.push('MAWS_JEV_MODEL_MISSING');
   if (!openRouterModelPresent) blockers.push('MAWS_OPENROUTER_MODEL_MISSING');
@@ -198,7 +171,15 @@ export async function runLiveActivation(options = {}) {
 
   // --- Probe 1: Codex on the ChatGPT plan (no OpenRouter dependency) -------
   if (!codexLaneReady) {
-    probes.push(probeSummary('codex_chatgpt', 'NOT_RUN', { reason: 'CODEX_LANE_PREFLIGHT_BLOCKED' }));
+    probes.push(probeSummary('codex_chatgpt', 'NOT_RUN', {
+      reason: 'CODEX_LANE_PREFLIGHT_BLOCKED',
+      codex_auth_state: codexAuth.auth_status,
+      codex_auth_error_class: codexAuth.error_class ?? null,
+      codex_auth_health: codexAuth.health_probe,
+      auth_class: 'chatgpt_oauth',
+      billing_class: 'chatgpt_plan',
+      executor_id: 'exec_codex_chatgpt'
+    }));
   } else {
     try {
       const executor = options.codexExecutor ?? createCodexExecutor({
@@ -216,7 +197,7 @@ export async function runLiveActivation(options = {}) {
       ));
       const sanitized = sanitizedExecutorResult(result);
       const agentMessages = sanitized.outcome === 'SUCCESS'
-        ? collectAgentMessages(result.outputs?.[0]?.inline_payload ?? null)
+        ? collectAgentMessagesFromCodexPayload(result.outputs?.[0]?.inline_payload ?? null)
         : [];
       const phraseObserved = agentMessages.some((text) => text.includes(CODEX_PROBE_PHRASE));
       if (sanitized.outcome !== 'SUCCESS') {
@@ -244,6 +225,7 @@ export async function runLiveActivation(options = {}) {
           auth_class: 'chatgpt_oauth',
           billing_class: 'chatgpt_plan',
           executor_id: 'exec_codex_chatgpt',
+          auth_health: 'PASS',
           expected_phrase_observed: true
         }));
       }
@@ -269,13 +251,15 @@ export async function runLiveActivation(options = {}) {
         env,
         ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {})
       });
-      // Jev chooses only between the deterministic eligible executor ids.
-      const question = buildPreferredExecutorQuestion(['exec_openrouter_glm', 'exec_codex_chatgpt']);
+      // Decidable transport-qualification question with a closed answer
+      // space; Jev may only answer inside the typed space.
+      const question = getQuestion('work_class');
       const result = await jevClient.ask({
         question,
         choices: question.answer_space.values,
         state: {
           activation_probe: true,
+          objective: 'Read-only MAWS transport qualification probe acknowledgement',
           workload_safety_class: 'safe',
           mutation_allowed: false
         }

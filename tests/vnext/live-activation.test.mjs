@@ -8,21 +8,47 @@ const ENV = {
   MAWS_OPENROUTER_MODEL: 'test/provider-model'
 };
 
-const PROBES_OK = {
-  codexVersionProbe: async () => ({ available: true, version: '0.157.0' }),
-  codexAuthProbe: async () => ({ authenticated: true, auth_mode: 'chatgpt' })
-};
+function authControllerOk() {
+  return {
+    async verifyAuthHealth() {
+      return {
+        auth_status: 'AUTH_HEALTHY',
+        auth_mode: 'chatgpt',
+        codex_available: true,
+        codex_version: '0.157.0',
+        login_status: 'chatgpt',
+        health_probe: 'PASS',
+        interaction_required: false,
+        error_class: null
+      };
+    },
+    async requestLogin() {
+      throw new Error('requestLogin must never be invoked by activation');
+    }
+  };
+}
+
+function authControllerWith(receipt) {
+  return {
+    async verifyAuthHealth() {
+      return receipt;
+    },
+    async requestLogin() {
+      throw new Error('requestLogin must never be invoked by activation');
+    }
+  };
+}
 
 function jevPass() {
   return {
     async ask() {
       return {
         ok: true,
-        answer: 'exec_openrouter_glm',
+        answer: 'analysis',
         confidence: 0.93,
         resolved_model: 'typesafe/jev-1.13-20260917',
         receipt: { receipt_id: 'jevr_activation' },
-        threshold: { action: 'PROCEED', applied_threshold: 0.8 }
+        threshold: { action: 'PROCEED', applied_threshold: 0.7 }
       };
     }
   };
@@ -69,7 +95,7 @@ function baseOptions(overrides = {}) {
     env: ENV,
     thresholdPolicy: {},
     writeEvidence: false,
-    ...PROBES_OK,
+    codexAuthController: authControllerOk(),
     ...overrides
   };
 }
@@ -90,7 +116,10 @@ test('live activation passes only when all three independent probes pass', async
   assert.deepEqual(result.blockers, []);
   assert.equal(result.probes.length, 3);
   assert.ok(result.probes.every((probe) => probe.status === 'PASS'));
-  assert.equal(result.preflight.codex_chatgpt_authenticated, true);
+  assert.equal(result.preflight.codex_auth_health, 'PASS');
+  assert.equal(result.preflight.codex_login_status, 'chatgpt');
+  assert.equal(result.preflight.codex_auth_mode, 'chatgpt');
+  assert.equal(result.preflight.codex_interaction_required, false);
   assert.equal(result.preflight.codex_version, '0.157.0');
   assert.equal(result.preflight.typesafe_key_required, false);
   assert.equal(result.schema, 'maws.live-activation.v2');
@@ -98,11 +127,13 @@ test('live activation passes only when all three independent probes pass', async
   assert.equal(codex.auth_class, 'chatgpt_oauth');
   assert.equal(codex.billing_class, 'chatgpt_plan');
   assert.equal(codex.executor_id, 'exec_codex_chatgpt');
+  assert.equal(codex.auth_health, 'PASS');
   assert.equal(codex.expected_phrase_observed, true);
   const jev = result.probes.find((probe) => probe.name === 'openrouter_jev');
   assert.equal(jev.decision_transport, 'openrouter_decisions');
   assert.equal(jev.requested_model, '~typesafe/jev-latest');
   assert.equal(jev.resolved_model, 'typesafe/jev-1.13-20260917');
+  assert.equal(jev.answer, 'analysis');
   assert.equal(JSON.stringify(result).includes(ENV.OPENROUTER_API_KEY), false);
 });
 
@@ -122,26 +153,90 @@ test('missing OpenRouter key does not mask the independent Codex lane: PARTIAL',
   assert.equal(byName.openrouter_model.status, 'NOT_RUN');
 });
 
-test('unauthenticated Codex blocks only the Codex lane (CODEX_CHATGPT_AUTH_MISSING)', async () => {
+test('not-logged-in Codex blocks only the Codex lane (CODEX_AUTH_NOT_LOGGED_IN) without masking OpenRouter', async () => {
   const result = await runLiveActivation(baseOptions({
-    root: '/tmp/maws-live-activation-noauth',
-    codexAuthProbe: async () => ({ authenticated: false, auth_mode: null }),
+    root: '/tmp/maws-live-activation-nologin',
+    codexAuthController: authControllerWith({
+      auth_status: 'NOT_LOGGED_IN',
+      auth_mode: null,
+      codex_available: true,
+      codex_version: '0.157.0',
+      login_status: 'not_logged_in',
+      health_probe: 'NOT_RUN',
+      interaction_required: true,
+      error_class: 'CODEX_AUTH_NOT_LOGGED_IN'
+    }),
     jevClient: jevPass(),
     openRouterExecutor: executorPass()
   }));
 
   assert.equal(result.status, 'PARTIAL');
-  assert.ok(result.blockers.includes('CODEX_CHATGPT_AUTH_MISSING'));
+  assert.ok(result.blockers.includes('CODEX_AUTH_NOT_LOGGED_IN'));
   const byName = Object.fromEntries(result.probes.map((probe) => [probe.name, probe]));
   assert.equal(byName.codex_chatgpt.status, 'NOT_RUN');
   assert.equal(byName.openrouter_jev.status, 'PASS');
   assert.equal(byName.openrouter_model.status, 'PASS');
+  assert.equal(byName.codex_chatgpt.codex_auth_state, 'NOT_LOGGED_IN');
+});
+
+test('stored ChatGPT status with a stale live session blocks the Codex lane (CODEX_AUTH_STALE)', async () => {
+  const result = await runLiveActivation(baseOptions({
+    root: '/tmp/maws-live-activation-stale',
+    codexAuthController: authControllerWith({
+      auth_status: 'AUTH_STALE',
+      auth_mode: 'chatgpt',
+      codex_available: true,
+      codex_version: '0.157.0',
+      login_status: 'chatgpt',
+      health_probe: 'FAIL',
+      interaction_required: true,
+      error_class: 'CODEX_AUTH_STALE'
+    }),
+    jevClient: jevPass(),
+    openRouterExecutor: executorPass()
+  }));
+
+  assert.equal(result.status, 'PARTIAL');
+  assert.ok(result.blockers.includes('CODEX_AUTH_STALE'));
+  assert.equal(result.preflight.codex_login_status, 'chatgpt');
+  assert.equal(result.preflight.codex_auth_health, 'FAIL');
+  assert.equal(result.preflight.codex_interaction_required, true);
+  assert.equal(result.probes.find((probe) => probe.name === 'codex_chatgpt').status, 'NOT_RUN');
+});
+
+test('wrong auth mode (API key) blocks the Codex lane with CODEX_AUTH_WRONG_MODE', async () => {
+  const result = await runLiveActivation(baseOptions({
+    root: '/tmp/maws-live-activation-wrongmode',
+    codexAuthController: authControllerWith({
+      auth_status: 'WRONG_AUTH_MODE',
+      auth_mode: 'api_key',
+      codex_available: true,
+      codex_version: '0.157.0',
+      login_status: 'api_key',
+      health_probe: 'NOT_RUN',
+      interaction_required: true,
+      error_class: 'CODEX_AUTH_WRONG_MODE'
+    }),
+    jevClient: jevPass(),
+    openRouterExecutor: executorPass()
+  }));
+  assert.ok(result.blockers.includes('CODEX_AUTH_WRONG_MODE'));
+  assert.equal(result.probes.find((probe) => probe.name === 'codex_chatgpt').status, 'NOT_RUN');
 });
 
 test('missing codex binary blocks the Codex lane with CODEX_BINARY_MISSING', async () => {
   const result = await runLiveActivation(baseOptions({
     root: '/tmp/maws-live-activation-nobin',
-    codexVersionProbe: async () => ({ available: false, version: null })
+    codexAuthController: authControllerWith({
+      auth_status: 'CODEX_UNAVAILABLE',
+      auth_mode: null,
+      codex_available: false,
+      codex_version: null,
+      login_status: 'unknown',
+      health_probe: 'NOT_RUN',
+      interaction_required: false,
+      error_class: 'CODEX_AUTH_ENVIRONMENT_FAILURE'
+    })
   }));
   assert.ok(result.blockers.includes('CODEX_BINARY_MISSING'));
   assert.equal(result.probes.find((probe) => probe.name === 'codex_chatgpt').status, 'NOT_RUN');
@@ -191,11 +286,11 @@ test('low-confidence Jev outcome blocks the Jev lane instead of widening authori
       async ask() {
         return {
           ok: true,
-          answer: 'exec_codex_chatgpt',
+          answer: 'analysis',
           confidence: 0.2,
           resolved_model: 'typesafe/jev-1.13-20260917',
           receipt: { receipt_id: 'jevr_low' },
-          threshold: { action: 'HUMAN_GATE', applied_threshold: 0.8 }
+          threshold: { action: 'HUMAN_GATE', applied_threshold: 0.7 }
         };
       }
     },
@@ -213,7 +308,16 @@ test('no lane ready yields BLOCKED with all probes NOT_RUN', async () => {
   const result = await runLiveActivation(baseOptions({
     root: '/tmp/maws-live-activation-none',
     env: {},
-    codexAuthProbe: async () => ({ authenticated: false, auth_mode: null })
+    codexAuthController: authControllerWith({
+      auth_status: 'NOT_LOGGED_IN',
+      auth_mode: null,
+      codex_available: true,
+      codex_version: '0.157.0',
+      login_status: 'not_logged_in',
+      health_probe: 'NOT_RUN',
+      interaction_required: true,
+      error_class: 'CODEX_AUTH_NOT_LOGGED_IN'
+    })
   }));
   assert.equal(result.status, 'BLOCKED');
   assert.ok(result.probes.every((probe) => probe.status === 'NOT_RUN'));
