@@ -20,6 +20,8 @@ import { validateInstanceAgainstContract } from './validate-maws-vnext-contracts
 
 const CONTRACT = 'core/contracts/skill-frontdoor-admission.schema.json';
 const ACTIONS = new Set(['implement', 'install', 'activate', 'import', 'bind', 'publish']);
+const MAX_CANDIDATE_BYTES = 100 * 1024 * 1024;
+const MAX_CANDIDATE_FILES = 10_000;
 
 function isRemoteTarget(target) {
   return /^(https?|git|ssh|file):\/\//i.test(target) || target.startsWith('git@');
@@ -42,19 +44,36 @@ function normalizeLocalTarget(rawTarget, root) {
   if (!fs.existsSync(resolved)) {
     throw new Error('Target path does not exist: ' + resolved);
   }
-  return resolved;
+
+  const canonical = fs.realpathSync(resolved);
+  const stat = fs.lstatSync(canonical);
+  if (!stat.isDirectory()) {
+    throw new Error(
+      'MAWS skill frontdoor requires a staged skill directory so SKILL.md and all supporting files share one scan boundary.'
+    );
+  }
+
+  const skillFile = path.join(canonical, 'SKILL.md');
+  if (!fs.existsSync(skillFile) || !fs.lstatSync(skillFile).isFile()) {
+    throw new Error('Staged skill directory must contain a regular root SKILL.md file: ' + canonical);
+  }
+
+  return canonical;
 }
 
 function hashLocalTarget(target) {
   const hash = createHash('sha256');
+  let fileCount = 0;
+  let totalBytes = 0;
 
   function visit(absPath, relPath) {
     const stat = fs.lstatSync(absPath);
     if (stat.isSymbolicLink()) {
       throw new Error('Symlinks are not admitted in frontdoor candidate hashing: ' + absPath);
     }
+    const mode = (stat.mode & 0o777).toString(8);
     if (stat.isDirectory()) {
-      hash.update('D\0' + relPath + '\0');
+      hash.update('D\0' + relPath + '\0' + mode + '\0');
       for (const name of fs.readdirSync(absPath).sort()) {
         visit(path.join(absPath, name), relPath ? relPath + '/' + name : name);
       }
@@ -63,14 +82,31 @@ function hashLocalTarget(target) {
     if (!stat.isFile()) {
       throw new Error('Unsupported candidate filesystem entry: ' + absPath);
     }
-    hash.update('F\0' + relPath + '\0' + String(stat.size) + '\0');
+
+    fileCount += 1;
+    totalBytes += stat.size;
+    if (fileCount > MAX_CANDIDATE_FILES) {
+      throw new Error(
+        'Skill candidate exceeds the MAWS frontdoor file-count limit of ' + MAX_CANDIDATE_FILES + '.'
+      );
+    }
+    if (totalBytes > MAX_CANDIDATE_BYTES) {
+      throw new Error(
+        'Skill candidate exceeds the MAWS frontdoor byte limit of ' + MAX_CANDIDATE_BYTES + '.'
+      );
+    }
+
+    hash.update('F\0' + relPath + '\0' + mode + '\0' + String(stat.size) + '\0');
     hash.update(fs.readFileSync(absPath));
     hash.update('\0');
   }
 
-  const stat = fs.lstatSync(target);
-  visit(target, stat.isDirectory() ? '' : path.basename(target));
-  return hash.digest('hex');
+  visit(target, '');
+  return {
+    digest: hash.digest('hex'),
+    fileCount,
+    totalBytes
+  };
 }
 
 function targetKind(target) {
@@ -288,7 +324,8 @@ export function runSkillFrontdoor({
   if (!ACTIONS.has(action)) throw new Error('Unsupported action: ' + action);
 
   const resolvedTarget = normalizeLocalTarget(target, root);
-  const digest = hashLocalTarget(resolvedTarget);
+  const candidateHash = hashLocalTarget(resolvedTarget);
+  const digest = candidateHash.digest;
   const context = createInstallRiskContext({ repoRoot: root, now });
   fs.mkdirSync(context.runDir, { recursive: true });
 
