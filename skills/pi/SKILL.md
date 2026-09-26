@@ -26,12 +26,13 @@ Use this skill when a task involves Pi.dev / Baum-OS install safety, exact-targe
 ## Workflow
 
 1. Read `docs/security/extension-install-safety-policy.md`.
-2. Read `docs/pi/skillspector-install-gate.md`.
+2. Read `docs/skill-frontdoor-contract.md` and `docs/pi/skillspector-install-gate.md`.
 3. Identify the exact install target and install type.
-4. Run the static scan first.
-5. Treat `high` or `critical` findings, unresolved targets, missing reports, or unclear evidence as blocked.
-6. Write or review `sandbox/runs/<timestamp>/install-risk-decision.md`.
-7. Proceed only when the gate passes or an owner override is explicitly documented.
+4. For a `skill`, stage the exact candidate locally without activation and run `npm run skill:frontdoor -- --skill-id <stable-id> --target <target> --action <action>`.
+5. For non-skill extension types, run the static SkillSpector gate first.
+6. Treat `high` or `critical` findings, unresolved targets, missing reports, unknown severity, incomplete analyzer evidence, or unclear evidence as blocked.
+7. Review the timestamped decision/evidence artifacts before any install or implementation action.
+8. Proceed only when the applicable gate passes. A MAWS skill-frontdoor owner exception may accept known fully analyzed risk only; incomplete evidence remains blocked.
 
 ## Output
 
@@ -51,13 +52,15 @@ Use these headings:
 
 - Confirm the exact target before scanning.
 - Confirm the report path lives under `sandbox/runs/<timestamp>/`.
-- Confirm the scan is static by default (`noLlm=true`).
-- Block when the scanner is unavailable or the report is unclear.
-- Keep install evidence separate from install action.
+- Confirm the SkillSpector scan is static by default (`noLlm=true`).
+- For skill candidates, confirm SkillEvaluator Tier 1 also completed under the MAWS frontdoor.
+- Block when either required analyzer is unavailable, incomplete, or the report is unclear.
+- Keep analyzer evidence separate from authority, install, and implementation action.
 
 ## References
 
 - `docs/security/extension-install-safety-policy.md`
+- `docs/skill-frontdoor-contract.md`
 - `docs/pi/skillspector-install-gate.md`
 - `docs/checklists/pre-install-risk-scan.md`
 - `scripts/tools/preinstall-skill-risk-check.mjs`
