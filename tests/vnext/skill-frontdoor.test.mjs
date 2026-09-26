@@ -84,6 +84,24 @@ test('incomplete analyzer evidence dominates known risk and cannot be owner-exce
   assert.equal(derived.authority_granted, false);
 });
 
+test('unknown SkillSpector severity remains incomplete and cannot be owner-exceptioned', () => {
+  const record = structuredClone(BASE);
+  record.evidence.skillspector.severity = 'unknown';
+  record.owner_exception = {
+    decision_id: 'owner_exc_unknown',
+    approved_by: 'owner',
+    rationale: 'attempt to accept unknown risk',
+    accepted_risks: ['unknown scanner disposition'],
+    scope_limit: 'single candidate',
+    expires_at: '2026-09-27T18:00:00.000Z'
+  };
+
+  const derived = deriveSkillFrontdoorDisposition(record, { now: NOW });
+  assert.equal(derived.analysis_disposition, 'INCOMPLETE');
+  assert.equal(derived.implementation_disposition, 'BLOCKED');
+  assert.equal(derived.blockers.includes('SKILLSPECTOR_SEVERITY_UNKNOWN'), true);
+});
+
 test('known fully-analyzed risk can use a bounded owner exception without becoming clean', () => {
   const record = structuredClone(BASE);
   record.evidence.skillspector.status = 'BLOCKED';
