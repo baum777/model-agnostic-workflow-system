@@ -31,10 +31,11 @@ A clean frontdoor record makes the candidate **eligible to continue**. It grants
 
 The candidate must be materialized without activation and bound to an immutable source identity.
 
-- Local directory/file: MAWS computes `sha256:<digest>`.
+- Local staged skill directory: MAWS requires a regular root `SKILL.md` and computes `sha256:<digest>` over paths, permission bits, sizes, and bytes.
 - Remote source: resolve it to an immutable revision before admission, then stage it locally.
 - Mutable branch URLs such as `main`/`latest` without an immutable revision are not admissible implementation evidence.
 - Symlinks inside a staged candidate are rejected by the frontdoor helper so the hashed object and analyzed object cannot silently diverge.
+- Candidate hashing is bounded to 10,000 regular files and 100 MiB total file bytes, matching the intended bounded-ingest posture of the security analyzer.
 
 ### G1 — SkillSpector static scan
 
