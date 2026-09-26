@@ -592,7 +592,8 @@ function makeOpenRouter(handler, options = {}) {
     modelId: 'zai/glm-4.7',
     fetchImpl,
     env: { OPENROUTER_API_KEY: TEST_API_KEY, ...(options.env || {}) },
-    ...(options.baseUrl ? { baseUrl: options.baseUrl } : {})
+    ...(options.baseUrl ? { baseUrl: options.baseUrl } : {}),
+    ...(options.maxOutputTokens ? { maxOutputTokens: options.maxOutputTokens } : {})
   });
   return { executor, fetchImpl };
 }
@@ -613,6 +614,7 @@ test('openrouter executor: success returns metrics from usage and records the re
 
   const requestBody = JSON.parse(fetchImpl.calls[0].init.body);
   assert.equal(requestBody.model, 'zai/glm-4.7');
+  assert.equal(requestBody.max_tokens, 1024, 'output budget must be bounded by default (402 pre-flight credit check)');
   assert.equal(requestBody.messages.length, 2);
   assert.equal(requestBody.messages[0].role, 'system');
   assert.equal(requestBody.messages[1].role, 'user');
@@ -637,6 +639,25 @@ test('openrouter executor: 429 maps to OR_RATE_LIMITED with status evidence', as
   assert.equal(result.outcome, 'FAILED');
   assert.equal(result.error_class, 'OR_RATE_LIMITED');
   assert.deepEqual(result.flags, { http_status: 429 });
+});
+
+test('openrouter executor: 402 maps to OR_PAYMENT_REQUIRED with status evidence', async () => {
+  const { executor } = makeOpenRouter(() => jsonResponse(402, { error: { message: 'requires more credits' } }));
+  const result = await executor.execute(makeInvocation());
+  assert.equal(result.outcome, 'FAILED');
+  assert.equal(result.error_class, 'OR_PAYMENT_REQUIRED');
+  assert.deepEqual(result.flags, { http_status: 402 });
+});
+
+test('openrouter executor: custom maxOutputTokens travels as the request bound; invalid values fail closed', async () => {
+  const { executor, fetchImpl } = makeOpenRouter(() => jsonResponse(200, openRouterSuccessBody({ model: 'zai/glm-4.7' })), { maxOutputTokens: 64 });
+  const result = await executor.execute(makeInvocation());
+  assert.equal(result.outcome, 'SUCCESS');
+  assert.equal(JSON.parse(fetchImpl.calls[0].init.body).max_tokens, 64);
+  assert.throws(
+    () => createOpenRouterExecutor({ modelId: 'zai/glm-4.7', fetchImpl: async () => jsonResponse(200, {}), env: { OPENROUTER_API_KEY: TEST_API_KEY }, maxOutputTokens: 0 }),
+    isFailClosedWithCode('EXECUTOR_DECLARATION_INVALID')
+  );
 });
 
 test('openrouter executor: other non-ok and unparseable responses map to OR_BAD_RESPONSE', async () => {
