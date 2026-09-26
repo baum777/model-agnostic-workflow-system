@@ -1,60 +1,56 @@
-# MAWS vNext Final Scoped Closure — BLOCKED ATTEMPT RECORD (2026-09-26T00:47Z)
+# MAWS vNext Final Scoped Closure — Attempt 2 Record (2026-09-26T00:53–00:57Z)
 
-Run class: final scoped closure (directive "MAWS vNext FINAL SCOPED CLOSURE RUN",
-pasted 2026-09-26 02:46 local). Scope frozen: live runtime + evidence + merge +
-Registry gates only; no architecture, no refactor, no provider discovery.
+Run class: final scoped closure, scope frozen (live runtime + evidence + merge +
+Registry gates only). Attempt 1 (BLOCKED: key not inherited) is preserved as
+`attempt1-*`; the owner unblocked credential inheritance via
+`~/.config/maws/openrouter.env` (mode 600, sourced by `~/.bashrc` and
+`~/.profile`; agent shells inherit both exports — verified presence-only).
 
 ## Result
 
 ```text
-BLOCKED
+PARTIAL — BLOCKED_ON_OWNER_OPENROUTER_GUARDRAIL for the final lane
 ```
 
-Blocker: `OPENROUTER_API_KEY_MISSING` — the sole remaining input. The directive
-(§5) assumes the closure run executes in the same shell/session where the owner
-exported the key. That premise is not satisfiable for agent shells:
+Two of three lanes are now **live PASS**; the remaining blocker is an owner
+console configuration on the OpenRouter workspace, not code, not slugs, not
+credentials. Per the §28 merge gate (LIVE_ACTIVATION_PASS + all tracers PASS +
+full-slice CompletionDecision required), PR #9 was **correctly NOT merged** and
+the Registry chain stays untouched.
 
-- direct env: MISSING; login shell (`bash -lc`): MISSING;
-- `~/.bashrc` / `~/.profile` untouched since 2026-09-11, no export added;
-  `/etc/environment` and `~/.config/environment.d/` carry no export;
-- the owner's export lives only in their interactive terminal (proven live by
-  their 2026-09-26T00:08Z activation run, preserved under
-  `evidence/codex-chatgpt-auth-controller-2026-09-26/`).
-
-The agent never fishes for, reads, or invents credentials — fail-closed.
-
-## What this attempt verified (first-party, this run)
+## Live results (this attempt, all first-party)
 
 | Step | Result |
 | --- | --- |
-| §1 baseline | HEAD `6e83add686651c645d38d5de99323f368b0eb58e` = remote PR #9 head; PR #9 OPEN/MERGEABLE; unitera-registry PR #96 OPEN/DRAFT/MERGEABLE |
-| §9 `runtime:codex-auth:check` | **AUTH_HEALTHY**, exit 0 (live probe PASS, login NOT invoked; receipt: codex-auth-health.json) |
-| §10 activation (with `MAWS_OPENROUTER_MODEL=z-ai/glm-4.7` inline) | **PARTIAL**, exit 1 — codex_chatgpt PASS; openrouter_jev / openrouter_model NOT_RUN; blockers `["OPENROUTER_API_KEY_MISSING"]` ONLY (evidence: activation-evidence.json — slug corrected and proven present, isolating the key as the single missing input) |
+| §9 `runtime:codex-auth:check` | **AUTH_HEALTHY**, exit 0 (live probe PASS, login NOT invoked) → codex-auth-health.json |
+| §10 activation | PARTIAL, exit 1 — **codex_chatgpt PASS**; **openrouter_jev PASS** (`work_class`=`verification`, confidence 0.81 ≥ 0.7, snapshot `typesafe/jev-1.13-20260917`, DecisionReceipt `jevr`-mode `openrouter`); openrouter_model BLOCKED (`OR_BAD_RESPONSE`, HTTP 404) → activation-evidence.json |
+| §14 Jev routing tracer | **PASS** — requested `~typesafe/jev-latest` → resolved `typesafe/jev-1.13-20260917`; choice `exec_codex_chatgpt` @ 0.76; threshold PROCEED (0.7); DecisionReceipt `jevr_ee683d1ace6e`; RoutingDecision `rd_4cdeaefd9a11` NORMAL_SELECTION (jev-bound); ExecutorBinding `node_repo_analysis` → `exec_codex_chatgpt` (qualification-bound) → jev-routing-evidence.json |
+| §16 Codex tracer sanity | **PASS** (AUTH_HEALTHY, JSONL valid, turn.failed absent, phrase observed, child secret isolation) → codex-tracer-evidence.json |
+| §15 model tracer / §17 full completion / §24–§33 merge+Registry | NOT reachable — model lane blocked (below) |
 
-Everything else in the §40 chain is gated on that key by the runbook itself:
-§14/§15 tracers (NOT_RUN), §17 full-slice CompletionDecision (cannot honestly
-emit COMPLETED), §24/§28 PR #9 merge (forbidden without LIVE_ACTIVATION_PASS —
-NOT merged, correctly), §29–§33 Registry #96 canonicalization (gated on PR #9
-merge — untouched).
+## Model-lane diagnosis (openrouter-model-evidence.json)
 
-## Required to continue (owner action, exactly one)
+The key is valid ($50 credit, usage 0) and `z-ai/glm-4.7` is catalogue-listed,
+but **the workspace guardrail/data policy blocks chat/completions endpoints
+account-wide** — verbatim API error names "Model blocked by guardrail" /
+"Provider not allowed by guardrail", configurable at
+`https://openrouter.ai/workspaces/default/guardrails`; cross-vendor probes
+(z-ai ×2, mistralai, openai) all 404 the same way. The Jev Decisions alpha
+surface is unaffected. Fail-closed classification behaved exactly as designed
+(typed `OR_BAD_RESPONSE`, no fallback, no substitution).
 
-1. Add the export to a profile surface agent shells inherit
-   (`export OPENROUTER_API_KEY=...` in `~/.bashrc` or `~/.profile`), then
-   re-invoke the closure run — agent shells are profile-initialized and will
-   pick it up; **or**
-2. run in the owner terminal and hand back the artifacts/paths:
-   `export OPENROUTER_API_KEY=... MAWS_OPENROUTER_MODEL=z-ai/glm-4.7`,
-   `npm run runtime:activate-vnext`, then the two tracers under
-   `evidence/codex-chatgpt-auth-controller-2026-09-26/`.
+## Required to continue (single owner console action)
 
-Re-entry: all implementation/gates/evidence up to the live-OR step are already
-committed and pushed at `6e83add` (PR #9); nothing else is stale.
+Allow at least one chat model (e.g. `z-ai/glm-4.7`) under
+https://openrouter.ai/workspaces/default/guardrails, then re-invoke the
+closure run: `npm run runtime:activate-vnext` (slug already configured via the
+env file) → expected `LIVE_ACTIVATION_PASS` → model tracer → full-slice
+CompletionDecision → PR #9 merge → Registry #96 canonicalization →
+MAWS disposition `REQUIRED_BUT_BLOCKED` → `UPDATED` → final closure report.
 
-## Pre-merge posture at block time (§25 review facts)
+## Security
 
-`git diff origin/main...HEAD --stat`: 52 files, +4117/−270; 15 commits
-`47446c8..6e83add`; working tree clean except untracked run artifacts and
-`.mimosa/`; no credentials anywhere (scan-secrets / validate-secrets EXIT=0 at
-`6e83add`); Registry dispositions consistent (NO_CHANGE for the auth run;
-PR #96 pending for the pre-existing decision-receipt enum).
+No credential value anywhere in this evidence (presence-only facts; API-reported
+redacted label only); the Codex child env remains PATH/HOME/CODEX_HOME-only
+while the parent carries the inherited key — the isolation invariant held
+during live execution.

@@ -1,7 +1,7 @@
 # MAWS vNext Live Activation Runbook
 
 Class: operational.
-Status: ChatGPT Codex plan lane LIVE_VERIFIED_LOCAL with auth-health gating (2026-09-26); OpenRouter lanes implemented, owner-shell-credential-gated (live transport proven by the owner's 2026-09-26T00:08Z run).
+Status: ChatGPT Codex plan lane and OpenRouter Jev lane LIVE_VERIFIED_LOCAL (2026-09-26, auth-health gated); OpenRouter model lane implemented, blocked by the owner's workspace guardrail (owner console action; see verification record).
 Owner: model-agnostic-workflow-system.
 
 ## Purpose
@@ -193,32 +193,36 @@ receipts / evidence  = neither secret class ever appears
 - `npm run runtime:codex-auth:check` (real binary, real login, real live
   probe): **AUTH_HEALTHY**, exit 0; stored status PRESENT, live health PASS,
   `login_invoked: false` — the healthy session was never touched.
-- Activation run through the auth controller: `PARTIAL` — codex_chatgpt
-  PASS (auth_health PASS, phrase observed, ~5 s); OpenRouter lanes NOT_RUN
-  (`OPENROUTER_API_KEY_MISSING` in the agent shell; the owner exported the
-  key in their terminal session, which agent shells do not inherit).
-- Owner-side live run 2026-09-26T00:08Z (key exported in the owner shell):
-  codex PASS; openrouter_jev reached the live Decisions API (resolved
-  snapshot `typesafe/jev-1.13-20260917`) and returned confidence 0.23 —
-  correctly HUMAN_GATE'd by the deterministic threshold on the then-asked
-  executor-preference question (fixed by the decidable `work_class` probe);
-  openrouter_model answered HTTP 400 `OR_BAD_RESPONSE` — catalogue-verified
-  diagnosis: `MAWS_OPENROUTER_MODEL` was set to `zai/glm-4.7`, which does
-  not exist; the live catalogue lists `z-ai/glm-4.7` (z-ai, hyphenated).
-  Owner fix: `export MAWS_OPENROUTER_MODEL=z-ai/glm-4.7` (or any other
-  catalogue-listed slug) in the invoking shell.
+- Credential inheritance unblocked via `~/.config/maws/openrouter.env`
+  (mode 600, sourced by `~/.bashrc`/`~/.profile`): activation with the key
+  present — **codex_chatgpt PASS** and **openrouter_jev PASS live**
+  (`work_class`=`verification`, confidence 0.81 ≥ 0.7, resolved snapshot
+  `typesafe/jev-1.13-20260917`, DecisionReceipt mode `openrouter`);
+  openrouter_model BLOCKED `OR_BAD_RESPONSE` HTTP 404.
+- Model-lane diagnosis (see
+  `evidence/maws-vnext-final-live-closure-2026-09-26/openrouter-model-evidence.json`):
+  the key is valid ($50 credit, usage 0) and `z-ai/glm-4.7` is
+  catalogue-listed, but the OpenRouter workspace guardrail/data policy blocks
+  chat/completions endpoints account-wide ("Model blocked by guardrail" /
+  "Provider not allowed by guardrail", cross-vendor probes identical;
+  configurable at https://openrouter.ai/workspaces/default/guardrails).
+  The Jev Decisions alpha surface is unaffected. Fail-closed classification
+  held: typed `OR_BAD_RESPONSE`, no fallback, no substitution.
+- Jev routing tracer: **PASS** — `~typesafe/jev-latest` →
+  `typesafe/jev-1.13-20260917`, choice `exec_codex_chatgpt` @ 0.76,
+  threshold PROCEED (0.7), DecisionReceipt + RoutingDecision (NORMAL_SELECTION,
+  jev-bound) + ExecutorBinding, all live.
 - §47 Codex tracer (auth health + JSONL + turn.failed absence + phrase +
-  child secret isolation): **PASS**.
+  child secret isolation): **PASS** — re-verified with the key present in the
+  parent environment (child isolation held).
 - §48 CompletionDecision for the auth-controller slice: **COMPLETED**
-  (scope-limited to the Codex lane; the OpenRouter lanes are not claimed).
+  (scope-limited to the Codex lane; the model lane is not claimed).
 
-For `LIVE_ACTIVATION_PASS` the owner runs, in a shell with the key exported:
+For `LIVE_ACTIVATION_PASS` one owner console action remains: allow at least
+one chat model (e.g. `z-ai/glm-4.7`) under the workspace guardrails, then:
 
 ```bash
-export OPENROUTER_API_KEY="..."
-export MAWS_OPENROUTER_MODEL="z-ai/glm-4.7"    # catalogue-verified slug
 npm run runtime:activate-vnext                  # target: all three lanes PASS
-node evidence/codex-chatgpt-auth-controller-2026-09-26/run-jev-routing-tracer.mjs
 node evidence/codex-chatgpt-auth-controller-2026-09-26/run-openrouter-model-tracer.mjs
 ```
 

@@ -1,0 +1,37 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Final live-closure attempt 2 is runtime evidence only: live activation run, Jev routing tracer, Codex tracer, and the OpenRouter model-lane guardrail diagnosis. No core/contracts/* file changes and no adopted contract record changes. The sole registry-relevant delta in the PR #9 branch remains the decision-receipt mode enum extension (openrouter), already dispositioned REQUIRED_BUT_BLOCKED in evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25 and carried by unitera-registry PR #96 (OPEN/DRAFT/MERGEABLE). No registry write performed; merge chain deliberately not entered because the §28 live-evidence gate is unmet (model lane blocked by the owner's OpenRouter workspace guardrail).",
+    "registry_baseline_sha": "f5dd6b01cab907d9dba62d7d9aec694576f6b239",
+    "affected_records": [],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "docs/maws-vnext-live-activation.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "unitera-registry PR #94 merge f5dd6b01cab907d9dba62d7d9aec694576f6b239",
+      "unitera-registry PR #96 (OPEN/DRAFT; sole remaining registry candidate)"
+    ],
+    "evidence_refs": [
+      "evidence/maws-vnext-final-live-closure-2026-09-26/closure-summary.md",
+      "evidence/maws-vnext-final-live-closure-2026-09-26/activation-evidence.json (codex PASS, jev PASS live)",
+      "evidence/maws-vnext-final-live-closure-2026-09-26/jev-routing-evidence.json (live RoutingDecision + ExecutorBinding)",
+      "evidence/maws-vnext-final-live-closure-2026-09-26/openrouter-model-evidence.json (guardrail diagnosis)"
+    ],
+    "implementation_commit_sha": "",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/maws-vnext-final-live-closure-2026-09-26/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "git diff --stat origin/main...HEAD (no core/contracts/ path changed by this closure attempt)"
+    ]
+  }
+}

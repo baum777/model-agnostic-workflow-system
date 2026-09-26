@@ -1,7 +1,7 @@
 {
   "schema": "maws.live-activation.v2",
-  "started_at": "2026-09-26T00:53:24.368Z",
-  "finished_at": "2026-09-26T00:53:34.032Z",
+  "started_at": "2026-09-26T00:47:37.667Z",
+  "finished_at": "2026-09-26T00:47:45.671Z",
   "status": "PARTIAL",
   "scope": "transport_qualification_probe",
   "mutation_allowed": false,
@@ -19,14 +19,16 @@
     "codex_auth_mode": "chatgpt",
     "codex_auth_health": "PASS",
     "codex_interaction_required": false,
-    "openrouter_api_key_present": true,
+    "openrouter_api_key_present": false,
     "openrouter_model_present": true,
     "jev_model": "~typesafe/jev-latest",
     "jev_model_present": true,
     "typesafe_key_present": false,
     "typesafe_key_required": false
   },
-  "blockers": [],
+  "blockers": [
+    "OPENROUTER_API_KEY_MISSING"
+  ],
   "probes": [
     {
       "name": "codex_chatgpt",
@@ -34,7 +36,7 @@
       "outcome": "SUCCESS",
       "error_class": null,
       "metrics": {
-        "latency_ms": 4189,
+        "latency_ms": 4053,
         "cost_units": 0,
         "tokens_in": 0,
         "tokens_out": 0
@@ -53,30 +55,13 @@
     },
     {
       "name": "openrouter_jev",
-      "status": "PASS",
-      "decision_transport": "openrouter_decisions",
-      "requested_model": "~typesafe/jev-latest",
-      "resolved_model": "typesafe/jev-1.13-20260917",
-      "confidence": 0.81,
-      "answer": "verification",
-      "decision_receipt_ref": "jevr_409ad3a6236f",
-      "threshold_policy_version": "1"
+      "status": "NOT_RUN",
+      "reason": "JEV_LANE_PREFLIGHT_BLOCKED"
     },
     {
       "name": "openrouter_model",
-      "status": "BLOCKED",
-      "outcome": "FAILED",
-      "error_class": "OR_BAD_RESPONSE",
-      "metrics": {
-        "latency_ms": 74,
-        "cost_units": 0,
-        "tokens_in": 0,
-        "tokens_out": 0
-      },
-      "flags": {
-        "http_status": 404
-      },
-      "exit_code": null
+      "status": "NOT_RUN",
+      "reason": "MODEL_LANE_PREFLIGHT_BLOCKED"
     }
   ]
 }
