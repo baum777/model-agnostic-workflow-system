@@ -61,8 +61,10 @@ export function deriveSkillFrontdoorDisposition(record, { now = new Date().toISO
   }
 
   let analysis_disposition = 'CLEAN';
-  if (blockers.length > 0) analysis_disposition = 'BLOCKED';
-  else if (incomplete.length > 0) analysis_disposition = 'INCOMPLETE';
+  // Unknown evidence dominates known risk: an owner can accept bounded known risk,
+  // but cannot accept what was never successfully analyzed.
+  if (incomplete.length > 0) analysis_disposition = 'INCOMPLETE';
+  else if (blockers.length > 0) analysis_disposition = 'BLOCKED';
 
   let implementation_disposition = 'BLOCKED';
   if (analysis_disposition === 'CLEAN') {
