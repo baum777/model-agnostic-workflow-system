@@ -1,56 +1,57 @@
-# MAWS vNext Final Scoped Closure — Attempt 2 Record (2026-09-26T00:53–00:57Z)
+# MAWS vNext Final Scoped Closure — PASS RECORD (2026-09-26T01:04Z)
 
-Run class: final scoped closure, scope frozen (live runtime + evidence + merge +
-Registry gates only). Attempt 1 (BLOCKED: key not inherited) is preserved as
-`attempt1-*`; the owner unblocked credential inheritance via
-`~/.config/maws/openrouter.env` (mode 600, sourced by `~/.bashrc` and
-`~/.profile`; agent shells inherit both exports — verified presence-only).
+Run class: final scoped closure, scope frozen. Attempt history preserved:
+attempt 1 (key not inherited by agent shells), attempt 2 (2/3 lanes live;
+model lane blocked first by workspace guardrails, then by HTTP 402 credit
+pre-flight on the unbounded request). This record closes the chain.
 
 ## Result
 
 ```text
-PARTIAL — BLOCKED_ON_OWNER_OPENROUTER_GUARDRAIL for the final lane
+LIVE_ACTIVATION_PASS  ·  CompletionDecision COMPLETED (full slice)
 ```
 
-Two of three lanes are now **live PASS**; the remaining blocker is an owner
-console configuration on the OpenRouter workspace, not code, not slugs, not
-credentials. Per the §28 merge gate (LIVE_ACTIVATION_PASS + all tracers PASS +
-full-slice CompletionDecision required), PR #9 was **correctly NOT merged** and
-the Registry chain stays untouched.
+## The two blockers and their resolutions
 
-## Live results (this attempt, all first-party)
+1. **Credential inheritance** — owner moved the secret to
+   `~/.config/maws/openrouter.env` (mode 600, sourced by `~/.bashrc` and
+   `~/.profile`); agent shells inherit both exports.
+2. **Model lane** — owner switched the model to `deepseek/deepseek-v4.1-flash`
+   (catalogue-verified slug; the earlier `z-ai/glm-4.7` was guardrail-blocked,
+   and the guardrail relaxation surfaced the next layer: HTTP 402, because an
+   unbounded request forces OpenRouter to pre-flight the full 131072-token
+   output ceiling against the account credit). Fixed in-repo by bounding the
+   executor request (`max_tokens`, default 1024, executor configuration never
+   WorkUnit-selectable) and typing HTTP 402 as `OR_PAYMENT_REQUIRED`.
 
-| Step | Result |
+## Final live evidence (all first-party, this run)
+
+| Gate | Result |
 | --- | --- |
-| §9 `runtime:codex-auth:check` | **AUTH_HEALTHY**, exit 0 (live probe PASS, login NOT invoked) → codex-auth-health.json |
-| §10 activation | PARTIAL, exit 1 — **codex_chatgpt PASS**; **openrouter_jev PASS** (`work_class`=`verification`, confidence 0.81 ≥ 0.7, snapshot `typesafe/jev-1.13-20260917`, DecisionReceipt `jevr`-mode `openrouter`); openrouter_model BLOCKED (`OR_BAD_RESPONSE`, HTTP 404) → activation-evidence.json |
-| §14 Jev routing tracer | **PASS** — requested `~typesafe/jev-latest` → resolved `typesafe/jev-1.13-20260917`; choice `exec_codex_chatgpt` @ 0.76; threshold PROCEED (0.7); DecisionReceipt `jevr_ee683d1ace6e`; RoutingDecision `rd_4cdeaefd9a11` NORMAL_SELECTION (jev-bound); ExecutorBinding `node_repo_analysis` → `exec_codex_chatgpt` (qualification-bound) → jev-routing-evidence.json |
-| §16 Codex tracer sanity | **PASS** (AUTH_HEALTHY, JSONL valid, turn.failed absent, phrase observed, child secret isolation) → codex-tracer-evidence.json |
-| §15 model tracer / §17 full completion / §24–§33 merge+Registry | NOT reachable — model lane blocked (below) |
+| `runtime:codex-auth:check` | **AUTH_HEALTHY**, exit 0 (login NOT invoked) |
+| `runtime:activate-vnext` | **LIVE_ACTIVATION_PASS**, exit 0, zero blockers |
+| codex_chatgpt | PASS (auth-health gated, phrase observed) |
+| openrouter_jev | PASS — `work_class`=`verification`, confidence 0.83 ≥ 0.7, snapshot `typesafe/jev-1.13-20260917`, DecisionReceipt mode `openrouter` |
+| openrouter_model | PASS — requested `deepseek/deepseek-v4.1-flash` = served (no substitution), tokens 125/172, cost $0.0001368 |
+| Jev routing tracer | **PASS** — `~typesafe/jev-latest` → `typesafe/jev-1.13-20260917`, choice `exec_codex_chatgpt` @ 0.76, threshold PROCEED (0.7), DecisionReceipt `jevr_ee683d1ace6e` → RoutingDecision `rd_4cdeaefd9a11` (NORMAL_SELECTION, jev-bound) → ExecutorBinding `node_repo_analysis` → `exec_codex_chatgpt` |
+| Codex tracer | **PASS** (AUTH_HEALTHY, JSONL valid, turn.failed absent, phrase observed, child secret isolation with the key present in the parent) |
+| OpenRouter model tracer | **PASS** (requested == served, `model_substitution=false`) |
+| Full-slice CompletionDecision | **COMPLETED** (execution + outputs + evidence + independent verification receipt `exec_local_tests`; scope covers all lanes and tracers) |
 
-## Model-lane diagnosis (openrouter-model-evidence.json)
+## Validation
 
-The key is valid ($50 credit, usage 0) and `z-ai/glm-4.7` is catalogue-listed,
-but **the workspace guardrail/data policy blocks chat/completions endpoints
-account-wide** — verbatim API error names "Model blocked by guardrail" /
-"Provider not allowed by guardrail", configurable at
-`https://openrouter.ai/workspaces/default/guardrails`; cross-vendor probes
-(z-ai ×2, mistralai, openai) all 404 the same way. The Jev Decisions alpha
-surface is unaffected. Fail-closed classification behaved exactly as designed
-(typed `OR_BAD_RESPONSE`, no fallback, no substitution).
-
-## Required to continue (single owner console action)
-
-Allow at least one chat model (e.g. `z-ai/glm-4.7`) under
-https://openrouter.ai/workspaces/default/guardrails, then re-invoke the
-closure run: `npm run runtime:activate-vnext` (slug already configured via the
-env file) → expected `LIVE_ACTIVATION_PASS` → model tracer → full-slice
-CompletionDecision → PR #9 merge → Registry #96 canonicalization →
-MAWS disposition `REQUIRED_BUT_BLOCKED` → `UPDATED` → final closure report.
+`test:activation` 39/39 · `test:vnext` 230/230 · `validate-maws-vnext` ok ·
+`eval:maws-vnext` all blocking suites passed · `validate` / `validate-neutral`
+ok · `validate-secrets` 0 · `scan-secrets` 0 · full `npm run eval` =
+ENVIRONMENT_BLOCKED_BROWSER (pre-existing Playwright chromium absence,
+classified, not a MAWS regression) · evidence secret sweep clean (no key
+literals, no bearer/token patterns) · registry disposition validator PASS
+(**NO_CHANGE**; PR #96 remains the sole registry candidate).
 
 ## Security
 
-No credential value anywhere in this evidence (presence-only facts; API-reported
-redacted label only); the Codex child env remains PATH/HOME/CODEX_HOME-only
-while the parent carries the inherited key — the isolation invariant held
-during live execution.
+OPENROUTER_API_KEY stayed env-bound end-to-end (env file mode 600; never in
+git, evidence, receipts, or child environments); the Codex child env remained
+PATH/HOME/CODEX_HOME-only while the parent carried the live key. OAuth storage
+untouched (Codex-owned; `auth.json` never read; healthy session never
+re-logged-in).

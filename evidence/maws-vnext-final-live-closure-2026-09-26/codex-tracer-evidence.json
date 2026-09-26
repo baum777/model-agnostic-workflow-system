@@ -1,6 +1,6 @@
 {
   "schema": "maws.codex-tracer.v1",
-  "traced_at": "2026-09-26T00:55:07.599Z",
+  "traced_at": "2026-09-26T01:05:11.430Z",
   "executor_id": "exec_codex_chatgpt",
   "auth_class": "chatgpt_oauth",
   "billing_class": "chatgpt_plan",
@@ -17,7 +17,7 @@
     "codex_version": "0.157.0",
     "health_probe": "PASS",
     "login_invoked": false,
-    "verified_at": "2026-09-26T00:55:03.620Z",
+    "verified_at": "2026-09-26T01:05:06.803Z",
     "error_class": null,
     "probe_outcome": "SUCCESS",
     "phrase_observed": true
@@ -27,7 +27,7 @@
     "error_class": null,
     "exit_code": 0,
     "metrics": {
-      "latency_ms": 3978,
+      "latency_ms": 4627,
       "cost_units": 0,
       "tokens_in": 0,
       "tokens_out": 0
