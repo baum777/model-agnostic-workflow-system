@@ -1,7 +1,7 @@
 node_modules/
 artifacts/*
 !artifacts/runtime-runs/
-artifacts/runtime-runs/run_*/
+artifacts/runtime-runs/*
 !artifacts/runtime-runs/.gitkeep
 memory/stores/jsonl/runtime-memory.jsonl
 
