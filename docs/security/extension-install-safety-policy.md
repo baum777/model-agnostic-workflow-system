@@ -9,6 +9,20 @@ Before installing any extension, skill, theme, MCP server, plugin, external pack
 
 The scan is a gate, not an install. If the gate fails, the install is blocked.
 
+## Relation To The MAWS Skill Frontdoor
+
+For install type `skill`, this SkillSpector scan is the mandatory **security sub-gate**, not the complete admission decision.
+
+A skill candidate must also pass the canonical MAWS Skill Frontdoor in `docs/skill-frontdoor-contract.md`, which adds NVIDIA/SkillEvaluator Tier 1 and a deterministic MAWS-owned admission record before implementation, installation, activation, import, binding, or publication.
+
+Use:
+
+    npm run skill:frontdoor -- --skill-id <stable-id> --target <staged-local-skill> --action <action>
+
+For non-skill extension types, this policy remains the current SkillSpector exact-target gate unless another canonical contract adds a stricter boundary.
+
+A frontdoor owner exception may accept only **known, fully analyzed risk**. Missing, unknown, or incomplete analyzer evidence remains blocked and cannot be overridden.
+
 ## Required Default
 
 Default scan mode:
