@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/skill-frontdoor-admission.schema.json",
+  "title": "MAWS Skill Frontdoor Admission Record",
+  "description": "Fail-closed evidence contract for screening a skill candidate before implementation, installation, activation, import, binding, or publication. Analyzer PASS is prerequisite evidence only and never grants authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "admission_id",
+    "candidate",
+    "requested_action",
+    "evidence",
+    "analysis_disposition",
+    "implementation_disposition",
+    "authority_granted",
+    "blockers",
+    "decided_at"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "admission_id": { "type": "string", "minLength": 1 },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["skill_id", "target", "target_kind", "source_revision"],
+      "properties": {
+        "skill_id": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "minLength": 1 },
+        "target_kind": {
+          "type": "string",
+          "enum": ["local-directory", "local-file", "archive", "git", "url"]
+        },
+        "source_revision": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Immutable source identity. Local candidates use sha256:<digest>; remote candidates require an immutable revision before admission."
+        }
+      }
+    },
+    "requested_action": {
+      "type": "string",
+      "enum": ["implement", "install", "activate", "import", "bind", "publish"]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["skillspector", "skillevaluator_tier1"],
+      "properties": {
+        "skillspector": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["analyzer", "version", "scan_mode", "exit_code", "report_path", "status", "severity", "severity_counts"],
+          "properties": {
+            "analyzer": { "type": "string", "const": "NVIDIA/SkillSpector" },
+            "version": { "type": "string", "minLength": 1 },
+            "scan_mode": { "type": "string", "const": "static-no-llm" },
+            "exit_code": { "type": "integer", "minimum": 0 },
+            "report_path": { "type": "string", "pattern": "^sandbox/runs/" },
+            "status": { "type": "string", "enum": ["PASS", "BLOCKED", "INCOMPLETE"] },
+            "severity": { "type": "string", "enum": ["none", "low", "medium", "high", "critical", "unknown"] },
+            "risk_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+            "severity_counts": { "$ref": "#/$defs/severityCounts" }
+          }
+        },
+        "skillevaluator_tier1": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["analyzer", "version", "profile", "tier_scope", "exit_code", "report_path", "status", "overall_status", "overall_passed", "severity_counts"],
+          "properties": {
+            "analyzer": { "type": "string", "const": "NVIDIA/SkillEvaluator" },
+            "version": { "type": "string", "minLength": 1 },
+            "profile": { "type": "string", "const": "external" },
+            "tier_scope": { "type": "string", "const": "1" },
+            "exit_code": { "type": "integer", "minimum": 0 },
+            "report_path": { "type": "string", "pattern": "^sandbox/runs/" },
+            "status": { "type": "string", "enum": ["PASS", "BLOCKED", "INCOMPLETE"] },
+            "overall_status": { "type": "string", "enum": ["passed", "failed", "incomplete", "not-run"] },
+            "overall_passed": { "type": "boolean" },
+            "severity_counts": { "$ref": "#/$defs/severityCounts" }
+          }
+        }
+      }
+    },
+    "analysis_disposition": { "type": "string", "enum": ["CLEAN", "BLOCKED", "INCOMPLETE"] },
+    "implementation_disposition": { "type": "string", "enum": ["ELIGIBLE", "BLOCKED", "OWNER_EXCEPTION"] },
+    "authority_granted": {
+      "type": "boolean",
+      "const": false,
+      "description": "Frontdoor admission never grants runtime, filesystem, network, provider, approval, or installation authority."
+    },
+    "blockers": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "owner_exception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision_id", "approved_by", "rationale", "accepted_risks", "scope_limit", "expires_at"],
+      "properties": {
+        "decision_id": { "type": "string", "minLength": 1 },
+        "approved_by": { "type": "string", "minLength": 1 },
+        "rationale": { "type": "string", "minLength": 1 },
+        "accepted_risks": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+        "scope_limit": { "type": "string", "minLength": 1 },
+        "expires_at": { "type": "string", "minLength": 1 }
+      }
+    },
+    "decided_at": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "severityCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["critical", "high", "medium", "low"],
+      "properties": {
+        "critical": { "type": "integer", "minimum": 0 },
+        "high": { "type": "integer", "minimum": 0 },
+        "medium": { "type": "integer", "minimum": 0 },
+        "low": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "analysis_disposition": { "const": "CLEAN" } },
+        "required": ["analysis_disposition"]
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "properties": {
+              "skillspector": {
+                "properties": {
+                  "status": { "const": "PASS" },
+                  "exit_code": { "const": 0 },
+                  "severity": { "not": { "enum": ["high", "critical", "unknown"] } }
+                }
+              },
+              "skillevaluator_tier1": {
+                "properties": {
+                  "status": { "const": "PASS" },
+                  "exit_code": { "const": 0 },
+                  "overall_status": { "const": "passed" },
+                  "overall_passed": { "const": true }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "implementation_disposition": { "const": "ELIGIBLE" } },
+        "required": ["implementation_disposition"]
+      },
+      "then": {
+        "properties": { "analysis_disposition": { "const": "CLEAN" } },
+        "not": { "required": ["owner_exception"] }
+      }
+    },
+    {
+      "if": {
+        "properties": { "implementation_disposition": { "const": "OWNER_EXCEPTION" } },
+        "required": ["implementation_disposition"]
+      },
+      "then": {
+        "required": ["owner_exception"],
+        "properties": { "analysis_disposition": { "const": "BLOCKED" } }
+      }
+    }
+  ]
+}
