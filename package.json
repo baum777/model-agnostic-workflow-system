@@ -27,6 +27,7 @@
     "eval:tsc": "node scripts/tools/run-certification-evals.mjs --kind tsc",
     "eval:maws-vnext": "node scripts/tools/run-certification-evals.mjs --kind maws-vnext",
     "test:vnext": "node --test tests/vnext/*.test.mjs",
+    "test:skill-frontdoor": "node --test tests/vnext/skill-frontdoor.test.mjs",
     "validate-maws-vnext": "node scripts/tools/validate-maws-vnext-contracts.mjs",
     "eval:secret-boundary": "node scripts/tools/run-certification-evals.mjs --kind secret-boundary",
     "eval:skill-routing": "node scripts/tools/run-certification-evals.mjs --kind skill-routing",
