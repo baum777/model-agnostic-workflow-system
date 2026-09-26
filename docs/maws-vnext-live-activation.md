@@ -248,13 +248,11 @@ receipts / evidence  = neither secret class ever appears
 - §48 CompletionDecision for the auth-controller slice: **COMPLETED**
   (scope-limited to the Codex lane; the model lane is not claimed).
 
-For `LIVE_ACTIVATION_PASS` one owner console action remains: allow at least
-one chat model (e.g. `z-ai/glm-4.7`) under the workspace guardrails, then:
-
-```bash
-npm run runtime:activate-vnext                  # target: all three lanes PASS
-node evidence/codex-chatgpt-auth-controller-2026-09-26/run-openrouter-model-tracer.mjs
-```
+The guardrail fix and model switch (`deepseek/deepseek-v4.1-flash`) completed
+that same day; see the FINAL record above and
+`evidence/MAWS_VNEXT_FINAL_CLOSURE_MANIFEST.md` for the closed state
+(LIVE_ACTIVATION_PASS, full-slice CompletionDecision COMPLETED, registry
+disposition UPDATED). No owner action remains for activation.
 
 ## Local verification record (2026-09-25)
 
