@@ -1,0 +1,81 @@
+{
+  "schema": "maws.live-activation.v2",
+  "started_at": "2026-09-26T01:04:36.776Z",
+  "finished_at": "2026-09-26T01:04:47.476Z",
+  "status": "LIVE_ACTIVATION_PASS",
+  "scope": "transport_qualification_probe",
+  "mutation_allowed": false,
+  "credential_matrix": {
+    "codex": "chatgpt_oauth (ChatGPT Codex plan)",
+    "jev": "OPENROUTER_API_KEY (OpenRouter Decisions API)",
+    "openrouter_models": "OPENROUTER_API_KEY"
+  },
+  "jev_model": "~typesafe/jev-latest",
+  "openrouter_model": "deepseek/deepseek-v4.1-flash",
+  "preflight": {
+    "codex_binary_available": true,
+    "codex_version": "0.157.0",
+    "codex_login_status": "chatgpt",
+    "codex_auth_mode": "chatgpt",
+    "codex_auth_health": "PASS",
+    "codex_interaction_required": false,
+    "openrouter_api_key_present": true,
+    "openrouter_model_present": true,
+    "jev_model": "~typesafe/jev-latest",
+    "jev_model_present": true,
+    "typesafe_key_present": false,
+    "typesafe_key_required": false
+  },
+  "blockers": [],
+  "probes": [
+    {
+      "name": "codex_chatgpt",
+      "status": "PASS",
+      "outcome": "SUCCESS",
+      "error_class": null,
+      "metrics": {
+        "latency_ms": 4242,
+        "cost_units": 0,
+        "tokens_in": 0,
+        "tokens_out": 0
+      },
+      "flags": {
+        "stream_format": "jsonl",
+        "event_count": 4
+      },
+      "exit_code": 0,
+      "codex_version": "0.157.0",
+      "auth_class": "chatgpt_oauth",
+      "billing_class": "chatgpt_plan",
+      "executor_id": "exec_codex_chatgpt",
+      "auth_health": "PASS",
+      "expected_phrase_observed": true
+    },
+    {
+      "name": "openrouter_jev",
+      "status": "PASS",
+      "decision_transport": "openrouter_decisions",
+      "requested_model": "~typesafe/jev-latest",
+      "resolved_model": "typesafe/jev-1.13-20260917",
+      "confidence": 0.83,
+      "answer": "verification",
+      "decision_receipt_ref": "jevr_263a43a1462a",
+      "threshold_policy_version": "1"
+    },
+    {
+      "name": "openrouter_model",
+      "status": "PASS",
+      "requested_model": "deepseek/deepseek-v4.1-flash",
+      "outcome": "SUCCESS",
+      "error_class": null,
+      "metrics": {
+        "latency_ms": 1427,
+        "cost_units": 0.0001368,
+        "tokens_in": 125,
+        "tokens_out": 172
+      },
+      "flags": null,
+      "exit_code": 0
+    }
+  ]
+}

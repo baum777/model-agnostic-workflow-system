@@ -1,0 +1,52 @@
+{
+  "schema": "maws.codex-tracer.v1",
+  "traced_at": "2026-09-26T01:05:11.430Z",
+  "executor_id": "exec_codex_chatgpt",
+  "auth_class": "chatgpt_oauth",
+  "billing_class": "chatgpt_plan",
+  "codex_version": "0.157.0",
+  "auth_receipt": {
+    "schema": "maws.codex-auth-health.v1",
+    "auth_status": "AUTH_HEALTHY",
+    "auth_mode": "chatgpt",
+    "codex_available": true,
+    "login_status": "chatgpt",
+    "executor_id": "exec_codex_chatgpt",
+    "auth_class": "chatgpt_oauth",
+    "billing_class": "chatgpt_plan",
+    "codex_version": "0.157.0",
+    "health_probe": "PASS",
+    "login_invoked": false,
+    "verified_at": "2026-09-26T01:05:06.803Z",
+    "error_class": null,
+    "probe_outcome": "SUCCESS",
+    "phrase_observed": true
+  },
+  "execution_result": {
+    "outcome": "SUCCESS",
+    "error_class": null,
+    "exit_code": 0,
+    "metrics": {
+      "latency_ms": 4627,
+      "cost_units": 0,
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    "flags": {
+      "stream_format": "jsonl",
+      "event_count": 4
+    }
+  },
+  "jsonl_event_count": 4,
+  "expected_phrase": "MAWS CODEX CHATGPT TRACER PASS",
+  "checks": {
+    "auth_health_pass": true,
+    "jsonl_valid": true,
+    "turn_failed_absent": true,
+    "expected_phrase_observed": true,
+    "execution_result_pass": true,
+    "openrouter_key_absent_from_child": true
+  },
+  "child_secret_isolation": "ENFORCED_BY_ALLOWLIST (PATH/HOME/CODEX_HOME only; OPENROUTER/OPENAI/TYPESAFE never forwarded)",
+  "status": "PASS"
+}

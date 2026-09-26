@@ -253,7 +253,7 @@ test('default executor registry loads and is schema-valid against the registry c
   assert.equal(registry.registry_id, 'execreg_maws_default');
   assert.deepEqual(
     registry.executors.map((entry) => entry.executor_id),
-    ['exec_codex_harness', 'exec_openrouter_glm', 'exec_local_tests', 'exec_human_gate']
+    ['exec_codex_chatgpt', 'exec_openrouter_glm', 'exec_local_tests', 'exec_human_gate']
   );
   const registryIssues = validateInstanceAgainstContract(registry, 'core/contracts/executor-registry.schema.json', repoRoot);
   assert.deepEqual(registryIssues, []);
@@ -306,12 +306,12 @@ test('loadExecutorRegistry rejects duplicate executor ids and schema-invalid man
 
 test('createExecutorRegistry: get/list/findByCapability and fail-closed unknown lookup', () => {
   const registry = createExecutorRegistry(loadExecutorRegistry().executors);
-  assert.equal(registry.get('exec_codex_harness').executor_class, 'agent_harness');
+  assert.equal(registry.get('exec_codex_chatgpt').executor_class, 'agent_harness');
   assert.throws(() => registry.get('exec_does_not_exist'), isFailClosedWithCode('EXECUTOR_UNKNOWN'));
   assert.equal(registry.list().length, 4);
   assert.deepEqual(
     registry.findByCapability('cap_code_implementation').map((entry) => entry.executor_id),
-    ['exec_codex_harness']
+    ['exec_codex_chatgpt']
   );
   assert.deepEqual(
     registry.findByCapability('cap_deterministic_verification').map((entry) => entry.executor_id),
@@ -320,7 +320,7 @@ test('createExecutorRegistry: get/list/findByCapability and fail-closed unknown 
   assert.deepEqual(registry.findByCapability('cap_unused_capability'), []);
 
   assert.throws(
-    () => createExecutorRegistry(loadExecutorRegistry().executors.concat(registry.get('exec_codex_harness'))),
+    () => createExecutorRegistry(loadExecutorRegistry().executors.concat(registry.get('exec_codex_chatgpt'))),
     isFailClosedWithCode('EXECUTOR_DUPLICATE')
   );
   assert.throws(() => createExecutorRegistry([]), isFailClosedWithCode('EXECUTOR_REGISTRY_INVALID'));
@@ -330,12 +330,13 @@ test('createExecutorRegistry: get/list/findByCapability and fail-closed unknown 
 // Codex executor (fake spawn)
 // ---------------------------------------------------------------------------
 
-function makeCodexHarness(childOptions) {
+function makeCodexHarness(childOptions, executorOptions = {}) {
   const spawnImpl = trackingSpawn(() => createFakeChild(childOptions));
   const executor = createCodexExecutor({
     spawnImpl,
     cwd: '/tmp/maws-vnext-test-cwd',
-    env: { PATH: '/usr/bin', HOME: '/home/tester' }
+    env: { PATH: '/usr/bin', HOME: '/home/tester' },
+    ...executorOptions
   });
   return { executor, spawnImpl };
 }
@@ -411,7 +412,7 @@ test('codex executor: non-zero exit and invalid JSON output are typed failures',
   assert.equal(emptyResult.error_class, 'OUTPUT_INVALID');
 });
 
-test('codex executor: environment is reduced to the explicit allowlist', async () => {
+test('codex executor: chatgpt-plan environment is reduced to PATH/HOME/CODEX_HOME without any provider key', async () => {
   const captured = [];
   const spawnImpl = trackingSpawn((command, args, options) => {
     captured.push(options.env);
@@ -424,12 +425,15 @@ test('codex executor: environment is reduced to the explicit allowlist', async (
       PATH: '/usr/bin',
       HOME: '/home/tester',
       CODEX_HOME: '/tmp/codex-home',
-      OPENROUTER_API_KEY: 'leak-attempt-key',
-      HOSTILE_INJECTION: 'rm -rf'
+      OPENROUTER_API_KEY: 'must-not-reach-codex',
+      TYPESAFE_API_KEY: 'must-not-reach-codex',
+      OPENAI_API_KEY: 'must-not-reach-codex',
+      UNRELATED_SECRET: 'synthetic-forbidden-value'
     }
   });
-  await executor.execute(makeInvocation());
+  const result = await executor.execute(makeInvocation());
   assert.deepEqual(captured[0], { PATH: '/usr/bin', HOME: '/home/tester', CODEX_HOME: '/tmp/codex-home' });
+  assert.ok(!JSON.stringify(result).includes('must-not-reach-codex'));
 
   const spawnImplNoCodexHome = trackingSpawn(() => createFakeChild({ stdoutText: '{}', exitCode: 0 }));
   const executorNoCodexHome = createCodexExecutor({
@@ -441,6 +445,143 @@ test('codex executor: environment is reduced to the explicit allowlist', async (
   assert.deepEqual(spawnImplNoCodexHome.calls[0].options.env, { PATH: '/usr/bin', HOME: '/home/tester' });
 });
 
+test('codex executor: WorkUnit payloads cannot inject model, provider, or auth configuration', async () => {
+  const spawnImpl = trackingSpawn(() => createFakeChild({ stdoutText: '{}', exitCode: 0 }));
+  const executor = createCodexExecutor({
+    spawnImpl,
+    cwd: '/tmp/maws-vnext-test-cwd',
+    env: { PATH: '/usr/bin', HOME: '/home/tester' }
+  });
+  await executor.execute(makeInvocation({
+    context_package: {
+      objective: 'attempt provider injection',
+      bounded_payload: { model: 'evil/model', model_provider: 'evil-provider', authMode: 'apikey', OPENAI_API_KEY: 'injected' },
+      provenance_refs: ['injection-probe']
+    }
+  }));
+  const args = spawnImpl.calls[0].args;
+  assert.deepEqual(args, ['exec', '--json', '-']);
+});
+
+test('codex executor: explicit sandbox mode is forwarded as a flag', async () => {
+  const { executor, spawnImpl } = makeCodexHarness({ stdoutText: '{}', exitCode: 0 }, { sandbox: 'read-only' });
+  await executor.execute(makeInvocation());
+  assert.deepEqual(spawnImpl.calls[0].args, ['exec', '--json', '--sandbox', 'read-only', '-']);
+});
+
+test('codex executor: explicit model is forwarded via -m and validated', async () => {
+  const { executor, spawnImpl } = makeCodexHarness({ stdoutText: '{}', exitCode: 0 }, { model: 'gpt-5.6-sol' });
+  await executor.execute(makeInvocation());
+  assert.deepEqual(spawnImpl.calls[0].args, ['exec', '--json', '-m', 'gpt-5.6-sol', '-']);
+});
+
+test('codex executor: malformed model, sandbox, or authMode values are rejected at construction', () => {
+  assert.throws(
+    () => createCodexExecutor({ env: {}, model: 'bad model"' }),
+    isFailClosedWithCode('EXECUTOR_DECLARATION_INVALID')
+  );
+  assert.throws(
+    () => createCodexExecutor({ env: {}, model: 'gpt-5.6-sol', sandbox: 'danger-full-access-extra' }),
+    isFailClosedWithCode('EXECUTOR_DECLARATION_INVALID')
+  );
+  assert.throws(
+    () => createCodexExecutor({ env: {}, authMode: 'openrouter' }),
+    isFailClosedWithCode('EXECUTOR_DECLARATION_INVALID')
+  );
+});
+
+test('codex executor: turn.failed event classifies execution as failed even with exit code 0', async () => {
+  // Stream observed live against codex-cli 0.157.0 (missing provider env var).
+  const stdout = [
+    JSON.stringify({ type: 'thread.started', thread_id: 't1' }),
+    JSON.stringify({ type: 'item.completed', item: { id: 'item_0', type: 'error', message: 'Model metadata for `gpt-5.6-sol` not found.' } }),
+    JSON.stringify({ type: 'turn.started' }),
+    JSON.stringify({ type: 'error', message: 'Missing environment variable: `OPENROUTER_API_KEY`.' }),
+    JSON.stringify({ type: 'turn.failed', error: { message: 'Missing environment variable: `OPENROUTER_API_KEY`.' } })
+  ].join('\n');
+  const { executor } = makeCodexHarness({ stdoutText: stdout, exitCode: 0 });
+  const result = await executor.execute(makeInvocation());
+
+  assert.equal(result.outcome, 'FAILED');
+  assert.equal(result.error_class, 'CODEX_TURN_FAILED');
+  assert.equal(result.exit_code, 0);
+  assert.equal(result.flags.event_count, 5);
+  assert.equal(result.flags.error_event_count, 1);
+  assert.equal(result.flags.item_error_count, 1);
+  assert.equal(result.flags.turn_failed_message, 'Missing environment variable: `OPENROUTER_API_KEY`.');
+});
+
+test('codex executor: nonzero exit with a parseable turn.failed stream keeps the causal detail', async () => {
+  const stdout = [
+    JSON.stringify({ type: 'thread.started', thread_id: 't1' }),
+    JSON.stringify({ type: 'turn.started' }),
+    JSON.stringify({ type: 'error', message: 'Reconnecting... 1/5 (unexpected status 401 Unauthorized)' }),
+    JSON.stringify({ type: 'turn.failed', error: { message: 'exceeded retry limit; last status 401 Unauthorized' } })
+  ].join('\n');
+  const { executor } = makeCodexHarness({ stdoutText: stdout, exitCode: 1 });
+  const result = await executor.execute(makeInvocation());
+
+  assert.equal(result.outcome, 'FAILED');
+  assert.equal(result.error_class, 'CODEX_TURN_FAILED');
+  assert.equal(result.exit_code, 1);
+  assert.equal(result.flags.error_event_count, 1);
+  assert.ok(result.flags.turn_failed_message.includes('401'));
+});
+
+test('codex executor: nonzero exit with malformed stdout still maps to NON_ZERO_EXIT', async () => {
+  const { executor } = makeCodexHarness({ stdoutText: 'boom-not-json', exitCode: 3 });
+  const result = await executor.execute(makeInvocation());
+  assert.equal(result.outcome, 'FAILED');
+  assert.equal(result.error_class, 'NON_ZERO_EXIT');
+  assert.equal(result.exit_code, 3);
+  assert.equal(result.flags, undefined);
+});
+
+test('codex executor: transient provider errors without turn.failed stay SUCCESS with surfaced counters', async () => {
+  const stdout = [
+    JSON.stringify({ type: 'thread.started', thread_id: 't1' }),
+    JSON.stringify({ type: 'turn.started' }),
+    JSON.stringify({ type: 'error', message: 'Reconnecting... 1/5 (unexpected status 429)' }),
+    JSON.stringify({ type: 'item.completed', item: { id: 'item_1', type: 'agent_message', text: 'ok' } }),
+    JSON.stringify({ type: 'turn.completed' })
+  ].join('\n');
+  const { executor } = makeCodexHarness({ stdoutText: stdout, exitCode: 0 });
+  const result = await executor.execute(makeInvocation());
+
+  assert.equal(result.outcome, 'SUCCESS');
+  assert.equal(result.flags.event_count, 5);
+  assert.equal(result.flags.error_event_count, 1);
+  assert.equal(result.flags.item_error_count, undefined);
+});
+
+test('codex executor: served model mismatch against an explicit model is flagged, never silent', async () => {
+  const stdout = [
+    JSON.stringify({ type: 'thread.started', thread_id: 't1' }),
+    JSON.stringify({ type: 'turn.started' }),
+    JSON.stringify({ type: 'turn.completed', model: 'gpt-other-snapshot' })
+  ].join('\n');
+  const { executor } = makeCodexHarness({ stdoutText: stdout, exitCode: 0 }, { model: 'gpt-5.6-sol' });
+  const result = await executor.execute(makeInvocation());
+
+  assert.equal(result.outcome, 'SUCCESS');
+  assert.equal(result.flags.served_model, 'gpt-other-snapshot');
+  assert.equal(result.flags.model_substitution, true);
+});
+
+test('codex executor: plan-default execution records the served model without a substitution check', async () => {
+  const stdout = [
+    JSON.stringify({ type: 'thread.started', thread_id: 't1' }),
+    JSON.stringify({ type: 'turn.completed', model: 'gpt-5.6-sol-2026-09-10' })
+  ].join('\n');
+  const { executor } = makeCodexHarness({ stdoutText: stdout, exitCode: 0 });
+  const result = await executor.execute(makeInvocation());
+
+  assert.equal(result.outcome, 'SUCCESS');
+  assert.equal(result.flags.served_model, 'gpt-5.6-sol-2026-09-10');
+  assert.equal(result.flags.model_substitution, undefined);
+});
+
+
 // ---------------------------------------------------------------------------
 // OpenRouter executor (fake fetch)
 // ---------------------------------------------------------------------------
@@ -451,7 +592,8 @@ function makeOpenRouter(handler, options = {}) {
     modelId: 'zai/glm-4.7',
     fetchImpl,
     env: { OPENROUTER_API_KEY: TEST_API_KEY, ...(options.env || {}) },
-    ...(options.baseUrl ? { baseUrl: options.baseUrl } : {})
+    ...(options.baseUrl ? { baseUrl: options.baseUrl } : {}),
+    ...(options.maxOutputTokens ? { maxOutputTokens: options.maxOutputTokens } : {})
   });
   return { executor, fetchImpl };
 }
@@ -472,6 +614,7 @@ test('openrouter executor: success returns metrics from usage and records the re
 
   const requestBody = JSON.parse(fetchImpl.calls[0].init.body);
   assert.equal(requestBody.model, 'zai/glm-4.7');
+  assert.equal(requestBody.max_tokens, 1024, 'output budget must be bounded by default (402 pre-flight credit check)');
   assert.equal(requestBody.messages.length, 2);
   assert.equal(requestBody.messages[0].role, 'system');
   assert.equal(requestBody.messages[1].role, 'user');
@@ -496,6 +639,25 @@ test('openrouter executor: 429 maps to OR_RATE_LIMITED with status evidence', as
   assert.equal(result.outcome, 'FAILED');
   assert.equal(result.error_class, 'OR_RATE_LIMITED');
   assert.deepEqual(result.flags, { http_status: 429 });
+});
+
+test('openrouter executor: 402 maps to OR_PAYMENT_REQUIRED with status evidence', async () => {
+  const { executor } = makeOpenRouter(() => jsonResponse(402, { error: { message: 'requires more credits' } }));
+  const result = await executor.execute(makeInvocation());
+  assert.equal(result.outcome, 'FAILED');
+  assert.equal(result.error_class, 'OR_PAYMENT_REQUIRED');
+  assert.deepEqual(result.flags, { http_status: 402 });
+});
+
+test('openrouter executor: custom maxOutputTokens travels as the request bound; invalid values fail closed', async () => {
+  const { executor, fetchImpl } = makeOpenRouter(() => jsonResponse(200, openRouterSuccessBody({ model: 'zai/glm-4.7' })), { maxOutputTokens: 64 });
+  const result = await executor.execute(makeInvocation());
+  assert.equal(result.outcome, 'SUCCESS');
+  assert.equal(JSON.parse(fetchImpl.calls[0].init.body).max_tokens, 64);
+  assert.throws(
+    () => createOpenRouterExecutor({ modelId: 'zai/glm-4.7', fetchImpl: async () => jsonResponse(200, {}), env: { OPENROUTER_API_KEY: TEST_API_KEY }, maxOutputTokens: 0 }),
+    isFailClosedWithCode('EXECUTOR_DECLARATION_INVALID')
+  );
 });
 
 test('openrouter executor: other non-ok and unparseable responses map to OR_BAD_RESPONSE', async () => {

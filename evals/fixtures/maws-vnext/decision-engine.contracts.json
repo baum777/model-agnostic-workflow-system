@@ -92,7 +92,7 @@
           "receipt_id": "jevr_0003",
           "question_id": "preferred_executor",
           "choices": ["exec_openrouter_glm", "exec_local_tests"],
-          "answer": "exec_codex_harness",
+          "answer": "exec_codex_chatgpt",
           "confidence": 0.95,
           "requested_model": "jev-latest",
           "resolved_model": "jev-1.13.0",

@@ -1,0 +1,37 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Final live closure is runtime/test/doc/evidence surface only: live LIVE_ACTIVATION_PASS run (all three lanes), full tracer set, full-slice CompletionDecision, and one bounded executor fix (openrouter-executor request max_tokens bound + typed OR_PAYMENT_REQUIRED mapping for HTTP 402; live-verified necessity — without an explicit bound, OpenRouter pre-flight-checks the model's full output ceiling against account credit and rejects with 402 even for short acknowledgements). No core/contracts/* file changed and no adopted contract record changed. The sole registry-relevant delta in the PR #9 branch remains the decision-receipt mode enum extension (openrouter), already dispositioned REQUIRED_BUT_BLOCKED in evidence/maws-vnext-chatgpt-openrouter-activation-2026-09-25 and carried by unitera-registry PR #96.",
+    "registry_baseline_sha": "f5dd6b01cab907d9dba62d7d9aec694576f6b239",
+    "affected_records": [],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "docs/maws-vnext-live-activation.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "unitera-registry PR #94 merge f5dd6b01cab907d9dba62d7d9aec694576f6b239",
+      "unitera-registry PR #96 (sole remaining registry candidate for the decision-receipt mode enum)"
+    ],
+    "evidence_refs": [
+      "evidence/maws-vnext-final-live-closure-2026-09-26/closure-summary.md",
+      "evidence/maws-vnext-final-live-closure-2026-09-26/activation-evidence.json (LIVE_ACTIVATION_PASS, zero blockers)",
+      "evidence/maws-vnext-final-live-closure-2026-09-26/completion-decision.json (full-slice COMPLETED)",
+      "npm run test:activation (39/39) / test:vnext (230/230) / validate-maws-vnext / eval:maws-vnext / validate / validate-neutral / validate-secrets / scan-secrets (all EXIT=0)"
+    ],
+    "implementation_commit_sha": "",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/maws-vnext-final-live-closure-2026-09-26/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "git diff --stat origin/main...HEAD (no core/contracts/ path changed by this closure)"
+    ]
+  }
+}

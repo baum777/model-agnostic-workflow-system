@@ -1,0 +1,39 @@
+{
+  "schema": "maws.completion-decision.v1-record",
+  "recorded_at": "2026-09-26T00:31:37.052Z",
+  "scope_note": "Completion covers ONLY the Codex ChatGPT auth-controller slice (Codex lane verified live). The OpenRouter Jev/model lanes remain owner-gated on OPENROUTER_API_KEY in the invoking shell and are NOT claimed complete here.",
+  "snapshots": {
+    "auth_check_receipt": true,
+    "activation_evidence": true,
+    "owner_00_08_activation_evidence": true
+  },
+  "decision": {
+    "decision_id": "cdec_280694d124ac",
+    "work_unit_id": "wu_codex_tracer_2026_09_26",
+    "contract_ref": "cc_codex_auth_ctrl_001",
+    "result": "COMPLETED",
+    "execution_succeeded": true,
+    "verification_satisfied": true,
+    "satisfied_clauses": [
+      "execution_success",
+      "required_outputs",
+      "required_evidence",
+      "verification",
+      "dependency_closure",
+      "child_closure"
+    ],
+    "unsatisfied_clauses": [],
+    "blocking_reasons": [],
+    "evidence_refs": [
+      "execatt_codex_tracer_2026_09_26",
+      "vr_8b8f6200f83c",
+      "npm run test:activation -> 39/39 pass, exit 0 (2026-09-26)",
+      "npm run test:vnext -> 228/228 pass, exit 0 (2026-09-26)",
+      "npm run validate-maws-vnext -> exit 0 (2026-09-26)",
+      "npm run validate / validate-neutral / validate-secrets / scan-secrets -> exit 0 (2026-09-26)",
+      "npm run eval:maws-vnext -> exit 0 (2026-09-26)",
+      "npm run runtime:codex-auth:check -> AUTH_HEALTHY exit 0 (2026-09-26T00:27Z)"
+    ],
+    "decided_at": "2026-09-26T00:31:37.049Z"
+  }
+}

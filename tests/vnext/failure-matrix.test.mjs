@@ -187,6 +187,8 @@ test('FM-05 OpenRouter unavailable: typed FAILED execution, completion blocked',
 
 test('FM-06 Codex unavailable: typed EXECUTOR_UNAVAILABLE, not a crash', async () => {
   const executor = createCodexExecutor({
+    model: 'zai/glm-4.7',
+    env: { PATH: '/bin' },
     spawnImpl: () => {
       const error = new Error('spawn ENOENT');
       error.code = 'ENOENT';
@@ -421,11 +423,11 @@ test('FM-24 forced binding outside eligible set: ignored or fail closed, never b
   });
   const decision = route({
     routing_request: request,
-    jev_answer: { preferred_executor_id: 'exec_codex_harness', receipt_ref: 'jevr_x', threshold_met: true },
+    jev_answer: { preferred_executor_id: 'exec_codex_chatgpt', receipt_ref: 'jevr_x', threshold_met: true },
     scores: null, exploration_policy: null, decided_at: '2026-09-25T00:00:00Z'
   });
   assert.equal(decision.selected_executor_id, 'exec_openrouter_glm');
-  assert.notEqual(decision.selected_executor_id, 'exec_codex_harness');
+  assert.notEqual(decision.selected_executor_id, 'exec_codex_chatgpt');
   assert.equal(decision.jev_receipt_ref, null);
   const unverified = scoreCandidates({
     candidates: [{ executor_id: 'exec_openrouter_glm', signals: { verified_success: { value: 1, evidence_ref: 'self:exec_openrouter_glm' } } }],

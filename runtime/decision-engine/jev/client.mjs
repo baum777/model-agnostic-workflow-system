@@ -15,11 +15,15 @@
 //   - the API key is kept in a closure and never appears in any returned
 //     object, receipt, message, or error.
 //
-// Modes: 'fixture' loads runtime/decision-engine/jev/fixtures/<caseId>.json;
-// 'live' POSTs to `${baseUrl}/v1/decisions`. NOTE: the exact live endpoint
-// shape (request/response fields, status semantics) is confirmed at the
-// first live activation; until then live mode stays behind fixture-mode
-// verification and no fallback endpoint or model is invented.
+// Modes:
+//   'openrouter' (canonical live path) — MAWS -> OpenRouter -> Decisions API
+//     -> TypeSafe Jev, authenticated by OPENROUTER_API_KEY only (verified
+//     contract: POST /api/alpha/decisions; see openrouter-decisions.mjs).
+//   'live' (optional direct-TypeSafe compatibility provider) — POSTs to
+//     `${baseUrl}/v1/decisions` with TYPESAFE_API_KEY. The exact live
+//     endpoint shape is confirmed at first live activation; until then no
+//     fallback endpoint or model is invented. NOT the default live path.
+//   'fixture' — loads runtime/decision-engine/jev/fixtures/<caseId>.json.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,6 +32,7 @@ import { assertOutboundUrlAllowed, canonicalJson, FailClosedError, nowIso } from
 import { assertThresholdPolicyShape, evaluateThreshold } from './threshold-policy.mjs';
 import { buildDecisionReceipt } from './decision-receipt.mjs';
 import { assertAnswerInSpace } from './questions/registry.mjs';
+import { createOpenRouterDecisionClient, OPENROUTER_DECISIONS_HOSTS } from './openrouter-decisions.mjs';
 
 const DEFAULT_FIXTURE_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const DEFAULT_BASE_URL = 'https://api.typesafe.ai';
@@ -72,7 +77,9 @@ export function createJevClient(options = {}) {
   if (!options || typeof options !== 'object') throw invalid('options must be an object');
 
   const mode = options.mode;
-  if (mode !== 'fixture' && mode !== 'live') throw invalid('mode must be "fixture" or "live"');
+  if (mode !== 'fixture' && mode !== 'live' && mode !== 'openrouter') {
+    throw invalid('mode must be "fixture", "live", or "openrouter"');
+  }
 
   const requestedModel = options.requestedModel ?? DEFAULT_REQUESTED_MODEL;
   if (typeof requestedModel !== 'string' || requestedModel === '') throw invalid('requestedModel must be a non-empty string');
@@ -83,7 +90,8 @@ export function createJevClient(options = {}) {
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   if (!Number.isInteger(timeoutMs) || timeoutMs <= 0) throw invalid('timeoutMs must be a positive integer');
 
-  const allowlistHosts = options.allowlistHosts ?? DEFAULT_ALLOWLIST_HOSTS;
+  const allowlistHosts = options.allowlistHosts ??
+    (mode === 'openrouter' ? OPENROUTER_DECISIONS_HOSTS : DEFAULT_ALLOWLIST_HOSTS);
   if (
     !Array.isArray(allowlistHosts) || allowlistHosts.length === 0 ||
     allowlistHosts.some((host) => typeof host !== 'string' || host === '') ||
@@ -107,6 +115,29 @@ export function createJevClient(options = {}) {
   const env = options.env ?? process.env;
   const effectiveFetch = typeof options.fetchImpl === 'function' ? options.fetchImpl
     : (typeof globalThis.fetch === 'function' ? globalThis.fetch : null);
+
+  // Canonical live path: the OpenRouter Decisions transport (shared HTTP/
+  // auth/error semantics; decision-specific response normalization).
+  const openRouterDecisionClient = mode === 'openrouter'
+    ? createOpenRouterDecisionClient({
+      env,
+      fetchImpl: effectiveFetch,
+      requestedModel,
+      baseUrl: options.decisionsBaseUrl,
+      timeoutMs
+    })
+    : null;
+
+  async function askOpenRouter(question, choices, state) {
+    if (openRouterDecisionClient === null) {
+      throw new FailClosedError('CLIENT_CONFIG_INVALID', 'openrouter mode requires a decision client');
+    }
+    const outcome = await openRouterDecisionClient.ask({ question, choices, state });
+    if (outcome.ok !== true) {
+      return { kind: 'failure', result: outcome };
+    }
+    return { kind: 'candidate', candidate: outcome.candidate };
+  }
 
   async function askFixture(caseId) {
     if (typeof caseId !== 'string' || !CASE_ID_PATTERN.test(caseId)) {
@@ -236,7 +267,9 @@ export function createJevClient(options = {}) {
 
     const outcome = mode === 'fixture'
       ? await askFixture(caseId)
-      : await askLive(question, choices, statePayload);
+      : mode === 'openrouter'
+        ? await askOpenRouter(question, choices, statePayload)
+        : await askLive(question, choices, statePayload);
     if (outcome.kind === 'failure') {
       return outcome.result;
     }

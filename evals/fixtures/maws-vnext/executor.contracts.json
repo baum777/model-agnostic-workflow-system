@@ -10,7 +10,7 @@
       "valid": true,
       "guards": ["OD-01"],
       "instance": {
-        "executor_id": "exec_codex_harness",
+        "executor_id": "exec_codex_chatgpt",
         "executor_class": "agent_harness",
         "display_name": "Codex Harness",
         "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
@@ -55,7 +55,7 @@
       "valid": false,
       "guards": ["OD-09"],
       "instance": {
-        "executor_id": "exec_codex_harness",
+        "executor_id": "exec_codex_chatgpt",
         "executor_class": "agent_harness",
         "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
         "transport": "codex_exec",
@@ -69,7 +69,7 @@
       "valid": false,
       "guards": ["OD-01"],
       "instance": {
-        "executor_id": "exec_codex_harness",
+        "executor_id": "exec_codex_chatgpt",
         "executor_class": "agent_harness",
         "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
         "transport": "codex_exec",
@@ -83,7 +83,7 @@
       "valid": false,
       "guards": ["OD-18"],
       "instance": {
-        "executor_id": "exec_codex_harness",
+        "executor_id": "exec_codex_chatgpt",
         "executor_class": "agent_harness",
         "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
         "transport": "codex_exec",
@@ -100,7 +100,7 @@
         "version": "1",
         "executors": [
           {
-            "executor_id": "exec_codex_harness",
+            "executor_id": "exec_codex_chatgpt",
             "executor_class": "agent_harness",
             "declared_capabilities": [{ "capability_id": "cap_code_implementation" }],
             "transport": "codex_exec",

@@ -29,7 +29,7 @@
         "interaction_host": "zcode",
         "session_model": "glm-5.3",
         "orchestration_owner": "maws",
-        "work_unit_executor": "exec_codex_harness",
+        "work_unit_executor": "exec_codex_chatgpt",
         "submitted_at": "2026-09-25T00:00:00Z"
       }
     },

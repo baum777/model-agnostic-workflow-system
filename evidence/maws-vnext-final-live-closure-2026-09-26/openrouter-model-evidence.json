@@ -1,0 +1,19 @@
+{
+  "schema": "maws.openrouter-model-tracer.v1",
+  "traced_at": "2026-09-26T01:05:02.297Z",
+  "status": "PASS",
+  "requested_model": "deepseek/deepseek-v4.1-flash",
+  "served_model": "deepseek/deepseek-v4.1-flash",
+  "model_substitution": false,
+  "execution_result": {
+    "outcome": "SUCCESS",
+    "error_class": null,
+    "metrics": {
+      "latency_ms": 1712,
+      "cost_units": 0.00007155,
+      "tokens_in": 141,
+      "tokens_out": 84
+    },
+    "flags": null
+  }
+}

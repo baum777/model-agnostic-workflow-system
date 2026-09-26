@@ -1,0 +1,34 @@
+{
+  "schema": "maws.completion-decision.v1-record",
+  "recorded_at": "2026-09-26T01:05:59.193Z",
+  "scope_note": "FULL final live closure slice: all three activation lanes (LIVE_ACTIVATION_PASS), Jev routing tracer, Codex tracer, OpenRouter model tracer, auth health, and the verification gates. Supersedes the scope-limited auth-controller-slice decision in evidence/codex-chatgpt-auth-controller-2026-09-26/completion-decision.json (that decision deliberately did not claim the OpenRouter lanes).",
+  "decision": {
+    "decision_id": "cdec_dc86b628a2f5",
+    "work_unit_id": "wu_openrouter_tracer_2026_09_26",
+    "contract_ref": "cc_full_live_closure_001",
+    "result": "COMPLETED",
+    "execution_succeeded": true,
+    "verification_satisfied": true,
+    "satisfied_clauses": [
+      "execution_success",
+      "required_outputs",
+      "required_evidence",
+      "verification",
+      "dependency_closure",
+      "child_closure"
+    ],
+    "unsatisfied_clauses": [],
+    "blocking_reasons": [],
+    "evidence_refs": [
+      "execatt_openrouter_tracer_2026_09_26",
+      "vr_229aabdcc337",
+      "npm run test:activation -> 39/39 pass, exit 0 (2026-09-26, includes 24 auth-controller tests)",
+      "npm run test:vnext -> 228/228 pass, exit 0 (2026-09-26)",
+      "npm run runtime:codex-auth:check -> AUTH_HEALTHY exit 0 (2026-09-26T00:53Z)",
+      "npm run runtime:activate-vnext -> LIVE_ACTIVATION_PASS exit 0 (2026-09-26T01:04Z)",
+      "jev routing tracer PASS + codex tracer PASS + openrouter model tracer PASS (2026-09-26T00:55-01:05Z)",
+      "npm run validate-maws-vnext / eval:maws-vnext / validate / validate-neutral / validate-secrets / scan-secrets -> exit 0 (2026-09-26)"
+    ],
+    "decided_at": "2026-09-26T01:05:59.192Z"
+  }
+}

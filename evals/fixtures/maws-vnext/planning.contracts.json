@@ -248,7 +248,7 @@
             "context_subset_ref": "ctx/run_0001/envelope",
             "effects_subset": ["ephemeral"],
             "authority_depth_requested": 0,
-            "child_executor_binding": "exec_codex_harness"
+            "child_executor_binding": "exec_codex_chatgpt"
           }
         ],
         "limits_snapshot": { "current_depth": 1, "max_depth": 2, "current_total_work_units": 3, "max_total_work_units": 12 }

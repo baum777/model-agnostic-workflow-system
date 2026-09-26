@@ -3,22 +3,26 @@
   "version": "1",
   "executors": [
     {
-      "executor_id": "exec_codex_harness",
+      "executor_id": "exec_codex_chatgpt",
       "executor_class": "agent_harness",
-      "display_name": "Codex Harness (codex exec)",
+      "display_name": "Codex Harness (ChatGPT plan)",
       "declared_capabilities": [
-        { "capability_id": "cap_code_implementation" }
+        {
+          "capability_id": "cap_code_implementation"
+        }
       ],
       "transport": "codex_exec",
       "session_model_can_bind": false,
-      "notes": "Agent harness executor over the local codex binary; declaration only (OD-09), no qualification implied."
+      "notes": "Agent harness executor over the local codex binary on the owner's ChatGPT Codex plan (auth: chatgpt_oauth, billing: chatgpt_plan); no OpenRouter coupling. Declaration only (OD-09), no qualification implied."
     },
     {
       "executor_id": "exec_openrouter_glm",
       "executor_class": "llm",
       "display_name": "OpenRouter GLM (direct model executor)",
       "declared_capabilities": [
-        { "capability_id": "cap_repository_analysis" }
+        {
+          "capability_id": "cap_repository_analysis"
+        }
       ],
       "provider": {
         "provider_id": "openrouter",
@@ -33,7 +37,9 @@
       "executor_class": "deterministic_service",
       "display_name": "Local deterministic verification service",
       "declared_capabilities": [
-        { "capability_id": "cap_deterministic_verification" }
+        {
+          "capability_id": "cap_deterministic_verification"
+        }
       ],
       "transport": "in_process",
       "session_model_can_bind": false,
@@ -44,7 +50,9 @@
       "executor_class": "human",
       "display_name": "Human decision gate",
       "declared_capabilities": [
-        { "capability_id": "cap_human_decision" }
+        {
+          "capability_id": "cap_human_decision"
+        }
       ],
       "transport": "human_gate",
       "session_model_can_bind": false,

@@ -1,0 +1,67 @@
+{
+  "schema": "maws.live-activation.v2",
+  "started_at": "2026-09-26T00:47:37.667Z",
+  "finished_at": "2026-09-26T00:47:45.671Z",
+  "status": "PARTIAL",
+  "scope": "transport_qualification_probe",
+  "mutation_allowed": false,
+  "credential_matrix": {
+    "codex": "chatgpt_oauth (ChatGPT Codex plan)",
+    "jev": "OPENROUTER_API_KEY (OpenRouter Decisions API)",
+    "openrouter_models": "OPENROUTER_API_KEY"
+  },
+  "jev_model": "~typesafe/jev-latest",
+  "openrouter_model": "z-ai/glm-4.7",
+  "preflight": {
+    "codex_binary_available": true,
+    "codex_version": "0.157.0",
+    "codex_login_status": "chatgpt",
+    "codex_auth_mode": "chatgpt",
+    "codex_auth_health": "PASS",
+    "codex_interaction_required": false,
+    "openrouter_api_key_present": false,
+    "openrouter_model_present": true,
+    "jev_model": "~typesafe/jev-latest",
+    "jev_model_present": true,
+    "typesafe_key_present": false,
+    "typesafe_key_required": false
+  },
+  "blockers": [
+    "OPENROUTER_API_KEY_MISSING"
+  ],
+  "probes": [
+    {
+      "name": "codex_chatgpt",
+      "status": "PASS",
+      "outcome": "SUCCESS",
+      "error_class": null,
+      "metrics": {
+        "latency_ms": 4053,
+        "cost_units": 0,
+        "tokens_in": 0,
+        "tokens_out": 0
+      },
+      "flags": {
+        "stream_format": "jsonl",
+        "event_count": 4
+      },
+      "exit_code": 0,
+      "codex_version": "0.157.0",
+      "auth_class": "chatgpt_oauth",
+      "billing_class": "chatgpt_plan",
+      "executor_id": "exec_codex_chatgpt",
+      "auth_health": "PASS",
+      "expected_phrase_observed": true
+    },
+    {
+      "name": "openrouter_jev",
+      "status": "NOT_RUN",
+      "reason": "JEV_LANE_PREFLIGHT_BLOCKED"
+    },
+    {
+      "name": "openrouter_model",
+      "status": "NOT_RUN",
+      "reason": "MODEL_LANE_PREFLIGHT_BLOCKED"
+    }
+  ]
+}

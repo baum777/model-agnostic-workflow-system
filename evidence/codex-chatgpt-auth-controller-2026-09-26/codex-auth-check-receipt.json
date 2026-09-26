@@ -1,0 +1,17 @@
+{
+  "schema": "maws.codex-auth-health.v1",
+  "auth_status": "AUTH_HEALTHY",
+  "auth_mode": "chatgpt",
+  "codex_available": true,
+  "login_status": "chatgpt",
+  "executor_id": "exec_codex_chatgpt",
+  "auth_class": "chatgpt_oauth",
+  "billing_class": "chatgpt_plan",
+  "codex_version": "0.157.0",
+  "health_probe": "PASS",
+  "login_invoked": false,
+  "verified_at": "2026-09-26T00:27:58.662Z",
+  "error_class": null,
+  "probe_outcome": "SUCCESS",
+  "phrase_observed": true
+}

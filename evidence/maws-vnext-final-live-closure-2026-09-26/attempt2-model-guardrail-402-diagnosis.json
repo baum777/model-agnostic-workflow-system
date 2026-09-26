@@ -1,0 +1,36 @@
+{
+  "schema": "maws.openrouter-model-lane-diagnosis.v1",
+  "diagnosed_at": "2026-09-26T00:55:00Z",
+  "repo_sha": "e3fcff8",
+  "lane_status": "BLOCKED_ON_OWNER_OPENROUTER_GUARDRAIL",
+  "activation_probe": {
+    "run": "artifacts/runtime-runs/live-activation-2026-09-26T00-53-24-368Z-281991 (copied: activation-evidence.json)",
+    "requested_model": "z-ai/glm-4.7",
+    "outcome": "FAILED",
+    "error_class": "OR_BAD_RESPONSE",
+    "flags": { "http_status": 404 },
+    "note": "fail-closed classification worked as designed: no fallback, no substitution, typed error surfaced"
+  },
+  "key_status": {
+    "endpoint": "GET /api/v1/key",
+    "valid": true,
+    "is_free_tier": false,
+    "limit_remaining": 50,
+    "usage": 0,
+    "note": "credential itself is valid with credit remaining; label shown by the API in redacted form only"
+  },
+  "catalogue_status": {
+    "endpoint": "GET /api/v1/models",
+    "z-ai/glm-4.7": "listed (catalogue total 459)",
+    "model_detail_endpoint": "GET /api/v1/models/z-ai/glm-4.7 -> 404 {error:{message:'Not Found',code:404}}"
+  },
+  "direct_probe_error_verbatim": "0 endpoints out of 5 requested are available matching your guardrail restrictions and data policy. We removed them for the following reasons (an endpoint may have matched multiple reasons): Model blocked by guardrail: 5 endpoints excluded; configurable at https://openrouter.ai/workspaces/default/guardrails. Provider not allowed by guardrail: 1 endpoint excluded; configurable at https://openrouter.ai/workspaces/default/guardrails.",
+  "cross_vendor_probes": [
+    { "model": "z-ai/glm-4.7-flash", "result": "404 guardrail: 0 of 2 endpoints available" },
+    { "model": "mistralai/mistral-small-3.2-24b-instruct", "result": "404 guardrail: 0 of 1 endpoints available" },
+    { "model": "openai/gpt-4o-mini", "result": "404 no allowed providers" }
+  ],
+  "conclusion": "The OpenRouter workspace 'default' guardrail/data-policy configuration blocks chat/completions model endpoints account-wide (model-level and provider-level exclusions across z-ai, mistralai, and openai). The Decisions API alpha surface used by Jev is NOT affected (Jev lane PASSed live in the same run). This is an owner console configuration at https://openrouter.ai/workspaces/default/guardrails, not a slug error and not a MAWS transport defect.",
+  "owner_action": "Allow at least one chat model (e.g. z-ai/glm-4.7) in the workspace guardrails, then re-run: npm run runtime:activate-vnext (MAWS_OPENROUTER_MODEL=z-ai/glm-4.7 is already configured via ~/.config/maws/openrouter.env).",
+  "security": "No credential value, bearer header, or authorization material appears in this record; only API-reported status facts."
+}

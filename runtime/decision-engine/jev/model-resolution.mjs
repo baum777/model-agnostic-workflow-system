@@ -11,10 +11,14 @@
 //                  closed: UNKNOWN is unroutable without requalification).
 import { FailClosedError } from '../../vnext/util.mjs';
 
-// A concrete model id ends in a semver-style version triple (e.g. jev-1.13.0).
-// Aliases ("jev-latest") and the wildcard "*" are not concrete.
+// A concrete model id carries a numeric version. TypeSafe-direct ids end in
+// a semver triple (e.g. jev-1.13.0); OpenRouter Decisions snapshots carry a
+// major.minor release plus a dated snapshot suffix (e.g.
+// typesafe/jev-1.13-20260917). Aliases ("jev-latest", "~typesafe/jev-latest")
+// and the wildcard "*" are not concrete.
 function isConcreteModelId(modelId) {
-  return typeof modelId === 'string' && modelId !== '' && modelId !== '*' && /\d+\.\d+\.\d+$/.test(modelId);
+  return typeof modelId === 'string' && modelId !== '' && modelId !== '*'
+    && /\d+\.\d+(\.\d+)?(-[A-Za-z0-9]+)*$/.test(modelId);
 }
 
 export function recordResolution(requestedModel, resolvedModel, previousResolvedModel) {

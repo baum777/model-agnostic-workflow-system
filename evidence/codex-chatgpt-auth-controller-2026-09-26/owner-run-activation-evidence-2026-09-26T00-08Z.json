@@ -1,0 +1,77 @@
+{
+  "schema": "maws.live-activation.v2",
+  "started_at": "2026-09-26T00:08:50.648Z",
+  "finished_at": "2026-09-26T00:09:02.891Z",
+  "status": "PARTIAL",
+  "scope": "transport_qualification_probe",
+  "mutation_allowed": false,
+  "credential_matrix": {
+    "codex": "chatgpt_oauth (ChatGPT Codex plan)",
+    "jev": "OPENROUTER_API_KEY (OpenRouter Decisions API)",
+    "openrouter_models": "OPENROUTER_API_KEY"
+  },
+  "jev_model": "~typesafe/jev-latest",
+  "openrouter_model": "zai/glm-4.7",
+  "preflight": {
+    "codex_binary_available": true,
+    "codex_version": "0.157.0",
+    "codex_chatgpt_authenticated": true,
+    "codex_auth_mode": "chatgpt",
+    "openrouter_api_key_present": true,
+    "openrouter_model_present": true,
+    "jev_model": "~typesafe/jev-latest",
+    "jev_model_present": true,
+    "typesafe_key_present": false,
+    "typesafe_key_required": false
+  },
+  "blockers": [],
+  "probes": [
+    {
+      "name": "codex_chatgpt",
+      "status": "PASS",
+      "outcome": "SUCCESS",
+      "error_class": null,
+      "metrics": {
+        "latency_ms": 11426,
+        "cost_units": 0,
+        "tokens_in": 0,
+        "tokens_out": 0
+      },
+      "flags": {
+        "stream_format": "jsonl",
+        "event_count": 4
+      },
+      "exit_code": 0,
+      "codex_version": "0.157.0",
+      "auth_class": "chatgpt_oauth",
+      "billing_class": "chatgpt_plan",
+      "executor_id": "exec_codex_chatgpt",
+      "expected_phrase_observed": true
+    },
+    {
+      "name": "openrouter_jev",
+      "status": "BLOCKED",
+      "resolved_model": "typesafe/jev-1.13-20260917",
+      "confidence": 0.23,
+      "threshold_action": "HUMAN_GATE",
+      "decision_transport": "openrouter_decisions",
+      "requested_model": "~typesafe/jev-latest"
+    },
+    {
+      "name": "openrouter_model",
+      "status": "BLOCKED",
+      "outcome": "FAILED",
+      "error_class": "OR_BAD_RESPONSE",
+      "metrics": {
+        "latency_ms": 54,
+        "cost_units": 0,
+        "tokens_in": 0,
+        "tokens_out": 0
+      },
+      "flags": {
+        "http_status": 400
+      },
+      "exit_code": null
+    }
+  ]
+}

@@ -18,6 +18,12 @@ import { defineExecutor } from './executor-base.mjs';
 
 const OPENROUTER_HOST_ALLOWLIST = ['openrouter.ai'];
 const DEFAULT_BASE_URL = 'https://openrouter.ai/api/v1/chat/completions';
+// Bounded output budget (live-verified necessity 2026-09-26: without an
+// explicit max_tokens OpenRouter pre-flight-checks the model's full output
+// ceiling — e.g. 131072 tokens — against the account credit and rejects
+// with HTTP 402 even for a short acknowledgement). Executor configuration,
+// never WorkUnit-selectable; bounded invocations must also be credit-bounded.
+const DEFAULT_MAX_OUTPUT_TOKENS = 1024;
 
 function combineSignals(invocation) {
   const signals = [];
@@ -44,23 +50,28 @@ function toNumberOrZero(value) {
  * Create the OpenRouter direct model executor.
  *
  * @param {object} options
- * @param {string} options.modelId         - explicit model id (e.g. 'zai/glm-4.7'); sent verbatim
+ * @param {string} options.modelId         - explicit model id (e.g. 'deepseek/deepseek-v4.1-flash'); sent verbatim
  * @param {Function} [options.fetchImpl]   - injectable fetch for tests (default global fetch)
  * @param {Object} [options.env]           - environment source (default process.env); must contain OPENROUTER_API_KEY
  * @param {string} [options.baseUrl]       - endpoint URL; host must be in the openrouter.ai allowlist
+ * @param {number} [options.maxOutputTokens] - request max_tokens bound (default 1024; positive integer)
  * @returns {object} executor (defineExecutor shape)
  */
 export function createOpenRouterExecutor({
   modelId,
   fetchImpl = globalThis.fetch?.bind(globalThis),
   env = process.env,
-  baseUrl = DEFAULT_BASE_URL
+  baseUrl = DEFAULT_BASE_URL,
+  maxOutputTokens = DEFAULT_MAX_OUTPUT_TOKENS
 } = {}) {
   if (typeof modelId !== 'string' || modelId.length === 0) {
     throw new FailClosedError('EXECUTOR_DECLARATION_INVALID', 'createOpenRouterExecutor requires an explicit modelId');
   }
   if (typeof fetchImpl !== 'function') {
     throw new FailClosedError('EXECUTOR_DECLARATION_INVALID', 'fetchImpl must be a function');
+  }
+  if (!Number.isInteger(maxOutputTokens) || maxOutputTokens <= 0) {
+    throw new FailClosedError('EXECUTOR_DECLARATION_INVALID', 'maxOutputTokens must be a positive integer');
   }
 
   return defineExecutor({
@@ -83,6 +94,7 @@ export function createOpenRouterExecutor({
       const requestSignal = combineSignals(invocation);
       const requestBody = {
         model: modelId,
+        max_tokens: maxOutputTokens,
         messages: [
           {
             role: 'system',
@@ -122,6 +134,14 @@ export function createOpenRouterExecutor({
         return {
           outcome: 'FAILED',
           error_class: 'OR_RATE_LIMITED',
+          exit_code: null,
+          flags: { http_status: response.status }
+        };
+      }
+      if (response.status === 402) {
+        return {
+          outcome: 'FAILED',
+          error_class: 'OR_PAYMENT_REQUIRED',
           exit_code: null,
           flags: { http_status: response.status }
         };

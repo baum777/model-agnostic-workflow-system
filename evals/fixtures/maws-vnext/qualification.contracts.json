@@ -11,7 +11,7 @@
       "guards": ["OD-09", "OD-10"],
       "instance": {
         "qualification_id": "qual_codex_impl_0001",
-        "executor_id": "exec_codex_harness",
+        "executor_id": "exec_codex_chatgpt",
         "capability_id": "cap_code_implementation",
         "execution_profile_ref": "profile_workspace_write_v1",
         "state": "QUALIFIED",
@@ -75,7 +75,7 @@
       "guards": ["OD-12"],
       "instance": {
         "fingerprint_id": "fp_codex_impl_0001",
-        "executor_id": "exec_codex_harness",
+        "executor_id": "exec_codex_chatgpt",
         "capability_id": "cap_code_implementation",
         "execution_profile_ref": "profile_workspace_write_v1",
         "components": {
@@ -96,7 +96,7 @@
       "guards": ["OD-12"],
       "instance": {
         "fingerprint_id": "fp_codex_impl_0002",
-        "executor_id": "exec_codex_harness",
+        "executor_id": "exec_codex_chatgpt",
         "capability_id": "cap_code_implementation",
         "execution_profile_ref": "profile_workspace_write_v1",
         "components": {

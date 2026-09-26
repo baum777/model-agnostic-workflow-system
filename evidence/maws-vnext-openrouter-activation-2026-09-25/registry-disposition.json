@@ -1,0 +1,36 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "OpenRouter activation lane (Codex executor provider routing, activation preflight rebinding, boundary tests, runbook/authority-matrix updates, run evidence) changes runtime behavior, tests, documentation, and local evidence only. No core/contracts file was added, changed, or superseded and no registered binding, record, or claim was altered, so no closed relevance class applies. The separate vNext contract-record projection that was previously REQUIRED_BUT_BLOCKED has landed via baum777/unitera-registry PR #94 (merged 2026-09-25T17:45:12Z, f5dd6b01cab907d9dba62d7d9aec694576f6b239); the implementation-stream disposition was updated to UPDATED with that registry_commit_sha and is not reclassified here.",
+    "registry_baseline_sha": "32f6a52b12a31b1bd3a9dea246b8a0e1ffb34c1c",
+    "affected_records": [],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "docs/maws-vnext-live-activation.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "origin/main 32f6a52 (merge of PR #8 codex/maws-vnext-live-activation)"
+    ],
+    "evidence_refs": [
+      "evidence/maws-vnext-openrouter-activation-2026-09-25/codex-openrouter-discovery.md",
+      "evidence/maws-vnext-openrouter-activation-2026-09-25/activation-evidence.json",
+      "npm run test:activation (15/15 pass)",
+      "npm run test:vnext (194/194 pass)",
+      "npm run validate-maws-vnext / eval:maws-vnext / validate / validate-neutral / validate-secrets / scan-secrets (all EXIT=0)",
+      "npm run eval full-suite: ENVIRONMENT_BLOCKED_BROWSER (playwright chromium binary ENOENT; not a MAWS regression; vNext eval family passes)"
+    ],
+    "implementation_commit_sha": "8b47fb6",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/maws-vnext-openrouter-activation-2026-09-25/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}
