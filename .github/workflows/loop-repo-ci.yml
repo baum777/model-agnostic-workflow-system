@@ -25,6 +25,14 @@ jobs:
           node --check scripts/tools/baum-loop-repo.mjs
           node --check scripts/tools/validate-loop-run.mjs
           node --check scripts/tools/ci-gate.mjs
+          node --check scripts/tools/skill-frontdoor-check.mjs
+          node --check runtime/skills/frontdoor.mjs
+
+      - name: Validate MAWS vNext contracts
+        run: npm run validate-maws-vnext
+
+      - name: Skill frontdoor regression tests
+        run: npm run test:skill-frontdoor
 
       - name: Loop repo CI gate
         run: node scripts/tools/ci-gate.mjs
