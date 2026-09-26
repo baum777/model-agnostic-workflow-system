@@ -5,7 +5,7 @@ import { FailClosedError } from '../vnext/util.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
 
 const CONTRACT = 'core/contracts/skill-frontdoor-admission.schema.json';
-const BLOCKING_SEVERITIES = new Set(['high', 'critical', 'unknown']);
+const BLOCKING_SEVERITIES = new Set(['high', 'critical']);
 
 function hasActiveOwnerException(ownerException, now) {
   if (!ownerException || typeof ownerException !== 'object') return false;
@@ -36,7 +36,9 @@ export function deriveSkillFrontdoorDisposition(record, { now = new Date().toISO
     if (security.exit_code !== 0 && security.status !== 'BLOCKED') {
       incomplete.push('SKILLSPECTOR_NONZERO_WITHOUT_BLOCKED_EVIDENCE');
     }
-    if (BLOCKING_SEVERITIES.has(security.severity)) {
+    if (security.severity === 'unknown') {
+      incomplete.push('SKILLSPECTOR_SEVERITY_UNKNOWN');
+    } else if (BLOCKING_SEVERITIES.has(security.severity)) {
       blockers.push('SKILLSPECTOR_SEVERITY_' + String(security.severity).toUpperCase());
     }
     if ((security.severity_counts?.critical ?? 0) > 0) blockers.push('SKILLSPECTOR_CRITICAL_FINDINGS');
@@ -105,10 +107,13 @@ export function assertSkillImplementationFrontdoor(record, {
   }
 
   const derived = deriveSkillFrontdoorDisposition(record, { now });
+  const declaredBlockers = [...new Set(record.blockers || [])].sort();
+  const derivedBlockers = [...derived.blockers].sort();
   if (
     record.analysis_disposition !== derived.analysis_disposition ||
     record.implementation_disposition !== derived.implementation_disposition ||
-    record.authority_granted !== false
+    record.authority_granted !== false ||
+    JSON.stringify(declaredBlockers) !== JSON.stringify(derivedBlockers)
   ) {
     throw new FailClosedError(
       'SKILL_FRONTDOOR_DISPOSITION_MISMATCH',
@@ -117,9 +122,10 @@ export function assertSkillImplementationFrontdoor(record, {
         declared: {
           analysis_disposition: record.analysis_disposition,
           implementation_disposition: record.implementation_disposition,
-          authority_granted: record.authority_granted
+          authority_granted: record.authority_granted,
+          blockers: declaredBlockers
         },
-        derived
+        derived: { ...derived, blockers: derivedBlockers }
       }
     );
   }
