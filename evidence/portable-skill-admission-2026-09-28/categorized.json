@@ -1,0 +1,767 @@
+[
+ {
+  "skill": "animate",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 2,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_9195f1234490_20260928T021353.503Z",
+  "receipt": "sandbox/runs/20260928T021353.503Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "apple-design",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_f15b866144e7_20260928T021409.399Z",
+  "receipt": "sandbox/runs/20260928T021409.399Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "architecture-depth-review",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 4,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_e00c378a44d0_20260928T021426.069Z",
+  "receipt": "sandbox/runs/20260928T021426.069Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "baseline-ui",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_444967505360_20260928T021434.804Z",
+  "receipt": "sandbox/runs/20260928T021434.804Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "behavior-first-tdd",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 4,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_582eec585231_20260928T021444.764Z",
+  "receipt": "sandbox/runs/20260928T021444.764Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "brandkit",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 2,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_1056c1f4a4d1_20260928T021453.468Z",
+  "receipt": "sandbox/runs/20260928T021453.468Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "create-design-md",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 5,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_109319fc66d9_20260928T021507.472Z",
+  "receipt": "sandbox/runs/20260928T021507.472Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "design-taste-frontend",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "BLOCKED",
+  "skillspector_severity": "high",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 2,
+   "medium": 4,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": true,
+  "admission_id": "sfa_3f5f58a2f2f6_20260928T021519.680Z",
+  "receipt": "sandbox/runs/20260928T021519.680Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "design-taste-frontend-v1",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 1,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_11fa3078f9de_20260928T021555.968Z",
+  "receipt": "sandbox/runs/20260928T021555.968Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "diagnosing-bugs",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "BLOCKED",
+  "skillspector_severity": "high",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 1,
+   "medium": 2,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": true,
+  "admission_id": "sfa_44db915c3826_20260928T021609.809Z",
+  "receipt": "sandbox/runs/20260928T021609.809Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "diagnostic-feedback-loop",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 4,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_fcab90d373a2_20260928T021622.990Z",
+  "receipt": "sandbox/runs/20260928T021622.990Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "emil-design-eng",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_0e462a201fd6_20260928T021631.305Z",
+  "receipt": "sandbox/runs/20260928T021631.305Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "fixing-accessibility",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_f5a660753188_20260928T021645.238Z",
+  "receipt": "sandbox/runs/20260928T021645.238Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "fixing-metadata",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_c658057acf9f_20260928T021654.125Z",
+  "receipt": "sandbox/runs/20260928T021654.125Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "fixing-motion-performance",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 1,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_3bd63bd601bc_20260928T021704.242Z",
+  "receipt": "sandbox/runs/20260928T021704.242Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "full-output-enforcement",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 1,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_d137b4ceae4b_20260928T021714.607Z",
+  "receipt": "sandbox/runs/20260928T021714.607Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "gpt-taste",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 1,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_b3ae03854db1_20260928T021723.197Z",
+  "receipt": "sandbox/runs/20260928T021723.197Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "high-end-visual-design",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_2809df7ac573_20260928T021731.259Z",
+  "receipt": "sandbox/runs/20260928T021731.259Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "imagegen-frontend-mobile",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 2,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_1cab4cd3f226_20260928T021740.121Z",
+  "receipt": "sandbox/runs/20260928T021740.121Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "imagegen-frontend-web",
+  "disposition": "BLOCKED",
+  "skillspector_status": "BLOCKED",
+  "skillspector_severity": "high",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 3,
+   "medium": 3,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": true,
+  "admission_id": "sfa_5666bb519fc7_20260928T021757.792Z",
+  "receipt": "sandbox/runs/20260928T021757.792Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "image-to-code",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 1,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_b8aa6369e735_20260928T021818.867Z",
+  "receipt": "sandbox/runs/20260928T021818.867Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "impeccable",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "BLOCKED",
+  "skillspector_severity": "high",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 10,
+   "medium": 40,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": true,
+  "admission_id": "sfa_e40803c7e40f_20260928T021835.051Z",
+  "receipt": "sandbox/runs/20260928T021835.051Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "improve-ui",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 1,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_e58e63021539_20260928T022436.890Z",
+  "receipt": "sandbox/runs/20260928T022436.890Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "incident-runbook-composer",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 4,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_57969365b76a_20260928T022445.737Z",
+  "receipt": "sandbox/runs/20260928T022445.737Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "industrial-brutalist-ui",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 2,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_e332a7c53567_20260928T022452.857Z",
+  "receipt": "sandbox/runs/20260928T022452.857Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "long-document-to-knowledge-asset",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_4a5997f1c15e_20260928T022502.719Z",
+  "receipt": "sandbox/runs/20260928T022502.719Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "make-interfaces-feel-better",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_d174d49117c5_20260928T022510.011Z",
+  "receipt": "sandbox/runs/20260928T022510.011Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "migration-planner",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_6ce5cefad3eb_20260928T022528.459Z",
+  "receipt": "sandbox/runs/20260928T022528.459Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "minimalist-ui",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 1,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_646104cd856f_20260928T022535.511Z",
+  "receipt": "sandbox/runs/20260928T022535.511Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "multi-audience-summarizer",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 6,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_1094480a9bd3_20260928T022543.884Z",
+  "receipt": "sandbox/runs/20260928T022543.884Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "readiness-check",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_4b61bcef5e60_20260928T022551.234Z",
+  "receipt": "sandbox/runs/20260928T022551.234Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "redesign-existing-projects",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 1,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_40d9b8404ee3_20260928T022558.029Z",
+  "receipt": "sandbox/runs/20260928T022558.029Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "repo-audit",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_7fbf75f8a11c_20260928T022607.679Z",
+  "receipt": "sandbox/runs/20260928T022607.679Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "research-synthesis",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_451784f6f4b8_20260928T022614.869Z",
+  "receipt": "sandbox/runs/20260928T022614.869Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "secret-boundary-audit",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_942d8f92c23c_20260928T022622.068Z",
+  "receipt": "sandbox/runs/20260928T022622.068Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "source-conflict-resolver",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 4,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_877cf372419a_20260928T022629.830Z",
+  "receipt": "sandbox/runs/20260928T022629.830Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "spec-to-task-breakdown",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 4,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_d1643a570ffc_20260928T022637.684Z",
+  "receipt": "sandbox/runs/20260928T022637.684Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "static-vs-dynamic-rendering-advisor",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_ec19c1cf85f8_20260928T022645.760Z",
+  "receipt": "sandbox/runs/20260928T022645.760Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "stitch-design-taste",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_7426a665bc7e_20260928T022653.075Z",
+  "receipt": "sandbox/runs/20260928T022653.075Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "supabase-deployment",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_ee81a0e23c29_20260928T022706.320Z",
+  "receipt": "sandbox/runs/20260928T022706.320Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "tradeoff-matrix-builder",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 6,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_10ea4fc7e902_20260928T022714.703Z",
+  "receipt": "sandbox/runs/20260928T022714.703Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "ui-skills-root",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 5,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_4a016d31c039_20260928T022723.210Z",
+  "receipt": "sandbox/runs/20260928T022723.210Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "ui-to-backend-contract-extractor",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "medium",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 4,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_b6fdce55354b_20260928T022731.949Z",
+  "receipt": "sandbox/runs/20260928T022731.949Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "ui-ux-composition",
+  "disposition": "INCOMPLETE",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "INCOMPLETE",
+  "tier1_overall": "incomplete",
+  "security_flag": false,
+  "admission_id": "sfa_e2c8b9f9ea4e_20260928T022740.130Z",
+  "receipt": "sandbox/runs/20260928T022740.130Z/skill-frontdoor-admission.json"
+ },
+ {
+  "skill": "web-design-guidelines",
+  "disposition": "BLOCKED",
+  "skillspector_status": "PASS",
+  "skillspector_severity": "none",
+  "skillspector_counts": {
+   "critical": 0,
+   "high": 0,
+   "medium": 0,
+   "low": 0
+  },
+  "tier1_status": "BLOCKED",
+  "tier1_overall": "failed",
+  "security_flag": false,
+  "admission_id": "sfa_f97a91f6c5e3_20260928T022749.307Z",
+  "receipt": "sandbox/runs/20260928T022749.307Z/skill-frontdoor-admission.json"
+ }
+]
