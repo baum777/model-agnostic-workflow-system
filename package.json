@@ -53,6 +53,7 @@
     "runtime:activate-vnext": "node runtime/cli/runtime-activate-vnext.mjs",
     "runtime:codex-auth:check": "node runtime/cli/runtime-codex-auth.mjs check",
     "runtime:codex-auth:login": "node runtime/cli/runtime-codex-auth.mjs login",
+    "runtime:jev-decide": "node runtime/cli/runtime-jev-decide.mjs",
     "test:activation": "node --test tests/vnext/live-activation.test.mjs tests/vnext/codex-jsonl-live-boundary.test.mjs tests/vnext/codex-chatgpt-auth.test.mjs",
     "memory:validate": "node runtime/cli/runtime-validate.mjs --memory",
     "init-consumer": "node scripts/tools/init-consumer-overlay.mjs",
