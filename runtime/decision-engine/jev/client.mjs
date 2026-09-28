@@ -19,6 +19,12 @@
 //   'openrouter' (canonical live path) — MAWS -> OpenRouter -> Decisions API
 //     -> TypeSafe Jev, authenticated by OPENROUTER_API_KEY only (verified
 //     contract: POST /api/alpha/decisions; see openrouter-decisions.mjs).
+//   'zen' (second live path, OD-19) — MAWS -> OpenCode Zen -> System-One API
+//     -> TypeSafe Jev, authenticated by OPENCODE_API_KEY only (documented
+//     contract: POST /v1/systemone; see zen-systemone.mjs). Provider adapter
+//     only: identical canonical question/threshold/receipt semantics as the
+//     OpenRouter lane; downstream distinguishes transports via receipt
+//     provenance (mode + resolved model snapshot), never semantics.
 //   'live' (optional direct-TypeSafe compatibility provider) — POSTs to
 //     `${baseUrl}/v1/decisions` with TYPESAFE_API_KEY. The exact live
 //     endpoint shape is confirmed at first live activation; until then no
@@ -33,6 +39,7 @@ import { assertThresholdPolicyShape, evaluateThreshold } from './threshold-polic
 import { buildDecisionReceipt } from './decision-receipt.mjs';
 import { assertAnswerInSpace } from './questions/registry.mjs';
 import { createOpenRouterDecisionClient, OPENROUTER_DECISIONS_HOSTS } from './openrouter-decisions.mjs';
+import { createZenSystemOneClient, ZEN_SYSTEMONE_HOSTS } from './zen-systemone.mjs';
 
 const DEFAULT_FIXTURE_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const DEFAULT_BASE_URL = 'https://api.typesafe.ai';
@@ -77,8 +84,8 @@ export function createJevClient(options = {}) {
   if (!options || typeof options !== 'object') throw invalid('options must be an object');
 
   const mode = options.mode;
-  if (mode !== 'fixture' && mode !== 'live' && mode !== 'openrouter') {
-    throw invalid('mode must be "fixture", "live", or "openrouter"');
+  if (mode !== 'fixture' && mode !== 'live' && mode !== 'openrouter' && mode !== 'zen') {
+    throw invalid('mode must be "fixture", "live", "openrouter", or "zen"');
   }
 
   const requestedModel = options.requestedModel ?? DEFAULT_REQUESTED_MODEL;
@@ -91,7 +98,9 @@ export function createJevClient(options = {}) {
   if (!Number.isInteger(timeoutMs) || timeoutMs <= 0) throw invalid('timeoutMs must be a positive integer');
 
   const allowlistHosts = options.allowlistHosts ??
-    (mode === 'openrouter' ? OPENROUTER_DECISIONS_HOSTS : DEFAULT_ALLOWLIST_HOSTS);
+    (mode === 'openrouter' ? OPENROUTER_DECISIONS_HOSTS
+      : mode === 'zen' ? ZEN_SYSTEMONE_HOSTS
+        : DEFAULT_ALLOWLIST_HOSTS);
   if (
     !Array.isArray(allowlistHosts) || allowlistHosts.length === 0 ||
     allowlistHosts.some((host) => typeof host !== 'string' || host === '') ||
@@ -128,11 +137,34 @@ export function createJevClient(options = {}) {
     })
     : null;
 
+  // Second live path (OD-19): Zen System-One transport; same canonical
+  // semantics, own credential and host allowlist, self-guarded before fetch.
+  const zenSystemOneClient = mode === 'zen'
+    ? createZenSystemOneClient({
+      env,
+      fetchImpl: effectiveFetch,
+      requestedModel,
+      baseUrl: options.zenBaseUrl,
+      timeoutMs
+    })
+    : null;
+
   async function askOpenRouter(question, choices, state) {
     if (openRouterDecisionClient === null) {
       throw new FailClosedError('CLIENT_CONFIG_INVALID', 'openrouter mode requires a decision client');
     }
     const outcome = await openRouterDecisionClient.ask({ question, choices, state });
+    if (outcome.ok !== true) {
+      return { kind: 'failure', result: outcome };
+    }
+    return { kind: 'candidate', candidate: outcome.candidate };
+  }
+
+  async function askZen(question, choices, state) {
+    if (zenSystemOneClient === null) {
+      throw new FailClosedError('CLIENT_CONFIG_INVALID', 'zen mode requires a decision client');
+    }
+    const outcome = await zenSystemOneClient.ask({ question, choices, state });
     if (outcome.ok !== true) {
       return { kind: 'failure', result: outcome };
     }
@@ -269,7 +301,9 @@ export function createJevClient(options = {}) {
       ? await askFixture(caseId)
       : mode === 'openrouter'
         ? await askOpenRouter(question, choices, statePayload)
-        : await askLive(question, choices, statePayload);
+        : mode === 'zen'
+          ? await askZen(question, choices, statePayload)
+          : await askLive(question, choices, statePayload);
     if (outcome.kind === 'failure') {
       return outcome.result;
     }

@@ -9,9 +9,10 @@
 import { FailClosedError, newId, nowIso } from '../../vnext/util.mjs';
 
 // 'openrouter' = canonical live path via the OpenRouter Decisions API;
-// 'live' = optional direct-TypeSafe compatibility provider.
-const MODES = ['fixture', 'live', 'openrouter'];
-const STRING_FIELDS = [
+// 'live' = optional direct-TypeSafe compatibility provider;
+// 'zen' = second live path via the OpenCode Zen System-One API (OD-19),
+// provider adapter only, same canonical receipt semantics.
+const MODES = ['fixture', 'live', 'openrouter', 'zen'];const STRING_FIELDS = [
   'question_id',
   'requested_model',
   'resolved_model',
