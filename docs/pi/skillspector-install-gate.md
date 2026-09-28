@@ -9,6 +9,18 @@ Use SkillSpector to scan the exact install target before installing a skill, ext
 
 The gate is static by default. The LLM-assisted mode is optional and must be explicitly approved.
 
+## MAWS Skill Candidate Composition
+
+For a target of type `skill`, SkillSpector is the security analyzer inside the stricter MAWS Skill Frontdoor. Do not treat a clean SkillSpector report alone as implementation or installation eligibility.
+
+Run the composed gate instead:
+
+    npm run skill:frontdoor -- --skill-id <stable-id> --target <staged-local-skill> --action <implement|install|activate|import|bind|publish>
+
+That path requires both the static SkillSpector report and NVIDIA/SkillEvaluator Tier 1 evidence, then derives a MAWS-owned disposition. Analyzer PASS never grants authority.
+
+The standalone helper below remains valid for non-skill extension targets and for debugging the SkillSpector sub-gate.
+
 ## Standard Static Scan
 
 Preferred Pi tool invocation:

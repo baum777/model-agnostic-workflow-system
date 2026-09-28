@@ -141,6 +141,16 @@
       ]
     },
     {
+      "family": "skill-frontdoor-admission",
+      "contracts": [
+        "core/contracts/skill-frontdoor-admission.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": [
+        "runtime/skills/frontdoor.mjs"
+      ]
+    },
+    {
       "family": "zcode-surface",
       "contracts": [
         "core/contracts/interaction-session.schema.json",

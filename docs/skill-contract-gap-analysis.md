@@ -3,6 +3,12 @@
 Class: derived.
 Use rule: read this as a gap analysis only; it does not redefine canonical skill-contract authority. Canonical skill-contract rules remain in `docs/repo-intake-skill-contract.md`, `docs/runtime-policy-skill-contract.md`, and `core/contracts/permission-boundary.json`. Claim-status truth remains `docs/authority-matrix.md`.
 
+## 2026-09-26 Closure Note
+
+The `skill_security_scan` gap identified below is now **closed at the MAWS admission boundary** by `docs/skill-frontdoor-contract.md`, `core/contracts/skill-frontdoor-admission.schema.json`, and `runtime/skills/frontdoor.mjs`.
+
+The adopted frontdoor composes NVIDIA/SkillSpector static scanning with NVIDIA/SkillEvaluator Tier 1 before skill implementation/install. This does not mean every individual `SKILL.md` now carries a `skill_security_scan` frontmatter field; the enforcement is centralized at admission.
+
 ## Purpose
 
 Enumerate the gap between the skill contract fields this repo currently declares (frontmatter + referenced policy/contract surfaces) and a set of 16 governance-relevant fields named across `docs/pi-agent-kit-adapter-core-anchor-decision.md`, `docs/computer-use-policy.md`, and `/home/baum/workspace/baum-os-deepdive-harnessing-19repos.md` (Baum-OS Gap Map). This document is a gap analysis only. It is explicitly not a schema migration, not a validator activation, and not a runtime change. No `SKILL.md` file, no `core/contracts/*.json` file, and no `policies/*.yaml` file is modified by this slice.
@@ -40,14 +46,14 @@ Observed from `skills/safe-scoped-commit/SKILL.md`, `skills/runtime-policy-audit
 | `log_target` | missing (named optional open gap in adapter decision) | `artifacts/runtime-runs/<runId>/` (runtime-level, per `docs/runtime-activation-status.md`, not per-skill) | per-skill log target would make audit trails skill-attributable | document as future field; no migration | low-medium |
 | `last_reviewed` | missing (named optional open gap in adapter decision) | frontmatter `status` (lifecycle state, e.g. `extracted`; not a reviewed date) | staleness tracking for governance-relevant skills | document as future field; no migration | low |
 | `computer_use_allowed` | missing at skill level | `docs/computer-use-policy.md` itself — explicitly states no skill currently declares computer-use capability and that the policy is additive to this exact gap | strongest existing anchor; policy already anticipates this field | document as future field, point directly at `computer-use-policy.md` "Relation To Skill Contracts"; no migration | high |
-| `skill_security_scan` | missing | none in-repo | no automated check exists today for malicious/vulnerable skill content | document as future field; external pattern only (NVIDIA/SkillSpector); no migration | medium |
+| `skill_security_scan` | closed at admission boundary; still absent as per-skill frontmatter | `docs/skill-frontdoor-contract.md` + `core/contracts/skill-frontdoor-admission.schema.json` + `runtime/skills/frontdoor.mjs` | malicious/vulnerable skill content is now screened before implementation/install | keep centralized frontdoor enforcement; per-skill frontmatter remains optional future work | closed / follow-up optional |
 | `agent_privilege_hierarchy` | open / identified in Deepdive Gap Map | prose-only constraint across `AGENTS.md`/`WORKFLOW.md`/`pi-agent-kit-adapter-core-anchor-decision.md` ("Human Approval: remains final Freigabeinstanz") | Agenten können gestufte Rechte bekommen. Human Approval bleibt Primat für riskante Aktionen. Kein Agent darf sich selbst höhere Rechte geben. | document as future field with this constraint stated verbatim; explicitly do not resolve tension with external full-autonomy patterns in this slice | high (conceptually sensitive — not to be resolved here) |
 
 ## External Pattern Inputs
 
 Source: `/home/baum/workspace/baum-os-deepdive-harnessing-19repos.md` (19-repo Deepdive, read-only research, no code imported).
 
-- **NVIDIA/SkillSpector** — security scanner for AI agent skills (vulnerability/malicious-pattern detection). Nearest external pattern for `skill_security_scan`. No code reviewed beyond README; not integrated.
+- **NVIDIA/SkillSpector** — adopted as an external evidence-producing security analyzer inside the MAWS skill frontdoor. Its output does not become MAWS authority.
 - **athola/claude-night-market** — TDD-enforcement and spec-driven plugin hooks with risk-tiered gating. Nearest external pattern for `human_approval_required` / tiered `write_mode`. No code reviewed beyond README; not integrated.
 - **agent0ai/agent-zero** — explicit safety-boundary framing, skeptical of unscoped computer-use. Supports the existing `docs/computer-use-policy.md` posture rather than introducing a new one.
 - **daveshap/OpenAI_Agent_Swarm** — Hierarchical Autonomous Agent Swarm with a privilege-inheritance model and an explicit "Full Autonomy" philosophy. Nearest external pattern for `agent_privilege_hierarchy`, flagged in the Deepdive as in direct tension with this repo's Human-Approval-Primat. Documented here as an observation only — not adopted, not reconciled.

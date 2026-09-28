@@ -17,8 +17,11 @@ Canonical machine-readable contracts for the portable slice.
 - `core/contracts/handoff-patterns.json`
 - `core/contracts/resource-governor.json`
 - `core/contracts/trigger-scheduling.json`
+- `core/contracts/skill-frontdoor-admission.schema.json`
 
 Execution evidence and certification artifact contracts are defined in `core/contracts/output-contracts.json`.
+
+`core/contracts/skill-frontdoor-admission.schema.json` is the canonical machine-readable admission record for skill candidates. It binds mandatory SkillSpector static evidence and SkillEvaluator Tier 1 evidence to a MAWS-owned fail-closed disposition before implementation/install while explicitly keeping analyzer PASS separate from authority.
 
 ## Tool Catalog And Registry Authority
 
