@@ -268,3 +268,39 @@ Promotion rule:
 4. produce evidence;
 5. update docs/authority-matrix.md claim status;
 6. only then describe the capability as validator-backed or runtime-implemented.
+
+### OD-19 — Jev multi-transport: OpenCode Zen as second System-One provider adapter (approved 2026-09-28)
+
+Owner decision recorded from the owner chat of 2026-09-28. It refines the
+OD-18 transport posture; it grants no authority and activates no live transport
+by itself.
+
+Decisions:
+
+1. The OpenCode Zen System-One endpoint (`POST https://opencode.ai/zen/v1/systemone`,
+   Bearer `OPENCODE_API_KEY`, models `jev-1.13` and `jev-1.13-free`) is approved
+   as a second Jev transport beside the canonical OpenRouter Decisions lane,
+   surfaced as receipt mode `zen`.
+2. Transport ≠ decision semantics: question registry, closed answer spaces,
+   threshold policy, receipt contract, and fail-closed behavior remain fully
+   transport-neutral. OpenRouter and Zen are provider adapters only.
+3. Transport-parity DoD: the same canonical question through either transport
+   must produce DecisionReceipts that are indistinguishable downstream except
+   for provenance (mode, resolved model snapshot, receipt id / timestamp).
+4. Decisions stay atomic: transport-level question batching must never merge
+   governance. One DecisionReceipt per question; an optional batch provenance
+   record above individual receipts would be a separate decision.
+5. Slice separation is binding: JEV-ZEN-TRANSPORT-01 (transport + parity),
+   JEV-RUNTIME-FRONTDOOR-01 (`runtime:jev-decide` session frontdoor), and
+   JEV-QUESTION-NEXT-ACTION-01 (`next_action` question registry addition) are
+   separate slices and must not be mixed.
+6. The exact Zen response field set is confirmed at first live activation with
+   an owner-provided `OPENCODE_API_KEY`; until then no fallback fields,
+   endpoints, or models are invented (same posture as the `live` mode).
+7. MAWS WorkUnit executor selection and the workspace execution profile stay
+   strictly separate planes: Jev binds eligible executors inside MAWS; it
+   never selects the model powering an interactive agent session.
+
+Adoption follows the promotion rule above (contract change + validator/eval +
+implementation + evidence + authority-matrix update before any capability
+claim).
