@@ -2,7 +2,8 @@
 
 Run: OWNER-DIRECTED-CONSOLIDATION-RUN-2026-10-19 — step S2b, wave 0 (opening repair).
 Worktree: `.worktrees/s2b-p1-hardening-20261020` off origin/main `6d399d62357952f8b0550211dacc35896e042e47`.
-Implementation commit: `3eec595c8eaa0874b2e5ea3480b026fd1c23a272`.
+Implementation commits: round 1 `3eec595c8eaa0874b2e5ea3480b026fd1c23a272`,
+round 2 `913662ad3e9fe29395b75a0b4e7f1baee30e5a9f` (bound in registry-disposition.json).
 
 ## Change
 
@@ -53,6 +54,34 @@ untouched; no contract in `core/contracts/` changed.
 - `npm run validate-maws-vnext` — PASS, no issues.
 - Registry disposition: `registry-disposition.json` in this directory —
   NO_CHANGE, validator PASS (`node scripts/tools/validate-registry-disposition.mjs`).
+
+## Round 2 — Codex P1 review on round 1 (same PR #13)
+
+Three further P1 findings on the round-1 head, each verified and repaired:
+
+4. **Non-atomic run-directory claim** (concurrent same-spec runs): the
+   existsSync pre-check plus recursive `mkdirSync` let two processes pass
+   before either writes. The run directory is now claimed exclusively via
+   non-recursive atomic creation — any pre-existing directory (empty,
+   non-empty, or just claimed by a concurrent winner) fails closed with
+   `RUN_DIR_EXISTS`.
+5. **Unbound qualified snapshots**: a schema-valid
+   `qualified_fingerprints` entry whose `fingerprint_id` did not match the
+   applicable qualification's `fingerprint_ref` was accepted, so an unrelated
+   snapshot could satisfy the drift check. Every QUALIFIED qualification must
+   now name its matching snapshot (identity, capability and profile) or the
+   spec fails closed with `SPEC_FINGERPRINT_INVALID`.
+6. **Verifier identity not bound to the executed node**: a declared
+   `verifier_executor_id` that routing never bound to the verification node
+   still produced a PASS receipt under that identity. The verifier callback
+   now requires the verification node's actual executor binding to equal the
+   declared id (`SPEC_VERIFIER_MISMATCH` otherwise); the attestation always
+   belongs to the verifier that really ran.
+
+Round-2 verification: `node --test tests/vnext/runtime-run-cli.test.mjs` —
+13/13 pass (three new tests: exclusive claim on empty existing dir,
+unbound snapshot, verifier mismatch); `npm run test:vnext`,
+`npm run validate`, `npm run validate-maws-vnext` re-run PASS (see PR checks).
 
 ## Not claimed
 

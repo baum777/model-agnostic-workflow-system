@@ -30,7 +30,7 @@
       "evidence/runtime-run-p1-hardening-2026-10-20/RUN.md"
     ],
     "registry_baseline_sha": "cfb5a0bdf28690956c0000dc38ca0be9cc0c19af",
-    "implementation_commit_sha": "3eec595c8eaa0874b2e5ea3480b026fd1c23a272",
+    "implementation_commit_sha": "913662ad3e9fe29395b75a0b4e7f1baee30e5a9f",
     "registry_commit_sha": null
   }
 }
