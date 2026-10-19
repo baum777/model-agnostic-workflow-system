@@ -57,6 +57,19 @@
       "transport": "human_gate",
       "session_model_can_bind": false,
       "notes": "Human gate executor for owner decisions; declaration only, binding requires explicit permission evidence."
+    },
+    {
+      "executor_id": "exec_unitera_execution_control_fixture",
+      "executor_class": "deterministic_service",
+      "display_name": "Unitera Systems execution-control fixture (S2b intake binding)",
+      "declared_capabilities": [
+        {
+          "capability_id": "cap_external_execution_control"
+        }
+      ],
+      "transport": "in_process",
+      "session_model_can_bind": false,
+      "notes": "S2b wave-1 fixture executor: deterministic in-process simulation of the Unitera Systems execution-control REST chain (prepare, evaluate, clearances, authorize, execute, reconcile) bound per the ExecutionIntakeBinding contract (core/contracts/execution-intake-binding.schema.json). Declaration only (OD-09), no qualification implied. The live HTTP intake is deliberately not wired and fails closed in runtime:run (RUN_INTAKE_TRANSPORT_UNSUPPORTED); admitting it requires the owner-gated wave 2 service-principal auth lane in Unitera Systems."
     }
   ]
 }

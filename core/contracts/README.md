@@ -18,10 +18,13 @@ Canonical machine-readable contracts for the portable slice.
 - `core/contracts/resource-governor.json`
 - `core/contracts/trigger-scheduling.json`
 - `core/contracts/skill-frontdoor-admission.schema.json`
+- `core/contracts/execution-intake-binding.schema.json`
 
 Execution evidence and certification artifact contracts are defined in `core/contracts/output-contracts.json`.
 
 `core/contracts/skill-frontdoor-admission.schema.json` is the canonical machine-readable admission record for skill candidates. It binds mandatory SkillSpector static evidence and SkillEvaluator Tier 1 evidence to a MAWS-owned fail-closed disposition before implementation/install while explicitly keeping analyzer PASS separate from authority.
+
+`core/contracts/execution-intake-binding.schema.json` is the canonical S2b binding record for delegating a WorkUnit node to the Unitera Systems execution-control chain. It is `contract-backed`; instance validation is enforced fail-closed by the `runtime:run` spec gate (`SPEC_INTAKE_BINDING_INVALID`) and the fixture executor (`runtime/intake/execution-control-fixture.mjs`) derives the run's `intent-bindings.json` evidence from what the simulated chain actually executed. The binding itself carries no authority: wave 1 is fixture-only (`target.transport` is `'fixture'`; live HTTP intake fails closed with `RUN_INTAKE_TRANSPORT_UNSUPPORTED` until the owner-gated service-principal auth lane exists in Unitera Systems), and `business_outcome` stays `'not_asserted'` by construction — an outcome assertion requires Systems-side verification read-model evidence.
 
 ## Tool Catalog And Registry Authority
 

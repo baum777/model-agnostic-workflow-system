@@ -178,7 +178,36 @@ The vNext bundle per run (under `artifacts/runtime-runs/<runId>/`):
 `interaction-session.json`, `work-unit.json`, `completion-contract.json`,
 `eligibility-decisions.json`, `routing-decisions.json`, `graph-v<N>.json`,
 `execution-results.json`, `verification-receipts.json`,
-`completion-decision.json`, `run-events.jsonl`.
+`completion-decision.json`, `run-events.jsonl`, plus
+`intent-bindings.json` when the run carries intake bindings.
+
+## Intake bindings (S2b): WorkUnit -> Unitera Systems execution-control
+
+A run spec may declare `intake_bindings` for the executor
+`exec_unitera_execution_control_fixture`, binding a WorkUnit node to the
+Unitera Systems execution-control chain (prepare -> evaluate -> clearances ->
+authorize -> execute -> reconcile) under the canonical
+`core/contracts/execution-intake-binding.schema.json` contract:
+
+- The binding states the capability mapping (MAWS capability -> Systems
+  capability/operation/target), the rights/credential transition
+  (authority ceiling, allowed effects, `external_commit`,
+  `none_wave1_fixture` credentials), the evidence transition
+  (Systems read-model receipts -> MAWS verification receipts) and the
+  outcome semantics explicitly.
+- Fixture only: `target.transport` is `'fixture'`; the live HTTP intake is
+  deliberately not wired and fails closed (`RUN_INTAKE_TRANSPORT_UNSUPPORTED`)
+  until the owner-gated wave 2 service-principal auth lane exists in
+  Unitera Systems. The Systems chain remains the authority for external
+  effects — the binding itself carries none.
+- The fixture executor enforces the binding at runtime, deny-by-default:
+  scope mismatch or a missing effect grant fails closed
+  (`INTAKE_AUTHORITY_ENVELOPE_MISMATCH`), a foreign work unit is never
+  attested (`INTAKE_WORK_UNIT_MISMATCH`).
+- `business_outcome` stays `'not_asserted'` by construction — an outcome
+  assertion requires Systems-side verification read-model evidence, which
+  only the live lane can produce. The run evidence bundle records what the
+  simulated chain actually executed in `intent-bindings.json`.
 
 ## Artifact Contract
 

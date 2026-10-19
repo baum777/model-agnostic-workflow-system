@@ -26,6 +26,7 @@ import { loadThresholdPolicy, evaluateThreshold } from '../decision-engine/jev/t
 import { evaluateCompletion } from '../completion/completion-engine.mjs';
 import { buildVerificationReceipt } from '../completion/verification.mjs';
 import { loadExecutorRegistry } from '../executors/manifest-loader.mjs';
+import { executionControlFixtureExecutor, INTAKE_FX_EXECUTOR_ID } from '../intake/execution-control-fixture.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
 
 const SUPPORTED_TRANSPORTS = ['fixture'];
@@ -161,6 +162,29 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
   }
   const executorBindings = requireObject(spec, 'executor_bindings');
 
+  // --- S2b intake bindings: WorkUnit -> external execution intent for the
+  // Unitera Systems execution-control chain (fixture only in wave 1). A
+  // binding is validated against the ExecutionIntakeBinding contract and may
+  // only target the fixture executor; the live HTTP intake is deliberately
+  // not wired and fails closed (owner-gated wave 2 auth lane).
+  const intakeBindings = spec.intake_bindings || {};
+  const intentBindingRecords = [];
+  for (const [executorId, intakeBinding] of Object.entries(intakeBindings)) {
+    validateOrThrow(intakeBinding, 'core/contracts/execution-intake-binding.schema.json', 'SPEC_INTAKE_BINDING_INVALID', root);
+    if (intakeBinding.target.transport !== 'fixture') {
+      throw new SpecError(
+        'RUN_INTAKE_TRANSPORT_UNSUPPORTED',
+        `intake binding ${intakeBinding.binding_id} declares transport ${JSON.stringify(intakeBinding.target.transport)}; supported: fixture. The live Unitera execution-control intake is not wired (owner-gated wave 2 auth lane).`
+      );
+    }
+    if (executorId !== INTAKE_FX_EXECUTOR_ID) {
+      throw new SpecError('SPEC_INTAKE_BINDING_INVALID', `intake_bindings key ${executorId} must reference ${INTAKE_FX_EXECUTOR_ID} in wave 1`);
+    }
+    if (!executorBindings[executorId]) {
+      throw new SpecError('SPEC_INTAKE_BINDING_INVALID', `intake_bindings references ${executorId} without a matching executor_bindings entry`);
+    }
+  }
+
   // --- deny-by-default availability/policy/budget: an executor that the spec
   // does not explicitly admit is ineligible, never silently admitted.
   const availability = spec.availability || {};
@@ -182,7 +206,9 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
         `executor ${executorId} declares transport ${JSON.stringify(binding.transport)}; supported: ${SUPPORTED_TRANSPORTS.join(', ')}. Live transports are not wired into runtime:run; use runtime:activate-vnext for live lane probes.`
       );
     }
-    executorImplementations[executorId] = fixtureExecutorImplementation(executorId, binding, clock);
+    executorImplementations[executorId] = intakeBindings[executorId]
+      ? executionControlFixtureExecutor(executorId, binding, intakeBindings[executorId], intentBindingRecords, clock)
+      : fixtureExecutorImplementation(executorId, binding, clock);
   }
 
   // --- artifacts + spine events
@@ -276,6 +302,13 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     now: clock
   });
 
+  // S2b evidence: intake binding records are part of the run bundle — they
+  // are derived from what the fixture chain actually executed, and their
+  // business_outcome stays 'not_asserted' by construction.
+  if (intentBindingRecords.length > 0) {
+    artifactWriter.write('intent-bindings.json', intentBindingRecords);
+  }
+
   const summary = {
     ok: outcome.status === 'COMPLETED',
     run_id: spec.run_id,
@@ -283,7 +316,8 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     blocking_reason: outcome.blockingReason || null,
     completion_result: outcome.completionDecision ? outcome.completionDecision.result : null,
     run_dir: runDir.replace(/\\/g, '/'),
-    executor_bindings: outcome.graph ? outcome.graph.nodes.map((node) => ({ stage: node.stage, executor_id: node.executor_binding.executor_id, selection_mode: node.executor_binding.selection_mode })) : []
+    executor_bindings: outcome.graph ? outcome.graph.nodes.map((node) => ({ stage: node.stage, executor_id: node.executor_binding.executor_id, selection_mode: node.executor_binding.selection_mode })) : [],
+    intake_bindings: intentBindingRecords.map((record) => ({ binding_id: record.binding_id, status: record.status, business_outcome: record.business_outcome }))
   };
   return { summary, outcome, events, runDir };
 }

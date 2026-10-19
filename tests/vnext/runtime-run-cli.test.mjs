@@ -27,6 +27,12 @@ function tmpDir() {
 function writeSpec(mutator) {
   const spec = JSON.parse(fs.readFileSync(exampleSpecPath, 'utf8'));
   mutator(spec);
+  // The committed reference spec pins its intake binding to its own root
+  // work unit; a renamed run must re-point the binding to stay coherent
+  // (the intake executor enforces the binding deny-by-default).
+  for (const binding of Object.values(spec.intake_bindings || {})) {
+    binding.work_unit_id = `wu_${spec.run_id}_root`;
+  }
   const dir = tmpDir();
   const specPath = path.join(dir, 'spec.json');
   fs.writeFileSync(specPath, JSON.stringify(spec, null, 2));
