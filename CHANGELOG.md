@@ -7,6 +7,7 @@
 - Availability / policy / budget compatibility are deny-by-default per executor.
 - Completion honesty: outputs and evidence are derived from produced execution results and verification receipts, not declared spec intent.
 - Added committed reference spec `runtime/cli/specs/reference-audit-v1.json` and CLI qualification tests (`tests/vnext/runtime-run-cli.test.mjs`).
+- Hardened the runner against three review findings on the runtime:run entry (Codex P1 x3): verifier declarations must state `outcome`, `independent` and — for PASS — at least one evidence ref explicitly (`SPEC_VERIFIER_INVALID`, no default-PASS attestations); qualified fingerprint snapshots are a separate required spec part `qualified_fingerprints` instead of aliasing the current fingerprints (no manufactured no-drift eligibility); a non-empty run directory fails closed with `RUN_DIR_EXISTS` instead of being silently reused.
 
 ## 0.3.0 - planned
 

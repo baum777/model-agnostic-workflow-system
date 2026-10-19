@@ -125,3 +125,46 @@ test('missing spec file fails closed with SPEC_NOT_FOUND', async () => {
     (error) => error.code === 'SPEC_NOT_FOUND'
   );
 });
+
+test('verifier defaults cannot manufacture attestations (SPEC_VERIFIER_INVALID)', async () => {
+  const missingOutcome = writeSpec((spec) => {
+    spec.run_id = 'run_cli_verifier_no_outcome_0001';
+    delete spec.verifier.outcome;
+  });
+  await assert.rejects(
+    () => runRuntimeRun({ specPath: missingOutcome.specPath, outDir: path.join(missingOutcome.dir, 'run') }),
+    (error) => error.code === 'SPEC_VERIFIER_INVALID' && /no default PASS/.test(error.message)
+  );
+
+  const passWithoutEvidence = writeSpec((spec) => {
+    spec.run_id = 'run_cli_verifier_empty_evidence_0001';
+    spec.verifier.evidence_refs = [];
+  });
+  await assert.rejects(
+    () => runRuntimeRun({ specPath: passWithoutEvidence.specPath, outDir: path.join(passWithoutEvidence.dir, 'run') }),
+    (error) => error.code === 'SPEC_VERIFIER_INVALID' && /no empty attestations/.test(error.message)
+  );
+});
+
+test('qualified fingerprints are a separate required spec part, never aliased', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_cli_no_qualified_fps_0001';
+    delete spec.qualified_fingerprints;
+  });
+  await assert.rejects(
+    () => runRuntimeRun({ specPath, outDir: path.join(dir, 'run') }),
+    (error) => error.code === 'SPEC_INVALID' && /qualified_fingerprints/.test(error.message)
+  );
+});
+
+test('a non-empty run directory fails closed with RUN_DIR_EXISTS', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_cli_dir_reuse_0001';
+  });
+  const outDir = path.join(dir, 'run');
+  await runRuntimeRun({ specPath, outDir });
+  await assert.rejects(
+    () => runRuntimeRun({ specPath, outDir }),
+    (error) => error.code === 'RUN_DIR_EXISTS' && /not empty/.test(error.message)
+  );
+});

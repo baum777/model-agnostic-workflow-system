@@ -116,7 +116,36 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
       throw new SpecError('SPEC_FINGERPRINT_INVALID', `fingerprints key ${executorId} does not match executor_id ${fingerprint.executor_id}`);
     }
   }
+  // The qualified fingerprint snapshots are a separate spec part. Aliasing the
+  // current fingerprints as the qualified state would manufacture a no-drift
+  // determination for eligibility; both states must be declared explicitly.
+  const qualifiedFingerprints = requireObject(spec, 'qualified_fingerprints');
+  for (const [executorId, fingerprint] of Object.entries(qualifiedFingerprints)) {
+    validateOrThrow(fingerprint, 'core/contracts/qualification-fingerprint.schema.json', 'SPEC_FINGERPRINT_INVALID', root);
+    if (fingerprint.executor_id && fingerprint.executor_id !== executorId) {
+      throw new SpecError('SPEC_FINGERPRINT_INVALID', `qualified_fingerprints key ${executorId} does not match executor_id ${fingerprint.executor_id}`);
+    }
+  }
   const verifierSpec = requireObject(spec, 'verifier');
+  // A verifier declaration may not be upgraded into an attestation by
+  // defaults: outcome, independence and — for PASS — at least one evidence
+  // ref must be declared explicitly.
+  if (typeof verifierSpec.verifier_executor_id !== 'string' || verifierSpec.verifier_executor_id.length === 0) {
+    throw new SpecError('SPEC_VERIFIER_INVALID', 'verifier.verifier_executor_id is required');
+  }
+  if (verifierSpec.outcome !== 'PASS' && verifierSpec.outcome !== 'FAIL') {
+    throw new SpecError('SPEC_VERIFIER_INVALID', 'verifier.outcome must be PASS or FAIL, declared explicitly (no default PASS)');
+  }
+  if (typeof verifierSpec.independent !== 'boolean') {
+    throw new SpecError('SPEC_VERIFIER_INVALID', 'verifier.independent must be an explicit boolean');
+  }
+  if (!Array.isArray(verifierSpec.evidence_refs)
+    || verifierSpec.evidence_refs.some((ref) => typeof ref !== 'string' || ref.length === 0)) {
+    throw new SpecError('SPEC_VERIFIER_INVALID', 'verifier.evidence_refs must be an array of non-empty strings');
+  }
+  if (verifierSpec.outcome === 'PASS' && verifierSpec.evidence_refs.length === 0) {
+    throw new SpecError('SPEC_VERIFIER_INVALID', 'a PASS verifier declaration requires at least one evidence ref (no empty attestations)');
+  }
   const executorBindings = requireObject(spec, 'executor_bindings');
 
   // --- deny-by-default availability/policy/budget: an executor that the spec
@@ -145,6 +174,11 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
 
   // --- artifacts + spine events
   const runDir = outDir || path.join(root, 'artifacts/runtime-runs', spec.run_id);
+  // Evidence integrity: a non-empty directory from an earlier run must not be
+  // reused — appendFileSync would interleave two runs' event streams.
+  if (fs.existsSync(runDir) && fs.readdirSync(runDir).length > 0) {
+    throw new SpecError('RUN_DIR_EXISTS', `run directory ${runDir} already exists and is not empty; move it aside or pass a fresh --out (no silent reuse)`);
+  }
   fs.mkdirSync(runDir, { recursive: true });
   const events = [];
   const artifactWriter = {
@@ -180,7 +214,7 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     qualifications,
     manifests,
     currentFingerprints: fingerprints,
-    qualifiedFingerprints: fingerprints,
+    qualifiedFingerprints,
     availability,
     policyCompatible,
     budgetCompatible,
@@ -195,9 +229,9 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     verifier: ({ executionResult }) => buildVerificationReceipt({
       work_unit_id: executionResult.work_unit_id,
       verifier_executor_id: verifierSpec.verifier_executor_id,
-      independent: verifierSpec.independent !== false,
-      outcome: verifierSpec.outcome || 'PASS',
-      evidence_refs: verifierSpec.evidence_refs || [],
+      independent: verifierSpec.independent,
+      outcome: verifierSpec.outcome,
+      evidence_refs: verifierSpec.evidence_refs,
       checks: verifierSpec.checks || []
     }),
     completionEngine: { evaluateCompletion },
@@ -245,6 +279,6 @@ if (isMain) {
   } catch (error) {
     const code = error.code || 'RUN_FAILED';
     console.error(JSON.stringify({ ok: false, error_code: code, error: error.message }, null, 2));
-    process.exit(code.startsWith('SPEC') || code === 'USAGE' ? 2 : 4);
+    process.exit(code.startsWith('SPEC') || code === 'USAGE' || code === 'RUN_DIR_EXISTS' ? 2 : 4);
   }
 }
