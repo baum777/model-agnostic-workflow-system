@@ -26,6 +26,7 @@ import { loadThresholdPolicy, evaluateThreshold } from '../decision-engine/jev/t
 import { evaluateCompletion } from '../completion/completion-engine.mjs';
 import { buildVerificationReceipt } from '../completion/verification.mjs';
 import { loadExecutorRegistry } from '../executors/manifest-loader.mjs';
+import { executionControlFixtureExecutor, INTAKE_FX_EXECUTOR_ID } from '../intake/execution-control-fixture.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
 
 const SUPPORTED_TRANSPORTS = ['fixture'];
@@ -116,14 +117,15 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
       throw new SpecError('SPEC_FINGERPRINT_INVALID', `fingerprints key ${executorId} does not match executor_id ${fingerprint.executor_id}`);
     }
   }
-  // The qualified fingerprint snapshots are a separate spec part. Aliasing the
-  // current fingerprints as the qualified state would manufacture a no-drift
-  // determination for eligibility; both states must be declared explicitly.
+  // The qualified fingerprint snapshots are a separate spec part, keyed by
+  // the qualification's fingerprint_ref (one snapshot per qualification
+  // scope — executor, capability, profile), never an alias of the current
+  // fingerprints; aliasing would manufacture a no-drift eligibility.
   const qualifiedFingerprints = requireObject(spec, 'qualified_fingerprints');
-  for (const [executorId, fingerprint] of Object.entries(qualifiedFingerprints)) {
+  for (const [fingerprintRef, fingerprint] of Object.entries(qualifiedFingerprints)) {
     validateOrThrow(fingerprint, 'core/contracts/qualification-fingerprint.schema.json', 'SPEC_FINGERPRINT_INVALID', root);
-    if (fingerprint.executor_id && fingerprint.executor_id !== executorId) {
-      throw new SpecError('SPEC_FINGERPRINT_INVALID', `qualified_fingerprints key ${executorId} does not match executor_id ${fingerprint.executor_id}`);
+    if (fingerprint.fingerprint_id !== fingerprintRef) {
+      throw new SpecError('SPEC_FINGERPRINT_INVALID', `qualified_fingerprints key ${fingerprintRef} does not match fingerprint_id ${fingerprint.fingerprint_id} (snapshots are keyed by the qualification's fingerprint_ref)`);
     }
   }
   // Each QUALIFIED qualification must name the qualified snapshot that
@@ -131,13 +133,27 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
   // schema-valid snapshot must not satisfy the drift check.
   for (const qualification of qualifications) {
     if (qualification.state !== 'QUALIFIED') continue;
-    const snapshot = qualifiedFingerprints[qualification.executor_id];
+    const snapshot = qualifiedFingerprints[qualification.fingerprint_ref];
     if (!snapshot
-      || snapshot.fingerprint_id !== qualification.fingerprint_ref
+      || snapshot.executor_id !== qualification.executor_id
       || snapshot.capability_id !== qualification.capability_id
       || snapshot.execution_profile_ref !== qualification.execution_profile_ref) {
-      throw new SpecError('SPEC_FINGERPRINT_INVALID', `qualification ${qualification.qualification_id} is not bound to a matching qualified_fingerprints entry for executor ${qualification.executor_id} (fingerprint_ref, capability_id and execution_profile_ref must match)`);
+      throw new SpecError('SPEC_FINGERPRINT_INVALID', `qualification ${qualification.qualification_id} has no matching qualified_fingerprints snapshot at key ${qualification.fingerprint_ref} (executor_id, capability_id and execution_profile_ref must match)`);
     }
+  }
+  // The engine's drift check consumes one qualified snapshot per executor;
+  // translate the per-scope spec part into that shape and fail closed if one
+  // executor would need two different snapshots (lossy translation, never
+  // silent).
+  const qualifiedFingerprintsByExecutor = {};
+  for (const qualification of qualifications) {
+    if (qualification.state !== 'QUALIFIED') continue;
+    const snapshot = qualifiedFingerprints[qualification.fingerprint_ref];
+    const existing = qualifiedFingerprintsByExecutor[qualification.executor_id];
+    if (existing && existing.fingerprint_id !== snapshot.fingerprint_id) {
+      throw new SpecError('SPEC_FINGERPRINT_INVALID', `executor ${qualification.executor_id} has multiple qualified fingerprint snapshots (${existing.fingerprint_id}, ${snapshot.fingerprint_id}); the engine's per-executor drift check cannot represent that — fail closed`);
+    }
+    qualifiedFingerprintsByExecutor[qualification.executor_id] = snapshot;
   }
   const verifierSpec = requireObject(spec, 'verifier');
   // A verifier declaration may not be upgraded into an attestation by
@@ -161,6 +177,29 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
   }
   const executorBindings = requireObject(spec, 'executor_bindings');
 
+  // --- S2b intake bindings: WorkUnit -> external execution intent for the
+  // Unitera Systems execution-control chain (fixture only in wave 1). A
+  // binding is validated against the ExecutionIntakeBinding contract and may
+  // only target the fixture executor; the live HTTP intake is deliberately
+  // not wired and fails closed (owner-gated wave 2 auth lane).
+  const intakeBindings = spec.intake_bindings || {};
+  const intentBindingRecords = [];
+  for (const [executorId, intakeBinding] of Object.entries(intakeBindings)) {
+    validateOrThrow(intakeBinding, 'core/contracts/execution-intake-binding.schema.json', 'SPEC_INTAKE_BINDING_INVALID', root);
+    if (intakeBinding.target.transport !== 'fixture') {
+      throw new SpecError(
+        'RUN_INTAKE_TRANSPORT_UNSUPPORTED',
+        `intake binding ${intakeBinding.binding_id} declares transport ${JSON.stringify(intakeBinding.target.transport)}; supported: fixture. The live Unitera execution-control intake is not wired (owner-gated wave 2 auth lane).`
+      );
+    }
+    if (executorId !== INTAKE_FX_EXECUTOR_ID) {
+      throw new SpecError('SPEC_INTAKE_BINDING_INVALID', `intake_bindings key ${executorId} must reference ${INTAKE_FX_EXECUTOR_ID} in wave 1`);
+    }
+    if (!executorBindings[executorId]) {
+      throw new SpecError('SPEC_INTAKE_BINDING_INVALID', `intake_bindings references ${executorId} without a matching executor_bindings entry`);
+    }
+  }
+
   // --- deny-by-default availability/policy/budget: an executor that the spec
   // does not explicitly admit is ineligible, never silently admitted.
   const availability = spec.availability || {};
@@ -182,7 +221,26 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
         `executor ${executorId} declares transport ${JSON.stringify(binding.transport)}; supported: ${SUPPORTED_TRANSPORTS.join(', ')}. Live transports are not wired into runtime:run; use runtime:activate-vnext for live lane probes.`
       );
     }
-    executorImplementations[executorId] = fixtureExecutorImplementation(executorId, binding, clock);
+    const intakeBinding = intakeBindings[executorId];
+    // The execution-control path may never run unbound: binding the fixture
+    // executor without declaring its intake binding would silently fall back
+    // to the generic fixture executor and bypass the binding control.
+    if (executorId === INTAKE_FX_EXECUTOR_ID && !intakeBinding) {
+      throw new SpecError('SPEC_INTAKE_BINDING_INVALID', `executor ${executorId} is bound in executor_bindings without an intake binding; the execution-control path may never run unbound`);
+    }
+    // The recorded capability mapping must be the capability that is
+    // actually routed: schema validity alone must not let a spec attest a
+    // mapping the executor does not declare.
+    if (intakeBinding) {
+      const manifest = manifests.find((entry) => entry.executor_id === executorId);
+      const declaredCapabilityIds = manifest.declared_capabilities.map((capability) => capability.capability_id);
+      if (!declaredCapabilityIds.includes(intakeBinding.capability_mapping.maws_capability_id)) {
+        throw new SpecError('SPEC_INTAKE_BINDING_INVALID', `intake binding ${intakeBinding.binding_id} maps maws_capability_id ${intakeBinding.capability_mapping.maws_capability_id}, which executor ${executorId} does not declare (${declaredCapabilityIds.join(', ')}); the recorded mapping must be the routed capability`);
+      }
+    }
+    executorImplementations[executorId] = intakeBinding
+      ? executionControlFixtureExecutor(executorId, binding, intakeBinding, intentBindingRecords, clock)
+      : fixtureExecutorImplementation(executorId, binding, clock);
   }
 
   // --- artifacts + spine events
@@ -237,7 +295,7 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     qualifications,
     manifests,
     currentFingerprints: fingerprints,
-    qualifiedFingerprints,
+    qualifiedFingerprints: qualifiedFingerprintsByExecutor,
     availability,
     policyCompatible,
     budgetCompatible,
@@ -276,6 +334,13 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     now: clock
   });
 
+  // S2b evidence: intake binding records are part of the run bundle — they
+  // are derived from what the fixture chain actually executed, and their
+  // business_outcome stays 'not_asserted' by construction.
+  if (intentBindingRecords.length > 0) {
+    artifactWriter.write('intent-bindings.json', intentBindingRecords);
+  }
+
   const summary = {
     ok: outcome.status === 'COMPLETED',
     run_id: spec.run_id,
@@ -283,7 +348,8 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     blocking_reason: outcome.blockingReason || null,
     completion_result: outcome.completionDecision ? outcome.completionDecision.result : null,
     run_dir: runDir.replace(/\\/g, '/'),
-    executor_bindings: outcome.graph ? outcome.graph.nodes.map((node) => ({ stage: node.stage, executor_id: node.executor_binding.executor_id, selection_mode: node.executor_binding.selection_mode })) : []
+    executor_bindings: outcome.graph ? outcome.graph.nodes.map((node) => ({ stage: node.stage, executor_id: node.executor_binding.executor_id, selection_mode: node.executor_binding.selection_mode })) : [],
+    intake_bindings: intentBindingRecords.map((record) => ({ binding_id: record.binding_id, status: record.status, business_outcome: record.business_outcome }))
   };
   return { summary, outcome, events, runDir };
 }

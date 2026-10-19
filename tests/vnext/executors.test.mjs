@@ -253,7 +253,7 @@ test('default executor registry loads and is schema-valid against the registry c
   assert.equal(registry.registry_id, 'execreg_maws_default');
   assert.deepEqual(
     registry.executors.map((entry) => entry.executor_id),
-    ['exec_codex_chatgpt', 'exec_openrouter_glm', 'exec_local_tests', 'exec_human_gate']
+    ['exec_codex_chatgpt', 'exec_openrouter_glm', 'exec_local_tests', 'exec_human_gate', 'exec_unitera_execution_control_fixture']
   );
   const registryIssues = validateInstanceAgainstContract(registry, 'core/contracts/executor-registry.schema.json', repoRoot);
   assert.deepEqual(registryIssues, []);
@@ -308,7 +308,7 @@ test('createExecutorRegistry: get/list/findByCapability and fail-closed unknown 
   const registry = createExecutorRegistry(loadExecutorRegistry().executors);
   assert.equal(registry.get('exec_codex_chatgpt').executor_class, 'agent_harness');
   assert.throws(() => registry.get('exec_does_not_exist'), isFailClosedWithCode('EXECUTOR_UNKNOWN'));
-  assert.equal(registry.list().length, 4);
+  assert.equal(registry.list().length, 5);
   assert.deepEqual(
     registry.findByCapability('cap_code_implementation').map((entry) => entry.executor_id),
     ['exec_codex_chatgpt']
@@ -316,6 +316,10 @@ test('createExecutorRegistry: get/list/findByCapability and fail-closed unknown 
   assert.deepEqual(
     registry.findByCapability('cap_deterministic_verification').map((entry) => entry.executor_id),
     ['exec_local_tests']
+  );
+  assert.deepEqual(
+    registry.findByCapability('cap_external_execution_control').map((entry) => entry.executor_id),
+    ['exec_unitera_execution_control_fixture']
   );
   assert.deepEqual(registry.findByCapability('cap_unused_capability'), []);
 

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/execution-intake-binding.schema.json",
+  "title": "ExecutionIntakeBinding Contract",
+  "description": "S2b (consolidation run 2026-10-19): binds a WorkUnit node to an external governed execution system — the Unitera Systems execution-control chain. The binding makes the capability mapping, the rights/credential transition, the evidence transition and the outcome semantics explicit per binding; it creates no authority of its own (the Systems chain remains the authority for external effects). Wave 1 is fixture-only: target.transport is 'fixture' and the live HTTP intake fails closed in the runner (owner-gated wave 2). business_outcome stays 'not_asserted' until Systems-side verification read-model evidence exists — guest semantics, not a parallel MAWS outcome model.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "binding_id", "work_unit_id", "target", "capability_mapping",
+    "rights_transition", "evidence_transition", "outcome_semantics",
+    "commitment_context"
+  ],
+  "properties": {
+    "binding_id": { "type": "string", "pattern": "^eib_[a-z0-9_]+$" },
+    "work_unit_id": { "$ref": "maws-vnext-common.schema.json#/$defs/workUnitId" },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "transport"],
+      "properties": {
+        "system": { "const": "unitera_systems_execution_control" },
+        "transport": { "enum": ["fixture"] }
+      }
+    },
+    "capability_mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maws_capability_id", "systems_capability_id", "systems_operation",
+        "target_system", "target_object_type"
+      ],
+      "properties": {
+        "maws_capability_id": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" },
+        "systems_capability_id": { "enum": ["email.send", "email.send.commit", "calendar.write"] },
+        "systems_operation": { "type": "string", "minLength": 1 },
+        "target_system": { "enum": ["email", "calendar"] },
+        "target_object_type": { "enum": ["email_recipient", "calendar_event"] }
+      }
+    },
+    "rights_transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority_ceiling_ref", "allowed_effects", "expected_side_effect_class",
+        "credential_model"
+      ],
+      "properties": {
+        "authority_ceiling_ref": { "type": "string", "minLength": 1 },
+        "allowed_effects": {
+          "type": "array",
+          "items": { "$ref": "maws-vnext-common.schema.json#/$defs/effectsLevel" },
+          "uniqueItems": true
+        },
+        "expected_side_effect_class": { "const": "external_commit" },
+        "credential_model": { "enum": ["none_wave1_fixture", "jwt_service_principal_owner_gated"] }
+      }
+    },
+    "evidence_transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["systems_evidence_class", "receipt_mapping"],
+      "properties": {
+        "systems_evidence_class": { "const": "persisted_execution_control_read_model" },
+        "receipt_mapping": { "const": "systems_execution_receipt_to_maws_verification_receipt" }
+      }
+    },
+    "outcome_semantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["business_outcome"],
+      "properties": {
+        "business_outcome": { "const": "not_asserted" }
+      }
+    },
+    "commitment_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commitment_run_id", "commitment_approval_decision_id"],
+      "properties": {
+        "commitment_run_id": { "type": "string", "minLength": 1 },
+        "commitment_approval_decision_id": { "type": "string", "minLength": 1 },
+        "commit_token_ref": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S2b wave 1 adds a new canonical contract to core/contracts/ (execution-intake-binding.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the runtime capability it introduces. The registry write cannot be performed from this repository and follows as its own registered change (registry change registration plus, if the registry contract provides for it, a contract-record projection) after the owner merges the source PR; until that projection merges, the disposition is REQUIRED_BUT_BLOCKED with no registry commit to bind.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/execution-intake-binding.schema.json"
+    ],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "core/contracts/execution-intake-binding.schema.json",
+      "runtime/intake/execution-control-fixture.mjs",
+      "runtime/cli/runtime-run.mjs"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [],
+    "evidence_refs": [
+      "evidence/execution-intake-binding-2026-10-20/RUN.md",
+      "tests/vnext/runtime-run-intake.test.mjs (7/7 pass: happy path with intent-bindings.json evidence and not_asserted outcome semantics; live transport cannot validate; wrong executor key and missing executor binding fail closed; scope and effect-grant mismatches fail closed; foreign work unit never attested)",
+      "npm run test:vnext (274/274 pass)",
+      "npm run validate (PASS, no issues)",
+      "npm run validate-maws-vnext (PASS, no issues)"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/execution-intake-binding-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/execution-intake-binding.schema.json (new canonical contract in this change set)",
+      "core/contracts/README.md canonical files list"
+    ],
+    "registry_baseline_sha": "d5c7604043fe4bf6b50b5428353cf7e0c85152ab",
+    "implementation_commit_sha": "33933434414b8df9b0f659adbb6325493c6a7dc7",
+    "registry_commit_sha": null
+  }
+}
