@@ -3,8 +3,12 @@
 Run: OWNER-DIRECTED-CONSOLIDATION-RUN-2026-10-19 — step S2b, wave 1.
 Scope source: `.consolidation-run-20261019/S2B-SCOPE.md` (project side).
 Worktree: `.worktrees/s2b-intake-20261020`, stacked on the P1-hardening branch
-`impl/runtime-run-p1-hardening-20261020` (PR #13) off origin/main `6d399d62`.
-Implementation commit: `04877451346321d2252ce900f098b167aff6dae0`.
+`impl/runtime-run-p1-hardening-20261020` (PR #13, merged as `4212b594`) off
+origin/main `6d399d62`.
+Implementation commits: wave 1 `04877451346321d2252ce900f098b167aff6dae0`,
+review round `33933434414b8df9b0f659adbb6325493c6a7dc7` (bound in
+registry-disposition.json; baseline re-read at the post-#208/#209 registry
+main `d5c76040`).
 
 ## Change
 
@@ -70,6 +74,34 @@ outcome model — OD-NEW-1 recommendation implemented).
 - Registry disposition: `registry-disposition.json` in this directory —
   **CONTRACT_RECORD class, REQUIRED_BUT_BLOCKED** (new canonical contract;
   registry projection follows as its own registered change after owner merge).
+
+## Round 2 — Codex review on wave 1 (P1 x2, P2 x2), repaired before merge
+
+7. **Unbound execution-control executor** (P1): `executor_bindings` naming the
+   fixture executor without an `intake_bindings` entry silently fell back to
+   the generic fixture executor. Now fails closed
+   (`SPEC_INTAKE_BINDING_INVALID`, "may never run unbound").
+8. **Unbound capability mapping** (P1): the recorded
+   `maws_capability_id` was never checked against the routed capability.
+   Now must be among the executor manifest's declared capabilities
+   (`SPEC_INTAKE_BINDING_INVALID` otherwise) — the mapping attests what was
+   routed.
+9. **Snapshot keying** (P2): `qualified_fingerprints` was keyed by executor
+   only, unrepresentable for executors with multiple qualification scopes.
+   Now keyed by the qualification's `fingerprint_ref` (one snapshot per
+   executor+capability+profile); the qualification binding check compares
+   executor, capability and profile. The engine's eligibility consumes one
+   snapshot per executor, so the runner translates the per-scope spec part
+   into that shape and fails closed if one executor would need two different
+   snapshots (lossy translation is never silent; the engine is unchanged).
+10. **Honest failure evidence** (P2): a FAILED fixture outcome previously
+    recorded an all-OK chain with status `executed`. Now `execute` is FAILED,
+    `reconcile` NOT_RUN, record status `failed`.
+
+Round-2 verification: intake tests 12/12 (five new: unbound executor,
+capability mismatch, FAILED outcome evidence, per-scope snapshot keying plus
+the carried re-keyed snapshot-binding test), full suite 279/279, validators
+PASS (see PR checks and the rebound disposition below).
 
 ## Not claimed
 
