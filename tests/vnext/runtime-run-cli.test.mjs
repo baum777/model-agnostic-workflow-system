@@ -168,3 +168,37 @@ test('a non-empty run directory fails closed with RUN_DIR_EXISTS', async () => {
     (error) => error.code === 'RUN_DIR_EXISTS' && /not empty/.test(error.message)
   );
 });
+
+test('run directories are claimed exclusively: even an empty existing directory fails closed', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_cli_dir_claim_0001';
+  });
+  const outDir = path.join(dir, 'run');
+  fs.mkdirSync(outDir);
+  await assert.rejects(
+    () => runRuntimeRun({ specPath, outDir }),
+    (error) => error.code === 'RUN_DIR_EXISTS' && /claimed exclusively/.test(error.message)
+  );
+});
+
+test('qualified snapshots must bind to their qualification records (SPEC_FINGERPRINT_INVALID)', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_cli_fp_unbound_0001';
+    spec.qualified_fingerprints.exec_openrouter_glm.fingerprint_id = 'fp_unrelated_snapshot';
+  });
+  await assert.rejects(
+    () => runRuntimeRun({ specPath, outDir: path.join(dir, 'run') }),
+    (error) => error.code === 'SPEC_FINGERPRINT_INVALID' && /not bound to a matching qualified_fingerprints/.test(error.message)
+  );
+});
+
+test('verifier identity must match the executor that actually runs the verification node', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_cli_verifier_mismatch_0001';
+    spec.verifier.verifier_executor_id = 'exec_openrouter_glm';
+  });
+  await assert.rejects(
+    () => runRuntimeRun({ specPath, outDir: path.join(dir, 'run') }),
+    (error) => error.code === 'SPEC_VERIFIER_MISMATCH' && /actually ran/.test(error.message)
+  );
+});

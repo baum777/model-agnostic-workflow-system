@@ -159,10 +159,15 @@ node runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.jso
 - Verifier declarations are explicit: `outcome`, `independent` and — for
   PASS — at least one evidence ref must be declared; the runner never
   upgrades a silent spec into a PASS attestation (`SPEC_VERIFIER_INVALID`).
-- Run directories are never silently reused: a non-empty `--out` /
-  `artifacts/runtime-runs/<runId>/` directory fails closed with
-  `RUN_DIR_EXISTS` (evidence integrity — two runs' event streams must not
-  interleave).
+- Run directories are claimed exclusively: `--out` / `artifacts/runtime-runs/<runId>/`
+  is created atomically and any pre-existing directory — empty, non-empty, or
+  just claimed by a concurrent process — fails closed with `RUN_DIR_EXISTS`
+  (evidence integrity — two runs' event streams must not interleave).
+- Qualified fingerprint snapshots are bound to their qualification records
+  (identity, capability, profile must match), and the verifier declaration
+  must name the executor that actually executes the verification node
+  (`SPEC_VERIFIER_MISMATCH` otherwise) — attestations always belong to the
+  verifier that really ran.
 - Completion honesty: outputs and evidence presented to the completion
   engine are derived from what executors actually produced, never from
   declared spec intent.

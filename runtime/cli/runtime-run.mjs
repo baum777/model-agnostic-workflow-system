@@ -126,6 +126,19 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
       throw new SpecError('SPEC_FINGERPRINT_INVALID', `qualified_fingerprints key ${executorId} does not match executor_id ${fingerprint.executor_id}`);
     }
   }
+  // Each QUALIFIED qualification must name the qualified snapshot that
+  // belongs to it (identity, capability, profile) — an unrelated
+  // schema-valid snapshot must not satisfy the drift check.
+  for (const qualification of qualifications) {
+    if (qualification.state !== 'QUALIFIED') continue;
+    const snapshot = qualifiedFingerprints[qualification.executor_id];
+    if (!snapshot
+      || snapshot.fingerprint_id !== qualification.fingerprint_ref
+      || snapshot.capability_id !== qualification.capability_id
+      || snapshot.execution_profile_ref !== qualification.execution_profile_ref) {
+      throw new SpecError('SPEC_FINGERPRINT_INVALID', `qualification ${qualification.qualification_id} is not bound to a matching qualified_fingerprints entry for executor ${qualification.executor_id} (fingerprint_ref, capability_id and execution_profile_ref must match)`);
+    }
+  }
   const verifierSpec = requireObject(spec, 'verifier');
   // A verifier declaration may not be upgraded into an attestation by
   // defaults: outcome, independence and — for PASS — at least one evidence
@@ -174,12 +187,22 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
 
   // --- artifacts + spine events
   const runDir = outDir || path.join(root, 'artifacts/runtime-runs', spec.run_id);
-  // Evidence integrity: a non-empty directory from an earlier run must not be
-  // reused — appendFileSync would interleave two runs' event streams.
+  // Evidence integrity: the run directory is claimed EXCLUSIVELY via atomic
+  // creation. A pre-existing directory — empty, non-empty, or one a
+  // concurrent process just claimed — fails closed, so two runs of the same
+  // spec can never interleave their event streams or overwrite artifacts.
   if (fs.existsSync(runDir) && fs.readdirSync(runDir).length > 0) {
     throw new SpecError('RUN_DIR_EXISTS', `run directory ${runDir} already exists and is not empty; move it aside or pass a fresh --out (no silent reuse)`);
   }
-  fs.mkdirSync(runDir, { recursive: true });
+  fs.mkdirSync(path.dirname(runDir), { recursive: true });
+  try {
+    fs.mkdirSync(runDir);
+  } catch (error) {
+    if (error && error.code === 'EEXIST') {
+      throw new SpecError('RUN_DIR_EXISTS', `run directory ${runDir} already exists (claimed exclusively); move it aside or pass a fresh --out`);
+    }
+    throw error;
+  }
   const events = [];
   const artifactWriter = {
     write(name, value) {
@@ -226,14 +249,23 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     },
     thresholdDecider: (asked) => evaluateThreshold(asked.receipt, thresholdPolicy),
     executorImplementations,
-    verifier: ({ executionResult }) => buildVerificationReceipt({
-      work_unit_id: executionResult.work_unit_id,
-      verifier_executor_id: verifierSpec.verifier_executor_id,
-      independent: verifierSpec.independent,
-      outcome: verifierSpec.outcome,
-      evidence_refs: verifierSpec.evidence_refs,
-      checks: verifierSpec.checks || []
-    }),
+    verifier: ({ node, executionResult }) => {
+      // The attestation must belong to the verifier that actually executed
+      // the verification node — a declared id that routing did not bind
+      // never attests anything.
+      const boundVerifierId = node && node.executor_binding ? node.executor_binding.executor_id : null;
+      if (boundVerifierId !== verifierSpec.verifier_executor_id) {
+        throw new SpecError('SPEC_VERIFIER_MISMATCH', `verification node is executed by ${boundVerifierId} but the spec declares verifier_executor_id ${verifierSpec.verifier_executor_id}; the attestation must belong to the verifier that actually ran`);
+      }
+      return buildVerificationReceipt({
+        work_unit_id: executionResult.work_unit_id,
+        verifier_executor_id: verifierSpec.verifier_executor_id,
+        independent: verifierSpec.independent,
+        outcome: verifierSpec.outcome,
+        evidence_refs: verifierSpec.evidence_refs,
+        checks: verifierSpec.checks || []
+      });
+    },
     completionEngine: { evaluateCompletion },
     eventSink,
     artifactWriter,
