@@ -145,9 +145,10 @@ node runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.jso
 ```
 
 - Spec-driven: the run specification carries session, work request, template,
-  profiles, qualifications, fingerprints, availability, executor bindings,
-  Jev mode, and verifier declaration. Spec parts validate against the
-  canonical contracts before anything executes.
+  profiles, qualifications, fingerprints, the qualified fingerprint snapshots
+  they are drift-checked against, availability, executor bindings, Jev mode,
+  and verifier declaration. Spec parts validate against the canonical
+  contracts before anything executes.
 - Fixture transports only. A spec declaring a live transport
   (`codex_exec`, `openrouter_api`, ...) fails closed with
   `RUN_SPEC_TRANSPORT_UNSUPPORTED`; there is no fallback. Live lane probes
@@ -155,11 +156,23 @@ node runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.jso
 - Availability, policy compatibility, and budget compatibility are
   deny-by-default: executors the spec does not explicitly admit are
   ineligible.
+- Verifier declarations are explicit: `outcome`, `independent` and — for
+  PASS — at least one evidence ref must be declared; the runner never
+  upgrades a silent spec into a PASS attestation (`SPEC_VERIFIER_INVALID`).
+- Run directories are claimed exclusively: `--out` / `artifacts/runtime-runs/<runId>/`
+  is created atomically and any pre-existing directory — empty, non-empty, or
+  just claimed by a concurrent process — fails closed with `RUN_DIR_EXISTS`
+  (evidence integrity — two runs' event streams must not interleave).
+- Qualified fingerprint snapshots are bound to their qualification records
+  (identity, capability, profile must match), and the verifier declaration
+  must name the executor that actually executes the verification node
+  (`SPEC_VERIFIER_MISMATCH` otherwise) — attestations always belong to the
+  verifier that really ran.
 - Completion honesty: outputs and evidence presented to the completion
   engine are derived from what executors actually produced, never from
   declared spec intent.
-- Exit codes: 0 COMPLETED, 1 NOT_COMPLETED, 2 spec/usage error, 3 BLOCKED,
-  4 unexpected engine failure.
+- Exit codes: 0 COMPLETED, 1 NOT_COMPLETED, 2 spec/usage error (including
+  `RUN_DIR_EXISTS`), 3 BLOCKED, 4 unexpected engine failure.
 
 The vNext bundle per run (under `artifacts/runtime-runs/<runId>/`):
 `interaction-session.json`, `work-unit.json`, `completion-contract.json`,

@@ -1,0 +1,36 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": false,
+    "registry_relevant_change": false,
+    "reason": "Fail-closed hardening of the runtime:run CLI entry (verifier declarations, separate qualified_fingerprints spec part, run-directory reuse guard), repairing three Codex P1 review findings on merged PR #12. No CONTRACT_RECORD, PROVENANCE, or SUPERSESSION class changes: core/contracts/ is untouched, authority-matrix and owner-decision records are untouched, nothing is superseded. The runtime:run spec surface is CLI-local, not a canonical contract. Per the consumer binding, NO_CHANGE requires no Registry write; the change registration for the merge itself is projected separately after owner merge.",
+    "affected_records": [],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "runtime/cli/runtime-run.mjs",
+      "evidence/runtime-run-cli-2026-10-19/RUN.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [],
+    "evidence_refs": [
+      "tests/vnext/runtime-run-cli.test.mjs (10/10 pass incl. 3 new fail-closed tests: SPEC_VERIFIER_INVALID x2, missing qualified_fingerprints, RUN_DIR_EXISTS)",
+      "npm run test:vnext (264/264 pass)",
+      "npm run validate (PASS, no issues)",
+      "npm run validate-maws-vnext (PASS, no issues)"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/runtime-run-p1-hardening-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/ (unchanged in this change set)",
+      "evidence/runtime-run-p1-hardening-2026-10-20/RUN.md"
+    ],
+    "registry_baseline_sha": "cfb5a0bdf28690956c0000dc38ca0be9cc0c19af",
+    "implementation_commit_sha": "913662ad3e9fe29395b75a0b4e7f1baee30e5a9f",
+    "registry_commit_sha": null
+  }
+}
