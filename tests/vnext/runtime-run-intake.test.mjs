@@ -24,6 +24,15 @@ function tmpDir() {
 function writeSpec(mutator) {
   const spec = JSON.parse(fs.readFileSync(exampleSpecPath, 'utf8'));
   mutator(spec);
+  // The committed reference spec pins its intake binding to its own root
+  // work unit; re-point the pristine pin when a test renames the run.
+  // Mutators that deliberately set a foreign work unit (the mismatch test)
+  // are preserved.
+  for (const binding of Object.values(spec.intake_bindings || {})) {
+    if (binding.work_unit_id === 'wu_run_cli_reference_audit_0001_root') {
+      binding.work_unit_id = `wu_${spec.run_id}_root`;
+    }
+  }
   const dir = tmpDir();
   const specPath = path.join(dir, 'spec.json');
   fs.writeFileSync(specPath, JSON.stringify(spec, null, 2));
@@ -123,4 +132,58 @@ test('the binding only attests its own work unit', async () => {
     () => runRuntimeRun({ specPath, outDir: path.join(dir, 'run') }),
     (error) => error.code === 'INTAKE_WORK_UNIT_MISMATCH' && /wu_some_other_root/.test(error.message)
   );
+});
+
+test('the execution-control executor may never run unbound', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_intake_unbound_0001';
+    delete spec.intake_bindings;
+  });
+  await assert.rejects(
+    () => runRuntimeRun({ specPath, outDir: path.join(dir, 'run') }),
+    (error) => error.code === 'SPEC_INTAKE_BINDING_INVALID' && /may never run unbound/.test(error.message)
+  );
+});
+
+test('the recorded capability mapping must be the routed capability', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_intake_cap_mismatch_0001';
+    spec.intake_bindings.exec_unitera_execution_control_fixture.capability_mapping.maws_capability_id = 'cap_repository_analysis';
+  });
+  await assert.rejects(
+    () => runRuntimeRun({ specPath, outDir: path.join(dir, 'run') }),
+    (error) => error.code === 'SPEC_INTAKE_BINDING_INVALID' && /does not declare/.test(error.message)
+  );
+});
+
+test('a FAILED fixture outcome yields honest failure evidence', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_intake_failed_0001';
+    spec.executor_bindings.exec_unitera_execution_control_fixture.result.outcome = 'FAILED';
+  });
+  const outDir = path.join(dir, 'run');
+  const { summary, runDir } = await runRuntimeRun({ specPath, outDir });
+  assert.equal(summary.status, 'NOT_COMPLETED');
+  const records = JSON.parse(fs.readFileSync(path.join(runDir, 'intent-bindings.json'), 'utf8'));
+  assert.equal(records.length, 1);
+  assert.equal(records[0].status, 'failed');
+  const byStep = Object.fromEntries(records[0].chain.map((step) => [step.step, step.status]));
+  assert.equal(byStep.execute, 'FAILED');
+  assert.equal(byStep.reconcile, 'NOT_RUN');
+  assert.equal(byStep.authorize, 'OK');
+});
+
+test('qualified snapshots are keyed per qualification scope, not per executor', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_intake_fp_rekey_0001';
+    const qualification = spec.qualifications.find((entry) => entry.executor_id === 'exec_unitera_execution_control_fixture');
+    qualification.fingerprint_ref = 'fp_renamed_scope_probe';
+    spec.qualified_fingerprints.fp_renamed_scope_probe = {
+      ...spec.qualified_fingerprints.fp_unitera_execution_control_fixture,
+      fingerprint_id: 'fp_renamed_scope_probe'
+    };
+    delete spec.qualified_fingerprints.fp_unitera_execution_control_fixture;
+  });
+  const { summary } = await runRuntimeRun({ specPath, outDir: path.join(dir, 'run') });
+  assert.equal(summary.status, 'COMPLETED');
 });

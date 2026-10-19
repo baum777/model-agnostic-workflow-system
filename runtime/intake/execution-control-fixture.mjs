@@ -54,7 +54,18 @@ export function executionControlFixtureExecutor(executorId, binding, intakeBindi
     }
 
     const boundAt = now();
-    const chain = CHAIN_STEPS.map((step, index) => ({ step, status: 'OK', sequence: index + 1, at: now() }));
+    // Chain evidence mirrors the configured fixture outcome: a FAILED
+    // fixture marks execute as FAILED, leaves reconcile NOT_RUN and records
+    // status 'failed' — the evidence bundle never claims a successful chain
+    // for a failed execution.
+    const failed = template.outcome === 'FAILED';
+    const executeIndex = CHAIN_STEPS.indexOf('execute');
+    const chain = CHAIN_STEPS.map((step, index) => ({
+      step,
+      status: failed ? (index < executeIndex ? 'OK' : index === executeIndex ? 'FAILED' : 'NOT_RUN') : 'OK',
+      sequence: index + 1,
+      at: now()
+    }));
     const record = {
       binding_id: intakeBinding.binding_id,
       work_unit_id: intakeBinding.work_unit_id,
@@ -66,7 +77,7 @@ export function executionControlFixtureExecutor(executorId, binding, intakeBindi
       evidence_transition: { ...intakeBinding.evidence_transition },
       outcome_semantics: { ...intakeBinding.outcome_semantics },
       commitment_context: { ...intakeBinding.commitment_context },
-      status: 'executed',
+      status: failed ? 'failed' : 'executed',
       business_outcome: 'not_asserted',
       execution_receipt_ref: `er_${intakeBinding.binding_id.replace(/^eib_/, '')}`,
       chain,

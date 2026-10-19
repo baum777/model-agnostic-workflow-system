@@ -190,11 +190,11 @@ test('run directories are claimed exclusively: even an empty existing directory 
 test('qualified snapshots must bind to their qualification records (SPEC_FINGERPRINT_INVALID)', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_fp_unbound_0001';
-    spec.qualified_fingerprints.exec_openrouter_glm.fingerprint_id = 'fp_unrelated_snapshot';
+    spec.qualifications[0].fingerprint_ref = 'fp_unrelated_snapshot';
   });
   await assert.rejects(
     () => runRuntimeRun({ specPath, outDir: path.join(dir, 'run') }),
-    (error) => error.code === 'SPEC_FINGERPRINT_INVALID' && /not bound to a matching qualified_fingerprints/.test(error.message)
+    (error) => error.code === 'SPEC_FINGERPRINT_INVALID' && /no matching qualified_fingerprints snapshot at key fp_unrelated_snapshot/.test(error.message)
   );
 });
 
