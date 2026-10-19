@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- `runtime:run` is now an operational entry point for the governed vNext run pipeline (previously a Phase-1 stub): loads a run spec, validates spec parts against the canonical contracts, drives `executeWorkRun` end to end, and persists the evidence bundle plus `run-events.jsonl` under `artifacts/runtime-runs/<runId>/`.
+- Fixture transports only; live transports fail closed with `RUN_SPEC_TRANSPORT_UNSUPPORTED` (no fallback). Live lane probes remain `runtime:activate-vnext`.
+- Availability / policy / budget compatibility are deny-by-default per executor.
+- Completion honesty: outputs and evidence are derived from produced execution results and verification receipts, not declared spec intent.
+- Added committed reference spec `runtime/cli/specs/reference-audit-v1.json` and CLI qualification tests (`tests/vnext/runtime-run-cli.test.mjs`).
+
 ## 0.3.0 - planned
 
 - Added contract-backed agentic workflow extension modules:

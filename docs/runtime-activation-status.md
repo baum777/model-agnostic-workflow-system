@@ -14,6 +14,7 @@ Use rule: use this as the compact implementation and activation status for the l
 The following surfaces are implemented as local runtime behavior and evidence-producing checks:
 
 - Runtime Phase 1-13
+- vNext governed run entry (`runtime:run`: spec-driven, drives `executeWorkRun`, fixture transports only; live transports fail closed with `RUN_SPEC_TRANSPORT_UNSUPPORTED`)
 - Memory Skeleton
 - controlled runtime memory writes
 - Replay/Validation

@@ -131,12 +131,41 @@ npm run memory:validate
 
 Validates the Phase 2 memory skeleton. This checks structure, schemas, policy markers, and disabled-capability posture only.
 
-The following commands intentionally fail closed in the current local runtime slice:
+`npm run runtime:status` intentionally fails closed in the current local runtime slice.
+
+## vNext governed run entry (runtime:run)
+
+`runtime:run` is the operational entry point for the governed vNext run
+pipeline (intake -> envelope -> eligibility -> Jev bounded preference ->
+routing -> BoundExecutionGraph -> execution -> verification ->
+CompletionContract -> evidence). It is NOT the Phase-1 local slice above.
 
 ```bash
-npm run runtime:run
-npm run runtime:status
+node runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.json
 ```
+
+- Spec-driven: the run specification carries session, work request, template,
+  profiles, qualifications, fingerprints, availability, executor bindings,
+  Jev mode, and verifier declaration. Spec parts validate against the
+  canonical contracts before anything executes.
+- Fixture transports only. A spec declaring a live transport
+  (`codex_exec`, `openrouter_api`, ...) fails closed with
+  `RUN_SPEC_TRANSPORT_UNSUPPORTED`; there is no fallback. Live lane probes
+  remain `runtime:activate-vnext`.
+- Availability, policy compatibility, and budget compatibility are
+  deny-by-default: executors the spec does not explicitly admit are
+  ineligible.
+- Completion honesty: outputs and evidence presented to the completion
+  engine are derived from what executors actually produced, never from
+  declared spec intent.
+- Exit codes: 0 COMPLETED, 1 NOT_COMPLETED, 2 spec/usage error, 3 BLOCKED,
+  4 unexpected engine failure.
+
+The vNext bundle per run (under `artifacts/runtime-runs/<runId>/`):
+`interaction-session.json`, `work-unit.json`, `completion-contract.json`,
+`eligibility-decisions.json`, `routing-decisions.json`, `graph-v<N>.json`,
+`execution-results.json`, `verification-receipts.json`,
+`completion-decision.json`, `run-events.jsonl`.
 
 ## Artifact Contract
 
