@@ -1,0 +1,35 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": false,
+    "registry_relevant_change": false,
+    "reason": "runtime:run is an operational CLI entry point wiring existing, unchanged canonical contracts and existing runtime collaborators into a spec-driven runner. No CONTRACT_RECORD, PROVENANCE, or SUPERSESSION class changes: core/contracts/ is untouched, authority-matrix and owner-decision records are untouched, nothing is superseded. Docs (runtime.md, runtime-activation-status.md, CHANGELOG) describe the new surface without altering contract truth. Per the consumer binding, NO_CHANGE requires no Registry write.",
+    "affected_records": [],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "tests/vnext/e2e-reference-run.test.mjs"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [],
+    "evidence_refs": [
+      "tests/vnext/runtime-run-cli.test.mjs (7/7 pass: reference spec completes with full evidence bundle; CLI child process exit 0; honest completion; deny-by-default availability; live-transport fail-closed; unknown-executor fail-closed; missing-spec fail-closed)",
+      "npm run test:vnext (261/261 pass)",
+      "npm run validate (PASS, no issues)",
+      "npm run validate-maws-vnext (PASS, no issues)"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/runtime-run-cli-2026-10-19/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/ (unchanged in this change set)",
+      "docs/runtime.md#vNext governed run entry (runtime:run)"
+    ],
+    "registry_baseline_sha": "89c8a0c41f8555e05d996ab1938c70e007566156",
+    "implementation_commit_sha": "435bc3d520acccde0461fdabc6dfd82acb9087ad",
+    "registry_commit_sha": null
+  }
+}
