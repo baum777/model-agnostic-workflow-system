@@ -1,0 +1,50 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Scope is the instruction-integrity hardening that follows the S3 auditor slice of the PROPOSED MAWS-SII-TARGET-SPEC-001: a reference-classification change in the read-only resolver, an inventory coverage extension to the declared skills/ tree, one removed false row in docs/authority-matrix.md, the corrected signing disclosure in the S3 run record, tests and an evidence record. Determination under the closed relevance taxonomy: no registered record changed. The slice touches no file registered as a SOURCE_RECORD or CONTRACT_RECORD in the Unitera registry (neither docs/authority-matrix.md nor core/contracts/portable-skill-manifest.json appears in registry/SOURCE_CATALOG.yaml, registry/SOURCE_PROVENANCE.yaml or registry/MAWS_VNEXT_CONTRACTS_001.yaml), it changes no domain binding in registry/AUTHORITY_MAP.yaml, no dependency or lifecycle binding, no supersession relation, and it alters no provenance record (the registered MAWS provenance path docs/governance/registry-disposition.md is untouched). It creates no contract and no canonical claim beyond removing a row that asserted a non-existent source; the portable-skill-manifest contract itself is unchanged. The removed row is a correction of a false assertion inside an owner repository document, not a mutation of a registered object. The auditor and the resolver remain analysis surfaces: they grant no permission, activate nothing, and replace no authority or approval decision. Registry relevance is re-evaluated when the specification is adopted or when a slice registers a new object.",
+    "registry_baseline_sha": "0bba9e09f1e6010288548a329c585ebf63af6f9f",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/governance/source-hierarchy.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "runtime/instructions/instruction-resolver.mjs",
+      "runtime/instructions/instruction-inventory.mjs",
+      "runtime/instructions/instruction-auditor.mjs",
+      "docs/authority-matrix.md",
+      "tests/vnext/instruction-resolver.test.mjs",
+      "tests/vnext/instruction-inventory.test.mjs",
+      "tests/vnext/instruction-auditor.test.mjs",
+      "evidence/instruction-integrity-hardening-2026-10-20/audit-report-f5a0d716.json"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/instruction-integrity-hardening-2026-10-20/RUN.md",
+      "evidence/instruction-auditor-2026-10-20/RUN.md",
+      "evidence/audit-report-866ab49.json"
+    ],
+    "evidence_refs": [
+      "evidence/instruction-integrity-hardening-2026-10-20/RUN.md",
+      "re-audit at f5a0d716: ia_e01a2196431a30ba, 0 findings (0 blocker), 0 contract violations, reference classes 395 resolved / 2 glob_pattern / 1 git_range / 1 documented_absence / 11 external_workspace / 0 dangling",
+      "npm run test:vnext (319/319 pass, 0 fail)",
+      "node --test tests/vnext/instruction-auditor.test.mjs (10/10 pass)",
+      "node --test tests/vnext/instruction-resolver.test.mjs (6/6 pass)",
+      "node --test tests/vnext/instruction-inventory.test.mjs (6/6 pass)",
+      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
+      "npm run eval:maws-vnext (exit 0); npm run validate-instruction-integrity (21 cases checked, 0 unexpected results)",
+      "git log --format='%G?' on f5a0d716f23725e3b277f8984beb28e8405dc53b reports G (validly signed)"
+    ],
+    "implementation_commit_sha": "f5a0d716f23725e3b277f8984beb28e8405dc53b",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-integrity-hardening-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}

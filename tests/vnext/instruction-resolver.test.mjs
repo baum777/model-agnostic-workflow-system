@@ -38,6 +38,8 @@ function writeMinimalDeclaredTree(tmp, { withPackageJson = true } = {}) {
     fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
     fs.writeFileSync(path.join(tmp, rel), `stub ${rel}\n`);
   }
+  fs.mkdirSync(path.join(tmp, 'skills/shared-demo'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'skills/shared-demo/SKILL.md'), '# Shared demo\n');
   fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
   fs.writeFileSync(
     path.join(tmp, 'core/skills/demo-skill/SKILL.md'),
@@ -48,6 +50,11 @@ function writeMinimalDeclaredTree(tmp, { withPackageJson = true } = {}) {
       'External: [site](https://example.com) — pure anchor: [jump](#section).',
       'Path span: `docs/authority-matrix.md` and command span: `npm run demo:script`.',
       'Unknown command span: `npm run no-such-script`.',
+      'Glob span: `core/skills/*/SKILL.md`.',
+      'Range span: `origin/main..main`.',
+      'Consumer-local span: `.codex/repo-intake-inputs.json`.',
+      'Workspace span: `supabase/config.toml`.',
+      '`.codex/shared-core-map.json` was not present in the inspected repo.',
       ''
     ].join('\n')
   );
@@ -99,7 +106,7 @@ test('graph builds over the real repository with deterministic, revision-bound d
     assert.ok(first.nodes.some((node) => node.path === edge.from), `edge origin must be an inventory node: ${edge.from}`);
     assert.ok(Number.isInteger(edge.line) && edge.line >= 1);
     assert.ok(['md_link', 'inline_path', 'npm_run_command'].includes(edge.kind));
-    assert.ok(['resolved', 'dangling'].includes(edge.status));
+    assert.ok(['resolved', 'dangling', 'glob_pattern', 'git_range', 'documented_absence', 'external_workspace'].includes(edge.status));
   }
 });
 
@@ -130,6 +137,7 @@ test('closed extraction rules: resolved, dangling, external, and command edges (
     const inlinePath = skillEdges.find((edge) => edge.kind === 'inline_path' && edge.target === 'docs/authority-matrix.md');
     assert.ok(inlinePath, 'path-shaped code span must produce an edge');
     assert.equal(inlinePath.status, 'resolved');
+    assert.equal(inlinePath.resolved, 'docs/authority-matrix.md', 'a repository-root path resolves from the document directory and stays repository-root relative');
 
     const knownCommand = skillEdges.find((edge) => edge.kind === 'npm_run_command' && edge.target === 'demo:script');
     assert.ok(knownCommand, 'npm run edge for a declared script must resolve');
@@ -142,6 +150,28 @@ test('closed extraction rules: resolved, dangling, external, and command edges (
 
     assert.equal(graph.dangling_count, graph.edges.filter((edge) => edge.status === 'dangling').length);
     assert.ok(graph.dangling_count >= 2, 'the planted dangling link and command must be counted');
+
+    // The reference classes that are not defects must be classified, not
+    // collapsed into the dangling bucket.
+    const glob = skillEdges.find((edge) => edge.target === 'core/skills/*/SKILL.md');
+    assert.ok(glob, 'a glob span must produce an edge');
+    assert.equal(glob.status, 'glob_pattern');
+
+    const range = skillEdges.find((edge) => edge.target === 'origin/main..main');
+    assert.ok(range, 'a revision range must produce an edge');
+    assert.equal(range.status, 'git_range');
+
+    const consumerLocal = skillEdges.find((edge) => edge.target === '.codex/repo-intake-inputs.json');
+    assert.ok(consumerLocal, 'a consumer-local path must produce an edge');
+    assert.equal(consumerLocal.status, 'external_workspace');
+
+    const workspace = skillEdges.find((edge) => edge.target === 'supabase/config.toml');
+    assert.ok(workspace, 'a workspace path must produce an edge');
+    assert.equal(workspace.status, 'external_workspace');
+
+    const absence = skillEdges.find((edge) => edge.target === '.codex/shared-core-map.json');
+    assert.ok(absence, 'a documented absence must produce an edge');
+    assert.equal(absence.status, 'documented_absence');
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }

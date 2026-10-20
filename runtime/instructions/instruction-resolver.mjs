@@ -34,6 +34,60 @@ function isPathShapedSpan(span) {
   return true;
 }
 
+// A path-shaped reference that names a pattern rather than a file. Glob
+// patterns are workspace selection rules, not file references: they have no
+// single resolvable target and their absence from the repository is not a
+// defect.
+const WILDCARD = /[*?[\]{}]/;
+
+// A revision range. `origin/main..main` names two revisions, not a file; it
+// is a git expression whose apparent file extension (".main") is an accident
+// of the revision name. A relative path such as `../../AGENTS.md` also
+// contains "..", so the range form is recognized by its right-hand side
+// being a revision name rather than a path: no separator and no file
+// extension.
+function isGitRange(target) {
+  if (!target.includes('..')) return false;
+  if (target.startsWith('../')) return false;
+  const right = target.slice(target.lastIndexOf('..') + 2);
+  if (right.length === 0) return false;
+  if (right.includes('/')) return false;
+  if (/\.[A-Za-z0-9]{1,8}$/.test(right)) return false;
+  return true;
+}
+
+// Documented absences. A reference that the source explicitly states does not
+// exist is a recorded finding about the repository, not a broken reference.
+const ABSENCE_STATEMENT = [
+  /\bnot present\b/i,
+  /\bdoes not exist\b/i,
+  /\bdoesn't exist\b/i,
+  /\bnot exist\b/i,
+  /\bdoes not appear\b/i,
+  /\bnot found\b/i,
+  /\bnicht vorhanden\b/i,
+  /\bnicht existierend\b/i
+];
+
+// Consumer-local and workspace-local contract directories. These paths are
+// declared by the consumer repository (`.codex/`, `.qwen/`) or by the
+// workspace a skill operates on (`supabase/`), not by this repository: their
+// absence here is by design and their presence is not this repository's
+// business.
+const NON_REPOSITORY_PATH_PREFIXES = ['.codex/', '.qwen/', 'supabase/'];
+
+function isGlobPattern(target) {
+  return WILDCARD.test(target);
+}
+
+function statesAbsence(lineText) {
+  return ABSENCE_STATEMENT.some((pattern) => pattern.test(lineText));
+}
+
+function isNonRepositoryPath(target) {
+  return NON_REPOSITORY_PATH_PREFIXES.some((prefix) => target.startsWith(prefix));
+}
+
 // Extract references from one source file body. Returns edges relative to
 // `sourcePath` (repo-relative posix), one per match, with 1-based line
 // numbers. Duplicate (kind, target, line) triples are collapsed.
@@ -52,40 +106,70 @@ function extractEdges(sourcePath, content) {
     for (const match of line.matchAll(/\[[^\]\n]*\]\(([^)\n]*)\)/g)) {
       const target = match[1];
       if (target.length === 0 || isExternalTarget(target)) continue;
-      push({ kind: 'md_link', target, line: lineNo });
+      push({ kind: 'md_link', target, line: lineNo, line_text: line });
     }
     for (const match of line.matchAll(/`([^`\n]+)`/g)) {
       const span = match[1];
       const commandMatch = span.match(/^npm run ([A-Za-z0-9:_.-]+)$/);
       if (commandMatch) {
-        push({ kind: 'npm_run_command', target: commandMatch[1], line: lineNo });
+        push({ kind: 'npm_run_command', target: commandMatch[1], line: lineNo, line_text: line });
         continue;
       }
       if (isPathShapedSpan(span)) {
-        push({ kind: 'inline_path', target: span, line: lineNo });
+        push({ kind: 'inline_path', target: span, line: lineNo, line_text: line });
       }
     }
   });
   return edges;
 }
 
-// Resolve one extracted file edge against the repo tree. Markdown links
-// resolve document-relative (HTML link semantics); path-shaped code spans
-// resolve repository-root-relative (instruction-document convention).
-// Fragments are stripped before resolution. A reference that escapes the
-// repository root or names a missing path resolves as dangling — recorded as
-// data, never an error here.
-function resolveFileEdge(root, sourcePath, target, base) {
+// Resolve one extracted file edge against the repo tree. Fragments are
+// stripped before resolution.
+//
+// Resolution is tried against two bases, in order: relative to the
+// referencing document's own directory, then relative to the repository
+// root. A skill that points at `references/style-selection-map.md` means the
+// file next to it; a governance document that points at
+// `core/skills/repo-audit/SKILL.md` means the repository path. Both are
+// legitimate instruction conventions, and resolving only one of them
+// produced false dangling references in both directions.
+//
+// A reference that names no resolvable file is classified, not collapsed into
+// one bucket. Five classes exist, and only the last one is a defect:
+//
+//   resolved              — the target exists in this repository
+//   glob_pattern          — the target names a selection pattern, not a file
+//   git_range             — the target names a revision range, not a file
+//   documented_absence    — the source states that the target does not exist
+//   external_workspace    — the target belongs to a consumer or workspace
+//   dangling              — the target should exist here and does not
+//
+// The middle four are recorded in the graph with their own status, so the
+// auditor can report them without claiming a defect, and so the counts stay
+// visible instead of being silently dropped.
+function resolveFileEdge(root, sourcePath, target, base, lineText) {
   const fragmentIndex = target.indexOf('#');
   const fileTarget = fragmentIndex >= 0 ? target.slice(0, fragmentIndex) : target;
   if (fileTarget.length === 0) return { resolved: null, status: 'dangling' };
-  const baseDir = base === 'root' ? '.' : path.posix.dirname(sourcePath);
-  const joined = fileTarget.startsWith('/')
-    ? fileTarget.slice(1)
-    : path.posix.normalize(path.posix.join(baseDir, fileTarget));
-  if (joined.startsWith('..')) return { resolved: null, status: 'dangling' };
-  if (fs.existsSync(path.join(root, joined))) {
-    return { resolved: joined, status: 'resolved' };
+  if (isGlobPattern(fileTarget)) return { resolved: null, status: 'glob_pattern' };
+  if (isGitRange(fileTarget)) return { resolved: null, status: 'git_range' };
+  if (statesAbsence(lineText ?? '')) return { resolved: null, status: 'documented_absence' };
+  if (isNonRepositoryPath(fileTarget)) return { resolved: null, status: 'external_workspace' };
+  if (fileTarget.startsWith('/')) {
+    const rooted = fileTarget.slice(1);
+    return fs.existsSync(path.join(root, rooted))
+      ? { resolved: rooted, status: 'resolved' }
+      : { resolved: null, status: 'dangling' };
+  }
+  const baseDirs = base === 'root'
+    ? [path.posix.dirname(sourcePath), '.']
+    : [path.posix.dirname(sourcePath)];
+  for (const baseDir of baseDirs) {
+    const joined = path.posix.normalize(path.posix.join(baseDir, fileTarget));
+    if (joined.startsWith('..')) continue;
+    if (fs.existsSync(path.join(root, joined))) {
+      return { resolved: joined, status: 'resolved' };
+    }
   }
   return { resolved: null, status: 'dangling' };
 }
@@ -107,7 +191,7 @@ function readPackageScripts(root) {
 
 // buildInstructionGraph({ root, revision }) ->
 //   { schema_version, revision, inventory_schema_version, node_count,
-//     edge_count, nodes, edges, dangling_count, digest }
+//     edge_count, nodes, edges, dangling_count, status_counts, digest }
 // Nodes are the inventory sources (path, role, authority_class, sha256).
 // Edges carry {from, kind, target, line, resolved, status}; command edges
 // resolve against the root package.json scripts map. The digest binds the
@@ -126,14 +210,15 @@ export function buildInstructionGraph({ root, revision }) {
   for (const node of nodes) {
     const content = fs.readFileSync(path.join(root, node.path), 'utf8');
     for (const edge of extractEdges(node.path, content)) {
+      const { line_text: lineText, ...rest } = edge;
       if (edge.kind === 'npm_run_command') {
         if (packageScripts === null) packageScripts = readPackageScripts(root);
         const resolved = Object.prototype.hasOwnProperty.call(packageScripts, edge.target);
-        edges.push({ from: node.path, ...edge, resolved: resolved ? edge.target : null, status: resolved ? 'resolved' : 'dangling' });
+        edges.push({ from: node.path, ...rest, resolved: resolved ? edge.target : null, status: resolved ? 'resolved' : 'dangling' });
       } else {
         const base = edge.kind === 'inline_path' ? 'root' : 'source_dir';
-        const { resolved, status } = resolveFileEdge(root, node.path, edge.target, base);
-        edges.push({ from: node.path, ...edge, resolved, status });
+        const { resolved, status } = resolveFileEdge(root, node.path, edge.target, base, lineText);
+        edges.push({ from: node.path, ...rest, resolved, status });
       }
     }
   }
@@ -145,6 +230,10 @@ export function buildInstructionGraph({ root, revision }) {
   });
 
   const digest = sha256Hex(canonicalJson({ revision, nodes, edges }));
+  const statusCounts = { resolved: 0, glob_pattern: 0, git_range: 0, documented_absence: 0, external_workspace: 0, dangling: 0 };
+  for (const edge of edges) {
+    if (Object.prototype.hasOwnProperty.call(statusCounts, edge.status)) statusCounts[edge.status] += 1;
+  }
   return {
     schema_version: GRAPH_SCHEMA_VERSION,
     inventory_schema_version: INVENTORY_SCHEMA_VERSION,
@@ -153,7 +242,8 @@ export function buildInstructionGraph({ root, revision }) {
     edge_count: edges.length,
     nodes,
     edges,
-    dangling_count: edges.filter((edge) => edge.status === 'dangling').length,
+    dangling_count: statusCounts.dangling,
+    status_counts: statusCounts,
     digest
   };
 }
