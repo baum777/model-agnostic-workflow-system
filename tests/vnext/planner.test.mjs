@@ -69,7 +69,9 @@ function buildBoundGraph() {
     graphId: 'graph_run_0001',
     root,
     workUnits: [rootWorkUnit],
-    harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' }
+    harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' },
+    qualifications: [{ qualification_id: 'qual_or_glm_ana_0001', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_planner_dev' }],
+    qualifiedFingerprints: { fp_planner_dev: { fingerprint_id: 'fp_planner_dev', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/planner-test/1' } } }
   });
   return { workUnits, graphStore, graph, candidate, rootWorkUnit };
 }
@@ -98,7 +100,7 @@ test('candidate missing a mandatory stage cannot be bound (OD-02)', () => {
   const candidate = buildCandidate({ template, workUnits: [rootWorkUnit] });
   candidate.nodes = candidate.nodes.filter((node) => node.stage !== 'verification');
   assert.throws(
-    () => planAndBind({ template, candidate, routingForNode: () => ({ ...binding }), workGraphStore: createWorkGraphStore({ root }), graphId: 'graph_x', root, workUnits: [], harnessContext: { context_id: 'hctx_x', context: 'development_harness' } }),
+    () => planAndBind({ template, candidate, routingForNode: () => ({ ...binding }), workGraphStore: createWorkGraphStore({ root }), graphId: 'graph_x', root, workUnits: [], harnessContext: { context_id: 'hctx_x', context: 'development_harness' }, qualifications: [{ qualification_id: 'qual_or_glm_ana_0001', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_planner_dev' }], qualifiedFingerprints: { fp_planner_dev: { fingerprint_id: 'fp_planner_dev', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/planner-test/1' } } } }),
     (error) => error instanceof FailClosedError && error.code === 'CANDIDATE_INVALID' && error.message.includes('verification')
   );
 });
@@ -178,10 +180,17 @@ test('revision anchored at active version is accepted and creates a new immutabl
   validateRevisionRequest(request, root);
   const { decision, newGraph } = engine.submit('graph_run_0001', request, {
     workUnits: [rootWorkUnit],
+    harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' },
     // S11 R4 on the revision path: a qualification-replacing rebind must
     // prove the new qualification was earned under the bound context.
-    qualifications: [{ qualification_id: 'qual_local_tests_verify_0001', fingerprint_ref: 'fp_local_tests_dev' }],
-    qualifiedFingerprints: { fp_local_tests_dev: { fingerprint_id: 'fp_local_tests_dev', components: { runtime_harness: 'development_harness/planner-test/1' } } }
+    qualifications: [
+      { qualification_id: 'qual_local_tests_verify_0001', executor_id: 'exec_local_tests', capability_id: 'cap_deterministic_verification', fingerprint_ref: 'fp_local_tests_dev' },
+      { qualification_id: 'qual_or_glm_ana_0001', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_planner_dev' }
+    ],
+    qualifiedFingerprints: {
+      fp_local_tests_dev: { fingerprint_id: 'fp_local_tests_dev', executor_id: 'exec_local_tests', capability_id: 'cap_deterministic_verification', components: { runtime_harness: 'development_harness/planner-test/1' } },
+      fp_planner_dev: { fingerprint_id: 'fp_planner_dev', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/planner-test/1' } }
+    }
   });
   assert.equal(decision.outcome, 'ACCEPTED');
   assert.equal(decision.new_graph_version, 2);
@@ -212,8 +221,8 @@ test('stale revision request becomes STALE with explicit revalidation and never 
     source: 'runtime',
     motivation: 'budget refresh',
     payload: {}
-  }, { workUnits: [rootWorkUnit] });
-  const { decision, newGraph } = engine.submit('graph_run_0001', request, { workUnits: [rootWorkUnit] });
+  }, { workUnits: [rootWorkUnit], harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' }, qualifications: [{ qualification_id: 'qual_or_glm_ana_0001', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_planner_dev' }], qualifiedFingerprints: { fp_planner_dev: { fingerprint_id: 'fp_planner_dev', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/planner-test/1' } } } });
+  const { decision, newGraph } = engine.submit('graph_run_0001', request, { workUnits: [rootWorkUnit], harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' }, qualifications: [{ qualification_id: 'qual_or_glm_ana_0001', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_planner_dev' }], qualifiedFingerprints: { fp_planner_dev: { fingerprint_id: 'fp_planner_dev', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/planner-test/1' } } } });
   assert.equal(decision.outcome, 'STALE');
   assert.ok(['CONFLICTING', 'OBSOLETE', 'REQUIRES_REBASE'].includes(decision.revalidation));
   assert.equal(newGraph, null);
@@ -271,7 +280,7 @@ test('activation supersession records are monotonic and schema-valid (OD-05)', (
     source: 'human',
     motivation: 'context refresh',
     payload: {}
-  }, { workUnits: [rootWorkUnit] });
+  }, { workUnits: [rootWorkUnit], harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' }, qualifications: [{ qualification_id: 'qual_or_glm_ana_0001', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_planner_dev' }], qualifiedFingerprints: { fp_planner_dev: { fingerprint_id: 'fp_planner_dev', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/planner-test/1' } } } });
   const records = graphStore.allSupersessions();
   assert.ok(records.length >= 1);
   for (const record of records) {

@@ -5,7 +5,7 @@
 import { newId, nowIso, FailClosedError } from '../vnext/util.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
 import { deepFreeze } from './work-unit-store.mjs';
-import { assertQualificationContextBinding } from '../harness-context/context-binding.mjs';
+import { assertGraphBindingIntegrity } from '../harness-context/context-binding.mjs';
 
 const REQUEST_CONTRACT = 'core/contracts/plan-revision-request.schema.json';
 const DECISION_CONTRACT = 'core/contracts/plan-revision-decision.schema.json';
@@ -79,7 +79,7 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
     // and its context reference checked exactly like initial planning
     // (S11); without it an add_node revision could anchor a node to a
     // WorkUnit bound to a different context.
-    submit(graphId, request, { buildNewVersion, workUnits, qualifications = null, qualifiedFingerprints = null } = {}) {
+    submit(graphId, request, { buildNewVersion, workUnits, harnessContext = null, qualifications = null, qualifiedFingerprints = null } = {}) {
       validateRevisionRequest(request, root);
       const activeVersion = workGraphStore.activeVersion(graphId);
       const base = request.base_graph_version;
@@ -110,76 +110,18 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
 
       const activeGraph = workGraphStore.getActive(graphId);
       const newVersionNumber = activeVersion + 1;
-      const candidateNodes = applyChangeToNodes(activeGraph.nodes.map((node) => structuredClone(node)), request);
-      if (candidateNodes.length === 0) {
-        throw new FailClosedError('REVISION_EMPTIES_GRAPH', 'revision would leave the graph without nodes');
-      }
-      // S11: every candidate node's WorkUnit is resolved and its context
-      // reference checked exactly like initial planning. Without this, an
-      // add_node revision could anchor a node to a WorkUnit bound to a
-      // different context.
+      // S11: the revision path resolves WorkUnits and the context record
+      // exactly like initial planning; without them nothing binds.
       if (!Array.isArray(workUnits)) {
         throw new FailClosedError('CONTEXT_BINDING_MISSING', 'revision submission requires the workUnits collection; binding without WorkUnit resolution is not permitted');
       }
-      const workUnitById = new Map(workUnits.filter((workUnit) => workUnit && typeof workUnit === 'object').map((workUnit) => [workUnit.work_unit_id, workUnit]));
-      const assertNodesResolveWorkUnits = (nodes) => {
-        for (const node of nodes) {
-          const workUnit = workUnitById.get(node.work_unit_id);
-          if (!workUnit) {
-            throw new FailClosedError('CONTEXT_BINDING_MISSING', `revision node ${node.node_id} references work unit ${node.work_unit_id}, which was not provided for binding resolution`);
-          }
-          if (workUnit.harness_context_ref !== node.executor_binding.harness_context_ref) {
-            throw new FailClosedError(
-              'CONTEXT_BINDING_CONFLICT',
-              `revision node ${node.node_id} binds context "${node.executor_binding.harness_context_ref}" but its work unit ${node.work_unit_id} declares "${workUnit.harness_context_ref}"`
-            );
-          }
-        }
-      };
-      assertNodesResolveWorkUnits(candidateNodes);
-      // S11 R4 on the revision path: a rebind that REPLACES a qualification
-      // must present a qualification earned under the graph's bound context.
-      // Without the qualification/fingerprint inputs this cannot be proven
-      // and fails closed; unchanged qualification refs are not re-claimed.
-      const assertQualificationsHoldContext = (nodes) => {
-        for (const node of nodes) {
-          const previous = activeGraph.nodes.find((candidate) => candidate.node_id === node.node_id);
-          // Skip only when a previous binding EXISTS and the qualification
-          // ref is unchanged -- a NEW node (add_node) claims a qualification
-          // for the first time and must prove the context binding like a
-          // changed ref does.
-          if (previous && previous.executor_binding.qualification_ref === node.executor_binding.qualification_ref) {
-            continue;
-          }
-          if (!Array.isArray(qualifications) || qualifiedFingerprints === null || typeof qualifiedFingerprints !== 'object') {
-            const claim = previous
-              ? `rebind of node ${node.node_id} replaces qualification "${previous.executor_binding.qualification_ref}" with "${node.executor_binding.qualification_ref}"`
-              : `new node ${node.node_id} claims qualification "${node.executor_binding.qualification_ref}"`;
-            throw new FailClosedError('CONTEXT_BINDING_MISSING', `${claim}; qualification and qualifiedFingerprint inputs are required to prove the context binding`);
-          }
-          const qualification = qualifications.find((entry) => entry && entry.qualification_id === node.executor_binding.qualification_ref);
-          const fingerprint = qualification ? Object.values(qualifiedFingerprints).find((entry) => entry && entry.fingerprint_id === qualification.fingerprint_ref) : null;
-          if (!fingerprint) {
-            throw new FailClosedError('CONTEXT_BINDING_CONFLICT', `routing replacement on node ${node.node_id} references qualification ${node.executor_binding.qualification_ref} without a resolvable fingerprint; an ambiguous qualification binds no executor`);
-          }
-          assertQualificationContextBinding({ runtimeHarness: fingerprint.components.runtime_harness, context: activeGraph.nodes[0].executor_binding.harness_context });
-        }
-      };
-      assertQualificationsHoldContext(candidateNodes);
-      // S11 R3/R4: the referenced WorkUnits are immutable, so a graph
-      // revision cannot change the harness context -- a context switch is a
-      // bound plan change that re-anchors WorkUnits through a new plan.
-      // Supersession records still represent evidenced transitions on the
-      // read side (graph-supersession-record.schema.json context_change),
-      // but the live revision path fails closed here.
-      const contextPair = (node) => `${node.executor_binding.harness_context ?? ''}|${node.executor_binding.harness_context_ref ?? ''}`;
-      const contextChanged = new Set(candidateNodes.map(contextPair)).size > 1
-        || [...new Set(candidateNodes.map(contextPair))].some((pair) => !activeGraph.nodes.some((node) => contextPair(node) === pair));
-      if (contextChanged) {
-        throw new FailClosedError(
-          'CONTEXT_BINDING_CONFLICT',
-          'a graph revision cannot change the harness context; the referenced WorkUnits are immutable and a context switch is a bound plan change that re-anchors WorkUnits through a new plan'
-        );
+      if (!harnessContext || typeof harnessContext !== 'object' || harnessContext.context_id === undefined) {
+        throw new FailClosedError('CONTEXT_BINDING_MISSING', 'revision submission requires the validated harnessContext record; binding without context resolution is not permitted');
+      }
+      const contextRecord = harnessContext;
+      const candidateNodes = applyChangeToNodes(activeGraph.nodes.map((node) => structuredClone(node)), request);
+      if (candidateNodes.length === 0) {
+        throw new FailClosedError('REVISION_EMPTIES_GRAPH', 'revision would leave the graph without nodes');
       }
       const newGraph = buildNewVersion
         ? buildNewVersion({ baseGraph: activeGraph, nodes: candidateNodes, newVersionNumber, request })
@@ -189,23 +131,19 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
           nodes: deepFreeze(candidateNodes),
           created_at: decidedAt()
         });
-      // A buildNewVersion callback may substitute the node set: the returned
-      // graph is re-validated against the SAME checks as the candidate --
-      // WorkUnit resolution AND the pair-level context-delta rule -- before
-      // registration (a swapped-in uniform false-value graph cannot bypass
-      // the gate, with or without an evidenced context_change).
+      // A buildNewVersion callback may substitute the node set: the
+      // returned graph is re-validated with the SAME canonical integrity
+      // check (all rules, one entry point) before registration.
       if (newGraph !== null && typeof newGraph === 'object' && Array.isArray(newGraph.nodes)) {
-        assertNodesResolveWorkUnits(newGraph.nodes);
-        assertQualificationsHoldContext(newGraph.nodes);
-        const callbackPair = (node) => `${node.executor_binding.harness_context ?? ''}|${node.executor_binding.harness_context_ref ?? ''}`;
-        const callbackChanged = new Set(newGraph.nodes.map(callbackPair)).size > 1
-          || [...new Set(newGraph.nodes.map(callbackPair))].some((pair) => !activeGraph.nodes.some((node) => contextPair(node) === pair));
-        if (callbackChanged) {
-          throw new FailClosedError(
-            'CONTEXT_BINDING_CONFLICT',
-            'a buildNewVersion callback cannot change the harness context; the referenced WorkUnits are immutable and a context switch is a bound plan change that re-anchors WorkUnits through a new plan'
-          );
-        }
+        assertGraphBindingIntegrity({
+          graph: newGraph,
+          workUnits,
+          context: contextRecord,
+          qualifications,
+          qualifiedFingerprints,
+          previousGraph: activeGraph,
+          contextChange: (request.payload && request.payload.context_change) || null
+        });
       }
       // Registration and activation are one atomic step from the caller's
       // perspective: a candidate rejected during activation is discarded so

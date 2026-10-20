@@ -241,3 +241,137 @@ export function assertSupersessionContextChange({ previousPair, nextPair, contex
     failClosed('CONTEXT_SWITCH_UNEVIDENCED', 'supersession context_change carries no evidence_ref');
   }
 }
+
+// ---------------------------------------------------------------------------
+// Canonical binding integrity check (S11).
+//
+// The per-rule helpers above are the individual rules; this is the SINGLE
+// entry point every graph-binding path must call. Centralizing it removes the
+// scattered-check pattern where each new caller re-implemented a subset of
+// the rules and a missed path became a bypass.
+//
+// assertGraphBindingIntegrity({ graph, workUnits, context, qualifications,
+// qualifiedFingerprints, previousGraph, contextChange, allowContextChange })
+//   -> throws a typed FailClosedError on the first violated rule.
+//
+// Rules covered (all fail closed):
+//   - every node binds a harness context pair (value + record reference)
+//   - one graph version binds exactly ONE pair (uniformity)
+//   - the pair matches the validated context record (value AND id)
+//   - every node's WorkUnit resolves and declares the same record
+//   - every node's qualification resolves, belongs to the bound executor,
+//     and was earned under the bound context
+//   - a transition against a previous graph is either identical or an
+//     explicit, evidence-backed context change
+// ---------------------------------------------------------------------------
+export function assertGraphBindingIntegrity({
+  graph,
+  workUnits,
+  context,
+  qualifications = null,
+  qualifiedFingerprints = null,
+  previousGraph = null,
+  contextChange = null,
+  allowContextChange = false
+}) {
+  if (!graph || typeof graph !== 'object' || !Array.isArray(graph.nodes) || graph.nodes.length === 0) {
+    failClosed('CONTEXT_BINDING_MISSING', 'graph binding integrity requires a graph with nodes');
+  }
+  if (!context || typeof context !== 'object' || context.context_id === undefined || context.context === undefined) {
+    failClosed('CONTEXT_BINDING_MISSING', 'graph binding integrity requires the validated context record');
+  }
+  if (!Array.isArray(workUnits)) {
+    failClosed('CONTEXT_BINDING_MISSING', 'graph binding integrity requires the workUnits collection');
+  }
+
+  const workUnitById = new Map(
+    workUnits.filter((workUnit) => workUnit && typeof workUnit === 'object').map((workUnit) => [workUnit.work_unit_id, workUnit])
+  );
+  const qualificationById = new Map(
+    (Array.isArray(qualifications) ? qualifications : []).filter((entry) => entry && typeof entry === 'object').map((entry) => [entry.qualification_id, entry])
+  );
+  const fingerprintById = new Map(
+    (qualifiedFingerprints && typeof qualifiedFingerprints === 'object' ? Object.values(qualifiedFingerprints) : [])
+      .filter((entry) => entry && typeof entry === 'object')
+      .map((entry) => [entry.fingerprint_id, entry])
+  );
+
+  const pairs = new Set();
+  for (const node of graph.nodes) {
+    const binding = node?.executor_binding;
+    if (!binding || binding.harness_context === undefined || binding.harness_context_ref === undefined) {
+      failClosed('CONTEXT_BINDING_MISSING', `node ${node?.node_id} carries no complete harness context binding`);
+    }
+    const pair = `${binding.harness_context}|${binding.harness_context_ref}`;
+    pairs.add(pair);
+    if (binding.harness_context !== context.context || binding.harness_context_ref !== context.context_id) {
+      failClosed(
+        'CONTEXT_BINDING_CONFLICT',
+        `node ${node.node_id} binds ("${binding.harness_context}", "${binding.harness_context_ref}") but the validated record is ("${context.context}", "${context.context_id}")`
+      );
+    }
+    const workUnit = workUnitById.get(node.work_unit_id);
+    if (!workUnit) {
+      failClosed('CONTEXT_BINDING_MISSING', `node ${node.node_id} references work unit ${node.work_unit_id}, which was not provided for binding resolution`);
+    }
+    if (workUnit.harness_context_ref !== context.context_id) {
+      failClosed(
+        'CONTEXT_BINDING_CONFLICT',
+        `work unit ${workUnit.work_unit_id} declares context "${workUnit.harness_context_ref}" but the graph is bound to "${context.context_id}"`
+      );
+    }
+    if (binding.qualification_ref) {
+      const qualification = qualificationById.get(binding.qualification_ref);
+      const fingerprint = qualification ? fingerprintById.get(qualification.fingerprint_ref) : null;
+      if (!qualification || !fingerprint) {
+        failClosed(
+          'CONTEXT_BINDING_MISSING',
+          `node ${node.node_id} binds qualification "${binding.qualification_ref}"; the qualification and its qualified fingerprint are required to prove the context binding`
+        );
+      }
+      if (qualification.executor_id !== undefined && qualification.executor_id !== binding.executor_id) {
+        failClosed(
+          'CONTEXT_BINDING_CONFLICT',
+          `node ${node.node_id} binds executor "${binding.executor_id}" but qualification ${binding.qualification_ref} belongs to "${qualification.executor_id}"`
+        );
+      }
+      if (fingerprint.executor_id !== undefined && fingerprint.executor_id !== binding.executor_id) {
+        failClosed(
+          'CONTEXT_BINDING_CONFLICT',
+          `node ${node.node_id} binds executor "${binding.executor_id}" but fingerprint ${fingerprint.fingerprint_id} belongs to "${fingerprint.executor_id}"`
+        );
+      }
+      assertQualificationContextBinding({ runtimeHarness: fingerprint.components.runtime_harness, context: context.context });
+    }
+  }
+
+  if (pairs.size > 1) {
+    failClosed('CONTEXT_BINDING_CONFLICT', `a graph version binds multiple harness context pairs (${[...pairs].join(', ')}); one graph version binds one context pair`);
+  }
+
+  if (previousGraph) {
+    const previousPairs = new Set(
+      (previousGraph.nodes || []).map((node) => `${node?.executor_binding?.harness_context ?? ''}|${node?.executor_binding?.harness_context_ref ?? ''}`)
+    );
+    if (previousPairs.size > 1) {
+      failClosed('CONTEXT_BINDING_CONFLICT', 'the superseded graph version binds multiple harness context pairs');
+    }
+    if (previousPairs.size === 1) {
+      const previousPair = [...previousPairs][0];
+      const nextPair = [...pairs][0];
+      if (previousPair !== nextPair) {
+        if (!allowContextChange) {
+          failClosed(
+            'CONTEXT_BINDING_CONFLICT',
+            `a graph revision cannot change the harness context (from "${previousPair}" to "${nextPair}"); the referenced WorkUnits are immutable and a context switch is a bound plan change that re-anchors WorkUnits through a new plan`
+          );
+        }
+        assertSupersessionContextChange({ previousPair, nextPair, contextChange });
+      } else if (contextChange !== undefined && contextChange !== null) {
+        failClosed('CONTEXT_BINDING_CONFLICT', 'a context change is declared but both graph versions bind the identical context pair');
+      }
+    }
+  }
+
+  return graph;
+}

@@ -4,7 +4,7 @@
 // envelope through deterministic routing. The planner never grants authority.
 import { newId, FailClosedError } from '../vnext/util.mjs';
 import { deepFreeze } from './work-unit-store.mjs';
-import { validateHarnessContextRecord } from '../harness-context/context-binding.mjs';
+import { validateHarnessContextRecord, assertGraphBindingIntegrity } from '../harness-context/context-binding.mjs';
 import { validateCandidateGraph, bindGraph } from './graph-versioning.mjs';
 
 export function buildCandidate({ template, workUnits, stageWorkUnitMap = {} }) {
@@ -50,7 +50,7 @@ export function buildCandidate({ template, workUnits, stageWorkUnitMap = {} }) {
 // recommended) enables the S11 binding-scope check: every bound node's
 // executor binding must reference the SAME harness context record as its
 // WorkUnit.
-export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt, workUnits, harnessContext }) {
+export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt, workUnits, harnessContext, qualifications = null, qualifiedFingerprints = null }) {
   const issues = validateCandidateGraph(candidate, template);
   if (issues.length > 0) {
     throw new FailClosedError('CANDIDATE_INVALID', issues.join('; '));
@@ -108,6 +108,15 @@ export function planAndBind({ template, candidate, routingForNode, workGraphStor
     graphVersion: (workGraphStore.activeVersion(graphId) || 0) + 1,
     root,
     createdAt
+  });
+  // S11: the canonical binding integrity check runs on the bound graph
+  // itself (not only on the candidate nodes) — one entry point, all rules.
+  assertGraphBindingIntegrity({
+    graph,
+    workUnits,
+    context: validatedContext,
+    qualifications,
+    qualifiedFingerprints
   });
   workGraphStore.registerVersion(graph);
   return graph;
