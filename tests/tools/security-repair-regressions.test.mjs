@@ -134,3 +134,10 @@ test('F05 MiniMax adapter works as a pure transformation after import repair', a
   assert.equal(result.provider, 'minimax');
   assert.equal(result.trace.redacted, true);
 });
+
+test('F06: CI helper dispatches literal argv without an interpolating shell', () => {
+  const source = fs.readFileSync(path.join(root, 'scripts/tools/ci-gate.mjs'), 'utf8');
+  assert.match(source, /execFileSync\(process\.execPath, commandArgs, \{ cwd, stdio: 'inherit', shell: false \}\)/);
+  assert.doesNotMatch(source, /\bexecSync\s*\(/);
+  assert.match(source, /'command\/ loop repo ' \+ targetPath/);
+});
