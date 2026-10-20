@@ -43,7 +43,7 @@
       "mutation evidence: nine guards reverted and observed to fail (digest check, scope-state check, required-capability check, ordering tie-break, refusal-not-fallback, wall-clock leak into the selection id, scope vocabulary drift guard, authority-free contract rule, primary ordering key), all restored afterwards; re-run on the rebased base with the same nine symptoms, and the three mutated files compared byte for byte against their pre-rebase content",
       "node --check on runtime/skills/skill-registry-loader.mjs, runtime/skills/skill-selector.mjs, scripts/tools/validate-skill-selection.mjs, tests/vnext/skill-selection.test.mjs (PASS)"
     ],
-    "implementation_commit_sha": "PENDING_COMMIT:feat/dsi-skill-selection-20261020",
+    "implementation_commit_sha": "9e472a971acf0e52377392006b676e3c0e0a7d8e",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/dsi-skill-selection-2026-10-20/registry-disposition.json"
