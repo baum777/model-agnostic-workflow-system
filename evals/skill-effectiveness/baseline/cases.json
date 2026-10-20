@@ -1,0 +1,68 @@
+{
+  "description": "Positive family: tasks that must route to the declared shared-core skill and produce the expected behavioral output. Recorded transcripts bind the recorded executor behavior; digests are computed over these files at run time.",
+  "cases": [
+    {
+      "case_id": "se_pos_001",
+      "family": "positive",
+      "title": "non-trivial multi-repo task routes to workflow-core-router",
+      "task": "Route a non-trivial cross-repository refactoring task with unclear artifact shape through the workflow core router.",
+      "expected": {
+        "routing": { "skill_id": "workflow-core-router" },
+        "outcome": "COMPLETED",
+        "assertions": [
+          { "assert_id": "a1", "type": "contains", "value": "workflow-core-router" },
+          { "assert_id": "a2", "type": "contains", "value": "Reuse decision" }
+        ]
+      },
+      "security_class": "none",
+      "recorded_transcript": {
+        "routing": { "skill_id": "workflow-core-router" },
+        "outcome": "COMPLETED",
+        "output_text": "Routed to workflow-core-router. Reuse decision: extend the existing shared-core router skill; no new surface created.",
+        "signals": { "tokens_in": 1540, "tokens_out": 310, "cost_units": 0.0041, "latency_ms": 1120 }
+      }
+    },
+    {
+      "case_id": "se_pos_002",
+      "family": "positive",
+      "title": "recurring workflow gap routes to skill-creator-orchestrator",
+      "task": "A recurring three-step release checklist has no reusable skill; propose the reusable surface.",
+      "expected": {
+        "routing": { "skill_id": "skill-creator-orchestrator" },
+        "outcome": "COMPLETED",
+        "assertions": [
+          { "assert_id": "a1", "type": "contains", "value": "skill-creator-orchestrator" },
+          { "assert_id": "a2", "type": "not_contains", "value": "duplicate shared skill" }
+        ]
+      },
+      "security_class": "none",
+      "recorded_transcript": {
+        "routing": { "skill_id": "skill-creator-orchestrator" },
+        "outcome": "COMPLETED",
+        "output_text": "Routed to skill-creator-orchestrator: recurring gap, propose repo-local orchestration without duplicating shared skills.",
+        "signals": { "tokens_in": 980, "tokens_out": 260, "cost_units": 0.0027, "latency_ms": 870 }
+      }
+    },
+    {
+      "case_id": "se_pos_003",
+      "family": "positive",
+      "title": "existing shared skill fits planning request",
+      "task": "Produce a review plan for a contract amendment pull request using an existing shared skill.",
+      "expected": {
+        "routing": { "skill_id": "review" },
+        "outcome": "COMPLETED",
+        "assertions": [
+          { "assert_id": "a1", "type": "contains", "value": "review" },
+          { "assert_id": "a2", "type": "contains", "value": "acceptance criteria" }
+        ]
+      },
+      "security_class": "none",
+      "recorded_transcript": {
+        "routing": { "skill_id": "review" },
+        "outcome": "COMPLETED",
+        "output_text": "Routed to the shared review skill. Plan covers the contract diff and evidence obligations.",
+        "signals": { "tokens_in": 760, "tokens_out": 190, "cost_units": 0.0019, "latency_ms": 640 }
+      }
+    }
+  ]
+}

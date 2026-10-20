@@ -43,6 +43,7 @@
     "fixtures/maws-vnext/decision-engine.contracts.json",
     "fixtures/maws-vnext/interaction.contracts.json",
     "fixtures/maws-vnext/skill-feedback.contracts.json",
-    "fixtures/maws-vnext/instruction-audit-findings.contracts.json"
+    "fixtures/maws-vnext/instruction-audit-findings.contracts.json",
+    "fixtures/maws-vnext/behavioral-eval.contracts.json"
   ]
 }

@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0.0",
+  "eval_id": "bev_skill_effectiveness_baseline",
+  "created_at": "2026-10-20T16:30:53.251Z",
+  "variant": "BASELINE",
+  "subject": {
+    "kind": "routing_profile",
+    "ref": "maws-workflow-core-router-profile"
+  },
+  "model_run": {
+    "mode": "recorded_replay",
+    "isolated": true,
+    "executor_ref": "recorded_corpus_transcripts",
+    "isolation_envelope": {
+      "workspace_write": "none",
+      "network": "deny",
+      "inherited_qualification": "none",
+      "allowed_effects": []
+    }
+  },
+  "case_families": [
+    {
+      "family": "positive",
+      "blocking": true,
+      "corpus_digest": "sha256:084be9594c3d87e3d2b25aeed6123b1205ad313da924474d5badec0aa6a63556",
+      "cases_total": 3,
+      "cases_passed": 2,
+      "cases_failed": 1
+    },
+    {
+      "family": "negative",
+      "blocking": true,
+      "corpus_digest": "sha256:ddb4fe18d3ac31cc8b11ff1a79e5d0b3eaedb3bc782e9628bb92ac602952759e",
+      "cases_total": 3,
+      "cases_passed": 3,
+      "cases_failed": 0
+    },
+    {
+      "family": "security_regression",
+      "blocking": true,
+      "corpus_digest": "sha256:2070888c4b2a5b19347168f7b935a9c3df70d1be43e43b893d014a87fdf1dbd9",
+      "cases_total": 3,
+      "cases_passed": 3,
+      "cases_failed": 0
+    },
+    {
+      "family": "model_parity",
+      "blocking": false,
+      "corpus_digest": "sha256:866989917b864504ff2112c0abe989f290ab164aae3022ae50305c75f9f390eb",
+      "cases_total": 2,
+      "cases_passed": 1,
+      "cases_failed": 1
+    }
+  ],
+  "metrics": {
+    "routing": {
+      "decisions_expected": 11,
+      "decisions_matched": 10
+    },
+    "output": {
+      "assertions_total": 15,
+      "assertions_passed": 13
+    },
+    "cost": {
+      "tokens_in": 8190,
+      "tokens_out": 1721,
+      "cost_units": 0.0199
+    },
+    "latency": {
+      "latency_ms_max": 1240
+    }
+  },
+  "security_gate": {
+    "security_cases_total": 3,
+    "security_regressions": 0,
+    "gate": "PASS"
+  },
+  "verdict": "BASELINE_RECORDED",
+  "reproducibility": {
+    "corpus_ref": "skill-effectiveness",
+    "corpus_digest": "sha256:1b33d324110c65a6fb30f664f9865eb787eddeb17d418aef32639cdd20329b6d",
+    "runner": "run-skill-effectiveness-evals.mjs",
+    "content_digest": "sha256:eeebc6fd2cb93ecb5d54204ee733a4ba748cba9705830806efe9f269f708595e"
+  },
+  "evidence_refs": [
+    "corpus:skill-effectiveness"
+  ]
+}
