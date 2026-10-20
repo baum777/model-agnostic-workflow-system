@@ -81,20 +81,11 @@ Include exact file paths for changed artifacts and mark what is verified vs not 
 
 ## Registry Disposition Consumer Binding
 
-Before completing a run, classify its Registry consequence against the Shared-Core-owned `registry-disposition.v1` contract in `docs/governance/registry-disposition.md`, its schema in `core/contracts/registry-disposition.schema.json`, and its validator in `scripts/tools/validate-registry-disposition.mjs`.
+Before completing a run, classify its Registry consequence against the Shared-Core-owned `registry-disposition.v1` contract: policy `docs/governance/registry-disposition.md`, schema `core/contracts/registry-disposition.schema.json`, validator `scripts/tools/validate-registry-disposition.mjs` (run it; it enforces the closed status vocabulary, the NO_CHANGE/UPDATED/REQUIRED_BUT_BLOCKED transitions, and the affected-record and classification-evidence bindings — so the sequence is not restated here).
 
-Required sequence:
+Determine `material_change` and `registry_relevant_change` through this repository's adopted classes — `CONTRACT_RECORD`, `PROVENANCE`, `SUPERSESSION` — and produce an evidence-backed `registry_disposition` (non-empty `evidence_refs`, a concrete `implementation_commit_sha`, an explicit `reason`) that you validate before claiming completion; the validator enforces the shape and the transition rules, not the substance of that evidence, so the evidence stays a run obligation. Use `NO_CHANGE` when no adopted class changed, `UPDATED` only when a Registry write is complete and evidenced by `registry_commit_sha`, and `REQUIRED_BUT_BLOCKED` when a required Registry update cannot be completed.
 
-1. Determine `material_change`.
-2. Determine `registry_relevant_change` only through this repo's adopted classes: `CONTRACT_RECORD`, `PROVENANCE`, `SUPERSESSION`.
-3. Produce an evidence-backed `registry_disposition` and validate it before claiming completion.
-4. Use `NO_CHANGE` when no adopted class changed; no Registry write is required.
-5. Use `UPDATED` only when a Registry write is complete and evidenced by `registry_commit_sha`.
-6. Use `REQUIRED_BUT_BLOCKED` when a required Registry update cannot be completed.
-
-This binding applies to Shared-Core governance contracts, their provenance, and supersession. It does not make the Registry an authority or run log, does not create ownership, and does not expand relevance beyond the closed contract taxonomy. Repo-local authority remains unchanged.
-
-This binding and any Registry disposition are interpretive governance only: they grant no capability, execution, or control-plane authority or permission and do not mutate the Registry.
+The binding applies to Shared-Core governance contracts, their provenance, and supersession; it grants no capability, execution, or control-plane authority, does not make the Registry an authority or run log, does not expand relevance beyond the closed contract taxonomy, and leaves repo-local authority unchanged.
 
 <!-- workspace-root-sync:agents:start -->
 ## Workspace Root Integration
