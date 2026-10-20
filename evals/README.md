@@ -28,7 +28,8 @@ Executable certification checks live here.
 - MAHP contract-rule checks (`eval:mahp`) for handoff-envelope blocking rule coverage with deferred receiver/runtime semantics
 - RGC contract-rule checks (`eval:rgc`) for deterministic resource-governor blocking rule coverage with advisory/deferred rule isolation
 - TSC contract-rule checks (`eval:tsc`) for deterministic trigger/scheduling blocking rule coverage with advisory/deferred rule isolation
-- skill-effectiveness behavioral evals (`eval:skill-effectiveness`, S5) for baseline/candidate comparison over the `evals/skill-effectiveness/` corpus: recorded-transcript replay is the deterministic CI mode, live-model runs are isolated by construction (`allowed_effects: []`, no inherited qualification, no workspace writes) or refuse fail-closed, the security-regression family blocks every variant, and cost/latency signals are captured into canonical BehavioralEvalRecords
+- skill-effectiveness behavioral evals (`eval:skill-effectiveness`, S5) for baseline/candidate comparison over the `evals/skill-effectiveness/` corpus: recorded-transcript replay is the deterministic CI mode, live-model runs record enforced/declared isolation honestly (`recorded_replay` is enforced by construction; an uncontained live executor records `isolated: false` and can never carry an improvement-proof verdict), the security-regression family blocks every variant, and cost/latency signals are captured into canonical BehavioralEvalRecords
+- context-assembly evals (`eval:context-assembly`, S6) for adaptive context assembly over the `evals/context-assembly/` scenarios: a full-context baseline and reduced candidates are assembled over the real instruction tree and the eval proves reduction, retention of every canonical binding source, conflict-free eligibility with fail-closed blocking of missing required context sources, and digest determinism/sensitivity; behavioral equivalence of a reduction remains the S5 behavioral gate's job
 
 ## Gate Rule
 
@@ -43,6 +44,7 @@ Executable certification checks live here.
   - `npm run eval:rgc`
   - `npm run eval:tsc`
   - `npm run eval:skill-effectiveness` (exit 0 only when the candidate improvement is proven against the recorded baseline; security regressions or behavioral regressions exit 2)
+  - `npm run eval:context-assembly` (exit 0 only when reduction-with-retention, eligibility and digest determinism are all proven; any violated property exits 2)
 
 ## Module Extension Posture
 
@@ -51,3 +53,4 @@ Executable certification checks live here.
 - Advisory rules in module fixtures remain non-blocking in this slice.
 - Runtime implementation and enforcement engines remain out of scope for these evals.
 - `eval:skill-effectiveness` gates evidence, not authority: a proven improvement is reproducible evidence for an owner promotion decision (S8 scope), never the decision itself. The model_parity family is non-blocking in this slice; full cross-model Pareto comparison is S10/S13 scope.
+- `eval:context-assembly` gates assembly evidence, not authority: a proven reduction is reproducible evidence that no binding rule or required context source was lost; it grants no permission and the bundle digest is a behavior-input binding, never a permission token.

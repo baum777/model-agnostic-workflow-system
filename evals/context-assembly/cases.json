@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Context-assembly eval corpus (S6, spec 7.1-7.5). The runner assembles a full-context baseline (every inventory skill selected) and reduced candidates (binding core plus an explicit selection) over this repository's real instruction tree, then proves reduction-with-retention, digest determinism and sensitivity, and the fail-closed blocking of a missing required context source. Behavioral equivalence of a reduction is the S5 behavioral-eval gate's job; this eval proves the structural assembly properties.",
+  "task_ref": "tasks/s6-context-assembly-eval",
+  "workflow_class": "context_assembly_certification",
+  "executor_profile_ref": "exec_profiles/default",
+  "assembly_policy_ref": "assembly_policies/s6-default",
+  "context_binding_refs": [
+    {
+      "compiler": "coreos-context-compiler",
+      "contract_version": "1.0.0",
+      "compilation_digest": "sha256:1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffff",      "realm": "personal"
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "ca_full_context_baseline",
+      "variant": "BASELINE",
+      "selection": {
+        "skills": "all_inventory_skills",
+        "overlay_refs": [],
+        "reference_refs": [],
+        "evidence_refs": []
+      },
+      "expect": { "eligible": true, "conflicts": 0 }
+    },
+    {
+      "scenario_id": "ca_reduced_candidate",
+      "variant": "CANDIDATE",
+      "selection": {
+        "skills": ["core/skills/repo-audit/SKILL.md"],
+        "overlay_refs": [],
+        "reference_refs": ["docs/governance/registry-disposition.md"],
+        "evidence_refs": []
+      },
+      "expect": { "eligible": true, "conflicts": 0, "strict_reduction": true, "retains_bindings": true }
+    },
+    {
+      "scenario_id": "ca_missing_required_context",
+      "variant": "CANDIDATE",
+      "selection": {
+        "skills": ["core/skills/repo-audit/SKILL.md"],
+        "overlay_refs": [],
+        "reference_refs": [],
+        "evidence_refs": []
+      },
+      "context_binding_refs": [],
+      "required_context_digests": ["sha256:1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffff"],
+      "expect": { "eligible": false, "conflicts": 1, "conflict_kind": "missing_required_context" }
+    }
+  ]
+}

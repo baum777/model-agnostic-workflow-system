@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "InstructionBundle Contract",
+  "description": "Effective Instruction Bundle for adaptive context assembly (MAWS-SII-TARGET-SPEC-001 v0.2.0, slice S6, spec section 7.4). One record captures the reproducible effective instruction composition for one run: the ordered, digest-bound selection of instructions, skills, and references, plus a version-bound reference to the compiled context binding owned by the coreos context compiler (spec section 7.5: the bundle references the context binding, it never duplicates it) and a reference to the executor profile. The bundle is context and behavior input, never a permission token: it grants no capability, activates no runtime, and replaces no authority or approval decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bundle_id",
+    "created_at",
+    "task_ref",
+    "workflow_class",
+    "instruction_classes",
+    "selected_sources",
+    "context_binding_refs",
+    "executor_profile_ref",
+    "assembly_policy_ref",
+    "conflicts",
+    "eligible_for_execution",
+    "effective_instruction_digest",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^bundle_[a-z0-9_]+$"
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "task_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workflow_class": {
+      "type": "string",
+      "minLength": 1
+    },
+    "instruction_classes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["core", "workflow_contract", "overlay", "skills", "references", "evidence"],
+      "properties": {
+        "core": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "workflow_contract": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "overlay": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skills": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "references": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evidence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "selected_sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/selectedSource"
+      }
+    },
+    "context_binding_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/contextBindingRef"
+      }
+    },
+    "executor_profile_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assembly_policy_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/bundleConflict"
+      }
+    },
+    "eligible_for_execution": {
+      "type": "boolean"
+    },
+    "effective_instruction_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assembler_version", "source_revision", "source_snapshot_ref"],
+      "properties": {
+        "assembled_at": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+        },
+        "assembler_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_revision": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The revision binding the source snapshot was taken at; the binding-retention check (B3, inventory-verified mode) rebuilds the S2 instruction inventory at this revision and requires every canonical binding source to be present with its digest."
+        },
+        "source_snapshot_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "eligible_for_execution": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "conflicts": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eligible_for_execution": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "conflicts": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "selectedSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "binding_class", "assembly_slot", "source_digest"],
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "binding_class": {
+          "description": "The inventory's authority class of the source (canonical, canonical_contract, shared_core, shared_exported_skill, ...). Binding sources never fall out of a reduced bundle.",
+          "type": "string",
+          "minLength": 1
+        },
+        "assembly_slot": {
+          "enum": ["core", "workflow_contract", "overlay", "skills", "references", "evidence"]
+        },
+        "source_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "contextBindingRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compiler", "contract_version", "compilation_digest"],
+      "properties": {
+        "compiler": {
+          "const": "coreos-context-compiler"
+        },
+        "contract_version": {
+          "const": "1.0.0"
+        },
+        "compilation_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "realm": {
+          "enum": ["company", "personal"]
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "bundleConflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["conflict_id", "kind", "ref", "message"],
+      "properties": {
+        "conflict_id": {
+          "type": "string",
+          "pattern": "^conflict_[a-z0-9_]+$"
+        },
+        "kind": {
+          "enum": ["missing_source", "digest_mismatch", "contradictory_source", "missing_required_context"]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
