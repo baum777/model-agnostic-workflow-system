@@ -60,12 +60,13 @@ import {
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
 import { validateExecutorModelProfiles } from '../../scripts/tools/validate-executor-model-profile.mjs';
 import { assembleInstructionBundle } from '../../runtime/context/instruction-bundle-assembler.mjs';
-import { FailClosedError } from '../../runtime/vnext/util.mjs';
+import { FailClosedError, canonicalJson, sha256Hex } from '../../runtime/vnext/util.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const store = loadProfileStore({ root });
 
 const FIXTURE_PATH = 'evals/fixtures/maws-vnext/executor-model-profile.contracts.json';
+const QUALIFICATION_FINGERPRINT_CONTRACT = 'core/contracts/qualification-fingerprint.schema.json';
 const PINNED_DIGEST = 'sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce';
 const HARNESS = 'development_harness/in_process_fixture/1';
 
@@ -106,7 +107,19 @@ function qualifiedProfile(profileId, version) {
 }
 
 // The qualification-side state in force for the fixture model/provider pair.
+// The qualification fingerprint is S7-shaped: it carries the effective
+// instruction digest the qualification was earned under, and its digest is
+// the canonical sha256 over the canonical JSON of its components.
 function inForceState({ modelId = 'gpt-5-codex', providerId = 'openai-codex', digest = PINNED_DIGEST } = {}) {
+  const components = {
+    model_id: modelId,
+    provider_id: providerId,
+    runtime_harness: HARNESS,
+    tool_contract_refs: ['core/contracts/tool-contracts/catalog.json'],
+    api_surface_version: '2026-10',
+    qualification_profile_ref: 'qualprofile_model_adaptive_v1',
+    effective_instruction_digest: PINNED_DIGEST
+  };
   return {
     execution_profile: store.executionProfiles.profile_readonly_v1,
     qualification: {
@@ -124,15 +137,8 @@ function inForceState({ modelId = 'gpt-5-codex', providerId = 'openai-codex', di
       executor_id: 'exec_openai_codex',
       capability_id: 'cap_repository_analysis',
       execution_profile_ref: 'profile_readonly_v1',
-      components: {
-        model_id: modelId,
-        provider_id: providerId,
-        runtime_harness: HARNESS,
-        tool_contract_refs: ['core/contracts/tool-contracts/catalog.json'],
-        api_surface_version: '2026-10',
-        qualification_profile_ref: 'qualprofile_model_adaptive_v1'
-      },
-      digest: 'adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556'
+      components,
+      digest: sha256Hex(canonicalJson(components))
     },
     effective_instruction_digest: digest
   };
@@ -527,20 +533,22 @@ test('R4 a stronger model earns no wider rights: the switch check is independent
 // --- R5: requalification on model change / material drift -------------------
 
 function fingerprint({ providerId, modelId, harness = HARNESS }) {
+  const components = {
+    model_id: modelId,
+    provider_id: providerId,
+    runtime_harness: harness,
+    tool_contract_refs: ['core/contracts/tool-contracts/catalog.json'],
+    api_surface_version: '2026-10',
+    qualification_profile_ref: 'qualprofile_model_adaptive_v1',
+    effective_instruction_digest: PINNED_DIGEST
+  };
   return {
-    fingerprint_id: `fp_${providerId}_${modelId}`,
+    fingerprint_id: `fp_${providerId}_${modelId}`.replace(/[^a-z0-9_]/g, '_'),
     executor_id: 'exec_openai_codex',
     capability_id: 'cap_repository_analysis',
     execution_profile_ref: 'profile_readonly_v1',
-    components: {
-      model_id: modelId,
-      provider_id: providerId,
-      runtime_harness: harness,
-      tool_contract_refs: ['core/contracts/tool-contracts/catalog.json'],
-      api_surface_version: '2026-10',
-      qualification_profile_ref: 'qualprofile_model_adaptive_v1'
-    },
-    digest: '0'.repeat(64)
+    components,
+    digest: sha256Hex(canonicalJson(components))
   };
 }
 
@@ -558,6 +566,7 @@ test('R5 a material fingerprint drift blocks the profile until requalified', () 
   const qualified = fingerprint({ providerId: 'openai-codex', modelId: 'gpt-5-codex' });
   const current = clone(qualified);
   current.components.api_surface_version = '2026-11';
+  current.digest = sha256Hex(canonicalJson(current.components));
   expectFailClosed('MODEL_PROFILE_REQUALIFICATION_REQUIRED', () => assertProfileRequalification({
     profile,
     qualifiedFingerprint: qualified,
@@ -702,10 +711,15 @@ test('R7 an undeclared harness declares nothing and is refused (never an assumed
 
 test('R8 an unchanged effective instruction digest keeps the profile routable', () => {
   const profile = profileById('emp_openai_codex_gpt5_codex', '1.0.0');
-  const decision = instructionDigestDecision({ profile, currentDigest: PINNED_DIGEST });
+  const qualifiedFingerprint = inForceState().fingerprint;
+  const decision = instructionDigestDecision({ profile, currentDigest: PINNED_DIGEST, qualifiedFingerprint });
   assert.equal(decision.overall_class, 'NON_MATERIAL');
   assert.deepEqual(decision.deltas, []);
-  assertProfileRequalificationOrPass(assertInstructionDigestCurrent({ profile, currentDigest: PINNED_DIGEST }));
+  assertProfileRequalificationOrPass(assertInstructionDigestCurrent({
+    profile,
+    currentDigest: PINNED_DIGEST,
+    qualifiedFingerprint
+  }));
 });
 
 test('R8 a changed effective instruction digest blocks the profile with the canonical materiality vocabulary', () => {
@@ -713,7 +727,8 @@ test('R8 a changed effective instruction digest blocks the profile with the cano
   const drifted = 'sha256:3333333333333333333333333333333333333333333333333333333333333333';
   const error = expectFailClosed('MODEL_PROFILE_INSTRUCTION_DIGEST_DRIFT', () => assertInstructionDigestCurrent({
     profile,
-    currentDigest: drifted
+    currentDigest: drifted,
+    qualifiedFingerprint: inForceState().fingerprint
   }));
   assert.equal(error.details.overall_class, 'MATERIAL');
   assert.equal(error.details.deltas.length, 1);
@@ -738,6 +753,68 @@ test('R8 an unknown instruction digest is UNKNOWN, never assumed to be unchanged
     validateInstanceAgainstContract(error.details, MATERIALITY_DECISION_CONTRACT, root),
     []
   );
+});
+
+test('S7 the qualification fingerprint must state the effective instruction digest it was earned under', () => {
+  // S7 made the effective instruction digest a REQUIRED component of the
+  // qualification fingerprint (core/contracts/qualification-fingerprint.schema.json):
+  // the fingerprint states the instruction bundle the qualification was
+  // earned under. A fingerprint without it states nothing, so the reuse is
+  // unproven (UNKNOWN) and blocks the binding.
+  const profile = profileById('emp_openai_codex_gpt5_codex', '1.0.0');
+  const legacy = inForceState();
+  delete legacy.fingerprint.components.effective_instruction_digest;
+  const error = expectFailClosed('MODEL_PROFILE_INSTRUCTION_DIGEST_DRIFT', () => assertInstructionDigestCurrent({
+    profile,
+    currentDigest: PINNED_DIGEST,
+    qualifiedFingerprint: legacy.fingerprint
+  }));
+  assert.equal(error.details.overall_class, 'UNKNOWN');
+  assert.equal(error.details.deltas.length, 1);
+  assert.equal(error.details.deltas[0].component, 'effective_instruction_digest');
+  assert.equal(error.details.deltas[0].classification, 'UNKNOWN');
+  assert.deepEqual(
+    validateInstanceAgainstContract(error.details, MATERIALITY_DECISION_CONTRACT, root),
+    []
+  );
+});
+
+test('S7 a fingerprint whose digest differs from the pinned digest leaves the reuse unproven', () => {
+  const profile = profileById('emp_openai_codex_gpt5_codex', '1.0.0');
+  const divergent = inForceState();
+  divergent.fingerprint.components.effective_instruction_digest =
+    'sha256:4444444444444444444444444444444444444444444444444444444444444444';
+  divergent.fingerprint.digest = sha256Hex(canonicalJson(divergent.fingerprint.components));
+  const error = expectFailClosed('MODEL_PROFILE_INSTRUCTION_DIGEST_DRIFT', () => assertInstructionDigestCurrent({
+    profile,
+    currentDigest: PINNED_DIGEST,
+    qualifiedFingerprint: divergent.fingerprint
+  }));
+  assert.equal(error.details.overall_class, 'UNKNOWN');
+});
+
+test('S7 the in-force qualification fingerprint satisfies the canonical S7 fingerprint contract', () => {
+  const fingerprint = inForceState().fingerprint;
+  assert.deepEqual(
+    validateInstanceAgainstContract(fingerprint, QUALIFICATION_FINGERPRINT_CONTRACT, root),
+    []
+  );
+  // The digest is the canonical sha256 over the canonical JSON of the
+  // components, exactly as runtime/qualification/fingerprint.mjs computes it.
+  assert.equal(fingerprint.digest, sha256Hex(canonicalJson(fingerprint.components)));
+});
+
+test('S7 the executor profile resolution refuses a fingerprint without the instruction digest', () => {
+  const inForce = inForceState();
+  delete inForce.fingerprint.components.effective_instruction_digest;
+  expectFailClosed('MODEL_PROFILE_INSTRUCTION_DIGEST_DRIFT', () => resolveExecutorProfile({
+    modelId: 'gpt-5-codex',
+    providerId: 'openai-codex',
+    harness: HARNESS,
+    declaredProfile: qualifiedProfile('emp_openai_codex_gpt5_codex', '1.0.0'),
+    store,
+    inForce
+  }));
 });
 
 function assertProfileRequalificationOrPass(profile) {

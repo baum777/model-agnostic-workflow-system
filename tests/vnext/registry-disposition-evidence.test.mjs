@@ -12,6 +12,7 @@ import path from 'node:path';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 import { validateRegistryDisposition } from '../../scripts/tools/validate-registry-disposition.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
@@ -61,4 +62,29 @@ test('the disposition gate is not vacuous: a non-canonical artifact is rejected'
   assert.equal(result.passed, false);
   const schemaIssues = validateInstanceAgainstContract(broken, DISPOSITION_CONTRACT, root);
   assert.ok(schemaIssues.length > 0);
+});
+
+test('the validator CLI answers an explicitly named file, even next to --fixture', () => {
+  // `npm run validate-registry-disposition <file>` appends <file> to the
+  // hard-wired `--fixture <corpus>` invocation. The named file must be the
+  // artifact that gets validated: a silently ignored argument would let a
+  // broken artifact pass unnoticed behind a green corpus run.
+  const cliPath = path.join(root, 'scripts', 'tools', 'validate-registry-disposition.mjs');
+  const corpusPath = path.join(root, 'evals', 'fixtures', 'registry-disposition-contract.json');
+  const artifact = dispositionArtifacts()[0];
+
+  const explicit = spawnSync(process.execPath, [cliPath, '--fixture', corpusPath, artifact], {
+    cwd: root,
+    encoding: 'utf8'
+  });
+  assert.equal(explicit.status, 0, explicit.stderr);
+  assert.deepEqual(JSON.parse(explicit.stdout), { passed: true, issues: [] });
+
+  // The corpus itself keeps validating in the corpus mode.
+  const corpus = spawnSync(process.execPath, [cliPath, '--fixture', corpusPath], {
+    cwd: root,
+    encoding: 'utf8'
+  });
+  assert.equal(corpus.status, 0, corpus.stderr);
+  assert.equal(JSON.parse(corpus.stdout).passed, true);
 });

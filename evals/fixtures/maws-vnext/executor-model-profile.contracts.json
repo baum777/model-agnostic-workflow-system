@@ -834,9 +834,10 @@
               "runtime_harness": "development_harness/in_process_fixture/1",
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
-              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+              "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
             },
-            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+            "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
         }
       }
@@ -893,9 +894,10 @@
               "runtime_harness": "development_harness/in_process_fixture/1",
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
-              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+              "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
             },
-            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+            "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
         }
       }
@@ -944,9 +946,10 @@
               "runtime_harness": "development_harness/in_process_fixture/1",
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
-              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+              "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
             },
-            "digest": "dab2db3fde92b290cc935ec46bde6919531c464c9e767d4e264c060fa06a0fd5"
+            "digest": "9e27d48be56f100da4970d403113a5867840fd243d9636a2c7ab50bff73a32e6"
           }
         }
       }
@@ -995,9 +998,10 @@
               "runtime_harness": "development_harness/in_process_fixture/1",
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
-              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+              "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
             },
-            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+            "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
         }
       }
@@ -1046,9 +1050,10 @@
               "runtime_harness": "development_harness/in_process_fixture/1",
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
-              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+              "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
             },
-            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+            "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
         }
       }
@@ -1089,9 +1094,10 @@
               "runtime_harness": "development_harness/in_process_fixture/1",
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
-              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+              "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
             },
-            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+            "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
         }
       }
@@ -1140,9 +1146,10 @@
               "runtime_harness": "development_harness/in_process_fixture/1",
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
-              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+              "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
             },
-            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+            "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
         }
       }

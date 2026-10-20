@@ -49,9 +49,12 @@
 //       harness that runs it, and the declaration must match the set the
 //       presentation actually implies (no under-declaration).
 //   R8  The effective instruction digest the profile was qualified under
-//       must still be the effective digest; a changed digest is a material
+//       must still be effective; a changed digest is a material
 //       drift and is classified with the canonical MaterialityDecision
-//       vocabulary (core/contracts/materiality-decision.schema.json).
+//       vocabulary (core/contracts/materiality-decision.schema.json). The
+//       qualification fingerprint must state that digest as well (S7 makes
+//       it a required fingerprint component); a fingerprint without it
+//       leaves the reuse unproven (UNKNOWN) and blocks the binding.
 //
 // Pure, deterministic, repository-local reads only. No network access.
 import fs from 'node:fs';
@@ -86,9 +89,11 @@ export const PINNED_SEMANTICS_DIMENSIONS = Object.freeze([
   'qualification_profile_ref'
 ]);
 
-// The instruction digest is pinned next to them but compared against the
-// CURRENT effective digest, not against the fingerprint (the S7 wiring of
-// the fingerprint component is a separate, coordinated amendment).
+// The instruction digest is pinned next to them and compared against BOTH
+// the CURRENT effective digest and the digest the qualification fingerprint
+// carries (S7 made the digest a required qualification-fingerprint
+// component: the fingerprint states the instruction bundle the qualification
+// was earned under).
 export const INSTRUCTION_DIGEST_DIMENSION = 'effective_instruction_digest';
 
 // The closed runtime-capability vocabulary a harness can declare.
@@ -499,26 +504,46 @@ export function assertHarnessCapabilities({ profile, harness, harnessCapabilitie
 // R8 — the effective instruction digest
 // ---------------------------------------------------------------------------
 
-// instructionDigestDecision({ profile, currentDigest, qualifiedRef,
-// currentRef, decisionId, decidedAt }) -> a MaterialityDecision-shaped
+// instructionDigestDecision({ profile, currentDigest, qualifiedFingerprint,
+// qualifiedRef, currentRef, decisionId, decidedAt }) -> a MaterialityDecision-shaped
 // record (core/contracts/materiality-decision.schema.json) describing the
 // drift of the effective instruction digest. A changed digest is MATERIAL;
 // a missing side is UNKNOWN; both block the binding.
+//
+// S7 (core/contracts/qualification-fingerprint.schema.json) makes the
+// effective instruction digest a REQUIRED component of the qualification
+// fingerprint: the fingerprint states the instruction bundle the qualification
+// was earned under. R8 therefore compares THREE values -- the digest the
+// committed profile pins, the digest the qualification fingerprint carries
+// and the digest that is effective now -- and all three must be well-formed
+// and identical. A fingerprint that carries no digest (a qualification earned
+// before S7) states nothing about its instruction set: that is UNKNOWN, never
+// an implicit "same".
 export function instructionDigestDecision({
   profile,
   currentDigest,
+  qualifiedFingerprint = null,
   qualifiedRef = 'model-adaptive-profile',
   currentRef = 'effective-instruction-bundle',
   decisionId = 'mat_model_adaptive_instruction_digest',
   decidedAt = '1970-01-01T00:00:00Z'
 }) {
   const declared = pinnedDimensions(profile)?.[INSTRUCTION_DIGEST_DIMENSION] ?? null;
+  const qualified = qualifiedInstructionDigest(qualifiedFingerprint);
   const from = declared;
   const to = isNonEmptyString(currentDigest) ? currentDigest : null;
   const shapeOk = (value) => typeof value === 'string' && /^sha256:[a-f0-9]{64}$/.test(value);
   let classification = 'NON_MATERIAL';
   if (!shapeOk(from) || !shapeOk(to)) {
     classification = 'UNKNOWN';
+  } else if (qualifiedFingerprint !== null && qualifiedFingerprint !== undefined) {
+    // The qualification states which instruction bundle it was earned under.
+    // A missing, malformed or divergent digest leaves the reuse unproven.
+    if (!shapeOk(qualified) || qualified !== from) {
+      classification = 'UNKNOWN';
+    } else if (from !== to) {
+      classification = 'MATERIAL';
+    }
   } else if (from !== to) {
     classification = 'MATERIAL';
   }
@@ -534,12 +559,25 @@ export function instructionDigestDecision({
   };
 }
 
-// assertInstructionDigestCurrent({ profile, currentDigest, ... }) -> the
-// profile, or a typed FailClosedError (R8). The effective instruction
-// digest the profile was qualified under must still be effective.
+// qualifiedInstructionDigest(fingerprint) -> the effective instruction digest
+// the qualification was earned under, or null when the fingerprint states
+// none (a qualification earned before S7) or states a malformed one.
+export function qualifiedInstructionDigest(fingerprint) {
+  if (fingerprint === null || typeof fingerprint !== 'object' || Array.isArray(fingerprint)) {
+    return null;
+  }
+  const value = fingerprint.components?.effective_instruction_digest ?? null;
+  return typeof value === 'string' ? value : null;
+}
+
+// assertInstructionDigestCurrent({ profile, currentDigest,
+// qualifiedFingerprint, ... }) -> the profile, or a typed FailClosedError
+// (R8). The effective instruction digest the profile was qualified under must
+// still be effective, and the qualification fingerprint must state it (S7).
 export function assertInstructionDigestCurrent({
   profile,
   currentDigest,
+  qualifiedFingerprint = null,
   qualifiedRef,
   currentRef,
   decisionId,
@@ -548,6 +586,7 @@ export function assertInstructionDigestCurrent({
   const decision = instructionDigestDecision({
     profile,
     currentDigest,
+    qualifiedFingerprint,
     qualifiedRef,
     currentRef,
     decisionId,

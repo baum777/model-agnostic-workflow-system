@@ -24,8 +24,11 @@
 //       requires.
 //   MODEL_PROFILE_INSTRUCTION_DIGEST_DRIFT
 //       The effective instruction digest changed since the profile was
-//       qualified. The drift is reported with the canonical
-//       MaterialityDecision vocabulary.
+//       qualified, or the qualification fingerprint does not state the
+//       digest it was earned under (S7 makes the digest a required
+//       qualification-fingerprint component; an unproven digest is
+//       UNKNOWN, never an implicit "same"). The drift is reported with the
+//       canonical MaterialityDecision vocabulary.
 //
 // Supporting codes (not part of the four denial paths) are listed in
 // EXECUTOR_PROFILE_CODES. There is no fallback: every violation is a typed
@@ -120,6 +123,12 @@ function findProfile(store, { profileId, profileVersion = null }) {
 //     effective_instruction_digest: the CURRENT effective instruction digest
 //   }
 //
+// The qualification fingerprint in force must satisfy the canonical S7
+// fingerprint contract (core/contracts/qualification-fingerprint.schema.json),
+// which requires the effective instruction digest as a component: it states
+// the instruction bundle the qualification was earned under. A fingerprint
+// without it leaves the reuse unproven and is refused (R8).
+//
 // Every violation is a typed FailClosedError. There is no fallback.
 export function resolveExecutorProfile({
   modelId,
@@ -213,10 +222,13 @@ export function resolveExecutorProfile({
     executionProfiles: store.executionProfiles || {}
   });
 
-  // (9) The effective instruction digest must still be effective.
+  // (9) The effective instruction digest must still be effective, and the
+  //     qualification fingerprint must state it (S7: the digest is a
+  //     required qualification-fingerprint component).
   assertInstructionDigestCurrent({
     profile,
     currentDigest: inForce.effective_instruction_digest,
+    qualifiedFingerprint: inForce.fingerprint,
     qualifiedRef: coverage.fingerprint.fingerprint_id,
     currentRef: inForce.effective_instruction_bundle_ref ?? 'effective-instruction-bundle'
   });
