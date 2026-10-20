@@ -1,0 +1,49 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Scope is docs-only proposal staging: the reconciliation map for the Skill Intelligence & Instruction Integrity program (MAWS-SII-TARGET-SPEC-001, PROPOSED) plus this run record, executed under the bounded owner run instruction MAWS-SII-REGISTRATION-AND-BASELINE-CLOSURE-2026-10-20. The map reconstructs the S0-S4 status from owner heads, repo-local dispositions, Registry records and Atlas claims, names the open obligations without masking them, fixes the S5-S8 against S11-S13 slice dependencies, and re-verifies the instruction findings against the current origin/main. material_change is true because a durable repository artifact changed (docs/proposals/skill-intelligence-reconciliation-map-2026-10-20.md and the changelog entry). registry_relevant_change is false: no file under core/contracts/ was created, altered or removed, no canonical claim or authority-matrix entry changed, no supersession relationship over a registered object was created, and no registered binding was affected. docs/proposals/README.md classes this directory as non-canonical review material, so the map is not itself a registered contract, and none of this repository's adopted relevance classes (CONTRACT_RECORD, PROVENANCE, SUPERSESSION) is touched. The change registration that the project-layer registration invariant requires for every change is published separately in the Registry repository (baum777/unitera-registry) together with the previously unregistered S0, S2 wave 1 and S2 wave 2 change registrations; those registrations are representations of changes, not object mutations caused by them, and they are not asserted here as merged. The map explicitly does not close the SII transformation, does not claim any implementation slice as started, and does not mask the coreos S4 wave A leg, which remains blocked by the Mimosa L3 pre-push gate on 13 pre-existing HIGH findings with its two Codex P2 repairs prepared but unpublished.",
+    "registry_baseline_sha": "0bba9e09f1e6010288548a329c585ebf63af6f9f",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/README.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "docs/proposals/skill-intelligence-reconciliation-map-2026-10-20.md",
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/sii-reconciliation-map-2026-10-20/RUN.md"
+    ],
+    "evidence_refs": [
+      "evidence/sii-reconciliation-map-2026-10-20/RUN.md",
+      "docs/proposals/skill-intelligence-reconciliation-map-2026-10-20.md (S0-S4 status reconstruction, S5-S8 against S11-S13 dependency matrix, instruction finding re-check, local and remote baseline reconciliation)",
+      "MAWS origin/main 1d466511691156082a428d0f180a9d7cd51c4767, unitera-registry origin/main 0bba9e09f1e6010288548a329c585ebf63af6f9f, unitera_atlas origin/main 058331d14643168ce5023446ab2d53133a4e3f11, Unitera_Systems origin/main 11a27cd74d25f4774662554c404d4b57563ae924, unitera-os origin/main 9a06a6862eb951d5e4e0244f956c185863dd7330, coreos origin/main b653bd967b4be61f5ba4b3e572608a41f4c1043c (the baselines the map was computed against)",
+      "node scripts/tools/validate-registry-disposition.mjs evidence/sii-reconciliation-map-2026-10-20/registry-disposition.json",
+      "npm run validate (PASS, 0 issues)", "npm run validate-neutral (PASS, 0 issues)",
+      "npm run validate-maws-vnext (PASS, 0 issues)", "npm run test:vnext (PASS, 0 failures)"
+    ],
+    "implementation_commit_sha": "b0e13c0704a40e847ce1ea62a811a6c864c090fd",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/sii-reconciliation-map-2026-10-20/registry-disposition.json",
+      "npm run validate",
+      "npm run validate-neutral",
+      "npm run validate-maws-vnext",
+      "npm run test:vnext"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - this repository's adopted relevance classes: CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "docs/governance/registry-disposition.md (closed relevance taxonomy; invariants 1-5)",
+      "docs/proposals/README.md (proposal target / docs-only / non-canonical docs staging)",
+      "git diff --name-only (no path under core/contracts/ touched by this change)"
+    ]
+  }
+}
