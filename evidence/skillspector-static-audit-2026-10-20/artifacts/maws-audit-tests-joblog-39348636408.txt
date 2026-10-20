@@ -1,0 +1,393 @@
+﻿2026-10-20T00:36:28.8012211Z Current runner version: '2.337.0'
+2026-10-20T00:36:28.8028179Z ##[group]Runner Image Provisioner
+2026-10-20T00:36:28.8028749Z Hosted Compute Agent
+2026-10-20T00:36:28.8029087Z Version: 20261012.601
+2026-10-20T00:36:28.8029545Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-20T00:36:28.8029952Z Build Date: 2026-10-12T17:48:21Z
+2026-10-20T00:36:28.8030337Z Worker ID: {5e02bdc0-94dc-4247-9b62-37c19c132c47}
+2026-10-20T00:36:28.8030777Z Region: centralus
+2026-10-20T00:36:28.8031102Z Cloud: Azure
+2026-10-20T00:36:28.8031438Z ##[endgroup]
+2026-10-20T00:36:28.8032181Z ##[group]Operating System
+2026-10-20T00:36:28.8032522Z Ubuntu
+2026-10-20T00:36:28.8032865Z 24.04.5
+2026-10-20T00:36:28.8033159Z LTS
+2026-10-20T00:36:28.8033447Z ##[endgroup]
+2026-10-20T00:36:28.8033859Z ##[group]Runner Image
+2026-10-20T00:36:28.8034196Z Image: ubuntu-24.04
+2026-10-20T00:36:28.8034555Z Version: 20261012.334.1
+2026-10-20T00:36:28.8035271Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-20T00:36:28.8036165Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-20T00:36:28.8036716Z ##[endgroup]
+2026-10-20T00:36:28.8037353Z ##[group]GITHUB_TOKEN Permissions
+2026-10-20T00:36:28.8038594Z Contents: read
+2026-10-20T00:36:28.8039003Z Metadata: read
+2026-10-20T00:36:28.8039322Z ##[endgroup]
+2026-10-20T00:36:28.8040483Z Secret source: Actions
+2026-10-20T00:36:28.8041075Z Cache mode: write
+2026-10-20T00:36:28.8041494Z Prepare workflow directory
+2026-10-20T00:36:28.8261646Z Prepare all required actions
+2026-10-20T00:36:28.8291211Z Getting action download info
+2026-10-20T00:36:29.0343621Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-20T00:36:29.1321093Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-20T00:36:29.2282145Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-20T00:36:29.4050544Z Complete job name: tests
+2026-10-20T00:36:29.4491226Z ##[group]Run actions/checkout@v4
+2026-10-20T00:36:29.4491622Z with:
+2026-10-20T00:36:29.4491887Z   ref: d7c84914ea3ba339a0a96454dd06fa18904527d0
+2026-10-20T00:36:29.4492219Z   persist-credentials: false
+2026-10-20T00:36:29.4492532Z   repository: baum777/model-agnostic-workflow-system
+2026-10-20T00:36:29.4494485Z   token: ***
+2026-10-20T00:36:29.4494714Z   ssh-strict: true
+2026-10-20T00:36:29.4494977Z   ssh-user: git
+2026-10-20T00:36:29.4495208Z   clean: true
+2026-10-20T00:36:29.4495451Z   sparse-checkout-cone-mode: true
+2026-10-20T00:36:29.4495729Z   fetch-depth: 1
+2026-10-20T00:36:29.4495964Z   fetch-tags: false
+2026-10-20T00:36:29.4496206Z   show-progress: true
+2026-10-20T00:36:29.4496448Z   lfs: false
+2026-10-20T00:36:29.4496672Z   submodules: false
+2026-10-20T00:36:29.4496914Z   set-safe-directory: true
+2026-10-20T00:36:29.4497187Z   allow-unsafe-pr-checkout: false
+2026-10-20T00:36:29.4497668Z ##[endgroup]
+2026-10-20T00:36:29.5177085Z Syncing repository: baum777/model-agnostic-workflow-system
+2026-10-20T00:36:29.5178775Z ##[group]Getting Git version info
+2026-10-20T00:36:29.5179550Z Working directory is '/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system'
+2026-10-20T00:36:29.5180264Z [command]/usr/bin/git version
+2026-10-20T00:36:29.5234777Z git version 2.55.0
+2026-10-20T00:36:29.5249559Z ##[endgroup]
+2026-10-20T00:36:29.5265918Z Temporarily overriding HOME='/home/runner/work/_temp/0390bac0-56f9-4f06-b47d-018bfd9fb87c' before making global git config changes
+2026-10-20T00:36:29.5266637Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-20T00:36:29.5270118Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system
+2026-10-20T00:36:29.5313851Z Deleting the contents of '/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system'
+2026-10-20T00:36:29.5316358Z ##[group]Initializing the repository
+2026-10-20T00:36:29.5319867Z [command]/usr/bin/git init /home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system
+2026-10-20T00:36:29.5408268Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-20T00:36:29.5409175Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-20T00:36:29.5409947Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-20T00:36:29.5410556Z hint: call:
+2026-10-20T00:36:29.5410885Z hint:
+2026-10-20T00:36:29.5411339Z hint: 	git config --global init.defaultBranch <name>
+2026-10-20T00:36:29.5411851Z hint:
+2026-10-20T00:36:29.5412321Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-20T00:36:29.5413112Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-20T00:36:29.5413764Z hint:
+2026-10-20T00:36:29.5414112Z hint: 	git branch -m <name>
+2026-10-20T00:36:29.5414530Z hint:
+2026-10-20T00:36:29.5415085Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-20T00:36:29.5416202Z Initialized empty Git repository in /home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system/.git/
+2026-10-20T00:36:29.5421183Z [command]/usr/bin/git remote add origin https://github.com/baum777/model-agnostic-workflow-system
+2026-10-20T00:36:29.5463329Z ##[endgroup]
+2026-10-20T00:36:29.5463751Z ##[group]Disabling automatic garbage collection
+2026-10-20T00:36:29.5466231Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-20T00:36:29.5492062Z ##[endgroup]
+2026-10-20T00:36:29.5497378Z ##[group]Setting up auth
+2026-10-20T00:36:29.5498144Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-20T00:36:29.5523481Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-20T00:36:29.5798002Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-20T00:36:29.5826752Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-20T00:36:29.5998153Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-20T00:36:29.6025670Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-20T00:36:29.6192574Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-20T00:36:29.6224484Z ##[endgroup]
+2026-10-20T00:36:29.6225116Z ##[group]Fetching the repository
+2026-10-20T00:36:29.6230945Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin d7c84914ea3ba339a0a96454dd06fa18904527d0
+2026-10-20T00:36:30.1450023Z From https://github.com/baum777/model-agnostic-workflow-system
+2026-10-20T00:36:30.1451020Z  * branch            d7c84914ea3ba339a0a96454dd06fa18904527d0 -> FETCH_HEAD
+2026-10-20T00:36:30.1452953Z ##[endgroup]
+2026-10-20T00:36:30.1453639Z ##[group]Determining the checkout info
+2026-10-20T00:36:30.1454736Z ##[endgroup]
+2026-10-20T00:36:30.1459239Z [command]/usr/bin/git sparse-checkout disable
+2026-10-20T00:36:30.1506395Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-20T00:36:30.1532334Z ##[group]Checking out the ref
+2026-10-20T00:36:30.1534204Z [command]/usr/bin/git checkout --progress --force d7c84914ea3ba339a0a96454dd06fa18904527d0
+2026-10-20T00:36:30.1940025Z Note: switching to 'd7c84914ea3ba339a0a96454dd06fa18904527d0'.
+2026-10-20T00:36:30.1940533Z 
+2026-10-20T00:36:30.1940889Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-20T00:36:30.1941758Z changes and commit them, and you can discard any commits you make in this
+2026-10-20T00:36:30.1942833Z state without impacting any branches by switching back to a branch.
+2026-10-20T00:36:30.1943339Z 
+2026-10-20T00:36:30.1943677Z If you want to create a new branch to retain commits you create, you may
+2026-10-20T00:36:30.1944450Z do so (now or later) by using -c with the switch command. Example:
+2026-10-20T00:36:30.1944900Z 
+2026-10-20T00:36:30.1945102Z   git switch -c <new-branch-name>
+2026-10-20T00:36:30.1945419Z 
+2026-10-20T00:36:30.1945624Z Or undo this operation with:
+2026-10-20T00:36:30.1945920Z 
+2026-10-20T00:36:30.1946097Z   git switch -
+2026-10-20T00:36:30.1946349Z 
+2026-10-20T00:36:30.1946727Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-20T00:36:30.1947209Z 
+2026-10-20T00:36:30.1947651Z HEAD is now at d7c8491 Merge pull request #14 from baum777/impl/execution-intake-binding-20261020
+2026-10-20T00:36:30.1949621Z ##[endgroup]
+2026-10-20T00:36:30.1981832Z [command]/usr/bin/git log -1 --format=%H
+2026-10-20T00:36:30.2003227Z d7c84914ea3ba339a0a96454dd06fa18904527d0
+2026-10-20T00:36:30.2010222Z ##[group]Removing auth
+2026-10-20T00:36:30.2012407Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-20T00:36:30.2036808Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-20T00:36:30.2207286Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-20T00:36:30.2229514Z http.https://github.com/.extraheader
+2026-10-20T00:36:30.2234812Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-20T00:36:30.2264134Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-20T00:36:30.2432811Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-20T00:36:30.2458437Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-20T00:36:30.2625293Z ##[endgroup]
+2026-10-20T00:36:30.2875119Z ##[group]Run actions/setup-node@v4
+2026-10-20T00:36:30.2875442Z with:
+2026-10-20T00:36:30.2875687Z   node-version: 24
+2026-10-20T00:36:30.2875942Z   always-auth: false
+2026-10-20T00:36:30.2876210Z   check-latest: false
+2026-10-20T00:36:30.2878460Z   token: ***
+2026-10-20T00:36:30.2878704Z ##[endgroup]
+2026-10-20T00:36:30.3739365Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-20T00:36:30.3742178Z (node:2225) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-20T00:36:30.3743103Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-20T00:36:30.3744051Z ##[group]Environment details
+2026-10-20T00:36:30.6330328Z node: v24.21.0
+2026-10-20T00:36:30.6331166Z npm: 11.19.0
+2026-10-20T00:36:30.6331707Z yarn: 1.22.22
+2026-10-20T00:36:30.6332986Z ##[endgroup]
+2026-10-20T00:36:30.6473964Z ##[group]Run set +e
+2026-10-20T00:36:30.6474630Z [36;1mset +e[0m
+2026-10-20T00:36:30.6475251Z [36;1mmkdir -p /tmp/maws-audit-tests[0m
+2026-10-20T00:36:30.6476953Z [36;1mfor task in validate validate-neutral validate-maws-vnext validate-secrets scan-secrets test:vnext test:skill-frontdoor eval; do[0m
+2026-10-20T00:36:30.6478871Z [36;1m  echo "::group::npm run $task"[0m
+2026-10-20T00:36:30.6479875Z [36;1m  timeout 170 npm run "$task" > "/tmp/maws-audit-tests/$task.log" 2>&1[0m
+2026-10-20T00:36:30.6480859Z [36;1m  rc=$?[0m
+2026-10-20T00:36:30.6481496Z [36;1m  echo "$rc" > "/tmp/maws-audit-tests/$task.exit"[0m
+2026-10-20T00:36:30.6482395Z [36;1m  tail -40 "/tmp/maws-audit-tests/$task.log"[0m
+2026-10-20T00:36:30.6483201Z [36;1m  echo "::endgroup::"[0m
+2026-10-20T00:36:30.6483810Z [36;1mdone[0m
+2026-10-20T00:36:30.6484654Z [36;1mecho "complete" > /tmp/maws-audit-tests/run.finished[0m
+2026-10-20T00:36:30.6688622Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-20T00:36:30.6689493Z ##[endgroup]
+2026-10-20T00:36:30.6791261Z ##[group]npm run validate
+2026-10-20T00:36:30.8627557Z 
+2026-10-20T00:36:30.8633176Z > model-agnostic-workflow-system@0.2.1 validate
+2026-10-20T00:36:30.8634327Z > node scripts/tools/validate-repo-surface.mjs
+2026-10-20T00:36:30.8634905Z 
+2026-10-20T00:36:30.8635136Z {
+2026-10-20T00:36:30.8635627Z   "ok": true,
+2026-10-20T00:36:30.8636688Z   "root": "/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system",
+2026-10-20T00:36:30.8638528Z   "issueCount": 0,
+2026-10-20T00:36:30.8639088Z   "packageResult": {
+2026-10-20T00:36:30.8639646Z     "ok": true,
+2026-10-20T00:36:30.8640703Z     "root": "/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system",
+2026-10-20T00:36:30.8641933Z     "issueCount": 0,
+2026-10-20T00:36:30.8642550Z     "issues": []
+2026-10-20T00:36:30.8643060Z   },
+2026-10-20T00:36:30.8643525Z   "neutralResult": {
+2026-10-20T00:36:30.8644052Z     "ok": true,
+2026-10-20T00:36:30.8645092Z     "root": "/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system",
+2026-10-20T00:36:30.8646257Z     "issueCount": 0,
+2026-10-20T00:36:30.8646789Z     "issues": []
+2026-10-20T00:36:30.8647272Z   },
+2026-10-20T00:36:30.8647855Z   "secretResult": {
+2026-10-20T00:36:30.8648362Z     "ok": true,
+2026-10-20T00:36:30.8649375Z     "root": "/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system",
+2026-10-20T00:36:30.8650535Z     "issueCount": 0,
+2026-10-20T00:36:30.8651058Z     "issues": []
+2026-10-20T00:36:30.8651531Z   },
+2026-10-20T00:36:30.8651960Z   "issues": []
+2026-10-20T00:36:30.8652415Z }
+2026-10-20T00:36:30.8653451Z ##[endgroup]
+2026-10-20T00:36:30.8654280Z ##[group]npm run validate-neutral
+2026-10-20T00:36:31.0096840Z 
+2026-10-20T00:36:31.0098595Z > model-agnostic-workflow-system@0.2.1 validate-neutral
+2026-10-20T00:36:31.0099827Z > node scripts/tools/validate-provider-neutral-core.mjs
+2026-10-20T00:36:31.0100430Z 
+2026-10-20T00:36:31.0100619Z {
+2026-10-20T00:36:31.0101050Z   "ok": true,
+2026-10-20T00:36:31.0102031Z   "root": "/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system",
+2026-10-20T00:36:31.0103146Z   "issueCount": 0,
+2026-10-20T00:36:31.0103624Z   "issues": []
+2026-10-20T00:36:31.0104073Z }
+2026-10-20T00:36:31.0105089Z ##[endgroup]
+2026-10-20T00:36:31.0105898Z ##[group]npm run validate-maws-vnext
+2026-10-20T00:36:31.1156248Z       "section": "contract-fixtures",
+2026-10-20T00:36:31.1157328Z       "fixtures": 11,
+2026-10-20T00:36:31.1158290Z       "cases": 107,
+2026-10-20T00:36:31.1158813Z       "issues": []
+2026-10-20T00:36:31.1159327Z     },
+2026-10-20T00:36:31.1159786Z     {
+2026-10-20T00:36:31.1160286Z       "section": "od-coverage",
+2026-10-20T00:36:31.1160916Z       "covered": [
+2026-10-20T00:36:31.1161467Z         "OD-01",
+2026-10-20T00:36:31.1162021Z         "OD-02",
+2026-10-20T00:36:31.1162514Z         "OD-03",
+2026-10-20T00:36:31.1163000Z         "OD-04",
+2026-10-20T00:36:31.1163493Z         "OD-05",
+2026-10-20T00:36:31.1164266Z         "OD-06",
+2026-10-20T00:36:31.1164755Z         "OD-07",
+2026-10-20T00:36:31.1165238Z         "OD-08",
+2026-10-20T00:36:31.1165725Z         "OD-09",
+2026-10-20T00:36:31.1166213Z         "OD-10",
+2026-10-20T00:36:31.1166743Z         "OD-11",
+2026-10-20T00:36:31.1167320Z         "OD-12",
+2026-10-20T00:36:31.1168025Z         "OD-13",
+2026-10-20T00:36:31.1168595Z         "OD-14",
+2026-10-20T00:36:31.1169166Z         "OD-15",
+2026-10-20T00:36:31.1169741Z         "OD-16",
+2026-10-20T00:36:31.1170317Z         "OD-17",
+2026-10-20T00:36:31.1170892Z         "OD-18"
+2026-10-20T00:36:31.1171461Z       ],
+2026-10-20T00:36:31.1172019Z       "issues": []
+2026-10-20T00:36:31.1172613Z     },
+2026-10-20T00:36:31.1173197Z     {
+2026-10-20T00:36:31.1173807Z       "section": "od-protection",
+2026-10-20T00:36:31.1174520Z       "issues": []
+2026-10-20T00:36:31.1175240Z     },
+2026-10-20T00:36:31.1175772Z     {
+2026-10-20T00:36:31.1176368Z       "section": "maturity-drift",
+2026-10-20T00:36:31.1177088Z       "issues": []
+2026-10-20T00:36:31.1177865Z     }
+2026-10-20T00:36:31.1178420Z   ],
+2026-10-20T00:36:31.1179011Z   "issues": []
+2026-10-20T00:36:31.1179574Z }
+2026-10-20T00:36:31.1180787Z ##[endgroup]
+2026-10-20T00:36:31.1181719Z ##[group]npm run validate-secrets
+2026-10-20T00:36:31.2256212Z 
+2026-10-20T00:36:31.2257122Z > model-agnostic-workflow-system@0.2.1 validate-secrets
+2026-10-20T00:36:31.2258968Z > node scripts/tools/validate-secret-boundaries.mjs
+2026-10-20T00:36:31.2259850Z 
+2026-10-20T00:36:31.2260097Z {
+2026-10-20T00:36:31.2260624Z   "ok": true,
+2026-10-20T00:36:31.2261734Z   "root": "/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system",
+2026-10-20T00:36:31.2262988Z   "issueCount": 0,
+2026-10-20T00:36:31.2263579Z   "issues": []
+2026-10-20T00:36:31.2264126Z }
+2026-10-20T00:36:31.2265174Z ##[endgroup]
+2026-10-20T00:36:31.2266174Z ##[group]npm run scan-secrets
+2026-10-20T00:36:31.3283623Z 
+2026-10-20T00:36:31.3284739Z > model-agnostic-workflow-system@0.2.1 scan-secrets
+2026-10-20T00:36:31.3286209Z > node scripts/tools/scan-secrets.mjs
+2026-10-20T00:36:31.3286831Z 
+2026-10-20T00:36:31.3287066Z {
+2026-10-20T00:36:31.3287723Z   "ok": true,
+2026-10-20T00:36:31.3288829Z   "root": "/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system",
+2026-10-20T00:36:31.3290070Z   "findingCount": 0,
+2026-10-20T00:36:31.3290683Z   "findings": []
+2026-10-20T00:36:31.3291246Z }
+2026-10-20T00:36:31.3294380Z ##[endgroup]
+2026-10-20T00:36:31.3295699Z ##[group]npm run test:vnext
+2026-10-20T00:36:33.8656866Z ✔ an intake binding without a matching executor binding fails closed (1.597397ms)
+2026-10-20T00:36:33.8658737Z ✔ the runtime rights transition is deny-by-default on scope mismatch (4.808157ms)
+2026-10-20T00:36:33.8659438Z ✔ the runtime rights transition is deny-by-default on missing effects (3.338971ms)
+2026-10-20T00:36:33.8660093Z ✔ the binding only attests its own work unit (3.493412ms)
+2026-10-20T00:36:33.8660666Z ✔ the execution-control executor may never run unbound (1.729425ms)
+2026-10-20T00:36:33.8661288Z ✔ the recorded capability mapping must be the routed capability (1.350677ms)
+2026-10-20T00:36:33.8661964Z ✔ a FAILED fixture outcome yields honest failure evidence (3.957834ms)
+2026-10-20T00:36:33.8662755Z ✔ qualified snapshots are keyed per qualification scope, not per executor (3.266773ms)
+2026-10-20T00:36:33.8663467Z ✔ clean dual-analyzer evidence is eligible without granting authority (1.846752ms)
+2026-10-20T00:36:33.8664156Z ✔ high SkillSpector severity blocks even if a caller claims CLEAN (0.593181ms)
+2026-10-20T00:36:33.8664908Z ✔ incomplete analyzer evidence dominates known risk and cannot be owner-exceptioned (0.122915ms)
+2026-10-20T00:36:33.8665753Z ✔ unknown SkillSpector severity remains incomplete and cannot be owner-exceptioned (0.144277ms)
+2026-10-20T00:36:33.8666584Z ✔ known fully-analyzed risk can use a bounded owner exception without becoming clean (0.33308ms)
+2026-10-20T00:36:33.8667127Z ✔ expired owner exception is fail-closed (0.164026ms)
+2026-10-20T00:36:33.8668066Z ✔ hello records session model as inert metadata (11.161531ms)
+2026-10-20T00:36:33.8668488Z ✔ submit_work creates a run and reports completion status (9.864134ms)
+2026-10-20T00:36:33.8668857Z ✔ submit_work without run submitter fails closed as BLOCKED (10.010093ms)
+2026-10-20T00:36:33.8669234Z ✔ rejecting submitter yields typed BLOCKED error, run recorded (9.818956ms)
+2026-10-20T00:36:33.8669663Z ✔ session may not call unapproved methods (override_executor_binding rejected) (9.796802ms)
+2026-10-20T00:36:33.8670146Z ✔ get_run and get_work_graph return run state; approve/cancel are recorded intents only (10.765987ms)
+2026-10-20T00:36:33.8670588Z ✔ malformed JSON line yields BAD_REQUEST without killing the bridge (10.521089ms)
+2026-10-20T00:36:33.8671110Z ✔ buildSystemOneRequestBody produces the documented Zen request shape, identical to the OpenRouter builder (0.992579ms)
+2026-10-20T00:36:33.8671778Z ✔ normalizeSystemOneResponse accepts the System-One shape and rejects damaged shapes (0.211206ms)
+2026-10-20T00:36:33.8672331Z ✔ transport parity: equivalent payloads normalize to deep-equal candidates on both transports (0.157807ms)
+2026-10-20T00:36:33.8672804Z ✔ mapSystemOneStatus covers 401/402/429/5xx/other with typed dispositions (0.106169ms)
+2026-10-20T00:36:33.8673200Z ✔ zen transport: missing key fails closed before any fetch (0.208262ms)
+2026-10-20T00:36:33.8673713Z ✔ zen transport: success path sends the documented request to the allowlisted endpoint and never reflects the key (0.554702ms)
+2026-10-20T00:36:33.8674194Z ✔ zen transport: non-allowlisted endpoint fails closed before fetch (0.330937ms)
+2026-10-20T00:36:33.8674658Z ✔ jev client zen mode: full ask() returns receipt + threshold and enforces the answer space (4.976559ms)
+2026-10-20T00:36:33.8675356Z ✔ transport parity (DoD): receipts from either transport are indistinguishable except provenance (1.08628ms)
+2026-10-20T00:36:33.8675973Z ✔ jev client zen mode: answer outside the offered choices is blocked, never coerced (0.705739ms)
+2026-10-20T00:36:33.8676501Z ✔ jev client zen mode: 401/429/shape failures map to typed error classes; choices cannot widen the space (0.814022ms)
+2026-10-20T00:36:33.8676821Z ℹ tests 278
+2026-10-20T00:36:33.8676972Z ℹ suites 0
+2026-10-20T00:36:33.8677121Z ℹ pass 278
+2026-10-20T00:36:33.8677270Z ℹ fail 0
+2026-10-20T00:36:33.8677567Z ℹ cancelled 0
+2026-10-20T00:36:33.8677724Z ℹ skipped 0
+2026-10-20T00:36:33.8677868Z ℹ todo 0
+2026-10-20T00:36:33.8678035Z ℹ duration_ms 2439.449853
+2026-10-20T00:36:33.8678826Z ##[endgroup]
+2026-10-20T00:36:33.8679104Z ##[group]npm run test:skill-frontdoor
+2026-10-20T00:36:34.0062465Z 
+2026-10-20T00:36:34.0063259Z > model-agnostic-workflow-system@0.2.1 test:skill-frontdoor
+2026-10-20T00:36:34.0064007Z > node --test tests/vnext/skill-frontdoor.test.mjs
+2026-10-20T00:36:34.0064253Z 
+2026-10-20T00:36:34.0065062Z ✔ clean dual-analyzer evidence is eligible without granting authority (4.012892ms)
+2026-10-20T00:36:34.0065751Z ✔ high SkillSpector severity blocks even if a caller claims CLEAN (1.15287ms)
+2026-10-20T00:36:34.0066215Z ✔ incomplete analyzer evidence dominates known risk and cannot be owner-exceptioned (0.155132ms)
+2026-10-20T00:36:34.0066700Z ✔ unknown SkillSpector severity remains incomplete and cannot be owner-exceptioned (0.323295ms)
+2026-10-20T00:36:34.0067184Z ✔ known fully-analyzed risk can use a bounded owner exception without becoming clean (0.620251ms)
+2026-10-20T00:36:34.0067745Z ✔ expired owner exception is fail-closed (0.371688ms)
+2026-10-20T00:36:34.0067965Z ℹ tests 6
+2026-10-20T00:36:34.0068114Z ℹ suites 0
+2026-10-20T00:36:34.0068265Z ℹ pass 6
+2026-10-20T00:36:34.0068411Z ℹ fail 0
+2026-10-20T00:36:34.0068560Z ℹ cancelled 0
+2026-10-20T00:36:34.0068715Z ℹ skipped 0
+2026-10-20T00:36:34.0068860Z ℹ todo 0
+2026-10-20T00:36:34.0069027Z ℹ duration_ms 51.903073
+2026-10-20T00:36:34.0069527Z ##[endgroup]
+2026-10-20T00:36:34.0069806Z ##[group]npm run eval
+2026-10-20T00:36:34.0999570Z 
+2026-10-20T00:36:34.1000312Z > model-agnostic-workflow-system@0.2.1 eval
+2026-10-20T00:36:34.1001168Z > node scripts/tools/run-certification-evals.mjs
+2026-10-20T00:36:34.1001407Z 
+2026-10-20T00:36:34.1001648Z node:internal/modules/package_json_reader:331
+2026-10-20T00:36:34.1002172Z   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+2026-10-20T00:36:34.1002723Z         ^
+2026-10-20T00:36:34.1002850Z 
+2026-10-20T00:36:34.1003714Z Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'playwright' imported from /home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system/scripts/tools/render-page-snapshots.mjs
+2026-10-20T00:36:34.1004699Z     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:331:9)
+2026-10-20T00:36:34.1005104Z     at packageResolve (node:internal/modules/esm/resolve:784:25)
+2026-10-20T00:36:34.1005417Z     at moduleResolve (node:internal/modules/esm/resolve:873:18)
+2026-10-20T00:36:34.1005868Z     at defaultResolve (node:internal/modules/esm/resolve:1006:11)
+2026-10-20T00:36:34.1006200Z     at #cachedDefaultResolve (node:internal/modules/esm/loader:705:20)
+2026-10-20T00:36:34.1006571Z     at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:725:38)
+2026-10-20T00:36:34.1006991Z     at ModuleLoader.resolveSync (node:internal/modules/esm/loader:763:56)
+2026-10-20T00:36:34.1007303Z     at #resolve (node:internal/modules/esm/loader:687:17)
+2026-10-20T00:36:34.1007817Z     at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:607:35)
+2026-10-20T00:36:34.1008186Z     at ModuleJob.syncLink (node:internal/modules/esm/module_job:276:33) {
+2026-10-20T00:36:34.1008457Z   code: 'ERR_MODULE_NOT_FOUND'
+2026-10-20T00:36:34.1008631Z }
+2026-10-20T00:36:34.1008710Z 
+2026-10-20T00:36:34.1008784Z Node.js v24.21.0
+2026-10-20T00:36:34.1009281Z ##[endgroup]
+2026-10-20T00:36:34.1067100Z ##[group]Run actions/upload-artifact@v4
+2026-10-20T00:36:34.1067317Z with:
+2026-10-20T00:36:34.1067676Z   name: maws-audit-test-results-d7c84914
+2026-10-20T00:36:34.1067932Z   path: /tmp/maws-audit-tests/
+2026-10-20T00:36:34.1068104Z   if-no-files-found: warn
+2026-10-20T00:36:34.1068262Z   retention-days: 7
+2026-10-20T00:36:34.1068413Z   compression-level: 6
+2026-10-20T00:36:34.1068565Z   overwrite: false
+2026-10-20T00:36:34.1068718Z   include-hidden-files: false
+2026-10-20T00:36:34.1068887Z ##[endgroup]
+2026-10-20T00:36:34.2116488Z (node:2640) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-20T00:36:34.2117077Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-20T00:36:34.2164500Z With the provided path, there will be 17 files uploaded
+2026-10-20T00:36:34.2166551Z Artifact name is valid!
+2026-10-20T00:36:34.2166945Z Root directory input is valid!
+2026-10-20T00:36:34.2193398Z ##[error]The path for one of the files in artifact is not valid: /test:skill-frontdoor.exit. Contains the following character:  Colon :
+          
+Invalid characters include:  Double quote ", Colon :, Less than <, Greater than >, Vertical bar |, Asterisk *, Question mark ?, Carriage return \r, Line feed \n
+          
+The following characters are not allowed in files that are uploaded due to limitations with certain file systems such as NTFS. To maintain file system agnostic behavior, these characters are intentionally not allowed to prevent potential problems with downloads on different file systems.
+          
+2026-10-20T00:36:34.2398392Z Post job cleanup.
+2026-10-20T00:36:34.2926852Z [command]/usr/bin/git version
+2026-10-20T00:36:34.2958829Z git version 2.55.0
+2026-10-20T00:36:34.2983064Z Temporarily overriding HOME='/home/runner/work/_temp/1c8d9c53-997e-46de-a5d2-c6450c5792a2' before making global git config changes
+2026-10-20T00:36:34.2983943Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-20T00:36:34.2986769Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system
+2026-10-20T00:36:34.3016835Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-20T00:36:34.3043281Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-20T00:36:34.3254577Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-20T00:36:34.3283706Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-20T00:36:34.3477916Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-20T00:36:34.3509199Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-20T00:36:34.3818529Z Cleaning up orphan processes
+2026-10-20T00:36:34.4019065Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

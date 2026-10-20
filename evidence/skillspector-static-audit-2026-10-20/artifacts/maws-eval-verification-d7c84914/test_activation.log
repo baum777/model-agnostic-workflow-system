@@ -1,0 +1,51 @@
+
+> model-agnostic-workflow-system@0.2.1 test:activation
+> node --test tests/vnext/live-activation.test.mjs tests/vnext/codex-jsonl-live-boundary.test.mjs tests/vnext/codex-chatgpt-auth.test.mjs
+
+✔ classifyLoginStatusText normalizes the supported codex status outputs (1.573877ms)
+✔ isAuthClassFailureDetail detects auth signatures only (0.349534ms)
+✔ collectAgentMessagesFromCodexPayload extracts agent_message texts (0.219838ms)
+✔ codexAuthExitCode maps states onto the CLI exit contract (0.128124ms)
+✔ missing codex binary yields CODEX_UNAVAILABLE without any status probe (1.445744ms)
+✔ not logged in yields NOT_LOGGED_IN with health NOT_RUN and no probe execution (0.902399ms)
+✔ wrong auth mode (API key login) is rejected without silent acceptance or conversion (0.642453ms)
+✔ status probe timeout yields UNKNOWN with CODEX_AUTH_TIMEOUT (40.92634ms)
+✔ ChatGPT status + live probe PASS upgrades to AUTH_HEALTHY (status alone is not health) (2.266161ms)
+✔ MANDATORY stale fixture: ChatGPT status present + live 401 => AUTH_STALE, not AUTH_HEALTHY (0.819997ms)
+✔ token-expired-class live failure also classifies AUTH_STALE (0.553747ms)
+✔ non-auth live failure stays CODEX_AUTH_HEALTH_PROBE_FAILED, never AUTH_STALE (0.56387ms)
+✔ successful probe without the expected phrase fails the health check (0.430333ms)
+✔ OPENROUTER/OPENAI/TYPESAFE keys stay in the parent and never reach a Codex child (0.498254ms)
+✔ auth receipts never carry OAuth-shaped state (0.474982ms)
+✔ MANDATORY healthy-session fixture: healthy auth never invokes login (0.473529ms)
+✔ verifyAuthHealth (check path) never invokes login even when login is required (1.131437ms)
+✔ login command success + stored ChatGPT + health PASS => AUTHENTICATED (0.725889ms)
+✔ login command success + health FAIL => not AUTHENTICATED (stale remains stale) (0.435455ms)
+✔ login command failure preserves post-login truth (re-observed status, no assumptions) (0.316712ms)
+✔ login timeout yields LOGIN_FAILED with CODEX_AUTH_TIMEOUT and no retry (60.725881ms)
+✔ device auth supported: --device maps to the official codex login --device-auth (0.856758ms)
+✔ device auth unsupported: request is refused without any login invocation (0.288309ms)
+✔ headless interactive login is refused with AUTH_INTERACTION_REQUIRED (0.263413ms)
+✔ Codex executor accepts documented JSONL event stream (3.958852ms)
+✔ Codex executor preserves the historical single-line JSON payload shape (1.257296ms)
+✔ Codex executor fails closed if any JSONL event is malformed (0.388451ms)
+✔ live boundary: missing provider env var fails closed through turn.failed classification (0.73567ms)
+✔ live boundary: provider 401 reconnect cascade ends in CODEX_TURN_FAILED, not SUCCESS (0.6678ms)
+✔ live activation passes only when all three independent probes pass (2.841054ms)
+✔ missing OpenRouter key does not mask the independent Codex lane: PARTIAL (0.497672ms)
+✔ not-logged-in Codex blocks only the Codex lane (CODEX_AUTH_NOT_LOGGED_IN) without masking OpenRouter (0.482068ms)
+✔ stored ChatGPT status with a stale live session blocks the Codex lane (CODEX_AUTH_STALE) (0.322094ms)
+✔ wrong auth mode (API key) blocks the Codex lane with CODEX_AUTH_WRONG_MODE (0.301819ms)
+✔ missing codex binary blocks the Codex lane with CODEX_BINARY_MISSING (134.360973ms)
+✔ Codex success without the expected agent phrase is BLOCKED, not PASS (74.119778ms)
+✔ OpenRouter model substitution blocks the model lane even on execution success (0.488301ms)
+✔ low-confidence Jev outcome blocks the Jev lane instead of widening authority (0.343822ms)
+✔ no lane ready yields BLOCKED with all probes NOT_RUN (0.246105ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 297.175122

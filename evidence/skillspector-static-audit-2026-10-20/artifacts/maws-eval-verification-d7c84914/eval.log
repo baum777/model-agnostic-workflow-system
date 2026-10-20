@@ -1,0 +1,55 @@
+
+> model-agnostic-workflow-system@0.2.1 eval
+> node scripts/tools/run-certification-evals.mjs
+
+node:events:505
+    throw er; // Unhandled 'error' event
+    ^
+
+Error: spawn /home/runner/.cache/ms-playwright/chromium-1217/chrome-linux64/chrome ENOENT
+    at ChildProcess._handle.onexit (node:internal/child_process:316:19)
+    at onErrorNT (node:internal/child_process:554:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+Emitted 'error' event on ChildProcess instance at:
+    at ChildProcess._handle.onexit (node:internal/child_process:322:12)
+    at onErrorNT (node:internal/child_process:554:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'spawn /home/runner/.cache/ms-playwright/chromium-1217/chrome-linux64/chrome',
+  path: '/home/runner/.cache/ms-playwright/chromium-1217/chrome-linux64/chrome',
+  spawnargs: [
+    '--disable-features=Translate,OptimizationHints,MediaRouter,DialMediaRouteProvider,CalculateNativeWinOcclusion,InterestFeedContentSuggestions,CertificateTransparencyComponentUpdater,AutofillServerCommunication,PrivacySandboxSettings4,RenderDocument',
+    '--disable-extensions',
+    '--disable-component-extensions-with-background-pages',
+    '--disable-background-networking',
+    '--disable-component-update',
+    '--disable-client-side-phishing-detection',
+    '--disable-sync',
+    '--metrics-recording-only',
+    '--disable-default-apps',
+    '--mute-audio',
+    '--no-default-browser-check',
+    '--no-first-run',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-renderer-backgrounding',
+    '--disable-background-timer-throttling',
+    '--disable-ipc-flooding-protection',
+    '--password-store=basic',
+    '--use-mock-keychain',
+    '--force-fieldtrials=*BackgroundTracing/default/',
+    '--disable-hang-monitor',
+    '--disable-prompt-on-repost',
+    '--disable-domain-reliability',
+    '--propagate-iph-for-testing',
+    '--remote-debugging-port=43281',
+    '--disable-setuid-sandbox',
+    '--user-data-dir=/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system/artifacts/render-a11y-runtime/profiles/runtime-preflight-chrome-launcher',
+    '--headless=new',
+    '--no-sandbox',
+    '--disable-gpu',
+    'about:blank'
+  ]
+}
+
+Node.js v24.22.0
