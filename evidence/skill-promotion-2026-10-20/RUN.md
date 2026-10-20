@@ -68,9 +68,9 @@ The independent review of the first S8 implementation (local audit agent, tool-d
 | Surface | State |
 | --- | --- |
 | SOURCE | VERIFIED — merged in MAWS pull request (see the disposition artifact for the publication evidence) |
-| REGISTRY | **OPEN (REQUIRED_BUT_BLOCKED)** — the run change registration and the `CONTRACT_RECORD` for `core/contracts/skill-promotion-adoption.schema.json` are written after this branch merges, in `unitera-registry`; the local disposition stays `REQUIRED_BUT_BLOCKED` until that publication exists and the disposition is rebound to `UPDATED` with the registry commit sha |
-| ATLAS | **OPEN (REQUIRED_BUT_BLOCKED)** — the Atlas claim for this slice is written after the Registry publication |
-| CONSISTENCY | **PARTIAL** until the two projections above are published |
+| REGISTRY | **CLOSED** — the run change registration and the `CONTRACT_RECORD` for `core/contracts/skill-promotion-adoption.schema.json` were published in `unitera-registry` pull request 234, merged as `62a9e1261162b958a2c430f17889637962dd3cdd`; the local disposition is rebound to `UPDATED` with that registry commit sha |
+| ATLAS | **CLOSED** — the Atlas claim `C-MAWS-S8-GOVERNANCE-PROMOTION-2026-10-20` was published in `unitera_atlas` pull request 180, merged as `06fc37c3c8a9f0a2b9da2d2a3108ebb2bf5348d3` |
+| CONSISTENCY | **VERIFIED** across the three surfaces at the recorded commits |
 
 ## Open obligations (not closed by this run)
 

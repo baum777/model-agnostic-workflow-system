@@ -58,7 +58,7 @@ An independent review of the first S7 implementation (local audit agent, tool-dr
 
 ## Open obligations (not closed by this run)
 
-- **Registry registration: OPEN (REQUIRED_BUT_BLOCKED).** The run change registration and the `CONTRACT_RECORD` projections of `core/contracts/qualification-fingerprint.schema.json` and `core/contracts/materiality-decision.schema.json` are written after this branch merges, in `unitera-registry`; the local disposition stays `REQUIRED_BUT_BLOCKED` until that publication exists and the disposition is rebound to `UPDATED` with the registry commit sha.
-- **Atlas representation: OPEN (REQUIRED_BUT_BLOCKED).** The Atlas claim for this slice is written after the Registry publication.
+- **Registry registration: CLOSED.** The run change registration and the `CONTRACT_RECORD` projections of `core/contracts/qualification-fingerprint.schema.json` and `core/contracts/materiality-decision.schema.json` were published in `unitera-registry` pull request 233, merged as `a4738796f2636d11a24e1b9ef9e3173247d66c95`; the local disposition is rebound to `UPDATED` with that registry commit sha.
+- **Atlas representation: CLOSED.** The Atlas claim `C-MAWS-S7-QUALIFICATION-INTEGRATION-2026-10-20` was published in `unitera_atlas` pull request 180, merged as `06fc37c3c8a9f0a2b9da2d2a3108ebb2bf5348d3`.
 - **Runtime bundle→fingerprint derivation: OPEN.** The qualification fingerprint is not yet derived from the assembled instruction bundle at runtime (see the scope boundary above).
 - **Independent review limitation.** The codex review connector was quota-exhausted for this slice; the independent review was performed by a local audit agent (a different model, tool-driven, with mutation probes). No human approval is claimed, and the slice is not presented as codex-reviewed.

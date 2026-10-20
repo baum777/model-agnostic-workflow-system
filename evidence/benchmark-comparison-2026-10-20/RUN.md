@@ -64,6 +64,6 @@ An independent review of the first S13 implementation (PR #48, head `d7c7b0c`) f
 
 ## Open obligations (not closed by this run)
 
-- **Registry registration: OPEN (REQUIRED_BUT_BLOCKED).** The run change registration and the `CONTRACT_RECORD` for `core/contracts/benchmark-record.schema.json` are written after this branch merges, in `unitera-registry`; the local `registry-disposition.json` stays `REQUIRED_BUT_BLOCKED` until that publication exists and the disposition is rebound to `UPDATED` with the registry commit sha.
-- **Atlas representation: OPEN (REQUIRED_BUT_BLOCKED).** The Atlas claim for this slice is written after the Registry publication.
+- **Registry registration: CLOSED.** The run change registration and the `CONTRACT_RECORD` for `core/contracts/benchmark-record.schema.json` were published in `unitera-registry` pull request 232, merged as `0e7b20b59bdeef92d622de87b72ed8140b3a0e84`; the local disposition is rebound to `UPDATED` with that registry commit sha.
+- **Atlas representation: CLOSED.** The Atlas claim `C-MAWS-S13-BENCHMARK-COMPARISON-2026-10-20` was published in `unitera_atlas` pull request 179, merged as `7e622cce967afe9c090caadb070b487783298866`.
 - **Independent review limitation.** The codex review connector was exhausted (quota) for this slice; the independent review was performed by a local audit agent (a different model, tool-driven, with mutation probes). No human approval is claimed, and the slice is not presented as codex-reviewed.
