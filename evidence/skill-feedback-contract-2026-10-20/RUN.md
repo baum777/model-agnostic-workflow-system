@@ -40,3 +40,28 @@
 
 - Unitera-registry CONTRACT_RECORD write for `skill-feedback.schema.json`, then rebind of this disposition to `UPDATED` with the registry `registry_commit_sha` (follow-up, own gated change).
 - S2 (Instruction Inventory) is the next implementation slice per the S0 map §9.
+
+## Repair round (2026-10-20, post-merge codex findings)
+
+The codex review completed at `613a5e7` after the PR #22 merge with two
+P2 findings (`has_unresolved_findings: true` at merge time). Both are
+repaired before the pending registry CONTRACT_RECORD write:
+
+- **F-22-1 (P2)** — `error_class: TOOL_CONTRACT_ERROR` still accepted the
+  skill-changing dispositions `EXTEND_SKILL`/`CREATE_SKILL`, contradicting
+  spec 8.4 (the skill is not the improvement area when the demonstrated
+  cause is exclusively in the tool contract). Repair: fail-closed if/then
+  narrowing to the seven non-skill-changing dispositions; owner review
+  does not legitimize the mismatch (negative fixture proves it).
+- **F-22-2 (P2)** — `evidence_refs` items were unrestricted strings, so
+  `model self-report: trust me` validated despite the contract's promise.
+  Repair: closed source-kind scheme (`artifact:`, `edge:`, `eval:`,
+  `file:`, `graph:`, `operator:`, `path:`, `review:`, `run:`, `sandbox:`,
+  `session:`, `ticket:`, `url:`); there is no self-report scheme and
+  unmarked refs are rejected (two negative fixtures).
+
+Verification after repair: fixture validator 21 cases / 0 unexpected;
+`test:vnext` 314/314; `eval:maws-vnext` exit 0; validate / validate-neutral
+/ validate-maws-vnext / validate-secrets / scan-secrets PASS. The S1
+disposition is rebound to repair commit `c5f6fbedd45c53f95b3cc69b2ed5f598557fe220`
+while staying REQUIRED_BUT_BLOCKED until the registry write.
