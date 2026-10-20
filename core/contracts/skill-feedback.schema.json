@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/skill-feedback.schema.json",
+  "title": "SkillFeedback Contract",
+  "description": "S1 of MAWS-SII-TARGET-SPEC-001 (PROPOSED): structured, versioned feedback record for the Skill Intelligence improvement lifecycle (spec sections 8.2, 8.3, 9 Stage 1). Feedback is analysis input, never authority: a valid record grants no permission, promotes no skill, and changes no qualification state. Model self-report is deterministically excluded as a source category (spec 8.2: model self-report is not independent execution evidence) and may only appear inside observed_problem prose, never as source.category or evidence_refs. positive_reference_example captures carry UNKNOWN_ROOT_CAUSE (no defect attributed) and are therefore forced through the owner-review rule like every other unattributed record. Records with error_class UNKNOWN_ROOT_CAUSE or proposed_disposition CREATE_SKILL always require owner review, enforced by if/then below.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "feedback_id",
+    "created_at",
+    "source",
+    "subject",
+    "error_class",
+    "observed_problem",
+    "evidence_refs",
+    "risk_class",
+    "confidence",
+    "requires_owner_review",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "feedback_id": { "type": "string", "pattern": "^fb_[a-z0-9_]+$" },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "ref"],
+      "properties": {
+        "category": {
+          "description": "Allowed feedback input categories per spec 8.2. model_self_report is deliberately absent: it is not independent execution evidence.",
+          "enum": [
+            "operator_correction",
+            "failed_eval",
+            "regression",
+            "run_evidence",
+            "verification_failure",
+            "routing_error",
+            "recurring_manual_rework",
+            "positive_reference_example"
+          ]
+        },
+        "ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_ref"],
+      "description": "Run-, skill- and executor-side bindings (spec S1 checklist). Only task_ref is mandatory; the other bindings are declared and filled when the feedback concerns them.",
+      "properties": {
+        "task_ref": { "type": "string", "minLength": 1 },
+        "run_ref": { "type": "string", "minLength": 1 },
+        "skill_ref": { "type": "string", "minLength": 1 },
+        "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+        "capability_id": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" },
+        "instruction_bundle_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "error_class": {
+      "description": "Primary error class per spec 8.3; it determines the responsible improvement area.",
+      "enum": [
+        "SKILL_SELECTION_ERROR",
+        "SKILL_INSTRUCTION_ERROR",
+        "INSTRUCTION_CONFLICT",
+        "CONTEXT_SELECTION_ERROR",
+        "TOOL_CONTRACT_ERROR",
+        "EXECUTOR_BEHAVIOR_ERROR",
+        "VERIFICATION_GAP",
+        "POLICY_ENFORCEMENT_ERROR",
+        "EVIDENCE_GAP",
+        "UNKNOWN_ROOT_CAUSE"
+      ]
+    },
+    "observed_problem": { "type": "string", "minLength": 1 },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "risk_class": { "$ref": "maws-vnext-common.schema.json#/$defs/riskClass" },
+    "confidence": { "enum": ["low", "medium", "high"] },
+    "proposed_disposition": {
+      "description": "Stage-3 disposition candidate per spec 9; optional at capture time.",
+      "enum": [
+        "NO_CHANGE",
+        "REUSE",
+        "EXTEND_SKILL",
+        "CREATE_SKILL",
+        "REPAIR_INSTRUCTION",
+        "REPAIR_ROUTING",
+        "REPAIR_VALIDATOR",
+        "REPAIR_RUNTIME",
+        "NEEDS_MORE_EVIDENCE"
+      ]
+    },
+    "requires_owner_review": { "type": "boolean" },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["captured_at", "captured_by", "source_revision"],
+      "properties": {
+        "captured_at": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+        },
+        "captured_by": { "type": "string", "minLength": 1 },
+        "source_revision": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Repository revision the feedback was captured against."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": ["error_class"],
+        "properties": { "error_class": { "const": "UNKNOWN_ROOT_CAUSE" } }
+      },
+      "then": {
+        "properties": { "requires_owner_review": { "const": true } }
+      }
+    },
+    {
+      "if": {
+        "required": ["proposed_disposition"],
+        "properties": { "proposed_disposition": { "const": "CREATE_SKILL" } }
+      },
+      "then": {
+        "properties": { "requires_owner_review": { "const": true } }
+      }
+    }
+  ]
+}
