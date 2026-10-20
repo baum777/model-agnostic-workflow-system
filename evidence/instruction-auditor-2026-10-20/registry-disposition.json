@@ -3,7 +3,7 @@
     "status": "REQUIRED_BUT_BLOCKED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "S3 of MAWS-SII-TARGET-SPEC-001 adds a new canonical contract to core/contracts/ (instruction-audit-finding.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the audit-finding record class it introduces. The registry write has not happened yet in this change set and is its own registered change; it is blocked only on execution order (source PR first, registry projection second, then rebind of this disposition to UPDATED with the registry commit), following the execution-intake-binding precedent. Until the rebind, this disposition records the pending registry obligation.",
+    "reason": "S3 of MAWS-SII-TARGET-SPEC-001 adds a new canonical contract to core/contracts/ (instruction-audit-finding.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the audit-finding record class it introduces. The registry write has not happened yet in this change set and is its own registered change; it is blocked only on execution order (source PR first, registry projection second, then rebind of this disposition to UPDATED with the registry commit), following the execution-intake-binding precedent. Before that write, the codex review findings raised after the PR #26 merge were repaired in a follow-up source change (this disposition binds the repaired implementation_commit_sha): the audit CLI now verifies the requested revision fail-closed, the finding identity includes the graph edge kind, and the line_range ordering invariant is enforced by a semantic check on top of schema validation. Until the rebind, this disposition records the pending registry obligation.",
     "affected_records": [
       "CONTRACT_RECORD:core/contracts/instruction-audit-finding.schema.json"
     ],
@@ -26,17 +26,18 @@
     "provenance_refs": [
       "evidence/instruction-auditor-2026-10-20/RUN.md",
       "docs/proposals/skill-intelligence-target-spec.md",
-      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md",
+      "git log -1 --format='%G?' on 82a638a268afccfc612ee184d8e536ab7230241c returns N (commit not GPG-signed; disclosed deviation)"
     ],
     "evidence_refs": [
-      "evidence/instruction-auditor-2026-10-20/RUN.md",
-      "evidence/audit-report-866ab49.json (live audit ia_2366a005f76a00ed: 10 findings, 0 blocker, 0 contract violations)",
-      "npm run validate-instruction-integrity (fixture: 18 cases checked, 0 unexpected results)",
+      "evidence/instruction-auditor-2026-10-20/RUN.md (incl. repair-round addendum and disclosed signing deviation)",
+      "npm run validate-instruction-integrity (21 cases checked: 18 schema + 3 semantic, 0 unexpected results)",
       "npm run eval:maws-vnext (exit 0, fixture registered and covered)",
-      "npm run test:vnext (312/312 pass, 0 fail; includes tests/vnext/instruction-auditor.test.mjs)",
-      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)"
+      "npm run test:vnext (318/318 pass, 0 fail; includes tests/vnext/instruction-auditor.test.mjs, 9 tests)",
+      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
+      "codex review findings at 2603ba3 (1 P1, 2 P2, has_unresolved_findings at merge time) repaired by this change set"
     ],
-    "implementation_commit_sha": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+    "implementation_commit_sha": "82a638a268afccfc612ee184d8e536ab7230241c",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-auditor-2026-10-20/registry-disposition.json"
