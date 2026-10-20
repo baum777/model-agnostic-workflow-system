@@ -30,6 +30,7 @@
     "test:skill-frontdoor": "node --test tests/vnext/skill-frontdoor.test.mjs",
     "validate-maws-vnext": "node scripts/tools/validate-maws-vnext-contracts.mjs",
     "validate-skill-feedback": "node scripts/tools/validate-skill-feedback.mjs",
+    "validate-instruction-integrity": "node scripts/tools/validate-instruction-integrity.mjs",
     "eval:secret-boundary": "node scripts/tools/run-certification-evals.mjs --kind secret-boundary",
     "eval:skill-routing": "node scripts/tools/run-certification-evals.mjs --kind skill-routing",
     "eval:workflow-routing": "node scripts/tools/run-certification-evals.mjs --kind workflow-routing",
