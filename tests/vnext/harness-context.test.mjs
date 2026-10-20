@@ -811,6 +811,26 @@ test('S11 regressions (codex rounds 7): callback substitution, qualification reb
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
 
+  // (3b) codex round 8: an add_node claiming a NEW qualification without
+  // inputs fails closed as well (no previous binding to compare against).
+  assert.throws(
+    () => engine.submit('graph_s11_r7', {
+      request_id: 'rev_r8_addnode_qual',
+      base_graph_version: 1,
+      request_type: 'add_node',
+      source: 'runtime',
+      motivation: 'new node without qualification evidence',
+      payload: {
+        node_id: 'node_02_extra',
+        work_unit_id: rootWu.work_unit_id,
+        stage: 'analysis',
+        depends_on: ['node_00_analysis'],
+        executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd7', qualification_ref: 'qual_other_context', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_graph_dev' }
+      }
+    }, { workUnits: [rootWu] }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_MISSING'
+  );
+
   // (4) the evidenced, input-proven qualification rebind is accepted.
   const { decision } = engine.submit('graph_s11_r7', {
     request_id: 'rev_r7_qual_ok',

@@ -144,11 +144,18 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
       const assertQualificationsHoldContext = (nodes) => {
         for (const node of nodes) {
           const previous = activeGraph.nodes.find((candidate) => candidate.node_id === node.node_id);
-          if (!previous || previous.executor_binding.qualification_ref === node.executor_binding.qualification_ref) {
+          // Skip only when a previous binding EXISTS and the qualification
+          // ref is unchanged -- a NEW node (add_node) claims a qualification
+          // for the first time and must prove the context binding like a
+          // changed ref does.
+          if (previous && previous.executor_binding.qualification_ref === node.executor_binding.qualification_ref) {
             continue;
           }
           if (!Array.isArray(qualifications) || qualifiedFingerprints === null || typeof qualifiedFingerprints !== 'object') {
-            throw new FailClosedError('CONTEXT_BINDING_MISSING', `rebind of node ${node.node_id} replaces qualification "${previous.executor_binding.qualification_ref}" with "${node.executor_binding.qualification_ref}"; qualification and qualifiedFingerprint inputs are required to prove the context binding`);
+            const claim = previous
+              ? `rebind of node ${node.node_id} replaces qualification "${previous.executor_binding.qualification_ref}" with "${node.executor_binding.qualification_ref}"`
+              : `new node ${node.node_id} claims qualification "${node.executor_binding.qualification_ref}"`;
+            throw new FailClosedError('CONTEXT_BINDING_MISSING', `${claim}; qualification and qualifiedFingerprint inputs are required to prove the context binding`);
           }
           const qualification = qualifications.find((entry) => entry && entry.qualification_id === node.executor_binding.qualification_ref);
           const fingerprint = qualification ? Object.values(qualifiedFingerprints).find((entry) => entry && entry.fingerprint_id === qualification.fingerprint_ref) : null;
