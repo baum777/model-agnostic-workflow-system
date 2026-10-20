@@ -2,12 +2,13 @@
 ## Target Architecture & Implementation Specification
 
 **Document ID:** MAWS-SII-TARGET-SPEC-001  
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Date:** 2026-10-20  
 **Status:** PROPOSED — TARGET SPECIFICATION  
 **Owner:** model-agnostic-workflow-system  
 **Authority:** Design proposal; no canonical adoption or runtime activation  
-**Scope:** Shared-Core, Skill Lifecycle, Instruction Management, Harness, Evals, Qualification
+**Scope:** Shared-Core, Skill Lifecycle, Instruction Management, Harness, Evals, Qualification  
+**Revision:** v0.2.0 (2026-10-20) — erweitert v0.1.0 um getrennte Harness-Kontexte (§ 4.3), modelladaptive Executor-Profile (§ 11.5) und einen vergleichenden Benchmark-Harness (§ 10.6); Klärung der Kontext-Ownership (§ 7.5) und der Audit-Coverage-Grenzen (§ 6.6). Amendment Note am Dokumentende.
 
 ---
 
@@ -33,6 +34,18 @@ Das System soll nicht durch immer umfangreichere Systemprompts zuverlässiger we
 ### Core Principle
 
 > Maximize useful agent capability while minimizing unnecessary instruction overhead, preserving deterministic governance and verifiable execution.
+
+### v0.2.0 Erweiterungsumfang
+
+v0.2.0 erweitert den bestehenden v0.1.0-Body um drei zusammenhängende Bereiche:
+
+1. **Getrennte Harness-Kontexte** (§ 4.3) — Development Harness und UNITERA Product Harness als getrennt berechtigte Ausführungskontexte, deren Berechtigungen nicht ineinander übertragbar sind.
+2. **Modelladaptive Executor-Profile** (§ 11.5) — eine versionierte Darstellungs- und Interaktionsschicht über der modellagnostischen Orchestrierungssemantik.
+3. **Vergleichender Benchmark-Harness** (§ 10.6) — die Orchestrierungsform selbst wird gegen eine Single-Executor-Baseline gemessen, statt allein Skill- und Instruktionsänderungen zu evaluieren.
+
+Zusätzlich werden zwei bestehende Grenzen explizit gemacht: die Kontext-Ownership gegenüber dem coreos-eigenen Context Compiler (§ 7.5) und die deklarierte Abdeckungsgrenze der Instruction-Audit-Taxonomie (§ 6.6).
+
+Diese Fortschreibung startet keine bereits implementierten Slice neu und erklärt sie nicht rückwirkend als abgeschlossen.
 
 ### Primary Invariant
 
@@ -82,6 +95,14 @@ Prompttext erläutert die Grenzen, ersetzt deren Enforcement jedoch nicht.
 ### O6 — Evidence-Backed Evolution
 
 Keine dauerhafte Regeländerung ohne nachvollziehbaren Befund, getesteten Änderungskandidaten und erforderliche Freigabe.
+
+### O7 — Harness Context Separation
+
+Entwicklungsharness und UNITERA Product Harness werden als getrennt berechtigte Ausführungskontexte geführt. Berechtigung, Effect-Grenzen und Nachweis-Pflichten des einen Kontexts werden nicht aus dem anderen abgeleitet.
+
+### O8 — Measured Orchestration Benefit
+
+Der Nutzen dynamischer Orchestrierung wird gegenüber einer statischen Single-Executor-Baseline gemessen. Der Vorteil wird nicht angenommen, sondern anhand reproduzierbarer Vergleichsläufe belegt oder verworfen.
 
 ---
 
@@ -142,6 +163,22 @@ Die Zielerweiterung adressiert insbesondere:
 Diese Punkte sind Erweiterungslücken, keine Aussage, dass bestehende Skill-, Eval- oder Governance-Komponenten fehlen.
 
 Der aktuelle Implementierungsstand muss vor jedem Implementation Slice gegen den tatsächlichen Repository-HEAD neu verifiziert werden.
+
+### 3.4 Extern verantwortliche Owner-Surfaces
+
+Die Zielarchitektur erweitert MAWS nicht zu einer zweiten Instanz bestehender Verantwortlichkeiten. Die folgenden Surfaces bleiben an ihren Eigentümern:
+
+| Concern | Owner | MAWS-Rolle |
+|---|---|---|
+| Source-Proofs, Datenklassifikation, Egress, Context-Budget | `coreos` (Context Compiler, `src/context/`) | Consumer der kompilierten Context-Quelle |
+| Instruction-Klassen, Skill-Auswahl, Bundle-Assemblierung | MAWS | Owner |
+| Executor-Eligibility, Qualification, Routing, Composition | MAWS | Owner |
+| Tenant-Authority, Membership, Execution Control, Effect Dispatch | `unitera_control_plane`, `unitera_identity`, `Unitera_Systems` | Consumer |
+| Capability-, Autonomie- und Grant-Semantik | `unitera-os` | Consumer |
+| Registrierung, Provenienz, Supersession | Unitera Registry | Consumer |
+| Kartographie, Navigation, Beziehungsdarstellung | Unitera Atlas | Consumer |
+
+Diese Zuordnung ist bindend für die Umsetzung: MAWS führt keinen zweiten Context Compiler, keine zweite Execution-Control-Instanz und keine zweite Governance Authority ein.
 
 ---
 
@@ -244,6 +281,39 @@ Der Instruction Resolver besitzt keine eigene Berechtigungsautorität.
 Ein Skill kann Tool-Nutzung beschreiben, jedoch keine Permission erzeugen.
 
 Ein Executor darf Verbesserungen vorschlagen, aber seine eigenen Qualifikations- oder Freigabebedingungen nicht verändern.
+
+### 4.3 Harness Contexts
+
+MAWS unterscheidet zwei getrennte Ausführungskontexte. Beide nutzen denselben executor-zentrierten Kern, beziehen ihre Berechtigung aber aus unterschiedlichen Quellen.
+
+**A. Development Harness**
+
+Scope: Repository-Inspektion, Code-Erzeugung und -Änderung, Tests und Validierung, Security-Auditing, Pull-Request-Vorbereitung, Cross-Repository-Abgleich.
+
+Authority-Quelle: aktuelle Operator-Zuordnung, Repository-Ownership, geltende Governance und vermittelte Tool-Berechtigungen.
+
+**B. UNITERA Product Harness**
+
+Scope: mandantenspezifische Arbeit, persönlicher und institutioneller Kontext, capability-gebundene Business-Operationen, menschliche Entscheidungen und begrenzte Delegation, Provider-Interaktionen, persistente Runtime-Evidenz.
+
+Authority-Quelle: verifizierte Identität, Tenant-Mitgliedschaft, aktuelle Policies, Delegation, Grants und Execution-Control-Entscheidungen.
+
+```text
+Development-Harness-Berechtigung != Product-Runtime-Authority
+Harness Context != Tenant Assignment
+Harness Context != Authority
+```
+
+Regeln:
+
+- Der Harness-Kontext ist eine Routing- und Binding-Größe, keine Berechtigungsquelle.
+- Ein Development-Harness-Run leitet keine Product-Runtime-Authority aus einer Instruktion, einem Skill, einer Modellfähigkeit oder einer Provider-Konfiguration ab.
+- Der Wechsel des Harness-Kontexts ist ein gebundener Planwechsel mit eigener Evidenz, kein impliziter Fallback.
+- Executor-Bindungen tragen den Harness-Kontext. Eine im Development-Kontext qualifizierte Executor-Bindung gilt nicht automatisch im Product-Kontext und umgekehrt.
+- Product-Effekte bleiben unabhängig vom Harness-Kontext an Tenant-, Membership- und Execution-Control-Entscheidungen gebunden.
+- Ein Run, dessen Kontextbindung fehlt oder widersprüchlich ist, bindet keinen Executor.
+
+Der Slice S11 führt die maschinenlesbare Bindung ein; dieser Abschnitt beschreibt die Zielsemantik.
 
 ---
 
@@ -394,6 +464,19 @@ Semantische Befunde sind zunächst advisory.
 
 Deterministisch bewiesene Integritätsfehler können gemäß bestehender Gate-Policy blockieren.
 
+### 6.6 Coverage Boundaries
+
+Die geschlossene Taxonomie in 6.2 ist der Zielumfang des Auditors, nicht der Umfang der heute deterministisch entscheidbaren Klassen.
+
+- Statisch entscheidbare Klassen werden deterministisch geprüft.
+- Die übrigen Klassen sind semantisch und werden als nicht statisch analysierbar ausgewiesen.
+- Das Fehlen von Befunden in einer als nicht statisch analysierbar ausgewiesenen Klasse ist eine deklarierte Limitation und kein Freibrief.
+- Semantische Klassen erfordern eine owner-geprüfte Analyse; sie blockieren niemals allein und ersetzen keine Approval-Entscheidung.
+- Eine Erweiterung der Wellenabdeckung ist eigene, messbar gemachte Slice-Arbeit und keine implizite Eigenschaft des Auditors.
+- Der Audit-Report führt die analysierten und die ausdrücklich nicht analysierten Klassen getrennt mit.
+
+Ein Auditor, der eine Klasse nicht prüft, behauptet für diese Klasse keine Compliance.
+
 ---
 
 ## 7. Adaptive Context Assembly
@@ -468,6 +551,25 @@ instruction_bundle:
 Der Digest bindet die tatsächlich verwendeten Inhalte und ihre definierte Reihenfolge.
 
 Ein Bundle ist Kontext- und Verhaltensinput, kein Permission-Token.
+
+### 7.5 Context Ownership und Nicht-Duplikation
+
+Die Kontextsemantik ist geteilt, aber nicht doppelt.
+
+| Artefakt | Owner | Zweck |
+|---|---|---|
+| Context Compilation (Source-Proofs, Datenklasse, Egress, Context-Budget) | `coreos` — `src/context/` (Context Compiler) | Wissen, Klassifikation, Egress, Budget |
+| Instruction Bundle (Instruktionen, Skills, Reihenfolge, Digest) | MAWS — Slice S6 | Effektive Instruktionsmenge |
+| Executor-Binding, Qualification, Routing | MAWS | Ausführungswahl |
+| Execution Control, Effect Dispatch | `Unitera_Systems`, `unitera_control_plane` | Durchsetzung |
+
+Regeln:
+
+- MAWS führt keinen zweiten Context Compiler und kein zweites kanonisches Context Manifest ein.
+- Ein Instruction Bundle ist kein Context Manifest. Das Bundle bindet Instruktionen und Skills; die kompilierte Context-Quelle bindet Wissen, Klassifikation und Egress. Beide werden versiongebunden referenziert, nicht dupliziert.
+- Fehlt eine für die Aufgabe erforderliche Context-Quelle, blockiert die betroffene Ausführung. Sie wird nicht durch eine schmalere Bundle-Definition ersetzt.
+- Der Bundle-Digest referenziert die Context-Bindung, statt die Context-Bindung zu duplizieren.
+- Widersprüchliche oder fehlende Kontextquellen bleiben als Konflikt im Bundle sichtbar und werden nicht stillschweigend aufgelöst.
 
 ---
 
@@ -695,6 +797,28 @@ Numerische Qualitäts- und Stichprobenschwellen werden anhand einer Baseline und
 
 Keine implizite Erfolgsschwelle aus einer einzelnen Demonstration.
 
+### 10.6 Comparative Benchmark Harness
+
+Die Evaluation in 10.3 misst Kandidaten gegen eine Baseline derselben Spezifikation. Der Comparative Benchmark Harness misst zusätzlich die Orchestrierungsform selbst: eine statische Single-Executor-Ausführung gegenüber einer policy-gebundenen Multi-Executor-Ausführung.
+
+Benchmark-Protokoll:
+
+1. Feste Benchmark-Aufgaben definieren, die eine statische und eine dynamische Variante zulassen.
+2. Single-Executor-Baseline mit identischem Input, identischem Executor-Profil und frischen, isolierten Sessions fahren.
+3. Policy-gebundene Multi-Executor-Alternative fahren, soweit die Composition-Policy sie zulässt.
+4. Messen: Token, Kosten, Laufzeit, Interventionszahl, Verifikationserfolg und Artefaktqualität gegen unabhängige Akzeptanzkriterien.
+5. Context-Isolation zwischen den Workern prüfen.
+6. Geerbte Authority- und Budget-Grenzen zwischen Parent und Child prüfen.
+7. Fälle dokumentieren, in denen Parallelisierung kontraproduktiv ist.
+8. Auswahlkriterien für Routing und Composition als Ergebnis festhalten.
+
+Grenzen:
+
+- Decomposition wird nicht gewählt, weil mehrere Executor verfügbar sind.
+- Ein Benchmark-Ergebnis ist eine Vergleichsgrundlage, keine Freigabe für breitere Autonomie und keine Qualification.
+- Verglichen werden nur Kandidaten innerhalb derselben Authority-Domäne.
+- Baseline und Candidate verwenden dieselbe Eval-Familie; ein Benchmark erzeugt keine eigene Erfolgsbehauptung.
+
 ---
 
 ## 11. Model-Aware Instruction Qualification
@@ -753,6 +877,37 @@ Bei Modellwechsel werden mindestens geprüft:
 - Completion-Qualität.
 
 Eine stärkere Modellversion erhält dadurch keine erweiterten Berechtigungen.
+
+### 11.5 Model-Adaptive Executor Profiles
+
+Die gemeinsame Orchestrierungs- und Skill-Semantik bleibt modellagnostisch. Ein modelladaptives Profil optimiert ausschließlich Darstellung und Interaktionsform.
+
+Modell-spezifisch optimierbar:
+
+- Instruktionsdichte und Prompt-Struktur;
+- Anzahl und Auswahl der Beispiele;
+- Output-Formatierung und strukturiertes Output-Verhalten;
+- Context-Packaging und Reihenfolge;
+- Anforderungen an die Tool-Call-Schnittstelle;
+- Wiederholungs- und Fehlerstrategie für nicht-effektive Aufgaben.
+
+Unveränderlich über alle Modelle:
+
+- Task Scope;
+- Authority und Authority Ceiling;
+- Tool-Rechte;
+- Security Controls;
+- Completion Criteria;
+- Evidence-Anforderungen.
+
+Abgrenzung zum Execution Profile: Das bestehende `core/contracts/execution-profile.schema.json` dimensioniert die Qualification (tools, effects, context, network, delegation, verification) und bleibt unverändert. Ein modelladaptives Profil ist eine Darstellungs- und Interaktionsschicht darüber und verändert keine Dimension des Execution Profiles.
+
+Regeln:
+
+- Profile sind versioniert und gegen repräsentative Evals qualifiziert.
+- Ein Profilwechsel triggert die Requalifikation des betroffenen Verhaltens, nicht automatisch eine Neuformulierung kanonischer Verträge.
+- Ein stärkeres Modell erhält dadurch keine erweiterten Berechtigungen.
+- Zwei Profile desselben Modells müssen dieselbe Authority- und Completion-Semantik erzeugen; eine Abweichung ist ein Befund, keine zulässige Variante.
 
 ---
 
@@ -905,6 +1060,34 @@ model-agnostic-workflow-system/
     +-- skills/
 ```
 
+Für die in v0.2.0 ergänzten Slices S11–S13 zusätzlich vorgeschlagen. Collision-Check gegen MAWS `origin/main` = `ee7f094b2676963b20161f093ed5a9a01e0c018b`: alle nachstehenden Pfade sind dort frei und existieren noch nicht. Die Pfade sind Vorschlag, keine Zusage.
+
+```text
+model-agnostic-workflow-system/
+|
++-- core/
+|   +-- contracts/
+|   |   +-- harness-context.schema.json
+|   |   +-- executor-model-profile.schema.json
+|   |   +-- benchmark-result.schema.json
+|
++-- runtime/
+|   +-- harness-context/
+|   |   +-- context-binding.mjs
+|   +-- profiles/
+|       +-- model-adaptive/
+|
++-- evals/
+|   +-- benchmark-harness/
+|       +-- baselines/
+|       +-- variants/
+|       +-- results/
+|
++-- scripts/
+    +-- tools/
+        +-- run-comparative-benchmark.mjs
+```
+
 Bestehende Dateien und kanonische Contracts sollen erweitert statt dupliziert werden.
 
 Generated Provider Exports und Compatibility Mirrors bleiben abgeleitete Surfaces.
@@ -912,6 +1095,12 @@ Generated Provider Exports und Compatibility Mirrors bleiben abgeleitete Surface
 ---
 
 ## 15. Implementation Slices
+
+### Slice-Status (Stand v0.2.0)
+
+Die Slices S0–S3 sowie die S4-Welle-A-Instruktionsreduktion sind an ihren jeweiligen Owner-Surfaces gemergt. Diese Fortschreibung startet sie nicht neu und erklärt sie nicht rückwirkend als abgeschlossen. Der tatsächliche Repository-Zustand ist an der jeweiligen Implementierungsstelle nachzuweisen; die Abschlussfeststellung erfolgt dort und nicht in diesem Dokument. Offene Nachweis-Pflichten der gemergten Slices — insbesondere die ausstehende Registry-`CONTRACT_RECORD`-Schreibung zu S1 — bleiben offen und sind an ihrer zuständigen Stelle zu schließen.
+
+Die Slices S11–S13 sind Ergänzungen der v0.2.0-Fortschreibung und beginnen mit dem Slice-Status dieses Dokuments.
 
 ### S0 — Current-State Reconciliation
 
@@ -1030,6 +1219,39 @@ Tasks:
 
 **DoD:** Modellübergreifende Portabilität und Effizienz sind anhand vergleichbarer Runs nachgewiesen.
 
+### S11 — Harness Context Separation
+
+- [ ] Harness-Kontext (Development / UNITERA Product) als gebundene Routing- und Binding-Größe modellieren.
+- [ ] Kontextbindung im WorkUnit und im BoundExecutionGraph verankern.
+- [ ] Executor-Bindungen an den Harness-Kontext koppeln; keine kontextübergreifende Qualification-Übernahme.
+- [ ] Ableitung von Product-Runtime-Authority aus einem Development-Harness-Run als negativen Fall fail-closed behandeln.
+- [ ] Product-Effekte weiterhin an Execution-Control-Entscheidungen binden.
+- [ ] Fehlende oder widersprüchliche Kontextbindung als Blocker führen, nicht als Fallback.
+
+**DoD:** Ein Development-Harness-Run kann keine Product-Runtime-Authority erzeugen; ein Kontextwechsel ist ein gebundener Planwechsel mit eigener Evidenz.
+
+### S12 — Model-Adaptive Executor Profiles
+
+- [ ] Profilvertrag für Darstellungs- und Interaktionsdimensionen definieren.
+- [ ] Abgrenzung zum Execution Profile (`core/contracts/execution-profile.schema.json`) festschreiben.
+- [ ] Versionierung und Bindung an Executor-, Provider- und Modellidentität.
+- [ ] Qualification gegen repräsentative Evals.
+- [ ] Requalifikationsregel bei Modellwechsel und bei Materialitätswechsel.
+- [ ] Nachweis, dass Authority-, Tool-, Security- und Completion-Semantik über Profile hinweg identisch bleiben.
+
+**DoD:** Zwei Profile desselben Modells liefern äquivalente Authority- und Completion-Semantik bei unterschiedlicher Darstellung; ein Profilwechsel erzeugt keine erweiterten Berechtigungen.
+
+### S13 — Comparative Benchmark Harness
+
+- [ ] Benchmark-Aufgabensatz definieren, der statische und dynamische Varianten zulässt.
+- [ ] Single-Executor-Baseline fahren.
+- [ ] Policy-gebundene Multi-Executor-Variante fahren.
+- [ ] Token, Kosten, Laufzeit, Interventionen, Verifikationserfolg und Artefaktqualität messen.
+- [ ] Context-Isolation und geerbte Authority-/Budget-Grenzen prüfen.
+- [ ] Kontraproduktive Fälle und Auswahlkriterien dokumentieren.
+
+**DoD:** Der Vorteil dynamischer Orchestrierung ist für geeignete Workloads messbar belegt; für ungeeignete Fälle sind die Auswahlkriterien explizit festgehalten. Kein Benchmark-Ergebnis gilt als Freigabe.
+
 ---
 
 ## 16. Acceptance Criteria
@@ -1044,6 +1266,9 @@ Tasks:
 - [ ] Baseline und Candidate werden mit isolierten Runs verglichen.
 - [ ] Skill Routing wird anhand tatsächlicher Modellentscheidungen geprüft.
 - [ ] Jede relevante Ausführung bindet die angewendete Instruktionsversion.
+- [ ] Ein Run bindet seinen Harness-Kontext; ein fehlender Kontext bindet keinen Executor.
+- [ ] Ein Instruction Bundle referenziert die Context-Bindung, ohne sie zu duplizieren.
+- [ ] Der Vorteil dynamischer Orchestrierung ist gegenüber einer Single-Executor-Baseline gemessen.
 
 ### Governance
 
@@ -1052,6 +1277,8 @@ Tasks:
 - [ ] Keine Permission aus einem Skill oder Prompt.
 - [ ] Keine Umgehung bestehender Approval-Gates.
 - [ ] Keine unzulässige Qualification-Übernahme.
+- [ ] Kein Harness-Kontext-Übergang ohne gebundenen Planwechsel.
+- [ ] Kein Profil, das Authority-, Tool-, Security- oder Completion-Semantik verändert.
 - [ ] Keine unzulässige Datenweitergabe.
 - [ ] Kein Überschreiben fremder, nicht zugehöriger Änderungen.
 
@@ -1063,6 +1290,7 @@ Tasks:
 - [ ] Reproduzierbarkeit durch Versions- und Digest-Bindings.
 - [ ] Kontextoptimierung besteht den Quality-Non-Regression-Gate.
 - [ ] Provider-spezifische Abweichungen bleiben sichtbar.
+- [ ] Instruction-Audit-Reports weisen analysierte und ausdrücklich nicht analysierte Klassen getrennt aus.
 
 ### Operational
 
@@ -1163,7 +1391,11 @@ Diese Target Spec führt nicht ein:
 - parallele zweite Skill Registry;
 - zweite Governance Authority;
 - vollständige Runtime-Neuarchitektur;
-- automatische produktive Übernahme von Feedback.
+- automatische produktive Übernahme von Feedback;
+- einen zweiten Context Compiler oder ein zweites kanonisches Context Manifest;
+- eine Zusammenführung, Umgehung oder stille Vererbung zwischen Development- und Product-Harness-Kontext;
+- eine Ausweitung der Orchestrierungsautonomie ohne gemessenen Nutzen;
+- modelladaptive Profile, die Authority-, Tool-, Security- oder Completion-Semantik verändern.
 
 Der bestehende executor-zentrierte MAWS-vNext-Kern bleibt erhalten.
 
@@ -1183,6 +1415,10 @@ Der bestehende executor-zentrierte MAWS-vNext-Kern bleibt erhalten.
 | Zu hohe Eval-Kosten | Risikobasierte Testprofile und Budgets |
 | Selbstmodifikation des Harness | Owner-gated Promotion |
 | Widersprüche zwischen kanonischen Quellen | Authority Resolution vor Änderung |
+| Verwechslung der beiden Harness-Kontexte | Gebundene Kontextbindung (§ 4.3, S11) und negative Cross-Context-Fälle |
+| Doppelte Kontextsemantik | Klare Context-Ownership (§ 7.5); MAWS implementiert keinen zweiten Context Compiler |
+| Benchmark-Ergebnis wird zur Freigabe missbraucht | Benchmarks sind Vergleichs-, keine Autorisierungsinstrumente (§ 10.6) |
+| Modellspezifische Überanpassung des Profils | Execution-Profile-Dimensionen bleiben unverändert; Qualification gegen repräsentative Evals |
 
 ---
 
@@ -1239,9 +1475,11 @@ Stattdessen soll es:
 > MAWS evolves from a provider-neutral workflow and skill execution framework into an evidence-driven, instruction-aware and continuously improvable agent harness — without granting models authority over their own governance.
 
 **Target Status:** PROPOSED  
-**Implementation Status:** NOT APPLIED BY THIS SPEC  
+**Specification Version:** 0.2.0  
+**Canonical Adoption:** NONE — die Fortschreibung auf v0.2.0 bleibt ein Vorschlag; die kanonische Adoption ist ein separater Governance-Schritt und wird durch dieses Dokument nicht ausgeführt  
+**Implementation Status:** NOT APPLIED BY THIS SPEC — die Slices S0–S3 und die S4-Welle-A-Instruktionsreduktion sind an ihren Owner-Surfaces gemergt und werden durch diese Fortschreibung weder neu begonnen noch rückwirkend als abgeschlossen erklärt  
 **Runtime Activation:** NONE  
-**Next Gate:** Current-State Reconciliation → Instruction Inventory → Feedback/Eval Contract Baseline
+**Next Gate:** ausstehende Registry-`CONTRACT_RECORD`-Schreibung zu S1 → S4 Skill Improvement Analyzer → S5 Behavioral Evaluation Baseline → S11 Harness Context Separation
 
 ---
 
@@ -1258,3 +1496,34 @@ This document was materialized into `docs/proposals/skill-intelligence-target-sp
 - Registry disposition: `evidence/sii-materialization-2026-10-20/registry-disposition.json` (`NO_CHANGE` — proposal staging only, no registry-relevant class changed)
 
 Per `docs/proposals/README.md`, this file is review material and non-canonical until a separate owner-approved promotion slice accepts it. Per Section 21 of the specification itself, canonical adoption, implementation, and runtime activation each require their own gated steps.
+
+---
+
+## Amendment Note (v0.2.0 — added at revision, not part of the specification body)
+
+This document was revised from v0.1.0 to v0.2.0 on 2026-10-20 under the bounded owner run instruction `OWNER-DIRECTED-HARNESS-TRANSFORMATION-RECONCILIATION-2026-10-20` (reconciliation and registration of a harness-transformation proposal; integration into this specification; registration in Registry and Atlas; no canonical adoption). The v0.1.0 body is preserved unchanged; v0.2.0 adds three areas, one ownership clarification and one coverage clarification.
+
+### Was v0.2.0 ergänzt
+
+1. Getrennte Harness-Kontexte — § 4.3, Slice S11, Objective O7.
+2. Modelladaptive Executor-Profile — § 11.5, Slice S12.
+3. Vergleichender Benchmark-Harness — § 10.6, Slice S13, Objective O8.
+4. Kontext-Ownership gegenüber dem coreos-eigenen Context Compiler — § 7.5, § 3.4.
+5. Deklarierte Coverage-Grenzen der Instruction-Audit-Taxonomie — § 6.6.
+
+### Reconciliation
+
+Eine gesonderte, weiter gefasste Harness-Transformation-Spezifikation wurde nicht als zweites Dokument angelegt. Ihre drei inhaltlichen Erweiterungen sind in diese Fortschreibung integriert. Über diese hinausgehende allgemeine Zielbeschreibungen entsprechen dem bereits vorhandenen v0.1.0-Body und werden nicht doppelt geführt.
+
+### Nicht rückwirkend erklärt
+
+Die an ihren Owner-Surfaces gemergten Slices S0–S3 und die S4-Welle-A-Instruktionsreduktion werden durch diese Fortschreibung weder neu begonnen noch als vollständig abgeschlossen erklärt. Deren tatsächlicher Repository-Zustand ist an der jeweiligen Implementierungsstelle nachzuweisen. Offene Nachweis-Pflichten — insbesondere die ausstehende Registry-`CONTRACT_RECORD`-Schreibung zu S1 — bleiben offen und sind an ihrer zuständigen Stelle zu schließen.
+
+### Autorität und Nachweise
+
+- Status bleibt PROPOSED. Canonical Adoption ist ein separater, durch diese Fortschreibung nicht ausgeführter Governance-Schritt.
+- Diese Fortschreibung erzeugt keine Authority, Qualification, Permission oder Runtime-Aktivierung.
+- Revisionsnachweis: `evidence/sii-target-spec-v0-2-0-2026-10-20/RUN.md`
+- Registry-Disposition: `evidence/sii-target-spec-v0-2-0-2026-10-20/registry-disposition.json` (`NO_CHANGE` — proposal staging only, keine registry-relevante Klasse geändert; die Änderungsregistrierung erfolgt als eigener Datensatz im Registry-Repository)
+- S0 Current-State Map: `docs/proposals/skill-intelligence-current-state-map-2026-10-20.md`
+- Revisionsbasis: MAWS `origin/main` = `ee7f094b2676963b20161f093ed5a9a01e0c018b`
