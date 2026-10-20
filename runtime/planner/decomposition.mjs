@@ -100,7 +100,11 @@ export function instantiateChildren({ decision, request, parentWorkUnit, workUni
       completion_contract_ref: `${workUnitId}_completion`,
       dependencies: [],
       created_by: 'planner_decomposition',
-      run_ref: parentWorkUnit.run_ref
+      run_ref: parentWorkUnit.run_ref,
+      // S11: children inherit the parent's bound harness context; a child
+      // never changes its context implicitly (context switches are evidenced
+      // plan changes on graph supersession, not decomposition side effects).
+      harness_context_ref: parentWorkUnit.harness_context_ref
     };
     workUnitStore.create(draft);
     childIds.push(workUnitId);

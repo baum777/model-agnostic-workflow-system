@@ -43,7 +43,8 @@ const rootWorkUnitDraft = {
   decomposition_policy_ref: 'tpl_audit_repair_v1',
   completion_contract_ref: 'cc_audit_repo_001',
   created_by: 'interaction_session',
-  run_ref: 'run_0001'
+  run_ref: 'run_0001',
+  harness_context_ref: 'hctx_planner_test_dev'
 };
 
 const binding = {
@@ -66,7 +67,8 @@ function buildBoundGraph() {
     routingForNode: () => ({ ...binding }),
     workGraphStore: graphStore,
     graphId: 'graph_run_0001',
-    root
+    root,
+    workUnits: [rootWorkUnit]
   });
   return { workUnits, graphStore, graph, candidate };
 }

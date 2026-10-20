@@ -31,6 +31,12 @@ function applyChangeToNodes(nodes, request) {
     case 'cancel_work_unit':
       return nodes.filter((node) => node.node_id !== payload.node_id && node.work_unit_id !== payload.work_unit_id);
     case 'rebind_executor':
+      // A rebind WITHOUT node_id is graph-wide. Context changes are always
+      // graph-wide (one graph version binds one context, S11); the store's
+      // activation gate asserts the transition against the binding delta.
+      if (!payload.node_id) {
+        return nodes.map((node) => ({ ...node, executor_binding: { ...node.executor_binding, ...payload.executor_binding } }));
+      }
       return nodes.map((node) => node.node_id === payload.node_id
         ? { ...node, executor_binding: { ...node.executor_binding, ...payload.executor_binding } }
         : node);
@@ -114,7 +120,11 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
       workGraphStore.registerVersion(newGraph, { activate: false });
       const { record } = workGraphStore.activateVersion(graphId, newVersionNumber, {
         reason: `accepted revision ${request.request_id} (${request.request_type})`,
-        revisionRequestRef: request.request_id
+        revisionRequestRef: request.request_id,
+        // S11 R3: the revision request may declare an evidenced context
+        // transition; the store asserts it against the ACTUAL binding delta
+        // and fails closed (CONTEXT_SWITCH_UNEVIDENCED / CONTEXT_BINDING_CONFLICT).
+        contextChange: (request.payload && request.payload.context_change) || null
       });
       const decision = {
         decision_id: newId('rdec'),

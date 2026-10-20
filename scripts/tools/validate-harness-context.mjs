@@ -73,13 +73,16 @@ export function semanticContextIssues({ harnessContext, workUnit, boundGraph, ro
     const refs = new Set(
       (boundGraph.nodes || []).map((node) => node?.executor_binding?.harness_context_ref).filter(Boolean)
     );
+    if (refs.size > 1) {
+      issues.push(`bound_graph: nodes reference multiple harness context records (${[...refs].join(', ')}); one graph version binds one record`);
+    }
     if (harnessContext && declared.size === 1) {
       const [context] = declared;
       if (context !== harnessContext.context) {
         issues.push(`bound_graph: node context ${context} does not match bound record ${harnessContext.context}`);
       }
-      if (refs.size === 1 && harnessContext.context_id && ![...refs][0].includes(harnessContext.context_id)) {
-        issues.push(`bound_graph: node context_ref ${[...refs][0]} does not reference bound record ${harnessContext.context_id}`);
+      if (refs.size === 1 && harnessContext.context_id && [...refs][0] !== harnessContext.context_id) {
+        issues.push(`bound_graph: node context_ref ${[...refs][0]} does not match bound record ${harnessContext.context_id}`);
       }
     }
     const supersededBy = boundGraph.superseded_by;

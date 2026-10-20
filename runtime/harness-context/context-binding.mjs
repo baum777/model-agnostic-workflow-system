@@ -21,6 +21,8 @@
 //       control, and this module never caches or mints authority.
 //   R6  missing/contradictory context binding -> typed FailClosedError,
 //       never a fallback.
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { FailClosedError, nowIso } from '../vnext/util.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
 
@@ -189,25 +191,20 @@ export function developmentProbeHarnessContext({ runRef, contextId = 'hctx_dev_p
   };
 }
 
+// Repository root for full-record schema validation at the executor gate
+// (the gate must guarantee a CANONICAL record, not a semantic subset).
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
 // assertInvocationHarnessContext(record) -> the executor-side invocation
-// gate (R1/R2/R6). Executor-base refuses any invocation whose context
-// binding is absent or contradictory; there is no fallback context.
+// gate (R1/R2/R6). Runs the FULL record validation (schema + semantic), so a
+// partial or unpinned record never reaches an executor. Executor-base
+// refuses any invocation whose context binding is absent or contradictory;
+// there is no fallback context.
 export function assertInvocationHarnessContext(record) {
   if (record === null || typeof record !== 'object' || Array.isArray(record)) {
     failClosed('CONTEXT_BINDING_MISSING', 'invocation carries no harness context; an unbound context never reaches an executor');
   }
-  if (!HARNESS_CONTEXT_VALUES.includes(record.context)) {
-    failClosed('CONTEXT_VOCABULARY_UNKNOWN', `invocation harness context "${String(record.context)}" is outside the closed vocabulary`);
-  }
-  if (record.authority_grant !== 'none') {
-    failClosed('CONTEXT_BINDING_CONFLICT', 'invocation harness context must carry authority_grant "none"');
-  }
-  if (record.context === 'development_harness' && record.authority_surface !== undefined) {
-    failClosed('PRODUCT_AUTHORITY_FROM_DEV_CONTEXT', 'development-harness invocation carries a product authority surface');
-  }
-  if (record.context === 'unitera_product' && !record.authority_surface) {
-    failClosed('CONTEXT_BINDING_CONFLICT', 'unitera_product invocation must reference the unitera-os authority surface');
-  }
+  return validateHarnessContextRecord(record, REPO_ROOT);
 }
 
 // assertSupersessionContextChange({ previousContext, nextContext,

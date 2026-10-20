@@ -260,7 +260,7 @@ export async function executeWorkRun(options) {
   const graphStore = createWorkGraphStore({ root });
   const graphId = `graph_${runId}`;
   const candidate = buildCandidate({ template, workUnits: [workUnit] });
-  const graph = planAndBind({ template, candidate, routingForNode, workGraphStore: graphStore, graphId, root, createdAt: now() });
+  const graph = planAndBind({ template, candidate, routingForNode, workGraphStore: graphStore, graphId, root, createdAt: now(), workUnits: [workUnit] });
   event('planner.decision', 'graph_bound', { details: { graph_version: graph.graph_version, nodes: graph.nodes.length } }, { work_unit_id: workUnit.work_unit_id, graph_version: graph.graph_version });
   event('executor.binding', 'bound', {}, { graph_version: graph.graph_version });
 

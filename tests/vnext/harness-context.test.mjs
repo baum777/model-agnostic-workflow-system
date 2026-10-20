@@ -33,6 +33,10 @@ import { evaluateCompletion } from '../../runtime/completion/completion-engine.m
 import { buildVerificationReceipt } from '../../runtime/completion/verification.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
 import { semanticContextIssues } from '../../scripts/tools/validate-harness-context.mjs';
+import { createWorkUnitStore } from '../../runtime/planner/work-unit-store.mjs';
+import { createWorkGraphStore } from '../../runtime/planner/work-graph-store.mjs';
+import { buildCandidate, planAndBind } from '../../runtime/planner/hybrid-planner.mjs';
+import { createRevisionEngine } from '../../runtime/planner/revision-engine.mjs';
 import { FailClosedError } from '../../runtime/vnext/util.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -414,4 +418,150 @@ test('committed schema fixture stays schema-decidable and green', () => {
       assert.ok(issues.length > 0, `${caseEntry.case_id} must be schema-invalid`);
     }
   }
+});
+
+// --- codex pre-merge review repairs (regression tests) ---
+
+const s11Template = {
+  template_id: 'tpl_audit_repair_v1',
+  workflow_class: 'implementation',
+  mandatory_stages: ['analysis', 'verification'],
+  decomposition_limits: { max_depth: 2, max_children_per_node: 4, max_total_work_units: 12 },
+  composition_policy_ref: 'comp_default_v1',
+  authority_ceiling_default: { scope_ref: 'scope/run_s11', allowed_effects: ['ephemeral', 'workspace'], delegation_depth_max: 1, authority_source_refs: ['policies/maws-vnext-defaults.yaml'] },
+  verification_requirements: { required: true, independent: true }
+};
+
+function buildContextBoundGraph(graphId, workUnitOverrides = {}) {
+  const workUnits = createWorkUnitStore({ root });
+  const rootWu = workUnits.create({
+    work_unit_id: `wu_${graphId}`, objective: 'x',
+    required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
+    context_envelope_ref: 'ctx/s11',
+    authority_ceiling: { scope_ref: 'scope/s11', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: `cc_${graphId}`,
+    created_by: 'interaction_session', run_ref: 'run_s11',
+    harness_context_ref: 'hctx_graph_dev',
+    ...workUnitOverrides
+  });
+  const graphStore = createWorkGraphStore({ root });
+  const graph = planAndBind({
+    template: s11Template,
+    candidate: buildCandidate({ template: s11Template, workUnits: [rootWu] }),
+    routingForNode: () => ({ executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_graph_dev' }),
+    workGraphStore: graphStore,
+    graphId,
+    root,
+    workUnits: [rootWu]
+  });
+  return { workUnits, graphStore, graph, rootWu };
+}
+
+test('R3 regression (codex P1): a rebind that changes the context without evidence fails closed at activation', () => {
+  const { graphStore, rootWu } = buildContextBoundGraph('graph_s11_r3a');
+  const engine = createRevisionEngine({ workGraphStore: graphStore, root });
+  assert.throws(
+    () => engine.submit('graph_s11_r3a', {
+      request_id: 'rev_ctxswitch_unevidenced',
+      base_graph_version: 1,
+      request_type: 'rebind_executor',
+      source: 'verifier',
+      motivation: 'move the workload into the product harness',
+      payload: { executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd2', qualification_ref: 'q', selection_mode: 'FALLBACK', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_product' } }
+    }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_SWITCH_UNEVIDENCED'
+  );
+  assert.equal(graphStore.activeVersion('graph_s11_r3a'), 1);
+  assert.equal(rootWu.harness_context_ref, 'hctx_graph_dev');
+});
+
+test('R3 regression (codex P1): an evidenced context change activates and lands on the supersession record', () => {
+  const { graphStore } = buildContextBoundGraph('graph_s11_r3b');
+  const engine = createRevisionEngine({ workGraphStore: graphStore, root });
+  const { decision, newGraph } = engine.submit('graph_s11_r3b', {
+    request_id: 'rev_ctxswitch_evidenced',
+    base_graph_version: 1,
+    request_type: 'rebind_executor',
+    source: 'verifier',
+    motivation: 'move the workload into the product harness',
+    payload: {
+      executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd2', qualification_ref: 'q', selection_mode: 'FALLBACK', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_product' },
+      context_change: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/context-switches/rev_ctxswitch_evidenced.json' }
+    }
+  });
+  assert.equal(decision.outcome, 'ACCEPTED');
+  assert.equal(newGraph.nodes[0].executor_binding.harness_context, 'unitera_product');
+  const record = graphStore.allSupersessions().at(-1);
+  assert.deepEqual(record.context_change, {
+    from_context: 'development_harness',
+    to_context: 'unitera_product',
+    evidence_ref: 'evidence/context-switches/rev_ctxswitch_evidenced.json'
+  });
+});
+
+test('R3 regression: a declared context change without an actual transition conflicts', () => {
+  const { graphStore } = buildContextBoundGraph('graph_s11_r3c');
+  const engine = createRevisionEngine({ workGraphStore: graphStore, root });
+  assert.throws(
+    () => engine.submit('graph_s11_r3c', {
+      request_id: 'rev_ctxchange_noop',
+      base_graph_version: 1,
+      request_type: 'update_budget',
+      source: 'runtime',
+      motivation: 'no context delta',
+      payload: { context_change: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/x.json' } }
+    }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
+  );
+});
+
+test('R6 regression (codex P1): the executor gate rejects partial context records', () => {
+  expectFailClosed('CONTEXT_BINDING_CONFLICT', () => assertInvocationHarnessContext({ context: 'development_harness', authority_grant: 'none' }));
+  expectFailClosed('CONTEXT_BINDING_CONFLICT', () =>
+    assertInvocationHarnessContext({
+      context_id: 'hctx_partial_product', context: 'unitera_product', run_ref: 'r', authority_grant: 'none',
+      authority_surface: {}, created_at: '2026-10-20T00:00:00Z'
+    })
+  );
+});
+
+test('binding-scope regression (codex P1): planAndBind refuses bindings that disagree with the WorkUnit context', () => {
+  const workUnits = createWorkUnitStore({ root });
+  const rootWu = workUnits.create({
+    work_unit_id: 'wu_s11_mismatch', objective: 'x',
+    required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
+    context_envelope_ref: 'ctx/s11',
+    authority_ceiling: { scope_ref: 'scope/s11', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_s11_mismatch',
+    created_by: 'interaction_session', run_ref: 'run_s11',
+    harness_context_ref: 'hctx_graph_dev'
+  });
+  assert.throws(
+    () => planAndBind({
+      template: s11Template,
+      candidate: buildCandidate({ template: s11Template, workUnits: [rootWu] }),
+      routingForNode: () => ({ executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_SOMETHING_ELSE' }),
+      workGraphStore: createWorkGraphStore({ root }),
+      graphId: 'graph_s11_mismatch',
+      root,
+      workUnits: [rootWu]
+    }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
+  );
+});
+
+test('validator regression (codex P2): multiple or non-matching context references are reported', () => {
+  const mkGraph = (refs) => ({
+    graph_id: 'graph_s11_validator2', graph_version: 1, candidate_ref: 'cand', immutable: true,
+    created_at: '2026-10-20T00:00:00Z',
+    nodes: refs.map((ref, index) => ({
+      node_id: `node_0${index}_analysis`, work_unit_id: `wu_s11_v2_${index}`, stage: 'analysis', depends_on: [],
+      executor_binding: { executor_id: 'exec_openrouter_glm', routing_decision_ref: `rd_${index}`, qualification_ref: 'qual', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: ref }
+    }))
+  });
+  const multiple = semanticContextIssues({ root, harnessContext: devContext({ context_id: 'hctx_expected' }), boundGraph: mkGraph(['hctx_a', 'hctx_b']) });
+  assert.ok(multiple.some((issue) => issue.includes('multiple harness context records')));
+  const superstring = semanticContextIssues({ root, harnessContext: devContext({ context_id: 'hctx_expected' }), boundGraph: mkGraph(['hctx_expected_extra']) });
+  assert.ok(superstring.some((issue) => issue.includes('does not match bound record hctx_expected')));
+  assert.deepEqual(semanticContextIssues({ root, harnessContext: devContext({ context_id: 'hctx_expected' }), boundGraph: mkGraph(['hctx_expected']) }), []);
 });

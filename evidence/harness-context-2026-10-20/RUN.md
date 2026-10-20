@@ -47,9 +47,21 @@ Amended:
 | R5 product effects stay execution-control-owned; reference-only pin | product record requires versioned `unitera-os` `authority_surface`; module mints/caches no authority | R5 test, fixture `harness-context-valid-product` |
 | R6 missing/contradictory binds no executor | engine pre-gate, WorkUnit binding assert, executor invocation gate; no fallback anywhere | R6 tests ×4 incl. engine-level null-context refusal |
 
+## Pre-merge independent review (codex, round 1 on `980e3f9`)
+
+3×P1 + 2×P2, all assessed as real and repaired on this head:
+
+1. **P1 activation gate (R3):** the normal revision path (`rebind_executor` → `activateVersion`) could perform exactly the unevidenced context switch R3 rejects. Repaired: `workGraphStore.activateVersion` compares the superseded and activating graphs' binding contexts, asserts the transition via `assertSupersessionContextChange` (requiring the revision payload's evidenced `context_change`), writes it onto the supersession record, and refuses mixed-context graphs (`CONTEXT_BINDING_CONFLICT`). `rebind_executor` without `node_id` is graph-wide (one graph version binds one context). Revision engine threads `payload.context_change`.
+2. **P1 executor gate completeness (R6):** `assertInvocationHarnessContext` validated only a semantic subset. Repaired: the gate now runs the FULL record validation (schema + semantic) via `validateHarnessContextRecord` with the module repo root — partial or unpinned records never reach an executor.
+3. **P1 WorkUnit binding requirement:** `harness_context_ref` is now schema-REQUIRED on WorkUnits (creation-time enforcement via the work-unit store), `planAndBind` refuses bindings whose context reference differs from the WorkUnit's (engine passes `workUnits`), and decomposition children inherit the parent's context ref (no implicit child context change).
+4. **P2 validator exactness:** the validator now rejects graphs whose nodes reference multiple context records and compares the single ref with strict equality (superstring refs rejected).
+5. **P2 versioned pin:** `authority_surface.contract_ref` is pattern-bound to `^unitera-os/…` and `contract_version` to a strict three-part numeric version — floating pins fail closed.
+
+Regression tests for all five repairs are in `tests/vnext/harness-context.test.mjs` (27 tests total).
+
 ## Verification
 
-- `node --test tests/vnext/*.test.mjs` — 372/372 PASS (includes the new 21 S11 tests and all coordinated amendments).
+- `node --test tests/vnext/*.test.mjs` — 378/378 PASS (includes the new 27 S11 tests, the six repair regressions, and all coordinated amendments).
 - `npm run eval:maws-vnext` — ok:true (now includes `harness-context.contracts.json`).
 - `npm run validate-harness-context` — CLI smoke: valid record exit 0, unknown-vocabulary record exit 1.
 - Full engine path: `runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.json` completes COMPLETED with the bound dev context (CLI test asserts this continuously).

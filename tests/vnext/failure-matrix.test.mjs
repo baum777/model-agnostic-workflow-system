@@ -249,10 +249,10 @@ test('FM-10 stale graph revision: STALE + REQUIRES_REBASE, graph untouched', () 
     work_unit_id: 'wu_fm10', objective: 'x',
     required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
     context_envelope_ref: 'ctx/fm', authority_ceiling: { scope_ref: 'scope/fm', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
-    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm10', created_by: 'interaction_session', run_ref: 'run_fm10'
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm10', created_by: 'interaction_session', run_ref: 'run_fm10', harness_context_ref: 'hctx_fm10_dev'
   });
   const graphStore = createWorkGraphStore({ root });
-  planAndBind({ template, candidate: buildCandidate({ template, workUnits: [rootWu] }), routingForNode: () => ({ executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_fm10_dev' }), workGraphStore: graphStore, graphId: 'graph_fm10', root });
+  planAndBind({ template, candidate: buildCandidate({ template, workUnits: [rootWu] }), routingForNode: () => ({ executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_fm10_dev' }), workGraphStore: graphStore, graphId: 'graph_fm10', root, workUnits: [rootWu] });
   const engine = createRevisionEngine({ workGraphStore: graphStore, root });
   engine.submit('graph_fm10', { request_id: 'rev_a', base_graph_version: 1, request_type: 'update_context', source: 'runtime', motivation: 'x', payload: {} });
   const { decision } = engine.submit('graph_fm10', { request_id: 'rev_b', base_graph_version: 1, request_type: 'update_budget', source: 'executor', motivation: 'late', payload: {} });
@@ -274,7 +274,7 @@ test('FM-12 decomposition max depth exceeded: REJECTED with limits_respected fal
     work_unit_id: 'wu_fm12', objective: 'x',
     required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
     context_envelope_ref: 'ctx/fm', authority_ceiling: { scope_ref: 'scope/fm', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
-    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm12', created_by: 'interaction_session', run_ref: 'run_fm12'
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm12', created_by: 'interaction_session', run_ref: 'run_fm12', harness_context_ref: 'hctx_fm_dev'
   });
   const { decision } = evaluateDecompositionRequest({
     request: { request_id: 'decomp_fm12', source: 'executor', parent_work_unit_id: 'wu_fm12', requested_children: [{ objective: 'c', required_capabilities: ['cap_repository_analysis'], context_subset_ref: 'ctx/fm/sub', effects_subset: ['ephemeral'], authority_depth_requested: 0 }], limits_snapshot: { current_depth: 2, max_depth: 2, current_total_work_units: 3, max_total_work_units: 12 } },
@@ -290,7 +290,7 @@ test('FM-13 max work-unit count exceeded: REJECTED', () => {
     work_unit_id: 'wu_fm13', objective: 'x',
     required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
     context_envelope_ref: 'ctx/fm', authority_ceiling: { scope_ref: 'scope/fm', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
-    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm13', created_by: 'interaction_session', run_ref: 'run_fm13'
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm13', created_by: 'interaction_session', run_ref: 'run_fm13', harness_context_ref: 'hctx_fm_dev'
   });
   const children = Array.from({ length: 5 }, (_, index) => ({ objective: `c${index}`, required_capabilities: ['cap_repository_analysis'], context_subset_ref: `ctx/fm/s${index}`, effects_subset: ['ephemeral'], authority_depth_requested: 0 }));
   const { decision } = evaluateDecompositionRequest({
@@ -355,7 +355,7 @@ test('FM-19 invalid context widening decomposition: REJECTED', () => {
     work_unit_id: 'wu_fm19', objective: 'x',
     required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
     context_envelope_ref: 'ctx/fm19', authority_ceiling: { scope_ref: 'scope/fm19', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
-    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm19', created_by: 'interaction_session', run_ref: 'run_fm19'
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm19', created_by: 'interaction_session', run_ref: 'run_fm19', harness_context_ref: 'hctx_fm_dev'
   });
   const { decision } = evaluateDecompositionRequest({
     request: { request_id: 'decomp_fm19', source: 'executor', parent_work_unit_id: 'wu_fm19', requested_children: [{ objective: 'c', required_capabilities: ['cap_repository_analysis'], context_subset_ref: 'ctx/OTHER/envelope', effects_subset: ['ephemeral'], authority_depth_requested: 0 }], limits_snapshot: { current_depth: 0, max_depth: 2, current_total_work_units: 1, max_total_work_units: 12 } },
@@ -371,7 +371,7 @@ test('FM-20 invalid effects (scope) widening decomposition: REJECTED', () => {
     work_unit_id: 'wu_fm20', objective: 'x',
     required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
     context_envelope_ref: 'ctx/fm20', authority_ceiling: { scope_ref: 'scope/fm20', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
-    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm20', created_by: 'interaction_session', run_ref: 'run_fm20'
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm20', created_by: 'interaction_session', run_ref: 'run_fm20', harness_context_ref: 'hctx_fm_dev'
   });
   const { decision } = evaluateDecompositionRequest({
     request: { request_id: 'decomp_fm20', source: 'executor', parent_work_unit_id: 'wu_fm20', requested_children: [{ objective: 'c', required_capabilities: ['cap_repository_analysis'], context_subset_ref: 'ctx/fm20/sub', effects_subset: ['external'], authority_depth_requested: 0 }], limits_snapshot: { current_depth: 0, max_depth: 2, current_total_work_units: 1, max_total_work_units: 12 } },
@@ -387,7 +387,7 @@ test('FM-21 invalid authority widening decomposition: REJECTED', () => {
     work_unit_id: 'wu_fm21', objective: 'x',
     required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
     context_envelope_ref: 'ctx/fm21', authority_ceiling: { scope_ref: 'scope/fm21', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
-    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm21', created_by: 'interaction_session', run_ref: 'run_fm21'
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm21', created_by: 'interaction_session', run_ref: 'run_fm21', harness_context_ref: 'hctx_fm_dev'
   });
   const { decision } = evaluateDecompositionRequest({
     request: { request_id: 'decomp_fm21', source: 'executor', parent_work_unit_id: 'wu_fm21', requested_children: [{ objective: 'c', required_capabilities: ['cap_repository_analysis'], context_subset_ref: 'ctx/fm21/sub', effects_subset: ['ephemeral'], authority_depth_requested: 2 }], limits_snapshot: { current_depth: 0, max_depth: 2, current_total_work_units: 1, max_total_work_units: 12 } },

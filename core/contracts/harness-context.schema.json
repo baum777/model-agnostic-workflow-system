@@ -5,34 +5,101 @@
   "description": "S11 (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, section 4.3): the harness context is a routing and binding dimension, never an authority source. The vocabulary is closed to development_harness and unitera_product. authority_grant is none by construction: no field of this record grants capability, permission, or qualification. A development_harness record must not carry an authority surface (a development run derives no product-runtime authority); the unitera_product record must reference -- never substitute or cache -- the unitera-os tenant/assignment authority surface as a versioned pin; product effects stay gated by execution-control decisions regardless of context. A context switch is a bound plan change evidenced on graph supersession (bound-execution-graph.schema.json superseded_by.context_change), never an implicit fallback recorded here.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["context_id", "context", "run_ref", "authority_grant", "created_at"],
+  "required": [
+    "context_id",
+    "context",
+    "run_ref",
+    "authority_grant",
+    "created_at"
+  ],
   "properties": {
-    "context_id": { "type": "string", "pattern": "^hctx_[a-z0-9_]+$" },
-    "context": { "enum": ["development_harness", "unitera_product"] },
-    "run_ref": { "type": "string", "minLength": 1 },
-    "plan_graph_ref": { "type": "string", "minLength": 1 },
-    "authority_grant": { "const": "none" },
+    "context_id": {
+      "type": "string",
+      "pattern": "^hctx_[a-z0-9_]+$"
+    },
+    "context": {
+      "enum": [
+        "development_harness",
+        "unitera_product"
+      ]
+    },
+    "run_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plan_graph_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority_grant": {
+      "const": "none"
+    },
     "authority_surface": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repository", "contract_ref", "contract_version"],
+      "required": [
+        "repository",
+        "contract_ref",
+        "contract_version"
+      ],
       "properties": {
-        "repository": { "const": "unitera-os" },
-        "contract_ref": { "type": "string", "minLength": 1 },
-        "contract_version": { "type": "string", "minLength": 1 },
-        "note": { "type": "string" }
+        "repository": {
+          "const": "unitera-os"
+        },
+        "contract_ref": {
+          "type": "string",
+          "pattern": "^unitera-os/[A-Za-z0-9_./-]+$"
+        },
+        "contract_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "note": {
+          "type": "string"
+        }
       }
     },
-    "created_at": { "type": "string", "minLength": 1 }
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    }
   },
   "allOf": [
     {
-      "if": { "properties": { "context": { "const": "development_harness" } }, "required": ["context"] },
-      "then": { "not": { "required": ["authority_surface"] } }
+      "if": {
+        "properties": {
+          "context": {
+            "const": "development_harness"
+          }
+        },
+        "required": [
+          "context"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "authority_surface"
+          ]
+        }
+      }
     },
     {
-      "if": { "properties": { "context": { "const": "unitera_product" } }, "required": ["context"] },
-      "then": { "required": ["authority_surface"] }
+      "if": {
+        "properties": {
+          "context": {
+            "const": "unitera_product"
+          }
+        },
+        "required": [
+          "context"
+        ]
+      },
+      "then": {
+        "required": [
+          "authority_surface"
+        ]
+      }
     }
   ]
 }
