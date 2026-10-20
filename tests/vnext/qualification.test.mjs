@@ -693,7 +693,7 @@ test('runtime success produces only a QualificationReviewCandidate, never a qual
 // ---------------------------------------------------------------------------
 
 const INSTRUCTION_DIGEST_A = 'sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6';
-const INSTRUCTION_DIGEST_B = '0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0';
+const INSTRUCTION_DIGEST_B = 'sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0';
 
 function eligibilityWorld() {
   const { currentFingerprints, qualifiedFingerprints, ...base } = eligibilityInput();
@@ -827,4 +827,50 @@ test('S7 existing routing is secured: identical instruction state stays eligible
     assert.equal(decision.eligible, true, JSON.stringify(decision.exclusion_reasons));
     assert.deepEqual(decision.exclusion_reasons, []);
   }
+});
+
+test('S7 fail-closed: a fingerprint pair that omits the instruction digest on BOTH sides is UNKNOWN and blocks reuse', () => {
+  // A qualification earned before S7 carries no instruction digest. The
+  // deep-equal shortcut would report "no delta, no effect" and let it be
+  // inherited silently; the materiality rule must classify the absence as
+  // UNKNOWN on both sides.
+  const world = eligibilityWorld();
+  const legacy = world.fingerprintsWith(INSTRUCTION_DIGEST_A);
+  for (const fingerprints of [legacy.qualified, legacy.current]) {
+    for (const fingerprint of Object.values(fingerprints)) {
+      delete fingerprint.components.effective_instruction_digest;
+      fingerprint.digest = sha256Hex(canonicalJson(fingerprint.components));
+    }
+  }
+  const decision = classifyMateriality(
+    Object.values(legacy.qualified)[0],
+    Object.values(legacy.current)[0],
+    NOW
+  );
+  assert.equal(decision.overall_class, 'UNKNOWN');
+  assert.ok(decision.deltas.some((delta) => delta.component === 'effective_instruction_digest' && delta.classification === 'UNKNOWN'));
+  assert.equal(isRoutable(decision), false);
+
+  const decisions = eligibilityModule.computeEligibility({
+    ...world.base,
+    currentFingerprints: legacy.current,
+    qualifiedFingerprints: legacy.qualified,
+    now: NOW
+  });
+  assert.ok(decisions.length > 0);
+  for (const eligibilityDecision of decisions) {
+    assert.equal(eligibilityDecision.eligible, false);
+    assert.ok(eligibilityDecision.exclusion_reasons.includes('UNKNOWN_FINGERPRINT_DRIFT'), JSON.stringify(eligibilityDecision.exclusion_reasons));
+  }
+});
+
+test('S7 fail-closed: a malformed instruction digest on either side is UNKNOWN', () => {
+  const world = eligibilityWorld();
+  const pair = world.fingerprintsWith(INSTRUCTION_DIGEST_A);
+  const qualified = Object.values(pair.qualified)[0];
+  const current = Object.values(pair.current)[0];
+  current.components.effective_instruction_digest = 'sha256:not-a-digest';
+  const decision = classifyMateriality(qualified, current, NOW);
+  assert.equal(decision.overall_class, 'UNKNOWN');
+  assert.equal(isRoutable(decision), false);
 });
