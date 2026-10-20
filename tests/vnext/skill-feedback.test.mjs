@@ -105,3 +105,34 @@ test('schema keeps the closed-record posture (no open properties)', () => {
   assert.equal(SCHEMA.properties.provenance.additionalProperties, false);
   assert.deepEqual(SCHEMA.properties.evidence_refs.minItems, 1);
 });
+
+test('tool-contract errors can never carry a skill-changing disposition (codex P2 repair)', () => {
+  const rejected = caseById('skill-feedback-invalid-tool-contract-skill-change-forbidden');
+  assert.equal(rejected.instance.error_class, 'TOOL_CONTRACT_ERROR');
+  assert.equal(rejected.instance.proposed_disposition, 'EXTEND_SKILL');
+  assert.ok(validateInstanceAgainstContract(rejected.instance, SCHEMA_PATH, ROOT).length > 0);
+  const rejectedCreate = caseById('skill-feedback-invalid-tool-contract-create-forbidden');
+  assert.equal(rejectedCreate.instance.proposed_disposition, 'CREATE_SKILL');
+  assert.equal(rejectedCreate.instance.requires_owner_review, true, 'owner review alone does not legitimize a skill change for a tool-only cause');
+  assert.ok(validateInstanceAgainstContract(rejectedCreate.instance, SCHEMA_PATH, ROOT).length > 0);
+  const accepted = caseById('skill-feedback-valid-tool-contract-repair-disposition');
+  assert.equal(accepted.instance.proposed_disposition, 'REPAIR_VALIDATOR');
+  assert.deepEqual(validateInstanceAgainstContract(accepted.instance, SCHEMA_PATH, ROOT), []);
+  const narrowing = SCHEMA.allOf.find(
+    (rule) => rule.if && rule.if.properties && rule.if.properties.error_class
+      && rule.if.properties.error_class.const === 'TOOL_CONTRACT_ERROR'
+  );
+  assert.ok(narrowing, 'the if/then narrowing rule must exist in the canonical schema');
+});
+
+test('evidence refs carry a closed scheme; model self-report is structurally excluded (codex P2 repair)', () => {
+  const schemePattern = SCHEMA.properties.evidence_refs.items.pattern;
+  assert.ok(schemePattern.startsWith('^(') && schemePattern.includes('|operator|') && schemePattern.includes('):'), 'closed scheme set must be explicit in the canonical schema');
+  assert.ok(!/self/i.test(schemePattern), 'no self-report scheme may exist');
+  const selfReport = caseById('skill-feedback-invalid-selfreport-evidence-forbidden');
+  assert.ok(validateInstanceAgainstContract(selfReport.instance, SCHEMA_PATH, ROOT).length > 0);
+  const unmarked = caseById('skill-feedback-invalid-unscheme-evidence-forbidden');
+  assert.ok(validateInstanceAgainstContract(unmarked.instance, SCHEMA_PATH, ROOT).length > 0);
+  const accepted = caseById('skill-feedback-valid-tool-contract-repair-disposition');
+  assert.deepEqual(validateInstanceAgainstContract(accepted.instance, SCHEMA_PATH, ROOT), []);
+});
