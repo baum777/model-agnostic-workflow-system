@@ -103,9 +103,19 @@ New regression tests: reference-only re-anchoring requires evidence; cross-run r
 
 385/385 PASS.
 
+## Pre-merge independent review (codex, round 7 on `d5ba3a5`)
+
+2×P1 + 1×P2, all assessed as real and repaired on this head:
+
+1. **P1 callback substitution at pair level:** the post-callback check compared only WorkUnit refs. Repaired: the callback-returned graph is additionally re-checked with the SAME pair-level context-delta rule as the candidate — a substituted uniform false-value graph is refused even when the request carries an evidenced context_change.
+2. **P1 qualification revalidation on rebinds:** a rebind that REPLACES a qualification now requires qualification + qualifiedFingerprint inputs proving the new qualification was earned under the graph's bound context (`assertQualificationContextBinding`); absent inputs fail closed; unchanged qualification refs are not re-claimed.
+3. **P2 mutable planner context:** the planner clone + deep-freezes the validated record before `routingForNode` runs — a routing callback cannot mutate the binding source of truth.
+
+386/386 PASS.
+
 ## Verification
 
-- `node --test tests/vnext/*.test.mjs` — 385/385 PASS (includes the S11 tests across all six repair rounds and all coordinated amendments).
+- `node --test tests/vnext/*.test.mjs` — 386/386 PASS (includes the S11 tests across all seven repair rounds and all coordinated amendments).
 - `npm run eval:maws-vnext` — ok:true (now includes `harness-context.contracts.json`).
 - `npm run validate-harness-context` — CLI smoke: valid record exit 0, unknown-vocabulary record exit 1.
 - Full engine path: `runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.json` completes COMPLETED with the bound dev context (CLI test asserts this continuously).

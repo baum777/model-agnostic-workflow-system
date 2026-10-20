@@ -33,7 +33,7 @@ import { evaluateCompletion } from '../../runtime/completion/completion-engine.m
 import { buildVerificationReceipt } from '../../runtime/completion/verification.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
 import { semanticContextIssues } from '../../scripts/tools/validate-harness-context.mjs';
-import { createWorkUnitStore } from '../../runtime/planner/work-unit-store.mjs';
+import { createWorkUnitStore, deepFreeze } from '../../runtime/planner/work-unit-store.mjs';
 import { createWorkGraphStore } from '../../runtime/planner/work-graph-store.mjs';
 import { buildCandidate, planAndBind } from '../../runtime/planner/hybrid-planner.mjs';
 import { bindGraph } from '../../runtime/planner/graph-versioning.mjs';
@@ -733,4 +733,92 @@ test('S11 regression (codex P1 round 6): a direct noninitial registration routes
     to_context: 'unitera_product',
     evidence_ref: 'evidence/context-switches/rev_replan_evidenced.json'
   });
+});
+
+test('S11 regressions (codex rounds 7): callback substitution, qualification rebind, and mutable planner context', () => {
+  const { graphStore, rootWu } = buildContextBoundGraph('graph_s11_r7');
+  const engine = createRevisionEngine({ workGraphStore: graphStore, root });
+  const devQual = { qualification_id: 'qual_local_tests_dev', fingerprint_ref: 'fp_dev' };
+  const devFingerprints = { fp_dev: { fingerprint_id: 'fp_dev', components: { runtime_harness: 'development_harness/r7/1' } } };
+
+  // (1) a buildNewVersion callback that substitutes uniform false-value
+  // nodes is refused even with an evidenced context_change in the payload.
+  assert.throws(
+    () => engine.submit('graph_s11_r7', {
+      request_id: 'rev_r7_substitute',
+      base_graph_version: 1,
+      request_type: 'update_budget',
+      source: 'runtime',
+      motivation: 'callback swap',
+      payload: { context_change: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/x.json' } }
+    }, {
+      workUnits: [rootWu],
+      buildNewVersion: ({ baseGraph, newVersionNumber }) => deepFreeze({
+        ...structuredClone(baseGraph),
+        graph_version: newVersionNumber,
+        nodes: baseGraph.nodes.map((node) => ({
+          ...node,
+          executor_binding: { ...node.executor_binding, harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_dev' }
+        })),
+        created_at: '2026-10-20T00:00:00Z'
+      })
+    }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
+  );
+
+  // (2) a rebind replacing the qualification WITHOUT qualification inputs
+  // fails closed; WITH dev-context inputs it is accepted.
+  assert.throws(
+    () => engine.submit('graph_s11_r7', {
+      request_id: 'rev_r7_noqualinput',
+      base_graph_version: 1,
+      request_type: 'rebind_executor',
+      source: 'verifier',
+      motivation: 'swap qualification without evidence',
+      payload: { executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd6', qualification_ref: 'qual_other_context', selection_mode: 'FALLBACK', harness_context: 'development_harness', harness_context_ref: 'hctx_graph_dev' } }
+    }, { workUnits: [rootWu] }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_MISSING'
+  );
+
+  // (3) the planner freezes the validated record: a routing callback that
+  // mutates it cannot make a product binding pass against a dev record.
+  const workUnits = createWorkUnitStore({ root });
+  const mutableWu = workUnits.create({
+    work_unit_id: 'wu_s11_r7_mutate', objective: 'x',
+    required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
+    context_envelope_ref: 'ctx/s11',
+    authority_ceiling: { scope_ref: 'scope/s11', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_s11_r7',
+    created_by: 'interaction_session', run_ref: 'run_s11',
+    harness_context_ref: 'hctx_graph_dev'
+  });
+  assert.throws(
+    () => planAndBind({
+      template: s11Template,
+      candidate: buildCandidate({ template: s11Template, workUnits: [mutableWu] }),
+      routingForNode: (node) => {
+        if (node.stage === 'analysis') {
+          return { executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_product' };
+        }
+        return { executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_product' };
+      },
+      workGraphStore: createWorkGraphStore({ root }),
+      graphId: 'graph_s11_r7_mutate',
+      root,
+      workUnits: [mutableWu],
+      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
+    }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
+  );
+
+  // (4) the evidenced, input-proven qualification rebind is accepted.
+  const { decision } = engine.submit('graph_s11_r7', {
+    request_id: 'rev_r7_qual_ok',
+    base_graph_version: 1,
+    request_type: 'rebind_executor',
+    source: 'verifier',
+    motivation: 'proven dev-context qualification swap',
+    payload: { executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd6', qualification_ref: 'qual_local_tests_dev', selection_mode: 'FALLBACK', harness_context: 'development_harness', harness_context_ref: 'hctx_graph_dev' } }
+  }, { workUnits: [rootWu], qualifications: [devQual], qualifiedFingerprints: devFingerprints });
+  assert.equal(decision.outcome, 'ACCEPTED');
 });

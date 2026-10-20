@@ -3,6 +3,7 @@
 // proposes structure (CandidateGraph) and binds executors inside that
 // envelope through deterministic routing. The planner never grants authority.
 import { newId, FailClosedError } from '../vnext/util.mjs';
+import { deepFreeze } from './work-unit-store.mjs';
 import { validateHarnessContextRecord } from '../harness-context/context-binding.mjs';
 import { validateCandidateGraph, bindGraph } from './graph-versioning.mjs';
 
@@ -65,9 +66,9 @@ export function planAndBind({ template, candidate, routingForNode, workGraphStor
   if (!harnessContext || typeof harnessContext !== 'object') {
     throw new FailClosedError('CONTEXT_BINDING_MISSING', 'planAndBind requires the validated harnessContext record; binding without context resolution is not permitted');
   }
-  // The record is validated here too: a direct planner caller cannot bind
-  // against an incomplete or unpinned record.
-  const validatedContext = validateHarnessContextRecord(harnessContext, root);
+  // The record is validated here too, then cloned + frozen: a routing
+  // callback must not be able to mutate the binding source of truth.
+  const validatedContext = deepFreeze(structuredClone(validateHarnessContextRecord(harnessContext, root)));
   const workUnitById = new Map(
     workUnits.filter((workUnit) => workUnit && typeof workUnit === 'object').map((workUnit) => [workUnit.work_unit_id, workUnit])
   );

@@ -176,7 +176,13 @@ test('revision anchored at active version is accepted and creates a new immutabl
     payload: { node_id: 'node_00_analysis', executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd_0009', qualification_ref: 'qual_local_tests_verify_0001', selection_mode: 'FALLBACK', harness_context: 'development_harness', harness_context_ref: 'hctx_planner_test_dev' } }
   };
   validateRevisionRequest(request, root);
-  const { decision, newGraph } = engine.submit('graph_run_0001', request, { workUnits: [rootWorkUnit] });
+  const { decision, newGraph } = engine.submit('graph_run_0001', request, {
+    workUnits: [rootWorkUnit],
+    // S11 R4 on the revision path: a qualification-replacing rebind must
+    // prove the new qualification was earned under the bound context.
+    qualifications: [{ qualification_id: 'qual_local_tests_verify_0001', fingerprint_ref: 'fp_local_tests_dev' }],
+    qualifiedFingerprints: { fp_local_tests_dev: { fingerprint_id: 'fp_local_tests_dev', components: { runtime_harness: 'development_harness/planner-test/1' } } }
+  });
   assert.equal(decision.outcome, 'ACCEPTED');
   assert.equal(decision.new_graph_version, 2);
   assert.equal(graphStore.activeVersion('graph_run_0001'), 2);
