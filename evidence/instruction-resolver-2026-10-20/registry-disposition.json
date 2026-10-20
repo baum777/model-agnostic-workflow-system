@@ -1,0 +1,41 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Scope is S2 wave 2 of the PROPOSED MAWS-SII-TARGET-SPEC-001: a read-only instruction reference-graph module (runtime/instructions/instruction-resolver.mjs), a stdout-only CLI, and tests, layered over the wave 1 inventory source set. Determination under the closed relevance taxonomy: no registered record changed — the slice creates no contract (no file under core/contracts/ touched), no canonical claim (no authority-matrix or canonical-files edit), no authority mapping, no dependency or lifecycle binding, and no supersession; it is proposal-scoped implementation of a not-yet-adopted specification. The reference graph is analysis input only: dangling references are recorded as observations for the S3 auditor and nothing is repaired, loaded, activated, or promoted. Registry relevance will be re-evaluated when the SII slices land adopted contracts (the S1 CONTRACT_RECORD obligation for skill-feedback.schema.json remains pending by design until its own registry write).",
+    "registry_baseline_sha": "5afc852a8e98c3b3ea4d7bf7bd58a645cad72d86",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "runtime/instructions/instruction-resolver.mjs",
+      "scripts/tools/build-instruction-graph.mjs",
+      "tests/vnext/instruction-resolver.test.mjs"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/instruction-resolver-2026-10-20/RUN.md",
+      "evidence/instruction-inventory-2026-10-20/RUN.md",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
+    ],
+    "evidence_refs": [
+      "evidence/instruction-resolver-2026-10-20/RUN.md",
+      "node --test tests/vnext/instruction-resolver.test.mjs (6/6 pass: closed-rule extraction incl. dangling/external/command edges, digest determinism + revision sensitivity, fail-closed without package manifest, inherited revision contract, byte-identical read-only proof)",
+      "npm run test:vnext (307/307 pass, 0 fail)",
+      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
+      "npm run eval:maws-vnext (exit 0)",
+      "CLI smoke: build-instruction-graph.mjs --revision 87a86d54 --dangling (digest d52956ce..., 10 dangling references observed, recorded not repaired); without --revision exits 2"
+    ],
+    "implementation_commit_sha": "70be5292df6dd63621293a1121010ec42f3ec2b0",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-resolver-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}
