@@ -47,6 +47,7 @@
     "fixtures/maws-vnext/behavioral-eval.contracts.json",
     "fixtures/maws-vnext/instruction-bundle.contracts.json",
     "fixtures/maws-vnext/harness-context.contracts.json",
-    "fixtures/maws-vnext/benchmark-record.contracts.json"
+    "fixtures/maws-vnext/benchmark-record.contracts.json",
+    "fixtures/maws-vnext/skill-promotion-adoption.contracts.json"
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "registry_disposition": {
+    "contract": "registry-disposition.v1",
+    "change_id": "MAWS-S8-GOVERNANCE-PROMOTION-2026-10-20",
+    "summary": "S8 governance promotion: SkillPromotionAdoptionRecord contract binding frontdoor admission, digest-bound S5 behavioral evidence, canonical owner approval, versioned canonical adoption, export regeneration, and fail-closed post-adoption readback; adoption runner with owner-act boundary.",
+    "source_of_authority": "Bounded owner run directive 2026-10-20 (run S11 implementation, then close S7/S13/S8).",
+    "source_refs": [
+      "docs/proposals/skill-intelligence-target-spec.md (MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED, sections 12.3/13.1/13.4 + slice S8)",
+      "core/contracts/skill-promotion-adoption.schema.json",
+      "scripts/tools/promote-skill-candidate.mjs",
+      "evals/fixtures/maws-vnext/skill-promotion-adoption.contracts.json",
+      "tests/vnext/skill-promotion.test.mjs",
+      "evidence/skill-promotion-2026-10-20/RUN.md"
+    ],
+    "evidence_refs": [],
+    "implementation_commit_sha": null,
+    "registry_commit_sha": null,
+    "registry_baseline_sha": "75bdabe",
+    "disposition_status": "REQUIRED_BUT_BLOCKED",
+    "affected_records": [],
+    "object_mutations": [
+      "NEW CONTRACT_RECORD: core/contracts/skill-promotion-adoption.schema.json (SkillPromotionAdoptionRecord 1.0.0)",
+      "NO_CHANGE intended for existing CONTRACT_RECORDs of unchanged contracts"
+    ],
+    "notes": "REQUIRED_BUT_BLOCKED phase; rebinds to UPDATED with the registry commit sha after the Registry write."
+  }
+}

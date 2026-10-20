@@ -1,0 +1,172 @@
+{
+  "id": "maws-vnext-skill-promotion-adoption-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "skill-promotion-adoption-valid",
+      "schema": "core/contracts/skill-promotion-adoption.schema.json",
+      "valid": true,
+      "guards": ["S8"],
+      "instance": {
+        "schema_version": "1.0.0",
+        "adoption_id": "adopt_fixture_0001",
+        "candidate": {
+          "skill_id": "example-safe-skill",
+          "adopted_version": "1.0.0",
+          "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "frontdoor_admission": {
+          "record_ref": "evidence/frontdoor/sfa_s8_0001.json",
+          "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "implementation_disposition": "ELIGIBLE"
+        },
+        "eval_evidence": {
+          "behavioral_eval_records": [
+            {
+              "record_ref": "evidence/behavioral/bev_s8_0001.json",
+              "content_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "verdict": "IMPROVEMENT_PROVEN"
+            },
+            {
+              "record_ref": "evidence/behavioral/bev_s8_0002.json",
+              "content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+              "verdict": "BASELINE_RECORDED"
+            }
+          ],
+          "improvement_proven": true
+        },
+        "owner_approval": {
+          "approver": "canonical_owner",
+          "decision_ref": "owner_decision_s8_0001",
+          "approved_at": "2026-10-20T00:00:00Z"
+        },
+        "canonical_adoption": {
+          "canonical_path": "skills/example-safe-skill/SKILL.md",
+          "superseded_version": "0.9.0",
+          "adoption_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "adopted_at": "2026-10-20T00:00:00Z"
+        },
+        "export_regeneration": {
+          "performed": true,
+          "export_refs": ["contracts/core-registry.json", "provider-exports/"],
+          "regenerated_at": "2026-10-20T00:00:00Z"
+        },
+        "post_adoption_readback": {
+          "performed": true,
+          "readback_digest_match": true,
+          "readback_at": "2026-10-20T00:00:00Z"
+        },
+        "authority_granted": false,
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "skill-promotion-adoption-rejects-authority-grant",
+      "schema": "core/contracts/skill-promotion-adoption.schema.json",
+      "valid": false,
+      "guards": ["S8"],
+      "instance": {
+        "schema_version": "1.0.0",
+        "adoption_id": "adopt_fixture_0002",
+        "candidate": {
+          "skill_id": "example-safe-skill",
+          "adopted_version": "1.0.0",
+          "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "frontdoor_admission": {
+          "record_ref": "evidence/frontdoor/sfa_s8_0002.json",
+          "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "implementation_disposition": "ELIGIBLE"
+        },
+        "eval_evidence": {
+          "behavioral_eval_records": [
+            {
+              "record_ref": "evidence/behavioral/bev_s8_0003.json",
+              "content_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "verdict": "IMPROVEMENT_PROVEN"
+            }
+          ],
+          "improvement_proven": true
+        },
+        "owner_approval": {
+          "approver": "canonical_owner",
+          "decision_ref": "owner_decision_s8_0002",
+          "approved_at": "2026-10-20T00:00:00Z"
+        },
+        "canonical_adoption": {
+          "canonical_path": "skills/example-safe-skill/SKILL.md",
+          "superseded_version": "0.9.0",
+          "adoption_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "adopted_at": "2026-10-20T00:00:00Z"
+        },
+        "export_regeneration": {
+          "performed": true,
+          "export_refs": ["contracts/core-registry.json"],
+          "regenerated_at": "2026-10-20T00:00:00Z"
+        },
+        "post_adoption_readback": {
+          "performed": true,
+          "readback_digest_match": true,
+          "readback_at": "2026-10-20T00:00:00Z"
+        },
+        "authority_granted": true,
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "skill-promotion-adoption-rejects-self-approval",
+      "schema": "core/contracts/skill-promotion-adoption.schema.json",
+      "valid": false,
+      "guards": ["S8"],
+      "instance": {
+        "schema_version": "1.0.0",
+        "adoption_id": "adopt_fixture_0003",
+        "candidate": {
+          "skill_id": "example-safe-skill",
+          "adopted_version": "1.0.0",
+          "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "frontdoor_admission": {
+          "record_ref": "evidence/frontdoor/sfa_s8_0003.json",
+          "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "implementation_disposition": "ELIGIBLE"
+        },
+        "eval_evidence": {
+          "behavioral_eval_records": [
+            {
+              "record_ref": "evidence/behavioral/bev_s8_0004.json",
+              "content_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+              "verdict": "IMPROVEMENT_PROVEN"
+            }
+          ],
+          "improvement_proven": true
+        },
+        "owner_approval": {
+          "approver": "improvement_loop",
+          "decision_ref": "self_approved",
+          "approved_at": "2026-10-20T00:00:00Z"
+        },
+        "canonical_adoption": {
+          "canonical_path": "skills/example-safe-skill/SKILL.md",
+          "superseded_version": "0.9.0",
+          "adoption_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "adopted_at": "2026-10-20T00:00:00Z"
+        },
+        "export_regeneration": {
+          "performed": true,
+          "export_refs": ["contracts/core-registry.json"],
+          "regenerated_at": "2026-10-20T00:00:00Z"
+        },
+        "post_adoption_readback": {
+          "performed": true,
+          "readback_digest_match": true,
+          "readback_at": "2026-10-20T00:00:00Z"
+        },
+        "authority_granted": false,
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    }
+  ]
+}
