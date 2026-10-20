@@ -38,14 +38,15 @@
       "evidence/skill-effectiveness-evals-2026-10-20/eval-record-bev-skill-effectiveness-candidate.json"
     ],
     "evidence_refs": [
-      "npm run test:vnext (334/334 pass, 0 fail, including 15 new S5 tests)",
+      "npm run test:vnext (338/338 pass, 0 fail, after the repair round; 334/334 at the original publication)",
       "node --test tests/vnext/behavioral-eval.test.mjs (7/7 pass)",
-      "node --test tests/vnext/run-skill-effectiveness.test.mjs (8/8 pass)",
-      "npm run validate-behavioral-eval (6 fixture cases checked, 0 unexpected results)",
-      "npm run eval:skill-effectiveness (exit 0, final verdict IMPROVEMENT_PROVEN, records under evidence/skill-effectiveness-evals-2026-10-20/)",
+      "node --test tests/vnext/run-skill-effectiveness-evals.test.mjs equivalent: run-skill-effectiveness.test.mjs (12/12 pass, including the F1/F3/F4/F5 codex-repair regression tests)",
+      "npm run validate-behavioral-eval (7 fixture cases checked, 0 unexpected results)",
+      "npm run eval:skill-effectiveness (exit 0, final verdict IMPROVEMENT_PROVEN, records regenerated at the repair head under evidence/skill-effectiveness-evals-2026-10-20/)",
       "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
       "eval kinds obs pbc wmc mahp rgc tsc secret-boundary skill-routing workflow-routing workflow-evidence provider-export-alignment semantic-layout maws-vnext (all PASS)",
       "npm run eval (full suite) fails in this environment at the render/a11y kinds with Playwright Chromium ENOENT; the identical failure exists on the untouched primary checkout at d6a8fdd0563500d49dfb96b2068d8a7cd737bc47, so it is a pre-existing environment limitation, not a change regression",
+      "repair round: the codex connector reviewed the merged pull request 35 at head 72c4590 after merge and raised five findings (four P1, one P2), all confirmed real; the repair publication branch fix/s5-codex-repair-20261020 repairs the digest-before-comparison sealing, the isolation honesty for uncontained live executors (new schema rule R6), the baseline-record validation and identity binding, the security-regression counting for blocked-but-leaking transcripts, and the checkout-independent digests",
       "validator: scripts/tools/validate-registry-disposition.mjs on this file (PASS)"
     ],
     "validation": [

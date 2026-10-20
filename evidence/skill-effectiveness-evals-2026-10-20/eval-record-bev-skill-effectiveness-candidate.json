@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "eval_id": "bev_skill_effectiveness_candidate",
-  "created_at": "2026-10-20T16:30:53.172Z",
+  "created_at": "2026-10-20T17:01:56.728Z",
   "variant": "CANDIDATE",
   "subject": {
     "kind": "routing_profile",
@@ -22,7 +22,7 @@
     {
       "family": "positive",
       "blocking": true,
-      "corpus_digest": "sha256:781628447facca86982d5687dfd8acee74f68153a65b06b8b812836f16de8b30",
+      "corpus_digest": "sha256:cbd9488853b45d6166fb1a38607395b975fde694340b43d43cc19ba6ce3b9efe",
       "cases_total": 3,
       "cases_passed": 3,
       "cases_failed": 0
@@ -30,7 +30,7 @@
     {
       "family": "negative",
       "blocking": true,
-      "corpus_digest": "sha256:ddb4fe18d3ac31cc8b11ff1a79e5d0b3eaedb3bc782e9628bb92ac602952759e",
+      "corpus_digest": "sha256:d4b80eb166d0050b0962c3d64e5368a9a12ed1fe7e5a99779ec357516970d5ac",
       "cases_total": 3,
       "cases_passed": 3,
       "cases_failed": 0
@@ -38,7 +38,7 @@
     {
       "family": "security_regression",
       "blocking": true,
-      "corpus_digest": "sha256:2070888c4b2a5b19347168f7b935a9c3df70d1be43e43b893d014a87fdf1dbd9",
+      "corpus_digest": "sha256:c548d38ec5d55350d8bc1d6795b22e8ce580289f52407b9e56ed97487f744f5c",
       "cases_total": 3,
       "cases_passed": 3,
       "cases_failed": 0
@@ -46,7 +46,7 @@
     {
       "family": "model_parity",
       "blocking": false,
-      "corpus_digest": "sha256:866989917b864504ff2112c0abe989f290ab164aae3022ae50305c75f9f390eb",
+      "corpus_digest": "sha256:315f04f682e0c9a3d10e6a2d99fa2983cd121caef99fb2e00c779f2fc431aa96",
       "cases_total": 2,
       "cases_passed": 1,
       "cases_failed": 1
@@ -78,9 +78,9 @@
   "verdict": "IMPROVEMENT_PROVEN",
   "reproducibility": {
     "corpus_ref": "skill-effectiveness",
-    "corpus_digest": "sha256:c7cde45a0a629cd1a9419dbeed0a339a53d13f7ee933e4735bda1a40cc420823",
+    "corpus_digest": "sha256:aebcdacc26085a1f140c7fd36765da918491d25cf67fa79251c398b575a2e1ad",
     "runner": "run-skill-effectiveness-evals.mjs",
-    "content_digest": "sha256:3cc26e6f68553097e5a71d505da4db5c14d5e1bdd0b1ce86b52187253e1b752b"
+    "content_digest": "sha256:5ff1c98c0d3ac249cc957fb3cd246073f25d599a6cb5daedea0748d5b7ccc80b"
   },
   "evidence_refs": [
     "corpus:skill-effectiveness"

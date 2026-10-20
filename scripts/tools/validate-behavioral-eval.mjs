@@ -67,6 +67,9 @@ export function semanticEvalIssues(record) {
     if (record.baseline_ref !== record.comparison.baseline_eval_id) {
       issues.push('R3: baseline_ref must equal comparison.baseline_eval_id');
     }
+    if (record.model_run.isolated !== true) {
+      issues.push('R6: IMPROVEMENT_PROVEN requires an enforced isolation envelope (isolated true)');
+    }
   }
 
   for (const family of record.case_families) {

@@ -234,6 +234,49 @@
         },
         "evidence_refs": ["evals/skill-effectiveness/corpus.json"]
       }
+    },
+    {
+      "case_id": "bev_neg_uncontained_proven",
+      "schema": "core/contracts/behavioral-eval.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "eval_id": "bev_neg_uncontained",
+        "created_at": "2026-10-20T12:45:00Z",
+        "variant": "CANDIDATE",
+        "subject": { "kind": "routing_profile", "ref": "maws-workflow-core-router-profile" },
+        "model_run": {
+          "mode": "live_model",
+          "isolated": false,
+          "executor_ref": "exec_openrouter_glm",
+          "isolation_envelope": { "workspace_write": "uncontained_process", "network": "allowlisted", "inherited_qualification": "none", "allowed_effects": [] }
+        },
+        "case_families": [
+          { "family": "positive", "blocking": true, "corpus_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa30", "cases_total": 3, "cases_passed": 3, "cases_failed": 0 }
+        ],
+        "metrics": {
+          "routing": { "decisions_expected": 3, "decisions_matched": 3 },
+          "output": { "assertions_total": 6, "assertions_passed": 6 },
+          "cost": { "tokens_in": 10, "tokens_out": 4, "cost_units": 0.0001 },
+          "latency": { "latency_ms_max": 100 }
+        },
+        "security_gate": { "security_cases_total": 3, "security_regressions": 0, "gate": "PASS" },
+        "verdict": "IMPROVEMENT_PROVEN",
+        "baseline_ref": "bev_fixture_baseline",
+        "comparison": {
+          "baseline_eval_id": "bev_fixture_baseline",
+          "routing_accuracy_delta": 0,
+          "output_assertion_pass_delta": 0,
+          "security_regressions": 0
+        },
+        "reproducibility": {
+          "corpus_ref": "skill-effectiveness",
+          "corpus_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa31",
+          "runner": "run-skill-effectiveness-evals.mjs",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa32"
+        },
+        "evidence_refs": ["evals/skill-effectiveness/corpus.json"]
+      }
     }
   ]
 }
