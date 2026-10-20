@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "audit_id": "ia_e01a2196431a30ba",
+  "revision": "f5a0d716f23725e3b277f8984beb28e8405dc53b",
+  "graph_digest": "3e3693a05a50c2880293fee10b9b34784025c8eb678621b9e304ab6e9d2b55af",
+  "source_count": 51,
+  "edge_count": 410,
+  "findings": [],
+  "findings_count": 0,
+  "coverage": {
+    "classes_analyzed": [
+      "STALE_REFERENCE",
+      "INVALID_COMMAND"
+    ],
+    "classes_declared_not_analyzable": [
+      {
+        "finding_class": "RULE_CONFLICT",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "PRECEDENCE_CONFLICT",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "OVERCONSTRAINT",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "REDUNDANT_INSTRUCTION",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "CONTEXT_OVERLOAD",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "AUTHORITY_LEAK",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "MODEL_DRIFT",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "SKILL_ROUTING_AMBIGUITY",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      }
+    ],
+    "reference_classes": {
+      "resolved": 395,
+      "glob_pattern": 2,
+      "git_range": 1,
+      "documented_absence": 1,
+      "external_workspace": 11,
+      "dangling": 0
+    },
+    "reference_class_notes": {
+      "glob_pattern": "workspace selection patterns, not file references; their absence from the repository is not a defect",
+      "git_range": "revision ranges (origin/main..main), not file references; the apparent file extension belongs to the revision name",
+      "documented_absence": "the source states that the target does not exist; a recorded repository finding, not a broken reference",
+      "external_workspace": "targets declared by the consumer repository (.codex/, .qwen/) or by the workspace a skill operates on (supabase/); their absence here is by design and their presence is not this repository's business"
+    }
+  },
+  "digest": "d47a2912c2e1bff8fe88caa2d9a77ee9c4cfa9cfbdd72f89b1a9395e00d59757"
+}

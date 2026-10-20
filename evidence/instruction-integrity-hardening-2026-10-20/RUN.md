@@ -84,7 +84,7 @@ taken here.
   violations, 2 taxonomy classes analyzed, 8 declared not statically
   analyzable. Reference classes: 395 resolved, 2 glob_pattern, 1 git_range,
   1 documented_absence, 11 external_workspace, **0 dangling**. Report:
-  `evidence/audit-report-f5a0d716.json`.
+  `evidence/instruction-integrity-hardening-2026-10-20/audit-report-f5a0d716.json`.
 - `node --test tests/vnext/instruction-auditor.test.mjs` — 10/10;
   `tests/vnext/instruction-resolver.test.mjs` — 6/6;
   `tests/vnext/instruction-inventory.test.mjs` — 6/6.
@@ -93,6 +93,33 @@ taken here.
   `validate-secrets` / `scan-secrets` — PASS (exit 0 each);
   `npm run eval:maws-vnext` — exit 0; `npm run validate-instruction-integrity`
   — 21 cases, 0 unexpected results.
+
+### The audit report artifact (materialized 2026-10-20)
+
+The report named above was missing from the repository. The run recorded the
+re-audit result, but the artifact the result points at was never committed:
+the path did not resolve, so the recorded result had no file behind it. The
+artifact has since been regenerated at the signed implementation commit with
+the canonical tool and its fail-closed provenance gate:
+
+```
+git worktree add --detach <tmp> f5a0d716f23725e3b277f8984beb28e8405dc53b
+cd <tmp> && node scripts/tools/validate-instruction-integrity.mjs \
+  --revision f5a0d716f23725e3b277f8984beb28e8405dc53b \
+  --root <tmp> \
+  --output evidence/instruction-integrity-hardening-2026-10-20/audit-report-f5a0d716.json
+```
+
+The gate requires the revision to resolve to a real commit, to be the HEAD of
+the audited tree, and the tracked tree to be clean; all three hold for
+`f5a0d716`. The regenerated report carries the audit id `ia_e01a2196431a30ba`,
+0 findings and the reference-class counts recorded above — the same values
+this record already claimed — so the claim is now backed by a real artifact
+instead of by the run record alone.
+
+Both pointers name the same repository-root path: this record and the
+`source_refs` entry of `registry-disposition.json` both point at
+`evidence/instruction-integrity-hardening-2026-10-20/audit-report-f5a0d716.json`.
 
 ## Signing disclosure correction
 
@@ -107,6 +134,31 @@ earlier one retroactively.
 
 For this change set the signing path works again: the implementation commit
 `f5a0d716` is validly signed (`git log --format='%G?'` reports `G`).
+
+## Post-review repair (2026-10-20): absence scope in the resolver
+
+The review of this slice found a defect in the reference classification that
+the recorded re-audit could not see, because the defect only suppresses
+findings. `statesAbsence(lineText)` tested the whole line for an absence
+phrase and classified **every** file edge on that line as
+`documented_absence`. A line such as "If config is not found, see
+`docs/missing.md`" therefore silenced the stale-reference finding for the
+missing `docs/missing.md`, and the auditor reported a false clean result.
+
+Repair: the absence phrase is bound to the target it governs. A phrase
+governs a target only when the target stands immediately before the phrase —
+that is, when the phrase's own subject is that target — allowing one
+trailing auxiliary or copula (`was not present`, `does not exist`). Every
+other reading leaves the target unresolved, so an ambiguous line yields a
+finding (fail-closed) instead of a silent clean result. The repair changes
+no classification in the recorded corpus: the re-audit at `f5a0d716` still
+reports `ia_e01a2196431a30ba` with the same reference classes
+(395/2/1/1/11/0) and the same report digest, and the artifact above is
+byte-identical to a fresh run with the repaired resolver.
+
+The repair is applied in the working tree and has no implementation commit of
+its own yet; `implementation_commit_sha` in the disposition therefore remains
+`f5a0d716`, the commit of the change set this record covers.
 
 ## Posture
 
