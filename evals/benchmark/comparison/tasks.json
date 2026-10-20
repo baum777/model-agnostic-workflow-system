@@ -1,0 +1,163 @@
+{
+  "task_set_ref": "evals/benchmark/comparison/tasks.json",
+  "eval_family": "fixture-deterministic-acceptance-v1",
+  "authority_domain": "development_harness/in_process_fixture",
+  "verification": {
+    "verifier_executor_id": "exec_bench_verifier",
+    "independent": true
+  },
+  "parent_authority": {
+    "ceiling_ref": "scope/benchmark_parent",
+    "allowed_child_scopes": ["scope/benchmark_parent"]
+  },
+  "executor_profile": {
+    "profile_ref": "prof_bench_worker",
+    "executor_ids": ["exec_bench_generalist", "exec_bench_specialist_a", "exec_bench_specialist_b"]
+  },
+  "composition_policy": {
+    "policy_id": "comp_benchmark_comparison_v1",
+    "allowed_modes": ["independent_parallel"],
+    "max_executors": 2,
+    "max_parallelism": 2,
+    "max_total_cost_units": 100,
+    "workload_safety_classes_allowed": ["safe", "reversible_only"]
+  },
+  "tasks": [
+    {
+      "task_id": "bench_task_atomic_summary",
+      "kind": "atomic",
+      "workload_safety_class": "safe",
+      "authority_ceiling_ref": "scope/benchmark_parent",
+      "executor_profile_ref": "prof_bench_worker",
+      "objective": "Produce a bounded summary artifact from the fixed input payload",
+      "acceptance_criteria": {
+        "required_artifact_fields": ["summary", "source_refs"],
+        "min_summary_length": 8
+      },
+      "static_variant": {
+        "executor_id": "exec_bench_generalist",
+        "tokens_in": 900,
+        "tokens_out": 320,
+        "cost_units": 3,
+        "latency_ms": 900,
+        "interventions": 0,
+        "artifact": {
+          "summary": "bounded summary of the fixed input payload",
+          "source_refs": ["fixture://input/payload"]
+        }
+      },
+      "dynamic_variant": {
+        "executor_ids": ["exec_bench_generalist"],
+        "tokens_in": 950,
+        "tokens_out": 330,
+        "cost_units": 4,
+        "latency_ms": 1100,
+        "interventions": 0,
+        "artifact": {
+          "summary": "bounded summary of the fixed input payload",
+          "source_refs": ["fixture://input/payload"]
+        }
+      },
+      "counterfactual": {
+        "executor_ids": ["exec_bench_specialist_a", "exec_bench_specialist_b"],
+        "mode": "independent_parallel",
+        "tokens_in": 1150,
+        "tokens_out": 480,
+        "cost_units": 6,
+        "latency_ms": 1500,
+        "interventions": 1,
+        "artifact": {
+          "summary": "bounded summary of the fixed input payload",
+          "source_refs": ["fixture://input/payload"]
+        }
+      }
+    },
+    {
+      "task_id": "bench_task_atomic_policy_lookup",
+      "kind": "atomic",
+      "workload_safety_class": "safe",
+      "authority_ceiling_ref": "scope/benchmark_parent",
+      "executor_profile_ref": "prof_bench_worker",
+      "objective": "Resolve one policy reference deterministically",
+      "acceptance_criteria": {
+        "required_artifact_fields": ["resolution", "source_refs"],
+        "min_summary_length": 4
+      },
+      "static_variant": {
+        "executor_id": "exec_bench_generalist",
+        "tokens_in": 400,
+        "tokens_out": 120,
+        "cost_units": 1,
+        "latency_ms": 300,
+        "interventions": 0,
+        "artifact": {
+          "resolution": "policy reference resolved deterministically",
+          "source_refs": ["fixture://policy/reference"]
+        }
+      },
+      "dynamic_variant": {
+        "executor_ids": ["exec_bench_generalist"],
+        "tokens_in": 460,
+        "tokens_out": 130,
+        "cost_units": 2,
+        "latency_ms": 450,
+        "interventions": 0,
+        "artifact": {
+          "resolution": "policy reference resolved deterministically",
+          "source_refs": ["fixture://policy/reference"]
+        }
+      },
+      "counterfactual": {
+        "executor_ids": ["exec_bench_specialist_a", "exec_bench_specialist_b"],
+        "mode": "independent_parallel",
+        "tokens_in": 700,
+        "tokens_out": 260,
+        "cost_units": 3,
+        "latency_ms": 820,
+        "interventions": 1,
+        "artifact": {
+          "resolution": "policy reference resolved deterministically",
+          "source_refs": ["fixture://policy/reference"]
+        }
+      }
+    },
+    {
+      "task_id": "bench_task_decomposable_audit",
+      "kind": "decomposable",
+      "workload_safety_class": "reversible_only",
+      "authority_ceiling_ref": "scope/benchmark_parent",
+      "executor_profile_ref": "prof_bench_worker",
+      "objective": "Audit two independent modules and merge the findings",
+      "acceptance_criteria": {
+        "required_artifact_fields": ["merged_findings", "coverage", "source_refs"],
+        "min_summary_length": 12
+      },
+      "static_variant": {
+        "executor_id": "exec_bench_generalist",
+        "tokens_in": 6000,
+        "tokens_out": 2400,
+        "cost_units": 24,
+        "latency_ms": 6400,
+        "interventions": 1,
+        "artifact": {
+          "merged_findings": ["finding:fixture-module-a", "finding:fixture-module-b"],
+          "coverage": ["module_a", "module_b"],
+          "source_refs": ["fixture://modules/a", "fixture://modules/b"]
+        }
+      },
+      "dynamic_variant": {
+        "executor_ids": ["exec_bench_specialist_a", "exec_bench_specialist_b"],
+        "tokens_in": 6400,
+        "tokens_out": 2300,
+        "cost_units": 21,
+        "latency_ms": 3600,
+        "interventions": 0,
+        "artifact": {
+          "merged_findings": ["finding:fixture-module-a", "finding:fixture-module-b"],
+          "coverage": ["module_a", "module_b"],
+          "source_refs": ["fixture://modules/a", "fixture://modules/b"]
+        }
+      }
+    }
+  ]
+}

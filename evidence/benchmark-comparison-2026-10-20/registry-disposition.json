@@ -1,0 +1,54 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S13 comparative benchmark harness, slice S13 of the PROPOSED MAWS-SII-TARGET-SPEC-001 v0.2.0, executed under the bounded owner run directive of 2026-10-20 (run S11 implementierung und closure S7, S13 und S8). The slice creates a new canonical contract, core/contracts/benchmark-record.schema.json (ComparativeBenchmarkRecord 1.0.0), which is a CONTRACT_RECORD under this repository's adopted relevance classes: a new machine-readable canonical record surface. It adds the fixed benchmark task set (evals/benchmark/comparison/tasks.json), the benchmark runner (scripts/tools/run-comparative-benchmarks.mjs) that measures the orchestration form itself - a static single-executor baseline against a policy-bound multi-executor candidate over the same fixed task set, eval family and executor profile - with the candidate composition going through the real buildComposition policy gate, the verification outcome produced by an independent verifier executor, the artifact quality measured from the recorded artifact content, the context isolation of every worker and verifier session checked fail-closed, the inherited authority and budget boundaries checked against the parent scope and the declared parent cap, and the routing/composition selection criteria derived from the measurement (including the counterproductive cases that were actually evaluated and rejected). It also adds the schema-decidable catalog fixture (evals/fixtures/maws-vnext/benchmark-record.contracts.json, registered in evals/catalog.json), the npm gate (eval:benchmark-comparison) and the unit tests. The record is comparison evidence only: comparison_only is const true, a benchmark result is never an approval for broader autonomy, never a qualification and never its own success assertion; no runtime is activated and no model or executor is qualified. The Registry write has not happened yet: the run change registration and the CONTRACT_RECORD projection of the new schema are still to be published in unitera-registry, so this disposition is REQUIRED_BUT_BLOCKED with registry_commit_sha null and rebinds to UPDATED with the registry commit sha after that publication.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/benchmark-record.schema.json"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "core/contracts/benchmark-record.schema.json",
+      "evals/benchmark/comparison/tasks.json",
+      "scripts/tools/run-comparative-benchmarks.mjs",
+      "evals/fixtures/maws-vnext/benchmark-record.contracts.json",
+      "evals/catalog.json",
+      "package.json",
+      "evals/README.md",
+      "core/contracts/README.md",
+      "tests/vnext/benchmark-comparison.test.mjs",
+      "evidence/benchmark-comparison-2026-10-20/RUN.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/benchmark-comparison-2026-10-20/RUN.md",
+      "evidence/benchmark-comparison-2026-10-20/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "node --test tests/vnext/*.test.mjs (all pass; the S13 suite contributes 29 tests, the suite total is recorded in evidence/benchmark-comparison-2026-10-20/RUN.md)",
+      "npm run eval:benchmark-comparison (exit 0, record valid: parallel win on the decomposable task, derived counterproductive cases, isolated sessions, inheritance checked with 0 violations)",
+      "npm run eval:maws-vnext with the catalog-registered benchmark-record fixture (PASS)",
+      "npm run validate-maws-vnext (issues: [])",
+      "independent review round 1 (local audit agent, tool-driven with mutation probes): the governance envelope was sound but three measured dimensions were constants or self-fulfilling, the real composition gate was untested, the counterproductive list was fixture-authored prose, the budget cap was optional, the authority half of the inheritance check was a safety-class set only, max_parallelism was never enforced, the baseline and candidate did not share an executor profile, and the record did not carry eval_family and authority_domain - all findings were confirmed real and repaired before the merge; the repair table is in evidence/benchmark-comparison-2026-10-20/RUN.md",
+      "mutation probes on the repaired harness (each probe bound by at least one failing test): composition gate stubbed, verification outcome hardcoded, artifact quality hardcoded, parallelism bound removed, counterproductive derivation forced, shared-profile check removed, verifier-independence check removed, measured-advantage rule removed, composed/counterproductive disjointness rule removed",
+      "validator: node scripts/tools/validate-registry-disposition.mjs evidence/benchmark-comparison-2026-10-20/registry-disposition.json (PASS)"
+    ],
+    "implementation_commit_sha": "b1f51af0bd3f1494d43987b4d189b334efa2796c",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/benchmark-comparison-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (closed relevance taxonomy: a new canonical contract surface is CONTRACT_RECORD relevance)"
+    ],
+    "registry_baseline_sha": "75bdabe"
+  }
+}
