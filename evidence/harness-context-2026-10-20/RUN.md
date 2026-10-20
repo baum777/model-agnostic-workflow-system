@@ -93,9 +93,19 @@ New regression tests: reference-only re-anchoring requires evidence; cross-run r
 
 1×P1, real, repaired on this head: a uniform FALSE value (every node claiming a different context value under the referenced record's id) passed the ref-only comparison. Repaired: `planAndBind` now requires the VALIDATED harness-context record and compares both the record id AND the context value of every binding against it (plus every work unit's ref). Regression test with the uniform-false-value graph included; the round-2 mixed-pair scenario is now caught earlier with the precise `CONTEXT_BINDING_CONFLICT` code (bindGraph's uniform-pair gate remains as defense in depth for direct callers). 384/384 PASS.
 
+## Pre-merge independent review (codex, round 6 on `d727595`)
+
+2×P1 + 1×P2, all assessed as real and repaired on this head:
+
+1. **P1 direct-activation gate:** a repeated `planAndBind` under an already-active graph id registered with `activate: true` and bypassed the supersession gate entirely. Repaired: noninitial DIRECT registrations now route through the same evidenced gate — atomically (the candidate is registered, activation-gated, and discarded again on rejection, so the version slot stays usable); an evidenced direct transition lands the `context_change` record.
+2. **P1 buildNewVersion substitution:** a callback-supplied graph could contain nodes that were never WorkUnit-validated. Repaired: the WorkUnit/context resolution check is extracted and RE-RUN against the callback-returned graph's nodes before registration.
+3. **P2 record validation at the planner:** `planAndBind` now runs `validateHarnessContextRecord` on the supplied record itself — a direct caller cannot bind against an incomplete or unpinned record.
+
+385/385 PASS.
+
 ## Verification
 
-- `node --test tests/vnext/*.test.mjs` — 384/384 PASS (includes the S11 tests across all five repair rounds and all coordinated amendments).
+- `node --test tests/vnext/*.test.mjs` — 385/385 PASS (includes the S11 tests across all six repair rounds and all coordinated amendments).
 - `npm run eval:maws-vnext` — ok:true (now includes `harness-context.contracts.json`).
 - `npm run validate-harness-context` — CLI smoke: valid record exit 0, unknown-vocabulary record exit 1.
 - Full engine path: `runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.json` completes COMPLETED with the bound dev context (CLI test asserts this continuously).

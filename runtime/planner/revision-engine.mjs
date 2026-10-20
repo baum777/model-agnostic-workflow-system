@@ -121,18 +121,21 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
         throw new FailClosedError('CONTEXT_BINDING_MISSING', 'revision submission requires the workUnits collection; binding without WorkUnit resolution is not permitted');
       }
       const workUnitById = new Map(workUnits.filter((workUnit) => workUnit && typeof workUnit === 'object').map((workUnit) => [workUnit.work_unit_id, workUnit]));
-      for (const node of candidateNodes) {
-        const workUnit = workUnitById.get(node.work_unit_id);
-        if (!workUnit) {
-          throw new FailClosedError('CONTEXT_BINDING_MISSING', `revision node ${node.node_id} references work unit ${node.work_unit_id}, which was not provided for binding resolution`);
+      const assertNodesResolveWorkUnits = (nodes) => {
+        for (const node of nodes) {
+          const workUnit = workUnitById.get(node.work_unit_id);
+          if (!workUnit) {
+            throw new FailClosedError('CONTEXT_BINDING_MISSING', `revision node ${node.node_id} references work unit ${node.work_unit_id}, which was not provided for binding resolution`);
+          }
+          if (workUnit.harness_context_ref !== node.executor_binding.harness_context_ref) {
+            throw new FailClosedError(
+              'CONTEXT_BINDING_CONFLICT',
+              `revision node ${node.node_id} binds context "${node.executor_binding.harness_context_ref}" but its work unit ${node.work_unit_id} declares "${workUnit.harness_context_ref}"`
+            );
+          }
         }
-        if (workUnit.harness_context_ref !== node.executor_binding.harness_context_ref) {
-          throw new FailClosedError(
-            'CONTEXT_BINDING_CONFLICT',
-            `revision node ${node.node_id} binds context "${node.executor_binding.harness_context_ref}" but its work unit ${node.work_unit_id} declares "${workUnit.harness_context_ref}"`
-          );
-        }
-      }
+      };
+      assertNodesResolveWorkUnits(candidateNodes);
       // S11 R3/R4: the referenced WorkUnits are immutable, so a graph
       // revision cannot change the harness context -- a context switch is a
       // bound plan change that re-anchors WorkUnits through a new plan.
@@ -156,6 +159,12 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
           nodes: deepFreeze(candidateNodes),
           created_at: decidedAt()
         });
+      // A buildNewVersion callback may substitute the node set: the returned
+      // graph is re-validated against the same WorkUnit/context resolution
+      // before registration (a swapped-in node cannot bypass the gate).
+      if (newGraph !== null && typeof newGraph === 'object' && Array.isArray(newGraph.nodes)) {
+        assertNodesResolveWorkUnits(newGraph.nodes);
+      }
       // Registration and activation are one atomic step from the caller's
       // perspective: a candidate rejected during activation is discarded so
       // the version slot stays usable for corrected requests.

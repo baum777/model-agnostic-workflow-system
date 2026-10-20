@@ -3,6 +3,7 @@
 // proposes structure (CandidateGraph) and binds executors inside that
 // envelope through deterministic routing. The planner never grants authority.
 import { newId, FailClosedError } from '../vnext/util.mjs';
+import { validateHarnessContextRecord } from '../harness-context/context-binding.mjs';
 import { validateCandidateGraph, bindGraph } from './graph-versioning.mjs';
 
 export function buildCandidate({ template, workUnits, stageWorkUnitMap = {} }) {
@@ -61,9 +62,12 @@ export function planAndBind({ template, candidate, routingForNode, workGraphStor
   if (!Array.isArray(workUnits)) {
     throw new FailClosedError('CONTEXT_BINDING_MISSING', 'planAndBind requires the workUnits collection; binding without WorkUnit resolution is not permitted');
   }
-  if (!harnessContext || typeof harnessContext !== 'object' || harnessContext.context_id === undefined || harnessContext.context === undefined) {
+  if (!harnessContext || typeof harnessContext !== 'object') {
     throw new FailClosedError('CONTEXT_BINDING_MISSING', 'planAndBind requires the validated harnessContext record; binding without context resolution is not permitted');
   }
+  // The record is validated here too: a direct planner caller cannot bind
+  // against an incomplete or unpinned record.
+  const validatedContext = validateHarnessContextRecord(harnessContext, root);
   const workUnitById = new Map(
     workUnits.filter((workUnit) => workUnit && typeof workUnit === 'object').map((workUnit) => [workUnit.work_unit_id, workUnit])
   );
@@ -81,16 +85,16 @@ export function planAndBind({ template, candidate, routingForNode, workGraphStor
     if (typeof workUnit.harness_context_ref !== 'string' || workUnit.harness_context_ref.length === 0) {
       throw new FailClosedError('CONTEXT_BINDING_MISSING', `work unit ${workUnit.work_unit_id} carries no harness_context_ref; it cannot bind an executor`);
     }
-    if (workUnit.harness_context_ref !== harnessContext.context_id) {
+    if (workUnit.harness_context_ref !== validatedContext.context_id) {
       throw new FailClosedError(
         'CONTEXT_BINDING_CONFLICT',
-        `work unit ${workUnit.work_unit_id} declares context "${workUnit.harness_context_ref}" but the run is bound to "${harnessContext.context_id}"`
+        `work unit ${workUnit.work_unit_id} declares context "${workUnit.harness_context_ref}" but the run is bound to "${validatedContext.context_id}"`
       );
     }
-    if (executorBinding.harness_context !== harnessContext.context || executorBinding.harness_context_ref !== harnessContext.context_id) {
+    if (executorBinding.harness_context !== validatedContext.context || executorBinding.harness_context_ref !== validatedContext.context_id) {
       throw new FailClosedError(
         'CONTEXT_BINDING_CONFLICT',
-        `node ${node.node_id} binds ("${executorBinding.harness_context}", "${executorBinding.harness_context_ref}") but the validated record is ("${harnessContext.context}", "${harnessContext.context_id}")`
+        `node ${node.node_id} binds ("${executorBinding.harness_context}", "${executorBinding.harness_context_ref}") but the validated record is ("${validatedContext.context}", "${validatedContext.context_id}")`
       );
     }
     bindings.push({ node_id: node.node_id, executor_binding: executorBinding });

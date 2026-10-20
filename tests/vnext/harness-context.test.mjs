@@ -698,3 +698,39 @@ test('S11 regression (codex P1 round 5): the binding context value must match th
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
 });
+
+test('S11 regression (codex P1 round 6): a direct noninitial registration routes through the supersession gate', () => {
+  const { graphStore, rootWu } = buildContextBoundGraph('graph_s11_replan');
+  // v2 with the product pair, registered DIRECTLY with activate: true (the
+  // path a repeated planAndBind takes): the store gate requires the
+  // evidenced transition.
+  const productBinding = { executor_id: 'exec_local_tests', routing_decision_ref: 'rd4', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_product' };
+  const v2 = bindGraph({
+    candidate: buildCandidate({ template: s11Template, workUnits: [rootWu] }),
+    bindings: [{ node_id: 'node_00_analysis', executor_binding: { ...productBinding } }, { node_id: 'node_01_verification', executor_binding: { ...productBinding } }],
+    graphId: 'graph_s11_replan',
+    graphVersion: 2,
+    root
+  });
+  // Same-store evidence-free direct activation is refused and the candidate
+  // is discarded so the version slot stays usable.
+  assert.throws(
+    () => graphStore.registerVersion(v2, { activate: true }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_SWITCH_UNEVIDENCED'
+  );
+  assert.equal(graphStore.activeVersion('graph_s11_replan'), 1);
+  assert.throws(() => graphStore.getVersion('graph_s11_replan', 2), /no version 2/);
+  // ...and the evidenced direct activation lands the context_change record.
+  const { record: replanRecord } = graphStore.registerVersion(v2, {
+    activate: true,
+    reason: 'evidenced replan',
+    revisionRequestRef: 'rev_replan_evidenced',
+    contextChange: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/context-switches/rev_replan_evidenced.json' }
+  });
+  assert.equal(graphStore.activeVersion('graph_s11_replan'), 2);
+  assert.deepEqual(replanRecord.context_change, {
+    from_context: 'development_harness',
+    to_context: 'unitera_product',
+    evidence_ref: 'evidence/context-switches/rev_replan_evidenced.json'
+  });
+});

@@ -44,13 +44,32 @@ function bindingContextPairs(graph) {
 }
 
   return {
-    registerVersion(graph, { activate = true } = {}) {
+    registerVersion(graph, { activate = true, contextChange = null, reason = 'registration', revisionRequestRef = 'manual_registration' } = {}) {
       const entry = graphEntry(graph.graph_id);
       if (entry.versions.has(graph.graph_version)) {
         throw new FailClosedError('GRAPH_VERSION_EXISTS', `graph ${entry.graphId} v${graph.graph_version} already exists; versions are immutable`);
       }
       if (!Object.isFrozen(graph)) {
         throw new FailClosedError('GRAPH_NOT_IMMUTABLE', 'bound graphs must be frozen before registration');
+      }
+      // S11 R3: a noninitial DIRECT activation is a transition like any
+      // other and routes through the same evidenced supersession gate, so
+      // a repeated planAndBind cannot switch the context unevidenced.
+      // Registration + activation are atomic: a rejected candidate is
+      // discarded again so the version slot stays usable.
+      if (activate && entry.activeVersion !== null) {
+        entry.versions.set(graph.graph_version, graph);
+        try {
+          const activated = this.activateVersion(graph.graph_id, graph.graph_version, {
+            reason,
+            revisionRequestRef,
+            contextChange
+          });
+          return { graph, record: activated.record, directActivation: true };
+        } catch (error) {
+          entry.versions.delete(graph.graph_version);
+          throw error;
+        }
       }
       entry.versions.set(graph.graph_version, graph);
       if (activate) {
