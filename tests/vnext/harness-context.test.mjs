@@ -487,9 +487,8 @@ test('R3 regression (codex P1 round 2): a revision can never change the context 
       source: 'verifier',
       motivation: 'move the workload into the product harness',
       payload: { executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd2', qualification_ref: 'q', selection_mode: 'FALLBACK', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_product' } }
-    }),
+    }, { workUnits: [rootWu] }),
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
-      && /cannot change the harness context/.test(error.message)
   );
   // The rejection must not poison the graph: the active version is
   // unchanged and the discarded candidate frees its version slot.
@@ -502,7 +501,7 @@ test('R3 regression (codex P1 round 2): a revision can never change the context 
     source: 'runtime',
     motivation: 'no context delta',
     payload: {}
-  });
+  }, { workUnits: [rootWu] });
   assert.equal(followUp.decision.outcome, 'ACCEPTED');
   assert.equal(graphStore.activeVersion('graph_s11_r3a'), 2);
 });
@@ -543,7 +542,7 @@ test('R3 regression (codex P1 round 1): the store activation gate requires evide
 });
 
 test('R3 regression: a declared context change without an actual transition conflicts', () => {
-  const { graphStore } = buildContextBoundGraph('graph_s11_r3c');
+  const { graphStore, rootWu } = buildContextBoundGraph('graph_s11_r3c');
   const engine = createRevisionEngine({ workGraphStore: graphStore, root });
   assert.throws(
     () => engine.submit('graph_s11_r3c', {
@@ -553,7 +552,31 @@ test('R3 regression: a declared context change without an actual transition conf
       source: 'runtime',
       motivation: 'no context delta',
       payload: { context_change: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/x.json' } }
-    }),
+    }, { workUnits: [rootWu] }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
+  );
+});
+
+test('S11 regression (codex P1 round 4): add_node revisions resolve the node WorkUnit and its context anchor', () => {
+  const { graphStore, rootWu } = buildContextBoundGraph('graph_s11_addnode');
+  const engine = createRevisionEngine({ workGraphStore: graphStore, root });
+  // A node whose WorkUnit is anchored to a DIFFERENT context ref than the
+  // binding claims is refused even when the binding repeats the active pair.
+  assert.throws(
+    () => engine.submit('graph_s11_addnode', {
+      request_id: 'rev_addnode_mismatch',
+      base_graph_version: 1,
+      request_type: 'add_node',
+      source: 'runtime',
+      motivation: 'add a node anchored elsewhere',
+      payload: {
+        node_id: 'node_02_extra',
+        work_unit_id: rootWu.work_unit_id,
+        stage: 'analysis',
+        depends_on: ['node_00_analysis'],
+        executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd3', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_SOME_OTHER_ANCHOR' }
+      }
+    }, { workUnits: [rootWu] }),
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
 });

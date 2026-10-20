@@ -48,14 +48,19 @@ export function buildCandidate({ template, workUnits, stageWorkUnitMap = {} }) {
 // recommended) enables the S11 binding-scope check: every bound node's
 // executor binding must reference the SAME harness context record as its
 // WorkUnit.
-export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt, workUnits = null }) {
+export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt, workUnits }) {
   const issues = validateCandidateGraph(candidate, template);
   if (issues.length > 0) {
     throw new FailClosedError('CANDIDATE_INVALID', issues.join('; '));
   }
 
+  // S11: the WorkUnit collection is REQUIRED. Without it the binding gate
+  // would silently skip every WorkUnit/context comparison.
+  if (!Array.isArray(workUnits)) {
+    throw new FailClosedError('CONTEXT_BINDING_MISSING', 'planAndBind requires the workUnits collection; binding without WorkUnit resolution is not permitted');
+  }
   const workUnitById = new Map(
-    Array.isArray(workUnits) ? workUnits.filter((workUnit) => workUnit && typeof workUnit === 'object').map((workUnit) => [workUnit.work_unit_id, workUnit]) : []
+    workUnits.filter((workUnit) => workUnit && typeof workUnit === 'object').map((workUnit) => [workUnit.work_unit_id, workUnit])
   );
 
   const bindings = [];
@@ -65,16 +70,17 @@ export function planAndBind({ template, candidate, routingForNode, workGraphStor
       throw new FailClosedError('ROUTING_BINDING_MISSING', `routing produced no binding for node ${node.node_id}`);
     }
     const workUnit = workUnitById.get(node.work_unit_id);
-    if (workUnit) {
-      if (typeof workUnit.harness_context_ref !== 'string' || workUnit.harness_context_ref.length === 0) {
-        throw new FailClosedError('CONTEXT_BINDING_MISSING', `work unit ${workUnit.work_unit_id} carries no harness_context_ref; it cannot bind an executor`);
-      }
-      if (workUnit.harness_context_ref !== executorBinding.harness_context_ref) {
-        throw new FailClosedError(
-          'CONTEXT_BINDING_CONFLICT',
-          `node ${node.node_id} binds context "${executorBinding.harness_context_ref}" but its work unit ${workUnit.work_unit_id} declares "${workUnit.harness_context_ref}"`
-        );
-      }
+    if (!workUnit) {
+      throw new FailClosedError('CONTEXT_BINDING_MISSING', `candidate node ${node.node_id} references work unit ${node.work_unit_id}, which was not provided for binding resolution`);
+    }
+    if (typeof workUnit.harness_context_ref !== 'string' || workUnit.harness_context_ref.length === 0) {
+      throw new FailClosedError('CONTEXT_BINDING_MISSING', `work unit ${workUnit.work_unit_id} carries no harness_context_ref; it cannot bind an executor`);
+    }
+    if (workUnit.harness_context_ref !== executorBinding.harness_context_ref) {
+      throw new FailClosedError(
+        'CONTEXT_BINDING_CONFLICT',
+        `node ${node.node_id} binds context "${executorBinding.harness_context_ref}" but its work unit ${workUnit.work_unit_id} declares "${workUnit.harness_context_ref}"`
+      );
     }
     bindings.push({ node_id: node.node_id, executor_binding: executorBinding });
   }

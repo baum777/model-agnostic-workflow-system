@@ -7,7 +7,7 @@
 // no transport, and no Jev client construction.
 import { newId, nowIso, FailClosedError } from '../vnext/util.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
-import { createWorkUnitStore } from '../planner/work-unit-store.mjs';
+import { createWorkUnitStore, deepFreeze } from '../planner/work-unit-store.mjs';
 import { createWorkGraphStore } from '../planner/work-graph-store.mjs';
 import { buildCandidate, planAndBind } from '../planner/hybrid-planner.mjs';
 import {
@@ -75,7 +75,10 @@ export async function executeWorkRun(options) {
   // --- S11: the run binds its harness context before anything else. A run
   // without a valid context record never creates a WorkUnit and never binds
   // an executor (R6; CONTEXT_BINDING_MISSING, no fallback).
-  const boundContext = validateHarnessContextRecord(harnessContext, root);
+  // Clone + deep-freeze: the record is engine-owned evidence from here on;
+  // a mutating executor implementation must not be able to corrupt later
+  // nodes or the written artifact.
+  const boundContext = deepFreeze(structuredClone(validateHarnessContextRecord(harnessContext, root)));
   // The record must be bound to THIS run: a valid record naming another
   // run (or another plan graph) is a contradictory binding, not a fallback.
   if (boundContext.run_ref !== runId) {

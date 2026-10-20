@@ -256,8 +256,8 @@ test('FM-10 stale graph revision: STALE + REQUIRES_REBASE, graph untouched', () 
   const graphStore = createWorkGraphStore({ root });
   planAndBind({ template, candidate: buildCandidate({ template, workUnits: [rootWu] }), routingForNode: () => ({ executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_fm10_dev' }), workGraphStore: graphStore, graphId: 'graph_fm10', root, workUnits: [rootWu] });
   const engine = createRevisionEngine({ workGraphStore: graphStore, root });
-  engine.submit('graph_fm10', { request_id: 'rev_a', base_graph_version: 1, request_type: 'update_context', source: 'runtime', motivation: 'x', payload: {} });
-  const { decision } = engine.submit('graph_fm10', { request_id: 'rev_b', base_graph_version: 1, request_type: 'update_budget', source: 'executor', motivation: 'late', payload: {} });
+  engine.submit('graph_fm10', { request_id: 'rev_a', base_graph_version: 1, request_type: 'update_context', source: 'runtime', motivation: 'x', payload: {} }, { workUnits: [rootWu] });
+  const { decision } = engine.submit('graph_fm10', { request_id: 'rev_b', base_graph_version: 1, request_type: 'update_budget', source: 'executor', motivation: 'late', payload: {} }, { workUnits: [rootWu] });
   assert.equal(decision.outcome, 'STALE');
   assert.equal(decision.revalidation, 'REQUIRES_REBASE');
 });

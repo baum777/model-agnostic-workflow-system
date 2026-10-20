@@ -79,9 +79,19 @@ Regression tests for all three repairs are in `tests/vnext/harness-context.test.
 
 New regression tests: reference-only re-anchoring requires evidence; cross-run record refusal; all spec-mutating tests re-bind the context record to the re-keyed run. 382/382 PASS.
 
+## Pre-merge independent review (codex, round 4 on `be30ea1`)
+
+3×P1, all assessed as real and repaired on this head:
+
+1. **P1 mutable bound context:** the engine retained the caller-owned record object, so a mutating executor implementation could corrupt later nodes and the artifact. Repaired: the engine clone + deep-freezes the validated record before retention or dispatch.
+2. **P1 optional workUnits at the binding gate:** `planAndBind` silently skipped every WorkUnit/context comparison when `workUnits` was omitted. Repaired: the WorkUnit collection is REQUIRED and every candidate node's work unit must resolve, carry the ref, and match the binding pair.
+3. **P1 add_node revisions without WorkUnit resolution:** `submit` now requires the workUnits collection too and applies the same reference check to EVERY candidate node (including newly added ones) before registration; regression test with an add_node whose WorkUnit is anchored elsewhere.
+
+383/383 PASS.
+
 ## Verification
 
-- `node --test tests/vnext/*.test.mjs` — 382/382 PASS (includes the S11 tests across all three repair rounds and all coordinated amendments).
+- `node --test tests/vnext/*.test.mjs` — 383/383 PASS (includes the S11 tests across all four repair rounds and all coordinated amendments).
 - `npm run eval:maws-vnext` — ok:true (now includes `harness-context.contracts.json`).
 - `npm run validate-harness-context` — CLI smoke: valid record exit 0, unknown-vocabulary record exit 1.
 - Full engine path: `runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.json` completes COMPLETED with the bound dev context (CLI test asserts this continuously).
