@@ -1,0 +1,1185 @@
+{
+  "id": "maws-vnext-skill-selection-contracts",
+  "kind": "maws-vnext",
+  "target": {
+    "name": "skill-selection"
+  },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "skill-selection-valid-selected-happy-path",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          },
+          {
+            "skill_id": "core.source-conflict-resolver",
+            "skill_path": "core/skills/source-conflict-resolver/SKILL.md",
+            "digest": "edfe50d7cff77456a6b6c4a1dd2a8c6a6e47dd87ed502e2126109b54401a8538"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
+          { "skill_id": "core.source-conflict-resolver", "verdict": "INELIGIBLE", "reason": "REQUIRED_CAPABILITY_NOT_PROVIDED" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 1
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-selected-tie-break-order",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_61409436a0d3ca1e",
+        "created_at": "2026-10-20T12:05:00Z",
+        "request": {
+          "request_id": "req_impl_tie_001",
+          "intent_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "scope": "implementation",
+          "required_capabilities": [],
+          "request_digest": "8372d795adc598cf846c9e2c2913f9e4a7fd59a4d4045cb707099361cbca534a"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.architecture-depth-review",
+            "skill_path": "core/skills/architecture-depth-review/SKILL.md",
+            "digest": "8b1fffa529e3df6de650c94ffbb3e1136067ccb5f14cc50b01e9f83940da7d99"
+          },
+          {
+            "skill_id": "core.behavior-first-tdd",
+            "skill_path": "core/skills/behavior-first-tdd/SKILL.md",
+            "digest": "98226ade4b92dd9b0621b4fd6c59dc0f8d75a063b65737ad57749cacd000dcd6"
+          },
+          {
+            "skill_id": "core.diagnostic-feedback-loop",
+            "skill_path": "core/skills/diagnostic-feedback-loop/SKILL.md",
+            "digest": "c3ae9e041b86b93ff0f6f07250bed210493abb4e89ca244a7e241266065e6f33"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.architecture-depth-review", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
+          { "skill_id": "core.behavior-first-tdd", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
+          { "skill_id": "core.diagnostic-feedback-loop", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.architecture-depth-review",
+          "skill_path": "core/skills/architecture-depth-review/SKILL.md",
+          "digest": "8b1fffa529e3df6de650c94ffbb3e1136067ccb5f14cc50b01e9f83940da7d99",
+          "rank": 1
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [
+            "core.architecture-depth-review",
+            "core.behavior-first-tdd",
+            "core.diagnostic-feedback-loop"
+          ],
+          "key": "c01ea6e4437993744aab414aeb36a1cca1b878de2ebd935d0bfa9ffc9b9b4dfb"
+        },
+        "evidence_digest": "4c75a647550616630aada0efece495de4a30e44ae0065e2a76716a7bd6999e34",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-deterministic-replay",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T09:45:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          },
+          {
+            "skill_id": "core.source-conflict-resolver",
+            "skill_path": "core/skills/source-conflict-resolver/SKILL.md",
+            "digest": "edfe50d7cff77456a6b6c4a1dd2a8c6a6e47dd87ed502e2126109b54401a8538"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
+          { "skill_id": "core.source-conflict-resolver", "verdict": "INELIGIBLE", "reason": "REQUIRED_CAPABILITY_NOT_PROVIDED" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 1
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-refused-empty-candidate-set",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_ca6cd116c9991f00",
+        "created_at": "2026-10-20T12:10:00Z",
+        "request": {
+          "request_id": "req_empty_001",
+          "intent_fingerprint": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "scope": "implementation",
+          "required_capabilities": [],
+          "request_digest": "5f2812533af8e7fe005ad9a103297014208b67624c981c079869a299ce732ca0"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [],
+        "eligibility": [],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "EMPTY_CANDIDATE_SET",
+          "reason": "the candidate set is empty: no skill could even be considered for the request"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "7863c80b4ac527573197ca77e346662e8ae272137c1cc5be080958df3755924d",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-refused-no-eligible-candidate",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_ccab5b60e77bc282",
+        "created_at": "2026-10-20T12:15:00Z",
+        "request": {
+          "request_id": "req_scope_001",
+          "intent_fingerprint": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "scope": "verification-and-review",
+          "required_capabilities": [],
+          "request_digest": "716bada4cf40f2d651b8efe7bbc9452c8a8923d0cde0bcd87e7443538e9c6cfd"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "SKILL_STATE_NOT_ALLOWED" }
+        ],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate: the request cannot be satisfied by the current registry snapshot"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "9dbe9896975b62a6e61920d9da264c948b1a4e293ad7ac8e47a0d95e4eedcfdd",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-denial-skill-not-found",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_ae8d791fcbcc70b0",
+        "created_at": "2026-10-20T12:35:00Z",
+        "request": {
+          "request_id": "req_notfound_001",
+          "intent_fingerprint": "1111111111111111111111111111111111111111111111111111111111111111",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": [],
+          "request_digest": "88e332630befda7b4fc8d9be008653e752bb2024d7d1837855b16354c79936c9"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [],
+        "eligibility": [
+          { "skill_id": "core.does-not-exist", "verdict": "INELIGIBLE", "reason": "SKILL_NOT_FOUND" }
+        ],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate: the request cannot be satisfied by the current registry snapshot"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "b5c5d38b85d4521497ab8ddc38fac7e01dd63dea02fc3e05d7da741267ad03b4",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-denial-digest-mismatch",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_ecf04c5e8cb8c528",
+        "created_at": "2026-10-20T12:20:00Z",
+        "request": {
+          "request_id": "req_digest_001",
+          "intent_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "af89c58929fcbd1bb147592ee8416f0bd2bb5275a9e1c139bdf103bbd7c372d5"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "SKILL_DIGEST_MISMATCH" }
+        ],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate: the request cannot be satisfied by the current registry snapshot"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "8940765e5e189215ea344f97f1ae430f41fdeee7e134f9444ec5ff90cc6f09d0",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-denial-scope-not-allowed",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_5cedea00159f5d62",
+        "created_at": "2026-10-20T12:25:00Z",
+        "request": {
+          "request_id": "req_state_001",
+          "intent_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "scope": "implementation-planning",
+          "required_capabilities": [],
+          "request_digest": "e8d2c8772176e31b50941608ac06a34b8a9124f0aecc752bd599ff2933bf931b"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [],
+        "eligibility": [
+          { "skill_id": "compat.test-matrix-builder", "verdict": "INELIGIBLE", "reason": "SKILL_STATE_NOT_ALLOWED" }
+        ],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate: the request cannot be satisfied by the current registry snapshot"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "fd8f7da295c24cfa009a545bdf032a9d1196f5315cb55a601ae04ea1b9aac6c6",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-denial-capability-missing",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_da3b49ff625df490",
+        "created_at": "2026-10-20T12:30:00Z",
+        "request": {
+          "request_id": "req_capmissing_001",
+          "intent_fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "b191e57bb4ccc05feb60f2d4490060f0aa53544540f824cb457fe8bafb9d4f9f"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "SKILL_CAPABILITY_MISSING" },
+          { "skill_id": "core.source-conflict-resolver", "verdict": "INELIGIBLE", "reason": "SKILL_CAPABILITY_MISSING" }
+        ],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate: the request cannot be satisfied by the current registry snapshot"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "648321b9836c62851adbfe59a070543a719904698a5da7ff01338b19f2a5d53f",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-denial-capability-not-provided",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_04d83b84423a3dd4",
+        "created_at": "2026-10-20T12:40:00Z",
+        "request": {
+          "request_id": "req_capnotprovided_001",
+          "intent_fingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "3c0440c69ffadcd65a6add1a746167cec4d4dfe7d174ca9930ffefb32faac021"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.source-conflict-resolver",
+            "skill_path": "core/skills/source-conflict-resolver/SKILL.md",
+            "digest": "edfe50d7cff77456a6b6c4a1dd2a8c6a6e47dd87ed502e2126109b54401a8538"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.source-conflict-resolver", "verdict": "INELIGIBLE", "reason": "REQUIRED_CAPABILITY_NOT_PROVIDED" }
+        ],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate: the request cannot be satisfied by the current registry snapshot"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "dcf0dab16f2868a67ccf214c029488823686a2ea507da5ca95bf65a1be5151d3",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-valid-scope-only-request",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_61409436a0d3ca1e",
+        "created_at": "2026-10-20T12:05:00Z",
+        "request": {
+          "request_id": "req_impl_tie_001",
+          "intent_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "scope": "implementation",
+          "required_capabilities": [],
+          "request_digest": "8372d795adc598cf846c9e2c2913f9e4a7fd59a4d4045cb707099361cbca534a"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.architecture-depth-review",
+            "skill_path": "core/skills/architecture-depth-review/SKILL.md",
+            "digest": "8b1fffa529e3df6de650c94ffbb3e1136067ccb5f14cc50b01e9f83940da7d99"
+          },
+          {
+            "skill_id": "core.behavior-first-tdd",
+            "skill_path": "core/skills/behavior-first-tdd/SKILL.md",
+            "digest": "98226ade4b92dd9b0621b4fd6c59dc0f8d75a063b65737ad57749cacd000dcd6"
+          },
+          {
+            "skill_id": "core.diagnostic-feedback-loop",
+            "skill_path": "core/skills/diagnostic-feedback-loop/SKILL.md",
+            "digest": "c3ae9e041b86b93ff0f6f07250bed210493abb4e89ca244a7e241266065e6f33"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.architecture-depth-review", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
+          { "skill_id": "core.behavior-first-tdd", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
+          { "skill_id": "core.diagnostic-feedback-loop", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.architecture-depth-review",
+          "skill_path": "core/skills/architecture-depth-review/SKILL.md",
+          "digest": "8b1fffa529e3df6de650c94ffbb3e1136067ccb5f14cc50b01e9f83940da7d99",
+          "rank": 1
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [
+            "core.architecture-depth-review",
+            "core.behavior-first-tdd",
+            "core.diagnostic-feedback-loop"
+          ],
+          "key": "c01ea6e4437993744aab414aeb36a1cca1b878de2ebd935d0bfa9ffc9b9b4dfb"
+        },
+        "evidence_digest": "4c75a647550616630aada0efece495de4a30e44ae0065e2a76716a7bd6999e34",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-authority-granted",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 1
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": true
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-selected-without-selection",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": null,
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-refused-without-refusal",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_ca6cd116c9991f00",
+        "created_at": "2026-10-20T12:10:00Z",
+        "request": {
+          "request_id": "req_empty_001",
+          "intent_fingerprint": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "scope": "implementation",
+          "required_capabilities": [],
+          "request_digest": "5f2812533af8e7fe005ad9a103297014208b67624c981c079869a299ce732ca0"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [],
+        "eligibility": [],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "7863c80b4ac527573197ca77e346662e8ae272137c1cc5be080958df3755924d",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-refused-with-selection",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_ca6cd116c9991f00",
+        "created_at": "2026-10-20T12:10:00Z",
+        "request": {
+          "request_id": "req_empty_001",
+          "intent_fingerprint": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "scope": "implementation",
+          "required_capabilities": [],
+          "request_digest": "5f2812533af8e7fe005ad9a103297014208b67624c981c079869a299ce732ca0"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [],
+        "eligibility": [],
+        "outcome": "REFUSED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 1
+        },
+        "refusal": {
+          "code": "EMPTY_CANDIDATE_SET",
+          "reason": "the candidate set is empty: no skill could even be considered for the request"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "7863c80b4ac527573197ca77e346662e8ae272137c1cc5be080958df3755924d",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-selected-with-refusal",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 1
+        },
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-unknown-scope",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "product-support",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 1
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-unknown-eligibility-reason",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "PROBABLY_FINE" }
+        ],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-ineligible-verdict-with-eligible-reason",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-missing-evidence-digest",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 1
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-empty-candidate-set-with-candidates",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_ca6cd116c9991f00",
+        "created_at": "2026-10-20T12:10:00Z",
+        "request": {
+          "request_id": "req_empty_001",
+          "intent_fingerprint": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "scope": "implementation",
+          "required_capabilities": [],
+          "request_digest": "5f2812533af8e7fe005ad9a103297014208b67624c981c079869a299ce732ca0"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "EMPTY_CANDIDATE_SET",
+          "reason": "the candidate set is empty: no skill could even be considered for the request"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "7863c80b4ac527573197ca77e346662e8ae272137c1cc5be080958df3755924d",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-refused-with-eligible-verdict",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_ccab5b60e77bc282",
+        "created_at": "2026-10-20T12:15:00Z",
+        "request": {
+          "request_id": "req_scope_001",
+          "intent_fingerprint": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "scope": "verification-and-review",
+          "required_capabilities": [],
+          "request_digest": "716bada4cf40f2d651b8efe7bbc9452c8a8923d0cde0bcd87e7443538e9c6cfd"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_ELIGIBLE_CANDIDATE",
+          "reason": "no candidate passed the eligibility gate"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "9dbe9896975b62a6e61920d9da264c948b1a4e293ad7ac8e47a0d95e4eedcfdd",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-selection-rank-not-first",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 2
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-unknown-ordering-rule",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 1
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "MOST_RECENTLY_USED",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-unknown-refusal-code",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_ca6cd116c9991f00",
+        "created_at": "2026-10-20T12:10:00Z",
+        "request": {
+          "request_id": "req_empty_001",
+          "intent_fingerprint": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "scope": "implementation",
+          "required_capabilities": [],
+          "request_digest": "5f2812533af8e7fe005ad9a103297014208b67624c981c079869a299ce732ca0"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [],
+        "eligibility": [],
+        "outcome": "REFUSED",
+        "selection": null,
+        "refusal": {
+          "code": "NO_SKILL_AVAILABLE",
+          "reason": "the candidate set is empty: no skill could even be considered for the request"
+        },
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": [],
+          "key": "6c5df858ecc8b6d8fa1d718e4ee381ebf00e8401ef30e86cea43fb333fd8088f"
+        },
+        "evidence_digest": "7863c80b4ac527573197ca77e346662e8ae272137c1cc5be080958df3755924d",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-selection-invalid-unexpected-property",
+      "schema": "core/contracts/skill-selection.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "selection_id": "sel_8ddf607fc0f2c776",
+        "created_at": "2026-10-20T12:00:00Z",
+        "request": {
+          "request_id": "req_intake_001",
+          "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "scope": "intake-and-truth-mapping",
+          "required_capabilities": ["cap_repo_audit"],
+          "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
+        },
+        "registry_snapshot": {
+          "snapshot_ref": "skill_registry_snapshot@1.0.0",
+          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
+          "skill_count": 36
+        },
+        "candidates": [
+          {
+            "skill_id": "core.repo-audit",
+            "skill_path": "core/skills/repo-audit/SKILL.md",
+            "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2"
+          }
+        ],
+        "eligibility": [
+          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+        ],
+        "outcome": "SELECTED",
+        "selection": {
+          "skill_id": "core.repo-audit",
+          "skill_path": "core/skills/repo-audit/SKILL.md",
+          "digest": "2cb8352ddd04f004dec6860c5d2d73fe373eb33d1fb59c5900b5c63df93cd4b2",
+          "rank": 1
+        },
+        "refusal": null,
+        "ordering_key": {
+          "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "ordered_candidate_ids": ["core.repo-audit"],
+          "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
+        },
+        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "authority_granted": false,
+        "fallback_skill_id": "core.repo-audit"
+      }
+    }
+  ]
+}

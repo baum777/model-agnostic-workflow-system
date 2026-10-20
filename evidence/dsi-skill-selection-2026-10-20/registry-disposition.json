@@ -1,0 +1,60 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "DSI (dynamic skill selection) adds a new canonical contract to core/contracts/ (skill-selection.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding and under this repo's adopted relevance classes (CONTRACT_RECORD, PROVENANCE, SUPERSESSION). The Unitera registry must gain a representation of the new contract surface and of the deterministic skill-selection decision it records. The registry write is its own registered change and follows after the owner merges the source change (precedent: the S4 slice in pull request 50, which followed the same two-phase REQUIRED_BUT_BLOCKED -> UPDATED rebind pattern). This slice does not perform the registry write, so no registry commit exists yet and registry_commit_sha stays null; implementation_commit_sha is bound by the follow-up rebind commit of this branch and is the commit that carries the implementation. The determination is stated explicitly rather than left implicit: this change IS registry relevant, and affected_records therefore is NOT empty. The change set was rebased onto origin/main (27b17b62800d5d37e14bfe48ecd210603c4e1cb6) so that the branch carries the DSI slice alone and no S4 change; the rebind does not alter the set of affected records, which is still exactly one new canonical contract.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/skill-selection.schema.json"
+    ],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md",
+      "docs/governance/registry-disposition.md"
+    ],
+    "source_refs": [
+      "core/contracts/skill-selection.schema.json",
+      "core/contracts/README.md",
+      "runtime/skills/skill-registry-loader.mjs",
+      "runtime/skills/skill-selector.mjs",
+      "scripts/tools/validate-skill-selection.mjs",
+      "evals/fixtures/maws-vnext/skill-selection.contracts.json",
+      "tests/vnext/skill-selection.test.mjs",
+      "evals/catalog.json",
+      "package.json"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/dsi-skill-selection-2026-10-20/RUN.md",
+      "evidence/skill-improvement-analyzer-2026-10-20/RUN.md (the S4 slice, pull request 50 — the two-phase rebind precedent and the sibling contract core/contracts/skill-improvement-proposal.schema.json; it is a separate open pull request and is NOT part of this branch, so this path is not present in this tree)",
+      "core/contracts/core-registry.json (the neutral registry snapshot the skill registry snapshot is built from)",
+      "core/contracts/portable-skill-manifest.json (the registration state the skill registry snapshot is built from)",
+      "core/contracts/workflow-routing-map.json (the closed scope vocabulary the selection contract and the runtime share)"
+    ],
+    "evidence_refs": [
+      "evidence/dsi-skill-selection-2026-10-20/RUN.md (incl. owner decisions, the rebind record and the mutation evidence)",
+      "npm run validate-skill-selection (fixture: 26 cases checked, 0 unexpected results)",
+      "npm run eval:maws-vnext (exit 0, 17/17 fixtures passed including maws-vnext-skill-selection-contracts)",
+      "npm run test:vnext (461/461 pass, 0 fail, re-verified on the rebased base origin/main 27b17b62800d5d37e14bfe48ecd210603c4e1cb6; the DSI file itself is 35/35; before the rebind, on the S4-based branch, 450/450)",
+      "npm run validate-maws-vnext (ok: true, 18 fixture files, 202 cases, 0 issues)",
+      "npm run validate / validate-neutral (issueCount: 0 each)",
+      "npm run test:skill-frontdoor (6/6 pass)",
+      "node scripts/tools/ci-gate.mjs (PASS CI Gate)",
+      "mutation evidence: nine guards reverted and observed to fail (digest check, scope-state check, required-capability check, ordering tie-break, refusal-not-fallback, wall-clock leak into the selection id, scope vocabulary drift guard, authority-free contract rule, primary ordering key), all restored afterwards; re-run on the rebased base with the same nine symptoms, and the three mutated files compared byte for byte against their pre-rebase content",
+      "node --check on runtime/skills/skill-registry-loader.mjs, runtime/skills/skill-selector.mjs, scripts/tools/validate-skill-selection.mjs, tests/vnext/skill-selection.test.mjs (PASS)"
+    ],
+    "implementation_commit_sha": "PENDING_COMMIT:feat/dsi-skill-selection-20261020",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/dsi-skill-selection-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/skill-selection.schema.json (new canonical contract in this change set)",
+      "core/contracts/README.md canonical files list (skill-selection.schema.json added) and its contract paragraph (contract-backed, authority-free, closed refusal vocabulary)",
+      "evals/fixtures/maws-vnext/skill-selection.contracts.json (contract-backed fixture registered in evals/catalog.json, covered by eval:maws-vnext and validate-maws-vnext)",
+      "package.json (new validate-skill-selection script binds the contract to an executable validator)"
+    ],
+    "registry_baseline_sha": "27b17b62800d5d37e14bfe48ecd210603c4e1cb6"
+  }
+}
