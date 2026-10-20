@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- SII materialization wave 0 (MAWS-SII-TARGET-SPEC-001 v0.1.0, PROPOSED): the Skill Intelligence & Instruction Integrity target specification is materialized verbatim under `docs/proposals/skill-intelligence-target-spec.md` together with the evidence-backed current-state map `docs/proposals/skill-intelligence-current-state-map-2026-10-20.md` (S0 reconciliation against main `dcd95bf2`: 18/18 baseline components confirmed, 6/6 extension gaps confirmed real, 16/16 proposed paths collision-free). Docs-only proposal staging per `docs/proposals/README.md`; non-canonical until a separate owner-approved promotion slice; no runtime, contract, or authority surface created.
 - `runtime:run` is now an operational entry point for the governed vNext run pipeline (previously a Phase-1 stub): loads a run spec, validates spec parts against the canonical contracts, drives `executeWorkRun` end to end, and persists the evidence bundle plus `run-events.jsonl` under `artifacts/runtime-runs/<runId>/`.
 - Fixture transports only; live transports fail closed with `RUN_SPEC_TRANSPORT_UNSUPPORTED` (no fallback). Live lane probes remain `runtime:activate-vnext`.
 - Availability / policy / budget compatibility are deny-by-default per executor.
