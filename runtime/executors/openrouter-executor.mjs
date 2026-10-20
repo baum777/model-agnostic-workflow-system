@@ -88,7 +88,10 @@ export function createOpenRouterExecutor({
       }
 
       // 2) Outbound URL guard: only the explicit openrouter.ai allowlist.
-      assertOutboundUrlAllowed(baseUrl, OPENROUTER_HOST_ALLOWLIST);
+      const endpoint = assertOutboundUrlAllowed(baseUrl, OPENROUTER_HOST_ALLOWLIST);
+      if (endpoint.protocol !== 'https:' || endpoint.port || endpoint.username || endpoint.password) {
+        throw new FailClosedError('URL_PROTOCOL_FORBIDDEN', 'OpenRouter credentials require standard HTTPS without URL credentials or custom ports');
+      }
 
       const startedAtMs = Date.now();
       const requestSignal = combineSignals(invocation);
@@ -110,6 +113,7 @@ export function createOpenRouterExecutor({
       try {
         response = await fetchImpl(baseUrl, {
           method: 'POST',
+          redirect: 'error', // Do not forward authorization through redirects.
           headers: {
             Authorization: `Bearer ${apiKey}`,
             'Content-Type': 'application/json'
