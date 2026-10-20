@@ -1,0 +1,39 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Scope is S2 wave 1 of the PROPOSED MAWS-SII-TARGET-SPEC-001: a read-only instruction-inventory module, a stdout-only CLI, and tests. Determination under the closed relevance taxonomy: no registered record changed — the slice creates no contract (no file under core/contracts/ touched), no canonical claim (no authority-matrix or canonical-files edit), no authority mapping, no dependency or lifecycle binding, and no supersession; it is proposal-scoped implementation of a not-yet-adopted specification. The inventory is analysis input only: it grants no permission, loads nothing into any runtime, and activates nothing. Registry relevance will be re-evaluated when the SII slices land adopted contracts (S1 already carries the pending CONTRACT_RECORD obligation for skill-feedback.schema.json).",
+    "registry_baseline_sha": "74c5be614641f5c89b7c3a989021ad7b53c8f466",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "runtime/instructions/instruction-inventory.mjs",
+      "scripts/tools/build-instruction-inventory.mjs",
+      "tests/vnext/instruction-inventory.test.mjs"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/instruction-inventory-2026-10-20/RUN.md",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
+    ],
+    "evidence_refs": [
+      "evidence/instruction-inventory-2026-10-20/RUN.md",
+      "node --test tests/vnext/instruction-inventory.test.mjs (6/6 pass: coverage, digest determinism + revision/content sensitivity, fail-closed negatives, byte-identical read-only proof)",
+      "npm run test:vnext (301/301 pass, 0 fail)",
+      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
+      "CLI smoke: build-instruction-inventory.mjs --revision 739b9c8 (29 sources, digest bound); without --revision exits 2"
+    ],
+    "implementation_commit_sha": "6730a00928c55d46091c6675fd12ea97186f1627",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-inventory-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}
