@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "core/contracts/graph-supersession-record.schema.json",
   "title": "GraphSupersessionRecord Contract",
-  "description": "OD-05: superseded graph versions remain immutable history. A supersession record references versions and its originating revision decision; it never embeds or rewrites past execution evidence.",
+  "description": "OD-05: superseded graph versions remain immutable history. A supersession record references versions and its originating revision decision; it never embeds or rewrites past execution evidence. S11: when a supersession changes the harness context, context_change records the transition (from_context, to_context) with its own evidence_ref; a context change without evidence fails closed (CONTEXT_SWITCH_UNEVIDENCED) and no default-context fallback exists.",
   "type": "object",
   "additionalProperties": false,
   "required": ["record_id", "superseded_graph_version", "superseded_by_graph_version", "effective_at", "reason", "revision_request_ref"],
@@ -12,6 +12,16 @@
     "superseded_by_graph_version": { "type": "integer", "minimum": 1 },
     "effective_at": { "type": "string", "minLength": 1 },
     "reason": { "type": "string", "minLength": 1 },
-    "revision_request_ref": { "type": "string", "minLength": 1 }
+    "revision_request_ref": { "type": "string", "minLength": 1 },
+    "context_change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_context", "to_context", "evidence_ref"],
+      "properties": {
+        "from_context": { "enum": ["development_harness", "unitera_product"] },
+        "to_context": { "enum": ["development_harness", "unitera_product"] },
+        "evidence_ref": { "type": "string", "minLength": 1 }
+      }
+    }
   }
 }

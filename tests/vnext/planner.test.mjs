@@ -50,7 +50,9 @@ const binding = {
   executor_id: 'exec_openrouter_glm',
   routing_decision_ref: 'rd_0001',
   qualification_ref: 'qual_or_glm_ana_0001',
-  selection_mode: 'NORMAL_SELECTION'
+  selection_mode: 'NORMAL_SELECTION',
+  harness_context: 'development_harness',
+  harness_context_ref: 'hctx_planner_test_dev'
 };
 
 function buildBoundGraph() {
@@ -168,7 +170,7 @@ test('revision anchored at active version is accepted and creates a new immutabl
     request_type: 'rebind_executor',
     source: 'verifier',
     motivation: 'verification failed on analysis node',
-    payload: { node_id: 'node_00_analysis', executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd_0009', qualification_ref: 'qual_local_tests_verify_0001', selection_mode: 'FALLBACK' } }
+    payload: { node_id: 'node_00_analysis', executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd_0009', qualification_ref: 'qual_local_tests_verify_0001', selection_mode: 'FALLBACK', harness_context: 'development_harness', harness_context_ref: 'hctx_planner_test_dev' } }
   };
   validateRevisionRequest(request, root);
   const { decision, newGraph } = engine.submit('graph_run_0001', request);
@@ -191,7 +193,7 @@ test('stale revision request becomes STALE with explicit revalidation and never 
     request_type: 'rebind_executor',
     source: 'executor',
     motivation: 'late request',
-    payload: { node_id: 'node_00_analysis', executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd_0010', qualification_ref: 'qual_local_tests_verify_0001', selection_mode: 'FALLBACK' } }
+    payload: { node_id: 'node_00_analysis', executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd_0010', qualification_ref: 'qual_local_tests_verify_0001', selection_mode: 'FALLBACK', harness_context: 'development_harness', harness_context_ref: 'hctx_planner_test_dev' } }
   };
   // advance active version to 2 first
   engine.submit('graph_run_0001', {

@@ -1,0 +1,172 @@
+{
+  "id": "maws-vnext-harness-context-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "harness-context-valid-development",
+      "schema": "core/contracts/harness-context.schema.json",
+      "valid": true,
+      "guards": ["S11-R1", "S11-R2"],
+      "instance": {
+        "context_id": "hctx_fixture_run_0001_dev",
+        "context": "development_harness",
+        "run_ref": "run_0001",
+        "authority_grant": "none",
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "harness-context-valid-product",
+      "schema": "core/contracts/harness-context.schema.json",
+      "valid": true,
+      "guards": ["S11-R1", "S11-R5"],
+      "instance": {
+        "context_id": "hctx_fixture_run_0002_product",
+        "context": "unitera_product",
+        "run_ref": "run_0002",
+        "plan_graph_ref": "graph_run_0002",
+        "authority_grant": "none",
+        "authority_surface": {
+          "repository": "unitera-os",
+          "contract_ref": "unitera-os/effective-autonomy",
+          "contract_version": "1.0.0",
+          "note": "reference-only versioned pin; execution control stays authoritative"
+        },
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "harness-context-rejects-unknown-vocabulary",
+      "schema": "core/contracts/harness-context.schema.json",
+      "valid": false,
+      "guards": ["S11-R1"],
+      "instance": {
+        "context_id": "hctx_fixture_run_0003_ide",
+        "context": "ide_session",
+        "run_ref": "run_0003",
+        "authority_grant": "none",
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "harness-context-rejects-authority-grant",
+      "schema": "core/contracts/harness-context.schema.json",
+      "valid": false,
+      "guards": ["S11-R1"],
+      "instance": {
+        "context_id": "hctx_fixture_run_0004_dev",
+        "context": "development_harness",
+        "run_ref": "run_0004",
+        "authority_grant": "execute_business_operations",
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "harness-context-rejects-dev-with-authority-surface",
+      "schema": "core/contracts/harness-context.schema.json",
+      "valid": false,
+      "guards": ["S11-R2"],
+      "instance": {
+        "context_id": "hctx_fixture_run_0005_dev",
+        "context": "development_harness",
+        "run_ref": "run_0005",
+        "authority_grant": "none",
+        "authority_surface": {
+          "repository": "unitera-os",
+          "contract_ref": "unitera-os/effective-autonomy",
+          "contract_version": "1.0.0"
+        },
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "harness-context-rejects-product-without-authority-surface",
+      "schema": "core/contracts/harness-context.schema.json",
+      "valid": false,
+      "guards": ["S11-R5"],
+      "instance": {
+        "context_id": "hctx_fixture_run_0006_product",
+        "context": "unitera_product",
+        "run_ref": "run_0006",
+        "authority_grant": "none",
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "supersession-context-change-valid",
+      "schema": "core/contracts/graph-supersession-record.schema.json",
+      "valid": true,
+      "guards": ["S11-R3"],
+      "instance": {
+        "record_id": "sup_fixture_ctxswitch_0001",
+        "superseded_graph_version": 1,
+        "superseded_by_graph_version": 2,
+        "effective_at": "2026-10-20T00:00:00Z",
+        "reason": "plan change moves the workload into the product harness",
+        "revision_request_ref": "rev_fixture_ctxswitch_0001",
+        "context_change": {
+          "from_context": "development_harness",
+          "to_context": "unitera_product",
+          "evidence_ref": "evidence/context-switches/sup_fixture_ctxswitch_0001.json"
+        }
+      }
+    },
+    {
+      "case_id": "supersession-context-change-rejects-missing-evidence",
+      "schema": "core/contracts/graph-supersession-record.schema.json",
+      "valid": false,
+      "guards": ["S11-R3"],
+      "instance": {
+        "record_id": "sup_fixture_ctxswitch_0002",
+        "superseded_graph_version": 1,
+        "superseded_by_graph_version": 2,
+        "effective_at": "2026-10-20T00:00:00Z",
+        "reason": "context switch claimed without evidence",
+        "revision_request_ref": "rev_fixture_ctxswitch_0002",
+        "context_change": {
+          "from_context": "development_harness",
+          "to_context": "unitera_product"
+        }
+      }
+    },
+    {
+      "case_id": "bound-graph-superseded-by-context-change-valid",
+      "schema": "core/contracts/bound-execution-graph.schema.json",
+      "valid": true,
+      "guards": ["S11-R3", "S11-R6"],
+      "instance": {
+        "graph_id": "graph_run_0007",
+        "graph_version": 1,
+        "candidate_ref": "cand_0007",
+        "nodes": [
+          {
+            "node_id": "node_analysis",
+            "work_unit_id": "wu_audit_repo_007",
+            "stage": "analysis",
+            "depends_on": [],
+            "executor_binding": {
+              "executor_id": "exec_openrouter_glm",
+              "routing_decision_ref": "rd_0007",
+              "qualification_ref": "qual_or_glm_ana_0007",
+              "selection_mode": "NORMAL_SELECTION",
+              "harness_context": "development_harness",
+              "harness_context_ref": "hctx_fixture_run_0007_dev"
+            }
+          }
+        ],
+        "immutable": true,
+        "superseded_by": {
+          "graph_version": 2,
+          "context_change": {
+            "from_context": "development_harness",
+            "to_context": "unitera_product",
+            "evidence_ref": "evidence/context-switches/graph_run_0007_v2.json"
+          }
+        },
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    }
+  ]
+}

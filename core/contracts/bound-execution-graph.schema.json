@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "core/contracts/bound-execution-graph.schema.json",
   "title": "BoundExecutionGraph Contract",
-  "description": "OD-05/OD-13: a bound graph is immutable and versioned. Every node binding references a RoutingDecision and a QualificationRecord; executors are never bound without routing and qualification evidence.",
+  "description": "OD-05/OD-13: a bound graph is immutable and versioned. Every node binding references a RoutingDecision and a QualificationRecord; executors are never bound without routing and qualification evidence. S11: every executor binding carries the harness context (closed vocabulary development_harness | unitera_product) and the reference to its HarnessContext record; a binding whose context is missing or contradictory binds no executor. A supersession that changes the context is an explicit, evidence-backed plan change (superseded_by.context_change with evidence_ref); no default-context fallback exists.",
   "type": "object",
   "additionalProperties": false,
   "required": ["graph_id", "graph_version", "candidate_ref", "nodes", "immutable", "created_at"],
@@ -29,12 +29,14 @@
           "executor_binding": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["executor_id", "routing_decision_ref", "qualification_ref", "selection_mode"],
+            "required": ["executor_id", "routing_decision_ref", "qualification_ref", "selection_mode", "harness_context", "harness_context_ref"],
             "properties": {
               "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
               "routing_decision_ref": { "type": "string", "minLength": 1 },
               "qualification_ref": { "type": "string", "minLength": 1 },
-              "selection_mode": { "$ref": "maws-vnext-common.schema.json#/$defs/selectionMode" }
+              "selection_mode": { "$ref": "maws-vnext-common.schema.json#/$defs/selectionMode" },
+              "harness_context": { "enum": ["development_harness", "unitera_product"] },
+              "harness_context_ref": { "type": "string", "pattern": "^hctx_[a-z0-9_]+$" }
             }
           }
         }
@@ -45,7 +47,19 @@
       "type": ["null", "object"],
       "additionalProperties": false,
       "required": ["graph_version"],
-      "properties": { "graph_version": { "type": "integer", "minimum": 1 } }
+      "properties": {
+        "graph_version": { "type": "integer", "minimum": 1 },
+        "context_change": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["from_context", "to_context", "evidence_ref"],
+          "properties": {
+            "from_context": { "enum": ["development_harness", "unitera_product"] },
+            "to_context": { "enum": ["development_harness", "unitera_product"] },
+            "evidence_ref": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
     },
     "created_at": { "type": "string", "minLength": 1 }
   }

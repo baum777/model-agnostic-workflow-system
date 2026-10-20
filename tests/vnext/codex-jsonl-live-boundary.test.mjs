@@ -3,6 +3,7 @@ import { EventEmitter } from 'node:events';
 import test from 'node:test';
 
 import { createCodexExecutor } from '../../runtime/executors/codex-executor.mjs';
+import { developmentProbeHarnessContext } from '../../runtime/harness-context/context-binding.mjs';
 
 const CODEX_TEST_ENV = { PATH: '/bin', HOME: '/tmp' };
 
@@ -38,6 +39,7 @@ function invocation() {
       scope_ref: 'scope_test_readonly',
       allowed_effects: ['ephemeral']
     },
+    harness_context: developmentProbeHarnessContext({ runRef: 'codex_jsonl_probe' }),
     timeout_ms: 1000
   };
 }

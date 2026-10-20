@@ -29,6 +29,7 @@ import { fileURLToPath } from 'node:url';
 import { createCodexExecutor } from '../executors/codex-executor.mjs';
 import { runLocalProcess } from '../transports/local-process.mjs';
 import { FailClosedError, nowIso } from '../vnext/util.mjs';
+import { developmentProbeHarnessContext } from '../harness-context/context-binding.mjs';
 
 export const CODEX_AUTH_STATES = Object.freeze([
   'UNKNOWN',
@@ -178,6 +179,7 @@ function healthInvocation(timeoutMs) {
       scope_ref: 'scope_codex_auth_health_readonly',
       allowed_effects: ['ephemeral']
     },
+    harness_context: developmentProbeHarnessContext({ runRef: 'codex_auth_health' }),
     timeout_ms: timeoutMs
   };
 }

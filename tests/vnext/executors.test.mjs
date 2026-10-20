@@ -12,6 +12,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { defineExecutor, normalizeProcessFailure } from '../../runtime/executors/executor-base.mjs';
+import { developmentProbeHarnessContext } from '../../runtime/harness-context/context-binding.mjs';
 import { createCodexExecutor } from '../../runtime/executors/codex-executor.mjs';
 import { createOpenRouterExecutor } from '../../runtime/executors/openrouter-executor.mjs';
 import { loadExecutorRegistry } from '../../runtime/executors/manifest-loader.mjs';
@@ -38,6 +39,7 @@ function makeInvocation(overrides = {}) {
       scope_ref: 'scope_worktree_maws_vnext',
       allowed_effects: ['ephemeral', 'workspace']
     },
+    harness_context: developmentProbeHarnessContext({ runRef: 'executor_tests' }),
     timeout_ms: 5000,
     ...overrides
   };

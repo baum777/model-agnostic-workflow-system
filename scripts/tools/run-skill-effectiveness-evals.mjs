@@ -29,6 +29,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { defineExecutor } from '../../runtime/executors/executor-base.mjs';
+import { developmentProbeHarnessContext } from '../../runtime/harness-context/context-binding.mjs';
 import { validateBehavioralEvalRecord } from './validate-behavioral-eval.mjs';
 
 const RUNNER_ID = 'run-skill-effectiveness-evals.mjs';
@@ -240,6 +241,7 @@ async function transcriptForCase(caseEntry, mode, executor, evalId) {
     context_package: { objective: String(caseEntry.task) },
     // Fail-closed isolation envelope: an eval run may produce no effects.
     authority_envelope: { scope_ref: evalId, allowed_effects: [] },
+    harness_context: developmentProbeHarnessContext({ runRef: evalId }),
     timeout_ms: DEFAULT_LIVE_TIMEOUT_MS
   };
   const result = await executor.execute(invocation);

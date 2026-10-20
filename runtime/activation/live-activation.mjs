@@ -33,6 +33,7 @@ import { getQuestion } from '../decision-engine/jev/questions/registry.mjs';
 import { loadThresholdPolicy } from '../decision-engine/jev/threshold-policy.mjs';
 import { createOpenRouterExecutor } from '../executors/openrouter-executor.mjs';
 import { createCodexExecutor } from '../executors/codex-executor.mjs';
+import { developmentProbeHarnessContext } from '../harness-context/context-binding.mjs';
 import { collectAgentMessagesFromCodexPayload, createCodexChatGptAuthController } from '../auth/codex-chatgpt-auth.mjs';
 import { nowIso } from '../vnext/util.mjs';
 
@@ -98,6 +99,7 @@ function executorInvocation(workUnitId, nodeId, objective, timeoutMs) {
       scope_ref: 'scope_live_activation_readonly',
       allowed_effects: ['ephemeral']
     },
+    harness_context: developmentProbeHarnessContext({ runRef: 'live_activation_probe' }),
     timeout_ms: timeoutMs
   };
 }

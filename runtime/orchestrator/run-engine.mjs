@@ -10,6 +10,12 @@ import { validateInstanceAgainstContract } from '../../scripts/tools/validate-ma
 import { createWorkUnitStore } from '../planner/work-unit-store.mjs';
 import { createWorkGraphStore } from '../planner/work-graph-store.mjs';
 import { buildCandidate, planAndBind } from '../planner/hybrid-planner.mjs';
+import {
+  validateHarnessContextRecord,
+  assertWorkUnitContextBinding,
+  assertQualificationContextBinding,
+  assertNoProductAuthorityFromDevContext
+} from '../harness-context/context-binding.mjs';
 
 function validateOrThrow(instance, contract, code, root) {
   const issues = validateInstanceAgainstContract(instance, contract, root);
@@ -40,6 +46,7 @@ export async function executeWorkRun(options) {
     executorImplementations,
     verifier,
     contextEnvelopeRef = null,
+    harnessContext = null,
     eventSink = () => {},
     artifactWriter = null,
     outputsRegistry = () => [],
@@ -65,6 +72,12 @@ export async function executeWorkRun(options) {
   validateOrThrow(interactionSession, 'core/contracts/interaction-session.schema.json', 'SESSION_INVALID', root);
   event('work_unit.lifecycle', 'session_intake', { details: { interaction_host: interactionSession.interaction_host, session_model: interactionSession.session_model } });
 
+  // --- S11: the run binds its harness context before anything else. A run
+  // without a valid context record never creates a WorkUnit and never binds
+  // an executor (R6; CONTEXT_BINDING_MISSING, no fallback).
+  const boundContext = validateHarnessContextRecord(harnessContext, root);
+  event('harness_context', 'bound', { details: { context: boundContext.context, context_id: boundContext.context_id } });
+
   const workUnitStore = createWorkUnitStore({ root });
   const workUnit = workUnitStore.create({
     work_unit_id: `wu_${runId}_root`,
@@ -77,8 +90,13 @@ export async function executeWorkRun(options) {
     decomposition_policy_ref: template.template_id,
     completion_contract_ref: `cc_${runId}_root`,
     created_by: 'interaction_session',
-    run_ref: runId
+    run_ref: runId,
+    harness_context_ref: boundContext.context_id
   });
+  assertWorkUnitContextBinding({ workUnit, context: boundContext });
+  // S11 R2: a development-harness run must not present product-runtime
+  // authority claims in its authority ceiling.
+  assertNoProductAuthorityFromDevContext({ context: boundContext, authoritySourceRefs: workUnit.authority_ceiling.authority_source_refs });
   event('work_unit.lifecycle', 'work_unit_created', {}, { work_unit_id: workUnit.work_unit_id });
 
   const completionContract = {
@@ -180,6 +198,23 @@ export async function executeWorkRun(options) {
 
   // --- routing + binding (OD-13): one routing decision per graph node.
   const routingDecisions = [];
+  // S11 R4: qualification-vs-context comparison at binding scope. Every
+  // bound qualification fingerprint must declare the bound harness context;
+  // cross-context qualification never transfers and ambiguous qualification
+  // (no resolvable fingerprint) binds no executor.
+  // R4 compares against the QUALIFIED snapshot (the fingerprint the
+  // qualification was earned under), not the current observed state;
+  // current-vs-qualified drift is materiality's concern (S7).
+  const fingerprintById = new Map(Object.values(options.qualifiedFingerprints || {}).map((fingerprint) => [fingerprint.fingerprint_id, fingerprint]));
+  const qualificationById = new Map((qualifications || []).map((qualification) => [qualification.qualification_id, qualification]));
+  const assertBindingContextForDecision = (decision) => {
+    const qualification = qualificationById.get(decision.qualification_ref);
+    const fingerprint = qualification ? fingerprintById.get(qualification.fingerprint_ref) : null;
+    if (!fingerprint) {
+      throw new FailClosedError('CONTEXT_BINDING_CONFLICT', `routing decision ${decision.decision_id} references qualification ${decision.qualification_ref} without a resolvable fingerprint; an ambiguous qualification binds no executor`);
+    }
+    assertQualificationContextBinding({ runtimeHarness: fingerprint.components.runtime_harness, context: boundContext.context });
+  };
   const routingForNode = (node) => {
     const stageRequirements = (workRequest.stageCapabilities && workRequest.stageCapabilities[node.stage]) || workUnit.required_capabilities.map((requirement) => requirement.capability_id);
     // Per-stage deterministic eligible set: executors qualified for at least
@@ -211,11 +246,14 @@ export async function executeWorkRun(options) {
     });
     routingDecisions.push(decision);
     event('routing', 'decision', { details: { selection_mode: decision.selection_mode } }, { work_unit_id: node.work_unit_id, executor_id: decision.selected_executor_id, routing_decision_ref: decision.decision_id });
+    assertBindingContextForDecision(decision);
     return {
       executor_id: decision.selected_executor_id,
       routing_decision_ref: decision.decision_id,
       qualification_ref: decision.qualification_ref,
-      selection_mode: decision.selection_mode
+      selection_mode: decision.selection_mode,
+      harness_context: boundContext.context,
+      harness_context_ref: boundContext.context_id
     };
   };
 
@@ -250,7 +288,8 @@ export async function executeWorkRun(options) {
         work_unit_id: node.work_unit_id,
         node_id: node.node_id,
         context_package: { objective: workUnit.objective, bounded_payload: workRequest.boundedPayload || {}, provenance_refs: [`run:${runId}`] },
-        authority_envelope: { scope_ref: workUnit.authority_ceiling.scope_ref, allowed_effects: workUnit.authority_ceiling.allowed_effects }
+        authority_envelope: { scope_ref: workUnit.authority_ceiling.scope_ref, allowed_effects: workUnit.authority_ceiling.allowed_effects },
+        harness_context: boundContext
       });
       executionResults.push(result);
       nodeStates.set(node.node_id, { status: result.outcome === 'SUCCESS' ? 'completed' : 'failed', outcome: result.outcome });
@@ -284,6 +323,7 @@ export async function executeWorkRun(options) {
 
   if (artifactWriter) {
     artifactWriter.write('interaction-session.json', interactionSession);
+    artifactWriter.write('harness-context.json', boundContext);
     artifactWriter.write('work-unit.json', workUnit);
     artifactWriter.write('completion-contract.json', completionContract);
     artifactWriter.write('eligibility-decisions.json', eligibilityDecisions);

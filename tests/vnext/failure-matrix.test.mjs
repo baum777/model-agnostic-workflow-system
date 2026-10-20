@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { executeWorkRun } from '../../runtime/orchestrator/run-engine.mjs';
+import { developmentProbeHarnessContext } from '../../runtime/harness-context/context-binding.mjs';
 import { computeEligibility, buildQualificationReviewCandidate } from '../../runtime/qualification/eligibility.mjs';
 import { classifyMateriality } from '../../runtime/qualification/materiality.mjs';
 import { buildRoutingRequest, route } from '../../runtime/routing/routing-engine.mjs';
@@ -42,7 +43,7 @@ function baseWorld() {
     capability_id: capabilityId,
     execution_profile_ref: 'profile_readonly_v1',
     components: {
-      model_id: null, provider_id: null, runtime_harness: 'in_process_fixture/1',
+      model_id: null, provider_id: null, runtime_harness: 'development_harness/in_process_fixture/1',
       tool_contract_refs: ['tests/vnext/failure-matrix.test.mjs'], api_surface_version: '2026-09',
       qualification_profile_ref: 'qualprofile_v1'
     },
@@ -101,6 +102,7 @@ async function runMatrix(worldOverrides = {}, engineOverrides = {}) {
   const world = { ...baseWorld(), ...worldOverrides };
   return executeWorkRun({
     root,
+    harnessContext: developmentProbeHarnessContext({ runRef: 'failure_matrix' }),
     runId: `run_fm_${Math.random().toString(36).slice(2, 8)}`,
     interactionSession: { session_id: 'sess_fm', interaction_host: 'zcode', session_model: 'glm-5.3', orchestration_owner: 'maws', submitted_at: '2026-09-25T00:00:00Z' },
     workRequest: {
@@ -178,7 +180,8 @@ test('FM-05 OpenRouter unavailable: typed FAILED execution, completion blocked',
   const result = await executor.execute({
     execution_attempt_id: 'att_fm05', work_unit_id: 'wu_fm05', node_id: 'n1',
     context_package: { objective: 'x', bounded_payload: {}, provenance_refs: [] },
-    authority_envelope: { scope_ref: 's', allowed_effects: ['ephemeral'] }
+    authority_envelope: { scope_ref: 's', allowed_effects: ['ephemeral'] },
+    harness_context: developmentProbeHarnessContext({ runRef: 'failure_matrix' })
   });
   assert.equal(result.outcome, 'FAILED');
   assert.equal(result.error_class, 'OR_UNAVAILABLE');
@@ -198,7 +201,8 @@ test('FM-06 Codex unavailable: typed EXECUTOR_UNAVAILABLE, not a crash', async (
   const result = await executor.execute({
     execution_attempt_id: 'att_fm06', work_unit_id: 'wu_fm06', node_id: 'n1',
     context_package: { objective: 'x', bounded_payload: {}, provenance_refs: [] },
-    authority_envelope: { scope_ref: 's', allowed_effects: ['workspace'] }
+    authority_envelope: { scope_ref: 's', allowed_effects: ['workspace'] },
+    harness_context: developmentProbeHarnessContext({ runRef: 'failure_matrix' })
   });
   assert.equal(result.outcome, 'FAILED');
   assert.equal(result.error_class, 'EXECUTOR_UNAVAILABLE');
@@ -232,7 +236,8 @@ test('FM-09 hidden provider fallback: substitution is surfaced, never silent', a
   const result = await executor.execute({
     execution_attempt_id: 'att_fm09', work_unit_id: 'wu_fm09', node_id: 'n1',
     context_package: { objective: 'x', bounded_payload: {}, provenance_refs: [] },
-    authority_envelope: { scope_ref: 's', allowed_effects: ['ephemeral'] }
+    authority_envelope: { scope_ref: 's', allowed_effects: ['ephemeral'] },
+    harness_context: developmentProbeHarnessContext({ runRef: 'failure_matrix' })
   });
   assert.equal(result.flags.model_substitution, true);
   assert.equal(result.flags.served_model, 'other/model-x');
@@ -247,7 +252,7 @@ test('FM-10 stale graph revision: STALE + REQUIRES_REBASE, graph untouched', () 
     decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_fm10', created_by: 'interaction_session', run_ref: 'run_fm10'
   });
   const graphStore = createWorkGraphStore({ root });
-  planAndBind({ template, candidate: buildCandidate({ template, workUnits: [rootWu] }), routingForNode: () => ({ executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION' }), workGraphStore: graphStore, graphId: 'graph_fm10', root });
+  planAndBind({ template, candidate: buildCandidate({ template, workUnits: [rootWu] }), routingForNode: () => ({ executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_fm10_dev' }), workGraphStore: graphStore, graphId: 'graph_fm10', root });
   const engine = createRevisionEngine({ workGraphStore: graphStore, root });
   engine.submit('graph_fm10', { request_id: 'rev_a', base_graph_version: 1, request_type: 'update_context', source: 'runtime', motivation: 'x', payload: {} });
   const { decision } = engine.submit('graph_fm10', { request_id: 'rev_b', base_graph_version: 1, request_type: 'update_budget', source: 'executor', motivation: 'late', payload: {} });
@@ -408,7 +413,7 @@ test('FM-23 unknown fingerprint drift: UNKNOWN_FINGERPRINT_DRIFT, unroutable', a
   assert.ok(outcome.eligibilityDecisions.some((decision) => decision.exclusion_reasons.includes('UNKNOWN_FINGERPRINT_DRIFT')));
   const drifted = classifyMateriality(world.qualifiedFingerprints.exec_openrouter_glm, {
     ...world.qualifiedFingerprints.exec_openrouter_glm,
-    components: { ...world.qualifiedFingerprints.exec_openrouter_glm.components, runtime_harness: 'in_process_fixture/2' }
+    components: { ...world.qualifiedFingerprints.exec_openrouter_glm.components, runtime_harness: 'development_harness/in_process_fixture/2' }
   });
   assert.equal(drifted.overall_class, 'MATERIAL');
 });

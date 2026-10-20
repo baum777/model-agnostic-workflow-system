@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "core/contracts/work-unit.schema.json",
   "title": "WorkUnit Contract",
-  "description": "OD-01/OD-03/OD-18: a WorkUnit declares objective, capability requirements, context envelope, authority ceiling, and contract references. It never fixes an executor, model, or session model; executor binding happens only through a RoutingDecision recorded in a BoundExecutionGraph.",
+  "description": "OD-01/OD-03/OD-18: a WorkUnit declares objective, capability requirements, context envelope, authority ceiling, and contract references. It never fixes an executor, model, or session model; executor binding happens only through a RoutingDecision recorded in a BoundExecutionGraph. S11: harness_context_ref identifies the bound HarnessContext record (closed vocabulary development_harness | unitera_product, authority_grant none). The field is validated at creation and enforced fail-closed at executor-binding time: a WorkUnit without a resolvable, non-contradictory context binding binds no executor (run-engine CONTEXT_BINDING_MISSING), and product-authority surface references under development_harness fail closed (PRODUCT_AUTHORITY_FROM_DEV_CONTEXT).",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -28,6 +28,7 @@
       }
     },
     "context_envelope_ref": { "type": "string", "minLength": 1 },
+    "harness_context_ref": { "type": "string", "pattern": "^hctx_[a-z0-9_]+$" },
     "authority_ceiling": { "$ref": "maws-vnext-common.schema.json#/$defs/authorityCeiling" },
     "decomposition_policy_ref": { "type": "string", "minLength": 1 },
     "completion_contract_ref": { "type": "string", "minLength": 1 },
