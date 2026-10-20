@@ -1,0 +1,39 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S3 wave A adds a new canonical contract to core/contracts/ (context-envelope.schema.json), a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the numeric context-budget enforcement it introduces. The registry write cannot be performed from this repository and follows as its own registered change (change registration plus a machine-readable CONTRACT_RECORD projection, per the S2b wave-1 precedent) after the owner merges the source PR; until that projection merges, the disposition is REQUIRED_BUT_BLOCKED with no registry commit to bind.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/context-envelope.schema.json"
+    ],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md"
+    ],
+    "source_refs": [
+      "core/contracts/context-envelope.schema.json",
+      "runtime/cli/runtime-run.mjs"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [],
+    "evidence_refs": [
+      "evidence/context-envelope-budget-2026-10-20/RUN.md",
+      "tests/vnext/runtime-run-context-budget.test.mjs (5/5 pass: happy path with resource.budget_check event and context-envelope.json artifact; payload estimate over budget; declared executor tokens over budget; missing envelope; schema-invalid envelope)",
+      "npm run test:vnext (283/283 pass)",
+      "npm run validate (PASS, no issues)",
+      "npm run validate-maws-vnext (PASS, no issues)"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/context-envelope-budget-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/context-envelope.schema.json (new canonical contract in this change set)",
+      "core/contracts/README.md canonical files list"
+    ],
+    "registry_baseline_sha": "9ef65e36965e5e8cf612c2a3e94c83b44afd0e2d",
+    "implementation_commit_sha": "acd8182a5812cb95bdb54a1bfb11d161d2965665",
+    "registry_commit_sha": null
+  }
+}
