@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Syntax check
         run: |
@@ -27,6 +27,33 @@ jobs:
           node --check scripts/tools/ci-gate.mjs
           node --check scripts/tools/skill-frontdoor-check.mjs
           node --check runtime/skills/frontdoor.mjs
+
+      - name: Install pinned dependencies (no lifecycle scripts)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Runtime and security source syntax
+        run: |
+          find runtime scripts/tools providers -type f -name '*.mjs' -print0 | xargs -0 -n1 node --check
+
+      - name: Security boundary checks
+        run: |
+          npm run validate-secrets
+          npm run scan-secrets
+          node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs
+
+      - name: Runtime vNext complete unit suite
+        run: npm run test:vnext
+
+      - name: Provider neutral and MiniMax adapter import tests
+        run: |
+          npm run validate-neutral
+          node --test tests/tools/provider-adapter-import.test.mjs
+
+      - name: Contract and security evals
+        run: |
+          npm run eval:maws-vnext
+          npm run eval:secret-boundary
+          npm run eval:provider-export-alignment
 
       - name: Validate MAWS vNext contracts
         run: npm run validate-maws-vnext
