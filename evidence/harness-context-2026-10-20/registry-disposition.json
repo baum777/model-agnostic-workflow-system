@@ -15,11 +15,16 @@
       "evidence/harness-context-2026-10-20/RUN.md"
     ],
     "evidence_refs": [],
-    "implementation_commit_sha": null,
-    "registry_commit_sha": null,
+    "implementation_commit_sha": "6cae530ada0124c288e6eefdb51ec506cf51b8e5",
+    "registry_commit_sha": "60a8063b6a7dd9b8b5e7e04a1d3c6493fed76584",
     "registry_baseline_sha": "75bdabe",
-    "disposition_status": "REQUIRED_BUT_BLOCKED",
-    "affected_records": [],
+    "disposition_status": "UPDATED",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/harness-context.schema.json",
+      "CONTRACT_RECORD:core/contracts/bound-execution-graph.schema.json",
+      "CONTRACT_RECORD:core/contracts/work-unit.schema.json",
+      "CONTRACT_RECORD:core/contracts/graph-supersession-record.schema.json"
+    ],
     "object_mutations": [
       "NEW CONTRACT_RECORD: core/contracts/harness-context.schema.json (HarnessContext 1.0.0)",
       "AMENDED CONTRACT: core/contracts/work-unit.schema.json (+harness_context_ref)",
@@ -27,6 +32,6 @@
       "AMENDED CONTRACT: core/contracts/graph-supersession-record.schema.json (+context_change)",
       "NO_CHANGE intended for existing CONTRACT_RECORDs of unchanged contracts"
     ],
-    "notes": "REQUIRED_BUT_BLOCKED phase: the Registry CONTRACT_RECORD for the new contract and the run change registration are written after the source PR merges; this disposition rebinds to UPDATED with the registry commit sha at that point."
+    "notes": "UPDATED phase: the Registry write succeeded. The run change registration MAWS_HARNESS_CONTEXT_2026_10_20_001.yaml and the CONTRACT_RECORD projection MAWS_HARNESS_CONTEXT_CONTRACT_2026_10_20_001.yaml were published in unitera-registry pull request 230 and merged as 60a8063b6a7dd9b8b5e7e04a1d3c6493fed76584 with both registry CI gates green (registry validation offline PASS, cross-repository reachability PASS with 436 verified current claims and 0 unverifiable for the new records). The source publication is MAWS pull request 42 merged as 7a56a972bb388abe70c6a6e35c91b16955e7e468, plus the rule-enforcement consolidation follow-up pull request 45 merged as dcaa4b4a97250425f3ae7f8eee1166419eb401e3. The Atlas representation is unitera_atlas pull request 177 merged as c52bb88f447b2e4280cf82315689d45b493e5888."
   }
 }
