@@ -19,7 +19,7 @@
  * Non-goal: speech/TTS (speech-01-turbo) — provider-only, not in portable core.
  */
 
-import { ProviderAdapter } from '../provider-adapter-base.mjs';
+import { ProviderAdapter } from '../../runtime/adapters/provider-adapter-base.mjs';
 
 // ─── Capability Profile ───────────────────────────────────────────────────────
 
@@ -61,8 +61,8 @@ export class MiniMaxAdapter extends ProviderAdapter {
    *
    * @param {string}  skillId
    * @param {unknown} input    - Expected shape: { messages, tools?, systemPrompt?, modelOverride? }
-   * @param {import('../provider-adapter-base.mjs').NormalizationContext} ctx
-   * @returns {import('../provider-adapter-base.mjs').ProviderRequest}
+   * @param {import('../../runtime/adapters/provider-adapter-base.mjs').NormalizationContext} ctx
+   * @returns {import('../../runtime/adapters/provider-adapter-base.mjs').ProviderRequest}
    */
   normalizeSkillCall(skillId, input, ctx) {
     const {
@@ -134,8 +134,8 @@ export class MiniMaxAdapter extends ProviderAdapter {
    *
    * @param {unknown}  rawOutput
    * @param {string}   contractRef
-   * @param {import('../provider-adapter-base.mjs').NormalizationContext} ctx
-   * @returns {import('../provider-adapter-base.mjs').NormalizedOutput}
+   * @param {import('../../runtime/adapters/provider-adapter-base.mjs').NormalizationContext} ctx
+   * @returns {import('../../runtime/adapters/provider-adapter-base.mjs').NormalizedOutput}
    */
   normalizeOutput(rawOutput, contractRef, ctx) {
     if (!rawOutput || typeof rawOutput !== 'object') {
