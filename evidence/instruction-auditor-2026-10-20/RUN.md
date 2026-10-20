@@ -95,17 +95,38 @@ repaired before the pending registry CONTRACT_RECORD write:
   schema validation only and would mislabel a schema-passing semantic
   negative case.
 
-### Signing deviation (disclosed)
+### Signing deviation (disclosed, corrected 2026-10-20)
 
-The repair commit `82a638a268afccfc612ee184d8e536ab7230241c` is **not
-GPG-signed**: the local gpg-agent had no usable passphrase cache and the
-gnome3 pinentry could not be driven non-interactively
-(`PINENTRY_LAUNCHED ... Zeitüberschreitung`), so signing was skipped
-rather than blocking the repair. `git log -1 --format='%G?'` reports `N`
-for this commit. Every other commit in this change set (including the
-S1 repair `c5f6fbed` and the S3 implementation `866ab49`) is signed.
-This deviation is recorded here and in the registry record rather than
-silently carried.
+Three commits of this change set are **not GPG-signed**: the repair commit
+`82a638a268afccfc612ee184d8e536ab7230241c`, its evidence commit
+`bc4b9fb3b07860837cd1db79708c6e5a05e83b2f`, and the later disposition
+rebind `3ace7339c1ad37264dd35ac7b0bee80d355e42cf`. `git log --format='%G?'`
+reports `N` for each of them. The cause was a local tooling failure, not a
+decision: the gpg-agent held no usable passphrase cache and the gnome3
+pinentry could not be driven non-interactively
+(`PINENTRY_LAUNCHED ... Zeitüberschreitung`), so signing was skipped rather
+than blocking the work.
+
+Every commit produced before that failure is validly signed (`G`): the S1
+repair `c5f6fbed` and its evidence commit `e3c03aad`, the S3 implementation
+`866ab49` and its evidence commit `2603ba3b`, and the S2 wave 2 commits
+`70be5292` and `a886d6c1`. The repository merge commits carry a signature
+whose key is not present in the local keyring (`E`), which is why they
+cannot be verified locally either.
+
+An earlier version of this record stated that every other commit in the
+change set was signed. That was wrong for `bc4b9fb` and `3ace733` and is
+corrected here rather than left standing.
+
+Scope of the deviation: it is a property of three commits, not a quality
+statement about them, and the disclosure does not make them policy-conform.
+No contract in this repository (AGENTS.md, WORKFLOW.md, docs/governance/)
+makes a Git signature mandatory for MAWS commits, so the deviation is not a
+breach of a stated rule; the trusted-custody rules that do exist govern
+owner-authentication carriers in Unitera Systems, not MAWS commits. The
+deviation is recorded here, in the registry record and in the Atlas
+observation. A later signed commit does not sign an earlier commit
+retroactively, so the state of these three commits stays as recorded.
 
 ### Verification after repair
 

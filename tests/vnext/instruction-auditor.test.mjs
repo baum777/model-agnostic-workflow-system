@@ -43,6 +43,8 @@ function writeAuditableTree(tmp) {
     fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
     fs.writeFileSync(path.join(tmp, rel), `stub ${rel}\n`);
   }
+  fs.mkdirSync(path.join(tmp, 'skills/shared-demo'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'skills/shared-demo/SKILL.md'), '# Shared demo\n');
   fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
   fs.writeFileSync(
     path.join(tmp, 'core/skills/demo-skill/SKILL.md'),
@@ -137,7 +139,9 @@ test('clean tree yields zero findings but still declares the advisory coverage l
       fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
       fs.writeFileSync(path.join(tmp, rel), `stub ${rel}\n`);
     }
-    fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
+    fs.mkdirSync(path.join(tmp, 'skills/shared-demo'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'skills/shared-demo/SKILL.md'), '# Shared demo\n');
+  fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
     fs.writeFileSync(path.join(tmp, 'core/skills/demo-skill/SKILL.md'), '# Demo\n');
     fs.mkdirSync(path.join(tmp, '.agents/skills/local-demo'), { recursive: true });
     fs.writeFileSync(path.join(tmp, '.agents/skills/local-demo/SKILL.md'), '# Local\n');
@@ -190,7 +194,9 @@ test('same target on the same line via different edge kinds yields distinct find
       fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
       fs.writeFileSync(path.join(tmp, rel), `stub ${rel}\n`);
     }
-    fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
+    fs.mkdirSync(path.join(tmp, 'skills/shared-demo'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'skills/shared-demo/SKILL.md'), '# Shared demo\n');
+  fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
     fs.writeFileSync(
       path.join(tmp, 'core/skills/demo-skill/SKILL.md'),
       '# Demo\n\nSame target twice: [as link](./missing.md) and as `./missing.md`.\n'
@@ -249,7 +255,9 @@ test('CLI revision gate: a clean committed tree at HEAD audits, a dirty tree is 
       fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
       fs.writeFileSync(path.join(tmp, rel), `stub ${rel}\n`);
     }
-    fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
+    fs.mkdirSync(path.join(tmp, 'skills/shared-demo'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'skills/shared-demo/SKILL.md'), '# Shared demo\n');
+  fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
     fs.writeFileSync(path.join(tmp, 'core/skills/demo-skill/SKILL.md'), '# Demo\n\nBroken: [missing](./nope.md)\n');
     fs.mkdirSync(path.join(tmp, '.agents/skills/local-demo'), { recursive: true });
     fs.writeFileSync(path.join(tmp, '.agents/skills/local-demo/SKILL.md'), '# Local\n');
@@ -278,6 +286,50 @@ test('CLI revision gate: a clean committed tree at HEAD audits, a dirty tree is 
       assert.ok(error.stderr.toString().includes('dirty'));
     }
     assert.ok(refused, 'the CLI must refuse to stamp a revision onto a dirty tree');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('non-defect reference classes produce no finding and stay visible in the coverage', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'maws-s3-classes-'));
+  try {
+    const fixed = ['AGENTS.md', 'WORKFLOW.md', 'docs/governance/source-hierarchy.md', 'docs/authority-matrix.md', 'docs/model-agnostic-core-prompt-system.md', 'core/contracts/workflow-routing-map.json', 'core/contracts/permission-boundary.json', 'core/contracts/workflow-memory-contract.json'];
+    for (const rel of fixed) {
+      fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
+      fs.writeFileSync(path.join(tmp, rel), `stub ${rel}\n`);
+    }
+    fs.mkdirSync(path.join(tmp, 'skills/shared-demo'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'skills/shared-demo/SKILL.md'), '# Shared demo\n');
+    fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmp, 'core/skills/demo-skill/SKILL.md'),
+      [
+        '# Demo',
+        '',
+        'Glob: `core/skills/*/SKILL.md`.',
+        'Range: `origin/main..main`.',
+        'Consumer-local: `.codex/repo-intake-inputs.json`.',
+        'Workspace: `supabase/config.toml`.',
+        '`.codex/shared-core-map.json` was not present in the inspected repo.',
+        ''
+      ].join('\n')
+    );
+    fs.mkdirSync(path.join(tmp, '.agents/skills/local-demo'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, '.agents/skills/local-demo/SKILL.md'), '# Local\n');
+    fs.writeFileSync(path.join(tmp, 'package.json'), `${JSON.stringify({ name: 'x', private: true })}\n`);
+
+    const audit = auditInstructionSources({ root: tmp, revision: REVISION });
+    assert.equal(audit.findings_count, 0, 'no reference class that is not a defect may produce a finding');
+    const classes = audit.coverage.reference_classes;
+    assert.equal(classes.glob_pattern, 1);
+    assert.equal(classes.git_range, 1);
+    assert.equal(classes.external_workspace, 2);
+    assert.equal(classes.documented_absence, 1);
+    assert.equal(classes.dangling, 0);
+    for (const note of Object.values(audit.coverage.reference_class_notes)) {
+      assert.ok(note.length > 0, 'every non-defect class carries a stated reason');
+    }
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }

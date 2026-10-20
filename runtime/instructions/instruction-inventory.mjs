@@ -26,8 +26,17 @@ const FIXED_SOURCES = [
 
 // Enumerated skill instruction trees. A skill instruction file is SKILL.md or
 // a top-level *.skill.yaml inside an immediate subdirectory.
+//
+// The `skills/` tree belongs here because it is a declared instruction
+// source, not an optional addition: the repo root contract lists `skills/`
+// among the canonical reusable surfaces, and
+// docs/governance/source-hierarchy.md names `skills/*/SKILL.md` as
+// instruction sources at level 4 alongside `core/skills/*/SKILL.md`. Leaving
+// it out made the inventory — and every audit built on it — blind to 18
+// instruction files.
 const SKILL_TREES = [
   { dir: 'core/skills', role: 'portable_skill_instruction', authority_class: 'shared_core' },
+  { dir: 'skills', role: 'shared_exported_skill_instruction', authority_class: 'shared_exported_skill' },
   { dir: '.agents/skills', role: 'local_skill_instruction', authority_class: 'repo_local' }
 ];
 

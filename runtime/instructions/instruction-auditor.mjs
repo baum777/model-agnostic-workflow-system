@@ -100,7 +100,21 @@ export function auditInstructionSources({ root, revision }) {
     classes_declared_not_analyzable: AUDIT_TAXONOMY.filter((entry) => !entry.analyzable_static).map((entry) => ({
       finding_class: entry.finding_class,
       reason: 'not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result'
-    }))
+    })),
+    reference_classes: {
+      resolved: graph.status_counts.resolved,
+      glob_pattern: graph.status_counts.glob_pattern,
+      git_range: graph.status_counts.git_range,
+      documented_absence: graph.status_counts.documented_absence,
+      external_workspace: graph.status_counts.external_workspace,
+      dangling: graph.status_counts.dangling
+    },
+    reference_class_notes: {
+      glob_pattern: 'workspace selection patterns, not file references; their absence from the repository is not a defect',
+      git_range: 'revision ranges (origin/main..main), not file references; the apparent file extension belongs to the revision name',
+      documented_absence: 'the source states that the target does not exist; a recorded repository finding, not a broken reference',
+      external_workspace: 'targets declared by the consumer repository (.codex/, .qwen/) or by the workspace a skill operates on (supabase/); their absence here is by design and their presence is not this repository\'s business'
+    }
   };
   const digest = sha256Hex(canonicalJson({ revision, audit_id: auditId, findings, coverage }));
   return {

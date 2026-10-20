@@ -39,6 +39,8 @@ function writeMinimalDeclaredTree(tmp) {
   }
   fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
   fs.writeFileSync(path.join(tmp, 'core/skills/demo-skill/SKILL.md'), '# Demo\n');
+  fs.mkdirSync(path.join(tmp, 'skills/shared-demo'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'skills/shared-demo/SKILL.md'), '# Shared demo\n');
   fs.mkdirSync(path.join(tmp, '.agents/skills/local-demo'), { recursive: true });
   fs.writeFileSync(path.join(tmp, '.agents/skills/local-demo/SKILL.md'), '# Local demo\n');
 }
@@ -83,10 +85,16 @@ test('inventory covers the declared canonical source set plus enumerated skills'
     assert.ok(paths.has(required), `declared source missing from inventory: ${required}`);
   }
   const skillSources = inventory.sources.filter((source) => source.role === 'portable_skill_instruction');
+  const sharedSources = inventory.sources.filter((source) => source.role === 'shared_exported_skill_instruction');
   const localSkillSources = inventory.sources.filter((source) => source.role === 'local_skill_instruction');
   assert.ok(skillSources.length >= 18, 'core/skills SKILL.md files must be enumerated');
+  assert.ok(sharedSources.length >= 22, 'skills/ SKILL.md files must be enumerated (declared instruction source, source-hierarchy level 4)');
   assert.equal(localSkillSources.length, 3, '.agents/skills SKILL.md files must be enumerated');
   assert.equal(inventory.source_count, inventory.sources.length);
+  assert.ok(
+    sharedSources.every((source) => source.authority_class === 'shared_exported_skill'),
+    'skills/ sources carry the shared_exported_skill authority class'
+  );
 });
 
 test('every source carries a content digest and a role/authority classification', () => {
