@@ -1,0 +1,69 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S12 of MAWS-SII-TARGET-SPEC-001 v0.2.0 (section 11.5) adds a new canonical contract to core/contracts/ (executor-model-profile.schema.json) and amends an existing one (materiality-decision.schema.json, component vocabulary gains effective_instruction_digest). Both are CONTRACT_RECORD class changes under the registry-disposition.v1 consumer binding of this repository (AGENTS.md, Registry Disposition Consumer Binding: CONTRACT_RECORD, PROVENANCE, SUPERSESSION). The registry write is its own registered change and follows after the owner merges the source change (precedent: evidence/skill-feedback-contract-2026-10-20/ and evidence/instruction-bundles-2026-10-20/, which followed the same two-phase REQUIRED_BUT_BLOCKED -> UPDATED rebind pattern). This slice does not perform the registry write, so no registry commit exists yet and registry_commit_sha stays null; implementation_commit_sha is a placeholder that must be bound to the landing commit. No authority, permission, runtime activation or qualification state is granted or changed by this slice: a model-adaptive executor profile is a presentation layer with authority_grant none, and the qualification state is recorded, never conferred.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/executor-model-profile.schema.json",
+      "CONTRACT_RECORD:core/contracts/materiality-decision.schema.json"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/authority-matrix.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "core/contracts/executor-model-profile.schema.json",
+      "core/contracts/materiality-decision.schema.json",
+      "core/contracts/README.md",
+      "runtime/harness-context/profiles/model-adaptive/profile-resolver.mjs",
+      "runtime/harness-context/profiles/model-adaptive/executor-profile.mjs",
+      "runtime/harness-context/profiles/model-adaptive/profile-store.mjs",
+      "runtime/harness-context/profiles/model-adaptive/harness-capabilities.json",
+      "runtime/harness-context/profiles/model-adaptive/execution-profile-refs.json",
+      "runtime/harness-context/profiles/model-adaptive/profiles/emp_openai_codex_gpt5_codex__v1_0_0.json",
+      "runtime/harness-context/profiles/model-adaptive/profiles/emp_openai_codex_gpt5_codex__v1_1_0.json",
+      "runtime/harness-context/profiles/model-adaptive/profiles/emp_anthropic_claude_sonnet__v1_0_0.json",
+      "runtime/harness-context/profiles/model-adaptive/profiles/emp_kimi_k2_5_kimi__v1_0_0.json",
+      "runtime/harness-context/profiles/model-adaptive/profiles/emp_minimax_text__v1_0_0.json",
+      "runtime/harness-context/profiles/model-adaptive/profiles/emp_qwen_code_qwen3_max__v1_0_0.json",
+      "scripts/tools/validate-executor-model-profile.mjs",
+      "evals/fixtures/maws-vnext/executor-model-profile.contracts.json",
+      "evals/catalog.json",
+      "evals/README.md",
+      "tests/vnext/executor-model-profile.test.mjs",
+      "package.json",
+      "CHANGELOG.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/model-adaptive-profiles-2026-10-20/RUN.md",
+      "evidence/model-adaptive-profiles-2026-10-20/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "evidence/model-adaptive-profiles-2026-10-20/RUN.md (incl. the six mutation-evidence records)",
+      "npm run validate-executor-model-profile (fixture: 19 schema cases checked, 0 unexpected results; denial cases: 7 checked, 0 unexpected results; store: 6 profiles checked, 0 issues)",
+      "npm run test:vnext (476/476 pass, 0 fail; baseline before the change 419/419 on origin/main 7fb6a5a2; +57 from tests/vnext/executor-model-profile.test.mjs)",
+      "npm run validate-maws-vnext (PASS), npm run eval:maws-vnext (PASS, the new executor-model-profile fixture is registered and green)",
+      "npm run validate / validate-neutral / validate-secrets / scan-secrets (PASS), node scripts/tools/ci-gate.mjs (PASS CI Gate)",
+      "mutation evidence: six guards weakened and observed to fail (pinned-dimension comparison, model/provider coverage comparison, harness capability check, instruction-digest drift classification, the contract const 'unchanged' on authority_ceiling, the required pinned_dimensions block), all restored afterwards; the final tree carries no mutation marker",
+      "node --check on runtime/harness-context/profiles/model-adaptive/profile-resolver.mjs, executor-profile.mjs, profile-store.mjs and scripts/tools/validate-executor-model-profile.mjs (PASS)"
+    ],
+    "implementation_commit_sha": "PENDING_COMMIT:s12/model-adaptive-profiles-20261020",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/model-adaptive-profiles-2026-10-20/registry-disposition.json",
+      "node --test tests/vnext/registry-disposition-evidence.test.mjs"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "core/contracts/executor-model-profile.schema.json (new canonical contract in this change set)",
+      "core/contracts/materiality-decision.schema.json (amended canonical contract in this change set: component vocabulary gains effective_instruction_digest)"
+    ],
+    "registry_baseline_sha": "7fb6a5a2ad166cbac0ab43e3c1bb3dfdc1cdd255"
+  }
+}

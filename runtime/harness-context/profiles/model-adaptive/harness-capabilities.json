@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "role": "harness-runtime-capability-declarations",
+  "note": "The runtime capabilities each harness declares for the model-adaptive executor lane (S12). A harness that is not listed here declares NOTHING: the executor-profile resolution then fails closed with MODEL_PROFILE_HARNESS_CAPABILITY_MISSING instead of assuming a capability. The capability vocabulary is closed and owned by core/contracts/executor-model-profile.schema.json (runtime_requirements). This file is a declaration surface, not an authority surface: it grants no permission, confers no qualification and never widens the execution profile.",
+  "capability_vocabulary": ["structured_output", "tool_calls"],
+  "harnesses": {
+    "development_harness/in_process_fixture/1": {
+      "capabilities": ["structured_output", "tool_calls"]
+    },
+    "codex-exec/1.0": {
+      "capabilities": ["structured_output", "tool_calls"]
+    },
+    "development_harness/plan_only/1": {
+      "capabilities": []
+    }
+  }
+}

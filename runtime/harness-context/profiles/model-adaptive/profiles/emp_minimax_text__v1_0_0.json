@@ -1,0 +1,79 @@
+{
+  "profile_id": "emp_minimax_text",
+  "profile_version": "1.0.0",
+  "schema_version": "1.0.0",
+  "executor_id": "exec_minimax",
+  "provider_id": "minimax",
+  "model_id": "minimax-text-01",
+  "execution_profile_ref": "profile_readonly_v1",
+  "authority_grant": "none",
+  "runtime_requirements": ["structured_output", "tool_calls"],
+  "presentation": {
+    "instruction_density": {
+      "level": "balanced",
+      "structure": "sectioned",
+      "max_directives": 28
+    },
+    "example_selection": {
+      "mode": "minimal",
+      "count": 1,
+      "include_failure_examples": false
+    },
+    "output_formatting": {
+      "mode": "json_mode",
+      "structured_output": "json_mode_prompt",
+      "require_explicit_json_instruction": true
+    },
+    "context_packaging": {
+      "unit": "sectioned_blocks",
+      "ordering": [
+        "task",
+        "constraints",
+        "tools",
+        "output_contract",
+        "context"
+      ],
+      "section_header_style": "delimiter",
+      "system_channel": "bot_setting"
+    },
+    "tool_call_interface_requirements": {
+      "call_style": "openai_compatible_tool_calls",
+      "argument_encoding": "json_object",
+      "parallel_tool_calls": "unspecified",
+      "requires_tool_result_echo": true
+    },
+    "retry_strategy": {
+      "max_attempts": 2,
+      "on_ineffective_task": "replan",
+      "backoff": "linear"
+    }
+  },
+  "semantics_preservation": {
+    "task_scope": "unchanged",
+    "authority_ceiling": "unchanged",
+    "tool_rights": "unchanged",
+    "security_controls": "unchanged",
+    "completion_criteria": "unchanged",
+    "evidence_requirements": "unchanged",
+    "pinned_dimensions": {
+      "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+      "api_surface_version": "2026-10",
+      "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+      "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+    }
+  },
+  "qualification": {
+    "state": "PROPOSED",
+    "evidence_refs": []
+  },
+  "provenance": {
+    "source_refs": [
+      "core/contracts/provider-capabilities.json",
+      "core/contracts/execution-profile.schema.json",
+      "core/contracts/executor-model-profile.schema.json",
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "providers/minimax/export.json"
+    ],
+    "note": "Presentation layer for the minimax provider. The canonical capability contract records that minimax uses bot_setting instead of the system role and that its JSON mode requires an explicit prompt instruction, so the context packaging declares the bot_setting channel and the output formatting declares json_mode_prompt with require_explicit_json_instruction. Qualification state is PROPOSED; this profile grants no authority."
+  }
+}

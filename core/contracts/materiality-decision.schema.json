@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "core/contracts/materiality-decision.schema.json",
   "title": "MaterialityDecision Contract",
-  "description": "OD-12: configuration deltas between the qualified fingerprint and the current fingerprint are classified per component. overall_class NON_MATERIAL requires every delta NON_MATERIAL; MATERIAL and UNKNOWN are unroutable without requalification (fail closed).",
+  "description": "OD-12: configuration deltas between the qualified fingerprint and the current fingerprint are classified per component. overall_class NON_MATERIAL requires every delta NON_MATERIAL; MATERIAL and UNKNOWN are unroutable without requalification (fail closed). S12: the component vocabulary also covers the effective instruction digest, so a model-adaptive executor profile can report an instruction-digest drift with this contract instead of a parallel decision shape.",
   "type": "object",
   "additionalProperties": false,
   "required": [

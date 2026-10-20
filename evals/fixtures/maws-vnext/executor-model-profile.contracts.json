@@ -1,0 +1,1151 @@
+{
+  "id": "maws-vnext-executor-model-profile-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "maws-vnext-contracts" },
+  "blocking": true,
+  "description": "S12 model-adaptive executor profiles. The `schema` cases are decided by core/contracts/executor-model-profile.schema.json alone. The `executor_profile_denial` cross-check cases are decided by the runtime: `valid: true` means the runtime behaved exactly as declared (for a denial case: it denied with exactly the expected code; for the happy path: it resolved the executor profile).",
+  "cases": [
+    {
+      "case_id": "executor-model-profile-valid-native-provider",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": true,
+      "guards": ["S12-R1", "S12-R2"],
+      "instance": {
+        "profile_id": "emp_fixture_native_model",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned", "max_directives": 24 },
+          "example_selection": { "mode": "minimal", "count": 1, "include_failure_examples": false },
+          "output_formatting": { "mode": "schema_bound", "structured_output": "native_schema", "require_explicit_json_instruction": false },
+          "context_packaging": {
+            "unit": "sectioned_blocks",
+            "ordering": ["system_role", "task", "constraints", "tools", "output_contract", "context"],
+            "section_header_style": "markdown_heading",
+            "system_channel": "system_role"
+          },
+          "tool_call_interface_requirements": {
+            "call_style": "native_function_call",
+            "argument_encoding": "schema_bound",
+            "parallel_tool_calls": "allowed",
+            "requires_tool_result_echo": true
+          },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "escalate", "backoff": "none" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] },
+        "provenance": {
+          "source_refs": ["core/contracts/provider-capabilities.json", "core/contracts/execution-profile.schema.json"],
+          "note": "fixture profile; grants no authority"
+        }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-valid-adapter-provider",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": true,
+      "guards": ["S12-R1", "S12-R6"],
+      "instance": {
+        "profile_id": "emp_fixture_adapter_model",
+        "profile_version": "2.3.4",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_adapter",
+        "provider_id": "minimax",
+        "model_id": "fixture-model-2",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "balanced", "structure": "hierarchical" },
+          "example_selection": { "mode": "representative", "count": 3, "include_failure_examples": true },
+          "output_formatting": { "mode": "json_mode", "structured_output": "json_mode_prompt", "require_explicit_json_instruction": true },
+          "context_packaging": {
+            "unit": "layered",
+            "ordering": ["task", "constraints", "tools", "output_contract", "context"],
+            "system_channel": "bot_setting"
+          },
+          "tool_call_interface_requirements": {
+            "call_style": "openai_compatible_tool_calls",
+            "argument_encoding": "json_object"
+          },
+          "retry_strategy": { "max_attempts": 2, "on_ineffective_task": "replan", "backoff": "linear" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": {
+          "state": "QUALIFIED",
+          "evidence_refs": ["eval:model-adaptive/minimax/fixture-model-2"],
+          "eval_profile_ref": "evalprofile_model_adaptive_v1",
+          "qualified_at": "2026-10-20T00:00:00Z"
+        }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-widened-authority-ceiling",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R2"],
+      "instance": {
+        "profile_id": "emp_fixture_widened_ceiling",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "widened",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-widened-tool-rights",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R2", "S12-R4"],
+      "instance": {
+        "profile_id": "emp_fixture_widened_tools",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "expanded",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-missing-invariant-dimension",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R2"],
+      "instance": {
+        "profile_id": "emp_fixture_missing_invariant",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-extra-invariant-dimension",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R2"],
+      "instance": {
+        "profile_id": "emp_fixture_extra_invariant",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "budget_ceiling": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-missing-pinned-dimensions",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R2"],
+      "instance": {
+        "profile_id": "emp_fixture_missing_pins",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged"
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-missing-pinned-instruction-digest",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R2", "S12-R8"],
+      "instance": {
+        "profile_id": "emp_fixture_missing_digest_pin",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-bad-instruction-digest-form",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R8"],
+      "instance": {
+        "profile_id": "emp_fixture_bad_digest_form",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "md5:not-a-sha256-digest"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-authority-grant",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R2", "S12-R4"],
+      "instance": {
+        "profile_id": "emp_fixture_authority_grant",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "execute_business_operations",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-missing-presentation-dimension",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R1"],
+      "instance": {
+        "profile_id": "emp_fixture_missing_presentation",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-unknown-presentation-property",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R1"],
+      "instance": {
+        "profile_id": "emp_fixture_unknown_property",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" },
+          "authority_override": { "tools": "execute" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-bad-profile-version",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R1"],
+      "instance": {
+        "profile_id": "emp_fixture_bad_version",
+        "profile_version": "1.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-qualified-without-evidence",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R1"],
+      "instance": {
+        "profile_id": "emp_fixture_unevidenced_qualification",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": {
+          "state": "QUALIFIED",
+          "evidence_refs": [],
+          "eval_profile_ref": "evalprofile_model_adaptive_v1",
+          "qualified_at": "2026-10-20T00:00:00Z"
+        }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-missing-runtime-requirements",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R7"],
+      "instance": {
+        "profile_id": "emp_fixture_missing_runtime_requirements",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-unknown-runtime-capability",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R7"],
+      "instance": {
+        "profile_id": "emp_fixture_unknown_runtime_capability",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["telepathy"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-unpinned-execution-profile-ref",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R3"],
+      "instance": {
+        "profile_id": "emp_fixture_unpinned_ref",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "unpinned",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-unknown-executor-id-shape",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R1"],
+      "instance": {
+        "profile_id": "emp_fixture_bad_executor",
+        "profile_version": "1.0.0",
+        "schema_version": "1.0.0",
+        "executor_id": "agent-openai-codex",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-rejects-unknown-schema-version",
+      "schema": "core/contracts/executor-model-profile.schema.json",
+      "valid": false,
+      "guards": ["S12-R1"],
+      "instance": {
+        "profile_id": "emp_fixture_bad_schema_version",
+        "profile_version": "1.0.0",
+        "schema_version": "2.0.0",
+        "executor_id": "exec_fixture_native",
+        "provider_id": "openai-codex",
+        "model_id": "fixture-model-1",
+        "execution_profile_ref": "profile_readonly_v1",
+        "authority_grant": "none",
+        "runtime_requirements": ["structured_output", "tool_calls"],
+        "presentation": {
+          "instruction_density": { "level": "compact", "structure": "sectioned" },
+          "example_selection": { "mode": "none", "count": 0 },
+          "output_formatting": { "mode": "plain_text", "structured_output": "none" },
+          "context_packaging": { "unit": "single_block", "ordering": ["task"] },
+          "tool_call_interface_requirements": { "call_style": "native_function_call", "argument_encoding": "json_object" },
+          "retry_strategy": { "max_attempts": 1, "on_ineffective_task": "stop" }
+        },
+        "semantics_preservation": {
+          "task_scope": "unchanged",
+          "authority_ceiling": "unchanged",
+          "tool_rights": "unchanged",
+          "security_controls": "unchanged",
+          "completion_criteria": "unchanged",
+          "evidence_requirements": "unchanged",
+          "pinned_dimensions": {
+            "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+            "api_surface_version": "2026-10",
+            "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+            "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+          }
+        },
+        "qualification": { "state": "PROPOSED", "evidence_refs": [] }
+      }
+    }
+  ],
+  "denial_cases": [
+    {
+      "case_id": "executor-model-profile-happy-path-resolves",
+      "guards": ["S12-R1", "S12-R2", "S12-R7", "S12-R8"],
+      "expected_code": null,
+      "payload": {
+        "request": {
+          "model_id": "gpt-5-codex",
+          "provider_id": "openai-codex",
+          "harness": "development_harness/in_process_fixture/1",
+          "profile_id": "emp_openai_codex_gpt5_codex",
+          "profile_version": "1.0.0"
+        },
+        "profile_overrides": {
+          "qualification": {
+            "state": "QUALIFIED",
+            "evidence_refs": ["eval:model-adaptive/openai-codex/gpt-5-codex"],
+            "eval_profile_ref": "evalprofile_model_adaptive_v1",
+            "qualified_at": "2026-10-20T00:00:00Z"
+          }
+        },
+        "in_force": {
+          "execution_profile_ref": "profile_readonly_v1",
+          "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce",
+          "qualification": {
+            "qualification_id": "qual_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "state": "QUALIFIED",
+            "evidence_refs": ["evidence/qualification/s12-fixture-0001.json"],
+            "fingerprint_ref": "fp_s12_fixture_0001",
+            "decided_at": "2026-10-20T00:00:00Z"
+          },
+          "fingerprint": {
+            "fingerprint_id": "fp_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "components": {
+              "model_id": "gpt-5-codex",
+              "provider_id": "openai-codex",
+              "runtime_harness": "development_harness/in_process_fixture/1",
+              "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+              "api_surface_version": "2026-10",
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+            },
+            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+          }
+        }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-denial-semantics-widened",
+      "guards": ["S12-R2"],
+      "expected_code": "MODEL_PROFILE_SEMANTICS_WIDENED",
+      "payload": {
+        "request": {
+          "model_id": "gpt-5-codex",
+          "provider_id": "openai-codex",
+          "harness": "development_harness/in_process_fixture/1",
+          "profile_id": "emp_openai_codex_gpt5_codex",
+          "profile_version": "1.0.0"
+        },
+        "profile_overrides": {
+          "qualification": {
+            "state": "QUALIFIED",
+            "evidence_refs": ["eval:model-adaptive/openai-codex/gpt-5-codex"],
+            "eval_profile_ref": "evalprofile_model_adaptive_v1",
+            "qualified_at": "2026-10-20T00:00:00Z"
+          },
+          "semantics_preservation": {
+            "pinned_dimensions": {
+              "tool_contract_refs": [
+                "core/contracts/tool-contracts/catalog.json",
+                "core/contracts/permission-boundary.json"
+              ]
+            }
+          }
+        },
+        "in_force": {
+          "execution_profile_ref": "profile_readonly_v1",
+          "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce",
+          "qualification": {
+            "qualification_id": "qual_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "state": "QUALIFIED",
+            "evidence_refs": ["evidence/qualification/s12-fixture-0001.json"],
+            "fingerprint_ref": "fp_s12_fixture_0001",
+            "decided_at": "2026-10-20T00:00:00Z"
+          },
+          "fingerprint": {
+            "fingerprint_id": "fp_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "components": {
+              "model_id": "gpt-5-codex",
+              "provider_id": "openai-codex",
+              "runtime_harness": "development_harness/in_process_fixture/1",
+              "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+              "api_surface_version": "2026-10",
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+            },
+            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+          }
+        }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-denial-qualification-uncovered",
+      "guards": ["S12-R5"],
+      "expected_code": "MODEL_PROFILE_QUALIFICATION_UNCOVERED",
+      "payload": {
+        "request": {
+          "model_id": "gpt-5-codex",
+          "provider_id": "openai-codex",
+          "harness": "development_harness/in_process_fixture/1",
+          "profile_id": "emp_openai_codex_gpt5_codex",
+          "profile_version": "1.0.0"
+        },
+        "profile_overrides": {
+          "qualification": {
+            "state": "QUALIFIED",
+            "evidence_refs": ["eval:model-adaptive/openai-codex/gpt-5-codex"],
+            "eval_profile_ref": "evalprofile_model_adaptive_v1",
+            "qualified_at": "2026-10-20T00:00:00Z"
+          }
+        },
+        "in_force": {
+          "execution_profile_ref": "profile_readonly_v1",
+          "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce",
+          "qualification": {
+            "qualification_id": "qual_s12_fixture_0002",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "state": "QUALIFIED",
+            "evidence_refs": ["evidence/qualification/s12-fixture-0002.json"],
+            "fingerprint_ref": "fp_s12_fixture_0002",
+            "decided_at": "2026-10-20T00:00:00Z"
+          },
+          "fingerprint": {
+            "fingerprint_id": "fp_s12_fixture_0002",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "components": {
+              "model_id": "gpt-5.1-codex",
+              "provider_id": "openai-codex",
+              "runtime_harness": "development_harness/in_process_fixture/1",
+              "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+              "api_surface_version": "2026-10",
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+            },
+            "digest": "dab2db3fde92b290cc935ec46bde6919531c464c9e767d4e264c060fa06a0fd5"
+          }
+        }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-denial-harness-capability-missing",
+      "guards": ["S12-R7"],
+      "expected_code": "MODEL_PROFILE_HARNESS_CAPABILITY_MISSING",
+      "payload": {
+        "request": {
+          "model_id": "gpt-5-codex",
+          "provider_id": "openai-codex",
+          "harness": "development_harness/plan_only/1",
+          "profile_id": "emp_openai_codex_gpt5_codex",
+          "profile_version": "1.0.0"
+        },
+        "profile_overrides": {
+          "qualification": {
+            "state": "QUALIFIED",
+            "evidence_refs": ["eval:model-adaptive/openai-codex/gpt-5-codex"],
+            "eval_profile_ref": "evalprofile_model_adaptive_v1",
+            "qualified_at": "2026-10-20T00:00:00Z"
+          }
+        },
+        "in_force": {
+          "execution_profile_ref": "profile_readonly_v1",
+          "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce",
+          "qualification": {
+            "qualification_id": "qual_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "state": "QUALIFIED",
+            "evidence_refs": ["evidence/qualification/s12-fixture-0001.json"],
+            "fingerprint_ref": "fp_s12_fixture_0001",
+            "decided_at": "2026-10-20T00:00:00Z"
+          },
+          "fingerprint": {
+            "fingerprint_id": "fp_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "components": {
+              "model_id": "gpt-5-codex",
+              "provider_id": "openai-codex",
+              "runtime_harness": "development_harness/in_process_fixture/1",
+              "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+              "api_surface_version": "2026-10",
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+            },
+            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+          }
+        }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-denial-instruction-digest-drift",
+      "guards": ["S12-R8"],
+      "expected_code": "MODEL_PROFILE_INSTRUCTION_DIGEST_DRIFT",
+      "payload": {
+        "request": {
+          "model_id": "gpt-5-codex",
+          "provider_id": "openai-codex",
+          "harness": "development_harness/in_process_fixture/1",
+          "profile_id": "emp_openai_codex_gpt5_codex",
+          "profile_version": "1.0.0"
+        },
+        "profile_overrides": {
+          "qualification": {
+            "state": "QUALIFIED",
+            "evidence_refs": ["eval:model-adaptive/openai-codex/gpt-5-codex"],
+            "eval_profile_ref": "evalprofile_model_adaptive_v1",
+            "qualified_at": "2026-10-20T00:00:00Z"
+          }
+        },
+        "in_force": {
+          "execution_profile_ref": "profile_readonly_v1",
+          "effective_instruction_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+          "qualification": {
+            "qualification_id": "qual_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "state": "QUALIFIED",
+            "evidence_refs": ["evidence/qualification/s12-fixture-0001.json"],
+            "fingerprint_ref": "fp_s12_fixture_0001",
+            "decided_at": "2026-10-20T00:00:00Z"
+          },
+          "fingerprint": {
+            "fingerprint_id": "fp_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "components": {
+              "model_id": "gpt-5-codex",
+              "provider_id": "openai-codex",
+              "runtime_harness": "development_harness/in_process_fixture/1",
+              "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+              "api_surface_version": "2026-10",
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+            },
+            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+          }
+        }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-denial-profile-not-qualified",
+      "guards": ["S12-R1"],
+      "expected_code": "MODEL_PROFILE_NOT_QUALIFIED",
+      "payload": {
+        "request": {
+          "model_id": "gpt-5-codex",
+          "provider_id": "openai-codex",
+          "harness": "development_harness/in_process_fixture/1",
+          "profile_id": "emp_openai_codex_gpt5_codex",
+          "profile_version": "1.0.0"
+        },
+        "in_force": {
+          "execution_profile_ref": "profile_readonly_v1",
+          "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce",
+          "qualification": {
+            "qualification_id": "qual_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "state": "QUALIFIED",
+            "evidence_refs": ["evidence/qualification/s12-fixture-0001.json"],
+            "fingerprint_ref": "fp_s12_fixture_0001",
+            "decided_at": "2026-10-20T00:00:00Z"
+          },
+          "fingerprint": {
+            "fingerprint_id": "fp_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "components": {
+              "model_id": "gpt-5-codex",
+              "provider_id": "openai-codex",
+              "runtime_harness": "development_harness/in_process_fixture/1",
+              "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+              "api_surface_version": "2026-10",
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+            },
+            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+          }
+        }
+      }
+    },
+    {
+      "case_id": "executor-model-profile-denial-binding-mismatch",
+      "guards": ["S12-R1"],
+      "expected_code": "MODEL_PROFILE_BINDING_MISMATCH",
+      "payload": {
+        "request": {
+          "model_id": "gpt-5-codex-preview",
+          "provider_id": "openai-codex",
+          "harness": "development_harness/in_process_fixture/1",
+          "profile_id": "emp_openai_codex_gpt5_codex",
+          "profile_version": "1.0.0"
+        },
+        "profile_overrides": {
+          "qualification": {
+            "state": "QUALIFIED",
+            "evidence_refs": ["eval:model-adaptive/openai-codex/gpt-5-codex"],
+            "eval_profile_ref": "evalprofile_model_adaptive_v1",
+            "qualified_at": "2026-10-20T00:00:00Z"
+          }
+        },
+        "in_force": {
+          "execution_profile_ref": "profile_readonly_v1",
+          "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce",
+          "qualification": {
+            "qualification_id": "qual_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "state": "QUALIFIED",
+            "evidence_refs": ["evidence/qualification/s12-fixture-0001.json"],
+            "fingerprint_ref": "fp_s12_fixture_0001",
+            "decided_at": "2026-10-20T00:00:00Z"
+          },
+          "fingerprint": {
+            "fingerprint_id": "fp_s12_fixture_0001",
+            "executor_id": "exec_openai_codex",
+            "capability_id": "cap_repository_analysis",
+            "execution_profile_ref": "profile_readonly_v1",
+            "components": {
+              "model_id": "gpt-5-codex",
+              "provider_id": "openai-codex",
+              "runtime_harness": "development_harness/in_process_fixture/1",
+              "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+              "api_surface_version": "2026-10",
+              "qualification_profile_ref": "qualprofile_model_adaptive_v1"
+            },
+            "digest": "adedcded61715113e990ee9bef1c9a3279b90b55aa0830f5158576cfd20dc556"
+          }
+        }
+      }
+    }
+  ]
+}
