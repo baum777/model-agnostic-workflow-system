@@ -45,6 +45,7 @@
     "fixtures/maws-vnext/skill-feedback.contracts.json",
     "fixtures/maws-vnext/instruction-audit-findings.contracts.json",
     "fixtures/maws-vnext/behavioral-eval.contracts.json",
-    "fixtures/maws-vnext/instruction-bundle.contracts.json"
+    "fixtures/maws-vnext/instruction-bundle.contracts.json",
+    "fixtures/maws-vnext/harness-context.contracts.json"
   ]
 }

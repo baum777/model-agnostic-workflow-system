@@ -17,36 +17,74 @@
   "work_request": {
     "objective": "Audit and repair repository (reference scenario)",
     "requiredCapabilities": [
-      { "capability_id": "cap_repository_analysis", "min_profile_ref": "profile_readonly_v1" },
-      { "capability_id": "cap_deterministic_verification", "min_profile_ref": "profile_readonly_v1" },
-      { "capability_id": "cap_external_execution_control", "min_profile_ref": "profile_readonly_v1" }
+      {
+        "capability_id": "cap_repository_analysis",
+        "min_profile_ref": "profile_readonly_v1"
+      },
+      {
+        "capability_id": "cap_deterministic_verification",
+        "min_profile_ref": "profile_readonly_v1"
+      },
+      {
+        "capability_id": "cap_external_execution_control",
+        "min_profile_ref": "profile_readonly_v1"
+      }
     ],
     "stageCapabilities": {
-      "analysis": ["cap_repository_analysis"],
-      "effect": ["cap_external_execution_control"],
-      "verification": ["cap_deterministic_verification"]
+      "analysis": [
+        "cap_repository_analysis"
+      ],
+      "effect": [
+        "cap_external_execution_control"
+      ],
+      "verification": [
+        "cap_deterministic_verification"
+      ]
     },
     "requiredOutputs": [
-      { "output_id": "audit_report", "artifact_ref": "artifacts/runtime-runs/run_cli_reference_audit_0001/outputs/audit-report.json" }
+      {
+        "output_id": "audit_report",
+        "artifact_ref": "artifacts/runtime-runs/run_cli_reference_audit_0001/outputs/audit-report.json"
+      }
     ],
-    "requiredEvidence": ["evidence/runtime-run-cli/analysis-receipt.json"],
+    "requiredEvidence": [
+      "evidence/runtime-run-cli/analysis-receipt.json"
+    ],
     "policyContextRef": "policies/maws-vnext-defaults.yaml",
     "workloadSafetyClass": "safe",
-    "boundedPayload": { "repository": "self" }
+    "boundedPayload": {
+      "repository": "self"
+    }
   },
   "template": {
     "template_id": "tpl_audit_repair_v1",
     "workflow_class": "implementation",
-    "mandatory_stages": ["analysis", "effect", "verification"],
-    "decomposition_limits": { "max_depth": 2, "max_children_per_node": 4, "max_total_work_units": 12 },
+    "mandatory_stages": [
+      "analysis",
+      "effect",
+      "verification"
+    ],
+    "decomposition_limits": {
+      "max_depth": 2,
+      "max_children_per_node": 4,
+      "max_total_work_units": 12
+    },
     "composition_policy_ref": "comp_default_v1",
     "authority_ceiling_default": {
       "scope_ref": "scope/runtime_run_reference",
-      "allowed_effects": ["ephemeral", "workspace"],
+      "allowed_effects": [
+        "ephemeral",
+        "workspace"
+      ],
       "delegation_depth_max": 1,
-      "authority_source_refs": ["policies/maws-vnext-defaults.yaml"]
+      "authority_source_refs": [
+        "policies/maws-vnext-defaults.yaml"
+      ]
     },
-    "verification_requirements": { "required": true, "independent": true }
+    "verification_requirements": {
+      "required": true,
+      "independent": true
+    }
   },
   "profiles": {
     "profile_readonly_v1": {
@@ -69,7 +107,9 @@
       "capability_id": "cap_repository_analysis",
       "execution_profile_ref": "profile_readonly_v1",
       "state": "QUALIFIED",
-      "evidence_refs": ["evidence/qualification/exec_openrouter_glm-cap_repository_analysis.json"],
+      "evidence_refs": [
+        "evidence/qualification/exec_openrouter_glm-cap_repository_analysis.json"
+      ],
       "fingerprint_ref": "fp_openrouter_glm_repository_analysis",
       "decided_at": "2026-09-25T00:00:00Z",
       "expires_at": "2026-12-25T00:00:00Z"
@@ -80,7 +120,9 @@
       "capability_id": "cap_deterministic_verification",
       "execution_profile_ref": "profile_readonly_v1",
       "state": "QUALIFIED",
-      "evidence_refs": ["evidence/qualification/exec_local_tests-cap_deterministic_verification.json"],
+      "evidence_refs": [
+        "evidence/qualification/exec_local_tests-cap_deterministic_verification.json"
+      ],
       "fingerprint_ref": "fp_local_tests_deterministic_verification",
       "decided_at": "2026-09-25T00:00:00Z",
       "expires_at": "2026-12-25T00:00:00Z"
@@ -91,7 +133,9 @@
       "capability_id": "cap_external_execution_control",
       "execution_profile_ref": "profile_readonly_v1",
       "state": "QUALIFIED",
-      "evidence_refs": ["evidence/execution-intake-binding-2026-10-20/RUN.md"],
+      "evidence_refs": [
+        "evidence/execution-intake-binding-2026-10-20/RUN.md"
+      ],
       "fingerprint_ref": "fp_unitera_execution_control_fixture",
       "decided_at": "2026-10-20T00:00:00Z",
       "expires_at": "2027-01-20T00:00:00Z"
@@ -106,8 +150,10 @@
       "components": {
         "model_id": "zai/glm-4.7",
         "provider_id": "openrouter",
-        "runtime_harness": "in_process_fixture/1",
-        "tool_contract_refs": ["runtime/cli/specs/reference-audit-v1.json"],
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "runtime/cli/specs/reference-audit-v1.json"
+        ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1"
       },
@@ -121,8 +167,10 @@
       "components": {
         "model_id": null,
         "provider_id": null,
-        "runtime_harness": "in_process_fixture/1",
-        "tool_contract_refs": ["runtime/cli/specs/reference-audit-v1.json"],
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "runtime/cli/specs/reference-audit-v1.json"
+        ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1"
       },
@@ -136,8 +184,10 @@
       "components": {
         "model_id": null,
         "provider_id": null,
-        "runtime_harness": "in_process_fixture/1",
-        "tool_contract_refs": ["core/contracts/execution-intake-binding.schema.json"],
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "core/contracts/execution-intake-binding.schema.json"
+        ],
         "api_surface_version": "2026-10",
         "qualification_profile_ref": "qualprofile_e2e_v1"
       },
@@ -154,8 +204,10 @@
       "components": {
         "model_id": "zai/glm-4.7",
         "provider_id": "openrouter",
-        "runtime_harness": "in_process_fixture/1",
-        "tool_contract_refs": ["runtime/cli/specs/reference-audit-v1.json"],
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "runtime/cli/specs/reference-audit-v1.json"
+        ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1"
       },
@@ -169,8 +221,10 @@
       "components": {
         "model_id": null,
         "provider_id": null,
-        "runtime_harness": "in_process_fixture/1",
-        "tool_contract_refs": ["runtime/cli/specs/reference-audit-v1.json"],
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "runtime/cli/specs/reference-audit-v1.json"
+        ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1"
       },
@@ -184,26 +238,50 @@
       "components": {
         "model_id": null,
         "provider_id": null,
-        "runtime_harness": "in_process_fixture/1",
-        "tool_contract_refs": ["core/contracts/execution-intake-binding.schema.json"],
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "core/contracts/execution-intake-binding.schema.json"
+        ],
         "api_surface_version": "2026-10",
         "qualification_profile_ref": "qualprofile_e2e_v1"
       },
       "digest": "b7f3a1c0ffee11dd22cc33bb44aa55996677889900aabbccddeeff0011223344"
     }
   },
-  "availability": { "exec_openrouter_glm": true, "exec_local_tests": true, "exec_unitera_execution_control_fixture": true },
-  "policy_compatible": { "exec_openrouter_glm": true, "exec_local_tests": true, "exec_unitera_execution_control_fixture": true },
-  "budget_compatible": { "exec_openrouter_glm": true, "exec_local_tests": true, "exec_unitera_execution_control_fixture": true },
+  "availability": {
+    "exec_openrouter_glm": true,
+    "exec_local_tests": true,
+    "exec_unitera_execution_control_fixture": true
+  },
+  "policy_compatible": {
+    "exec_openrouter_glm": true,
+    "exec_local_tests": true,
+    "exec_unitera_execution_control_fixture": true
+  },
+  "budget_compatible": {
+    "exec_openrouter_glm": true,
+    "exec_local_tests": true,
+    "exec_unitera_execution_control_fixture": true
+  },
   "executor_bindings": {
     "exec_openrouter_glm": {
       "transport": "fixture",
       "result": {
         "outcome": "SUCCESS",
         "outputs": [
-          { "output_id": "audit_report", "inline_payload": { "findings": [] } }
+          {
+            "output_id": "audit_report",
+            "inline_payload": {
+              "findings": []
+            }
+          }
         ],
-        "metrics": { "latency_ms": 1000, "cost_units": 1, "tokens_in": 10, "tokens_out": 10 }
+        "metrics": {
+          "latency_ms": 1000,
+          "cost_units": 1,
+          "tokens_in": 10,
+          "tokens_out": 10
+        }
       }
     },
     "exec_local_tests": {
@@ -211,7 +289,12 @@
       "result": {
         "outcome": "SUCCESS",
         "outputs": [],
-        "metrics": { "latency_ms": 500, "cost_units": 0, "tokens_in": 0, "tokens_out": 0 }
+        "metrics": {
+          "latency_ms": 500,
+          "cost_units": 0,
+          "tokens_in": 0,
+          "tokens_out": 0
+        }
       }
     },
     "exec_unitera_execution_control_fixture": {
@@ -219,7 +302,12 @@
       "result": {
         "outcome": "SUCCESS",
         "outputs": [],
-        "metrics": { "latency_ms": 60, "cost_units": 0, "tokens_in": 0, "tokens_out": 0 }
+        "metrics": {
+          "latency_ms": 60,
+          "cost_units": 0,
+          "tokens_in": 0,
+          "tokens_out": 0
+        }
       }
     }
   },
@@ -227,7 +315,10 @@
     "exec_unitera_execution_control_fixture": {
       "binding_id": "eib_reference_email_send_0001",
       "work_unit_id": "wu_run_cli_reference_audit_0001_root",
-      "target": { "system": "unitera_systems_execution_control", "transport": "fixture" },
+      "target": {
+        "system": "unitera_systems_execution_control",
+        "transport": "fixture"
+      },
       "capability_mapping": {
         "maws_capability_id": "cap_external_execution_control",
         "systems_capability_id": "email.send",
@@ -237,7 +328,9 @@
       },
       "rights_transition": {
         "authority_ceiling_ref": "scope/runtime_run_reference",
-        "allowed_effects": ["workspace"],
+        "allowed_effects": [
+          "workspace"
+        ],
         "expected_side_effect_class": "external_commit",
         "credential_model": "none_wave1_fixture"
       },
@@ -245,7 +338,9 @@
         "systems_evidence_class": "persisted_execution_control_read_model",
         "receipt_mapping": "systems_execution_receipt_to_maws_verification_receipt"
       },
-      "outcome_semantics": { "business_outcome": "not_asserted" },
+      "outcome_semantics": {
+        "business_outcome": "not_asserted"
+      },
       "commitment_context": {
         "commitment_run_id": "cr_fixture_reference_0001",
         "commitment_approval_decision_id": "cad_fixture_reference_0001",
@@ -253,12 +348,27 @@
       }
     }
   },
-  "jev": { "mode": "fixture", "case_id": "valid-preference" },
+  "jev": {
+    "mode": "fixture",
+    "case_id": "valid-preference"
+  },
   "verifier": {
     "verifier_executor_id": "exec_local_tests",
     "independent": true,
     "outcome": "PASS",
-    "evidence_refs": ["evidence/runtime-run-cli/analysis-receipt.json"],
-    "checks": ["outputs_present", "analysis_evidence_linked"]
+    "evidence_refs": [
+      "evidence/runtime-run-cli/analysis-receipt.json"
+    ],
+    "checks": [
+      "outputs_present",
+      "analysis_evidence_linked"
+    ]
+  },
+  "harness_context": {
+    "context_id": "hctx_run_cli_reference_audit_0001_dev",
+    "context": "development_harness",
+    "run_ref": "run_cli_reference_audit_0001",
+    "authority_grant": "none",
+    "created_at": "2026-09-25T00:00:00Z"
   }
 }

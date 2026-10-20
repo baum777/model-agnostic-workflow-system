@@ -19,6 +19,7 @@ import { evaluateCompletion } from '../../runtime/completion/completion-engine.m
 import { buildVerificationReceipt } from '../../runtime/completion/verification.mjs';
 import { loadExecutorRegistry } from '../../runtime/executors/manifest-loader.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
+import { developmentProbeHarnessContext } from '../../runtime/harness-context/context-binding.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -42,7 +43,7 @@ function fingerprint(executorId, capabilityId, profileRef) {
     components: {
       model_id: executorId === 'exec_openrouter_glm' ? 'zai/glm-4.7' : null,
       provider_id: executorId === 'exec_openrouter_glm' ? 'openrouter' : null,
-      runtime_harness: 'in_process_fixture/1',
+      runtime_harness: 'development_harness/in_process_fixture/1',
       tool_contract_refs: ['tests/vnext/e2e-reference-run.test.mjs'],
       api_surface_version: '2026-09',
       qualification_profile_ref: 'qualprofile_e2e_v1'
@@ -132,6 +133,7 @@ async function runReferenceScenario(sessionModel, { runId = 'run_e2e_0001', arti
   return executeWorkRun({
     root,
     runId,
+    harnessContext: developmentProbeHarnessContext({ runRef: runId, contextId: `hctx_${runId}_dev` }),
     interactionSession: {
       session_id: 'sess_zcode_e2e',
       interaction_host: 'zcode',

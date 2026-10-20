@@ -43,14 +43,17 @@ const rootWorkUnitDraft = {
   decomposition_policy_ref: 'tpl_audit_repair_v1',
   completion_contract_ref: 'cc_audit_repo_001',
   created_by: 'interaction_session',
-  run_ref: 'run_0001'
+  run_ref: 'run_0001',
+  harness_context_ref: 'hctx_planner_test_dev'
 };
 
 const binding = {
   executor_id: 'exec_openrouter_glm',
   routing_decision_ref: 'rd_0001',
   qualification_ref: 'qual_or_glm_ana_0001',
-  selection_mode: 'NORMAL_SELECTION'
+  selection_mode: 'NORMAL_SELECTION',
+  harness_context: 'development_harness',
+  harness_context_ref: 'hctx_planner_test_dev'
 };
 
 function buildBoundGraph() {
@@ -64,9 +67,11 @@ function buildBoundGraph() {
     routingForNode: () => ({ ...binding }),
     workGraphStore: graphStore,
     graphId: 'graph_run_0001',
-    root
+    root,
+    workUnits: [rootWorkUnit],
+    harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' }
   });
-  return { workUnits, graphStore, graph, candidate };
+  return { workUnits, graphStore, graph, candidate, rootWorkUnit };
 }
 
 test('bound graph is immutable, versioned, schema-valid, and registered as active', () => {
@@ -93,7 +98,7 @@ test('candidate missing a mandatory stage cannot be bound (OD-02)', () => {
   const candidate = buildCandidate({ template, workUnits: [rootWorkUnit] });
   candidate.nodes = candidate.nodes.filter((node) => node.stage !== 'verification');
   assert.throws(
-    () => planAndBind({ template, candidate, routingForNode: () => ({ ...binding }), workGraphStore: createWorkGraphStore({ root }), graphId: 'graph_x', root }),
+    () => planAndBind({ template, candidate, routingForNode: () => ({ ...binding }), workGraphStore: createWorkGraphStore({ root }), graphId: 'graph_x', root, workUnits: [], harnessContext: { context_id: 'hctx_x', context: 'development_harness' } }),
     (error) => error instanceof FailClosedError && error.code === 'CANDIDATE_INVALID' && error.message.includes('verification')
   );
 });
@@ -160,7 +165,7 @@ test('decomposition exceeding limits is rejected with limits_respected false (OD
 });
 
 test('revision anchored at active version is accepted and creates a new immutable version (OD-05/OD-07)', () => {
-  const { graphStore } = buildBoundGraph();
+  const { graphStore, rootWorkUnit } = buildBoundGraph();
   const engine = createRevisionEngine({ workGraphStore: graphStore, root });
   const request = {
     request_id: 'rev_0001',
@@ -168,10 +173,16 @@ test('revision anchored at active version is accepted and creates a new immutabl
     request_type: 'rebind_executor',
     source: 'verifier',
     motivation: 'verification failed on analysis node',
-    payload: { node_id: 'node_00_analysis', executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd_0009', qualification_ref: 'qual_local_tests_verify_0001', selection_mode: 'FALLBACK' } }
+    payload: { node_id: 'node_00_analysis', executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd_0009', qualification_ref: 'qual_local_tests_verify_0001', selection_mode: 'FALLBACK', harness_context: 'development_harness', harness_context_ref: 'hctx_planner_test_dev' } }
   };
   validateRevisionRequest(request, root);
-  const { decision, newGraph } = engine.submit('graph_run_0001', request);
+  const { decision, newGraph } = engine.submit('graph_run_0001', request, {
+    workUnits: [rootWorkUnit],
+    // S11 R4 on the revision path: a qualification-replacing rebind must
+    // prove the new qualification was earned under the bound context.
+    qualifications: [{ qualification_id: 'qual_local_tests_verify_0001', fingerprint_ref: 'fp_local_tests_dev' }],
+    qualifiedFingerprints: { fp_local_tests_dev: { fingerprint_id: 'fp_local_tests_dev', components: { runtime_harness: 'development_harness/planner-test/1' } } }
+  });
   assert.equal(decision.outcome, 'ACCEPTED');
   assert.equal(decision.new_graph_version, 2);
   assert.equal(graphStore.activeVersion('graph_run_0001'), 2);
@@ -183,7 +194,7 @@ test('revision anchored at active version is accepted and creates a new immutabl
 });
 
 test('stale revision request becomes STALE with explicit revalidation and never mutates (OD-07)', () => {
-  const { graphStore } = buildBoundGraph();
+  const { graphStore, rootWorkUnit } = buildBoundGraph();
   const engine = createRevisionEngine({ workGraphStore: graphStore, root });
   const request = {
     request_id: 'rev_0002',
@@ -191,7 +202,7 @@ test('stale revision request becomes STALE with explicit revalidation and never 
     request_type: 'rebind_executor',
     source: 'executor',
     motivation: 'late request',
-    payload: { node_id: 'node_00_analysis', executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd_0010', qualification_ref: 'qual_local_tests_verify_0001', selection_mode: 'FALLBACK' } }
+    payload: { node_id: 'node_00_analysis', executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd_0010', qualification_ref: 'qual_local_tests_verify_0001', selection_mode: 'FALLBACK', harness_context: 'development_harness', harness_context_ref: 'hctx_planner_test_dev' } }
   };
   // advance active version to 2 first
   engine.submit('graph_run_0001', {
@@ -201,8 +212,8 @@ test('stale revision request becomes STALE with explicit revalidation and never 
     source: 'runtime',
     motivation: 'budget refresh',
     payload: {}
-  });
-  const { decision, newGraph } = engine.submit('graph_run_0001', request);
+  }, { workUnits: [rootWorkUnit] });
+  const { decision, newGraph } = engine.submit('graph_run_0001', request, { workUnits: [rootWorkUnit] });
   assert.equal(decision.outcome, 'STALE');
   assert.ok(['CONFLICTING', 'OBSOLETE', 'REQUIRES_REBASE'].includes(decision.revalidation));
   assert.equal(newGraph, null);
@@ -251,7 +262,7 @@ test('non-authority arbitration follows deterministic resolution order (OD-08)',
 });
 
 test('activation supersession records are monotonic and schema-valid (OD-05)', () => {
-  const { graphStore, allSupersessions } = { ...buildBoundGraph(), allSupersessions: null };
+  const { graphStore, rootWorkUnit } = { ...buildBoundGraph(), allSupersessions: null };
   const engine = createRevisionEngine({ workGraphStore: graphStore, root });
   engine.submit('graph_run_0001', {
     request_id: 'rev_0009',
@@ -260,7 +271,7 @@ test('activation supersession records are monotonic and schema-valid (OD-05)', (
     source: 'human',
     motivation: 'context refresh',
     payload: {}
-  });
+  }, { workUnits: [rootWorkUnit] });
   const records = graphStore.allSupersessions();
   assert.ok(records.length >= 1);
   for (const record of records) {

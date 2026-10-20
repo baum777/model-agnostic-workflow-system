@@ -28,6 +28,7 @@ import { buildVerificationReceipt } from '../completion/verification.mjs';
 import { loadExecutorRegistry } from '../executors/manifest-loader.mjs';
 import { executionControlFixtureExecutor, INTAKE_FX_EXECUTOR_ID } from '../intake/execution-control-fixture.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
+import { validateHarnessContextRecord } from '../harness-context/context-binding.mjs';
 import { assertRunId, resolveRuntimeRunDir } from '../observability/run-paths.mjs';
 
 const SUPPORTED_TRANSPORTS = ['fixture'];
@@ -106,6 +107,12 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
   // --- validate spec parts against the canonical contracts they claim to be.
   const interactionSession = requireObject(spec, 'interaction_session');
   validateOrThrow(interactionSession, 'core/contracts/interaction-session.schema.json', 'SPEC_SESSION_INVALID', root);
+  // S11: the run spec must carry its harness context record; a spec without
+  // one binds no executor (fail closed, no default context).
+  if (spec.harness_context === undefined || spec.harness_context === null) {
+    throw new SpecError('CONTEXT_BINDING_MISSING', 'run spec carries no harness_context record; a run without a harness context binds no executor');
+  }
+  const harnessContext = validateHarnessContextRecord(spec.harness_context, root);
   const template = requireObject(spec, 'template');
   validateOrThrow(template, 'core/contracts/execution-plan-template.schema.json', 'SPEC_TEMPLATE_INVALID', root);
   const workRequest = requireObject(spec, 'work_request');
@@ -342,6 +349,7 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     workRequest,
     template,
     contextEnvelopeRef: contextEnvelope.envelope_id,
+    harnessContext,
     profiles,
     subsumptionRecords: spec.subsumption_records || [],
     qualifications,

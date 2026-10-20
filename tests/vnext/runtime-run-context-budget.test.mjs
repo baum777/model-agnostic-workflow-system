@@ -63,6 +63,7 @@ test('the reference spec declares its envelope and records the budget verdict', 
 test('cumulative per-invocation usage is enforced: a budget-exceeding run never reports COMPLETED', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_budget_multi_stage_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.context_envelope = { envelope_id: 'ctx_budget_multi_stage_0001', token_budget: 32 };
     spec.template.mandatory_stages = ['analysis', 'analysis2', 'effect', 'verification'];
     spec.work_request.stageCapabilities.analysis2 = ['cap_repository_analysis'];
@@ -86,6 +87,7 @@ test('cumulative per-invocation usage is enforced: a budget-exceeding run never 
 test('the estimate measures UTF-8 bytes, not UTF-16 code units', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_budget_utf8_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.context_envelope = { envelope_id: 'ctx_budget_utf8_0001', token_budget: 16 };
     spec.work_request.objective = '€'.repeat(40);
   });
@@ -98,6 +100,7 @@ test('the estimate measures UTF-8 bytes, not UTF-16 code units', async () => {
 test('a context estimate above the declared budget fails closed (no silent truncation)', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_budget_payload_over_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.context_envelope = { envelope_id: 'ctx_budget_payload_over_0001', token_budget: 4 };
     spec.work_request.boundedPayload = { blob: 'x'.repeat(400) };
   });
@@ -110,6 +113,7 @@ test('a context estimate above the declared budget fails closed (no silent trunc
 test('declared executor tokens that do not fit the envelope fail closed', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_budget_tokens_over_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.context_envelope = { envelope_id: 'ctx_budget_tokens_over_0001', token_budget: 32 };
     spec.executor_bindings.exec_openrouter_glm.result.metrics.tokens_in = 4096;
   });
@@ -122,6 +126,7 @@ test('declared executor tokens that do not fit the envelope fail closed', async 
 test('a missing context envelope fails closed', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_budget_missing_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     delete spec.context_envelope;
   });
   await assert.rejects(
@@ -133,6 +138,7 @@ test('a missing context envelope fails closed', async () => {
 test('a schema-invalid context envelope fails closed (SPEC_CONTEXT_ENVELOPE_INVALID)', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_budget_invalid_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.context_envelope = { envelope_id: 'not-ctx-prefixed', token_budget: 0 };
   });
   await assert.rejects(

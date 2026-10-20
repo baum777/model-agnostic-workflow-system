@@ -85,6 +85,7 @@ test('runtime:run is an operational CLI entry point (child process, exit 0)', as
 test('completion is honest: missing required output blocks COMPLETED even with SUCCESS executors', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_missing_output_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.executor_bindings.exec_openrouter_glm.result.outputs = [];
   });
   const { summary } = await runRuntimeRun({ specPath, outDir: path.join(dir, 'run') });
@@ -96,6 +97,7 @@ test('completion is honest: missing required output blocks COMPLETED even with S
 test('availability is deny-by-default: undeclared executors are ineligible and the run BLOCKS', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_deny_default_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.availability = {};
   });
   const { summary } = await runRuntimeRun({ specPath, outDir: path.join(dir, 'run') });
@@ -106,6 +108,7 @@ test('availability is deny-by-default: undeclared executors are ineligible and t
 test('live transport fails closed with a typed error and never falls back', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_live_transport_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.executor_bindings.exec_openrouter_glm.transport = 'openrouter_api';
   });
   await assert.rejects(
@@ -117,6 +120,7 @@ test('live transport fails closed with a typed error and never falls back', asyn
 test('unknown executor in bindings fails closed with SPEC_UNKNOWN_EXECUTOR', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_unknown_executor_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.executor_bindings.exec_does_not_exist = { transport: 'fixture', result: { outcome: 'SUCCESS' } };
   });
   await assert.rejects(
@@ -135,6 +139,7 @@ test('missing spec file fails closed with SPEC_NOT_FOUND', async () => {
 test('verifier defaults cannot manufacture attestations (SPEC_VERIFIER_INVALID)', async () => {
   const missingOutcome = writeSpec((spec) => {
     spec.run_id = 'run_cli_verifier_no_outcome_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     delete spec.verifier.outcome;
   });
   await assert.rejects(
@@ -144,6 +149,7 @@ test('verifier defaults cannot manufacture attestations (SPEC_VERIFIER_INVALID)'
 
   const passWithoutEvidence = writeSpec((spec) => {
     spec.run_id = 'run_cli_verifier_empty_evidence_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.verifier.evidence_refs = [];
   });
   await assert.rejects(
@@ -155,6 +161,7 @@ test('verifier defaults cannot manufacture attestations (SPEC_VERIFIER_INVALID)'
 test('qualified fingerprints are a separate required spec part, never aliased', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_no_qualified_fps_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     delete spec.qualified_fingerprints;
   });
   await assert.rejects(
@@ -166,6 +173,7 @@ test('qualified fingerprints are a separate required spec part, never aliased', 
 test('a non-empty run directory fails closed with RUN_DIR_EXISTS', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_dir_reuse_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
   });
   const outDir = path.join(dir, 'run');
   await runRuntimeRun({ specPath, outDir });
@@ -178,6 +186,7 @@ test('a non-empty run directory fails closed with RUN_DIR_EXISTS', async () => {
 test('run directories are claimed exclusively: even an empty existing directory fails closed', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_dir_claim_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
   });
   const outDir = path.join(dir, 'run');
   fs.mkdirSync(outDir);
@@ -190,6 +199,7 @@ test('run directories are claimed exclusively: even an empty existing directory 
 test('qualified snapshots must bind to their qualification records (SPEC_FINGERPRINT_INVALID)', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_fp_unbound_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.qualifications[0].fingerprint_ref = 'fp_unrelated_snapshot';
   });
   await assert.rejects(
@@ -201,6 +211,7 @@ test('qualified snapshots must bind to their qualification records (SPEC_FINGERP
 test('verifier identity must match the executor that actually runs the verification node', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_cli_verifier_mismatch_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.verifier.verifier_executor_id = 'exec_openrouter_glm';
   });
   await assert.rejects(

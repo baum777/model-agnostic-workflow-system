@@ -16,6 +16,7 @@
 // - FailClosedError from transports/executors is never swallowed into a
 //   result: contract violations propagate.
 import { FailClosedError, newId, nowIso } from '../vnext/util.mjs';
+import { assertInvocationHarnessContext } from '../harness-context/context-binding.mjs';
 
 const EXECUTOR_ID_PATTERN = /^exec_[a-z0-9_]+$/;
 const CAPABILITY_ID_PATTERN = /^cap_[a-z0-9_]+$/;
@@ -108,6 +109,9 @@ function assertInvocationShape(invocation) {
   if (!Array.isArray(authorityEnvelope.allowed_effects)) {
     throw new FailClosedError('INVOCATION_INVALID', 'authority_envelope.allowed_effects must be an array');
   }
+  // S11 R6: an invocation whose harness context binding is missing or
+  // contradictory never reaches an executor. No fallback context exists.
+  assertInvocationHarnessContext(invocation.harness_context);
   if (invocation.timeout_ms !== undefined && (typeof invocation.timeout_ms !== 'number' || invocation.timeout_ms <= 0)) {
     throw new FailClosedError('INVOCATION_INVALID', 'timeout_ms must be a positive number when present');
   }

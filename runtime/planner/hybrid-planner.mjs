@@ -3,6 +3,8 @@
 // proposes structure (CandidateGraph) and binds executors inside that
 // envelope through deterministic routing. The planner never grants authority.
 import { newId, FailClosedError } from '../vnext/util.mjs';
+import { deepFreeze } from './work-unit-store.mjs';
+import { validateHarnessContextRecord } from '../harness-context/context-binding.mjs';
 import { validateCandidateGraph, bindGraph } from './graph-versioning.mjs';
 
 export function buildCandidate({ template, workUnits, stageWorkUnitMap = {} }) {
@@ -44,18 +46,57 @@ export function buildCandidate({ template, workUnits, stageWorkUnitMap = {} }) {
 }
 
 // Deterministic gates run BEFORE any binding; a candidate that fails the
-// template cannot be bound at all.
-export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt }) {
+// template cannot be bound at all. `workUnits` (optional but strongly
+// recommended) enables the S11 binding-scope check: every bound node's
+// executor binding must reference the SAME harness context record as its
+// WorkUnit.
+export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt, workUnits, harnessContext }) {
   const issues = validateCandidateGraph(candidate, template);
   if (issues.length > 0) {
     throw new FailClosedError('CANDIDATE_INVALID', issues.join('; '));
   }
+
+  // S11: the WorkUnit collection and the validated HarnessContext record
+  // are REQUIRED. Without them the binding gate could not compare the
+  // bound (context value, record id) pair against the single source of
+  // truth, and a uniform false value could be registered.
+  if (!Array.isArray(workUnits)) {
+    throw new FailClosedError('CONTEXT_BINDING_MISSING', 'planAndBind requires the workUnits collection; binding without WorkUnit resolution is not permitted');
+  }
+  if (!harnessContext || typeof harnessContext !== 'object') {
+    throw new FailClosedError('CONTEXT_BINDING_MISSING', 'planAndBind requires the validated harnessContext record; binding without context resolution is not permitted');
+  }
+  // The record is validated here too, then cloned + frozen: a routing
+  // callback must not be able to mutate the binding source of truth.
+  const validatedContext = deepFreeze(structuredClone(validateHarnessContextRecord(harnessContext, root)));
+  const workUnitById = new Map(
+    workUnits.filter((workUnit) => workUnit && typeof workUnit === 'object').map((workUnit) => [workUnit.work_unit_id, workUnit])
+  );
 
   const bindings = [];
   for (const node of candidate.nodes) {
     const executorBinding = routingForNode(node);
     if (!executorBinding || typeof executorBinding.executor_id !== 'string') {
       throw new FailClosedError('ROUTING_BINDING_MISSING', `routing produced no binding for node ${node.node_id}`);
+    }
+    const workUnit = workUnitById.get(node.work_unit_id);
+    if (!workUnit) {
+      throw new FailClosedError('CONTEXT_BINDING_MISSING', `candidate node ${node.node_id} references work unit ${node.work_unit_id}, which was not provided for binding resolution`);
+    }
+    if (typeof workUnit.harness_context_ref !== 'string' || workUnit.harness_context_ref.length === 0) {
+      throw new FailClosedError('CONTEXT_BINDING_MISSING', `work unit ${workUnit.work_unit_id} carries no harness_context_ref; it cannot bind an executor`);
+    }
+    if (workUnit.harness_context_ref !== validatedContext.context_id) {
+      throw new FailClosedError(
+        'CONTEXT_BINDING_CONFLICT',
+        `work unit ${workUnit.work_unit_id} declares context "${workUnit.harness_context_ref}" but the run is bound to "${validatedContext.context_id}"`
+      );
+    }
+    if (executorBinding.harness_context !== validatedContext.context || executorBinding.harness_context_ref !== validatedContext.context_id) {
+      throw new FailClosedError(
+        'CONTEXT_BINDING_CONFLICT',
+        `node ${node.node_id} binds ("${executorBinding.harness_context}", "${executorBinding.harness_context_ref}") but the validated record is ("${validatedContext.context}", "${validatedContext.context_id}")`
+      );
     }
     bindings.push({ node_id: node.node_id, executor_binding: executorBinding });
   }
