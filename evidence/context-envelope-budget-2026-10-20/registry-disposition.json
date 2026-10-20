@@ -1,9 +1,9 @@
 {
   "registry_disposition": {
-    "status": "REQUIRED_BUT_BLOCKED",
+    "status": "UPDATED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "S3 wave A adds a new canonical contract to core/contracts/ (context-envelope.schema.json), a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the numeric context-budget enforcement it introduces. The registry write cannot be performed from this repository and follows as its own registered change (change registration plus a machine-readable CONTRACT_RECORD projection, per the S2b wave-1 precedent) after the owner merges the source PR; until that projection merges, the disposition is REQUIRED_BUT_BLOCKED with no registry commit to bind.",
+    "reason": "S3 wave A adds a new canonical contract to core/contracts/ (context-envelope.schema.json), a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the numeric context-budget enforcement it introduces. The registry write followed as its own registered change after the owner merged the source PR #17 (dbbea268): the registry PR projection/maws-context-envelope-20261020 carried the change registration MAWS_CONTEXT_ENVELOPE_BUDGET_2026_10_20_001.yaml plus the machine-readable CONTRACT_RECORD projection MAWS_CONTEXT_ENVELOPE_CONTRACT_2026_10_20_001.yaml and merged as registry_commit_sha below, closing this disposition; this update rebinds the disposition to UPDATED with that registry commit.",
     "affected_records": [
       "CONTRACT_RECORD:core/contracts/context-envelope.schema.json"
     ],
@@ -19,8 +19,8 @@
     "provenance_refs": [],
     "evidence_refs": [
       "evidence/context-envelope-budget-2026-10-20/RUN.md",
-      "tests/vnext/runtime-run-context-budget.test.mjs (5/5 pass: happy path with resource.budget_check event and context-envelope.json artifact; payload estimate over budget; declared executor tokens over budget; missing envelope; schema-invalid envelope)",
-      "npm run test:vnext (283/283 pass)",
+      "tests/vnext/runtime-run-context-budget.test.mjs (7/7 pass after the round-2 repair: happy path with resource.budget_check event and context-envelope.json artifact; payload estimate over budget; declared executor tokens over budget; missing envelope; schema-invalid envelope; cumulative per-invocation enforcement with on-disk budget_exceeded evidence and RUN_CONTEXT_BUDGET_EXCEEDED never COMPLETED; UTF-8 byte estimate)",
+      "npm run test:vnext (285/285 pass)",
       "npm run validate (PASS, no issues)",
       "npm run validate-maws-vnext (PASS, no issues)"
     ],
@@ -34,6 +34,6 @@
     ],
     "registry_baseline_sha": "9ef65e36965e5e8cf612c2a3e94c83b44afd0e2d",
     "implementation_commit_sha": "acd8182a5812cb95bdb54a1bfb11d161d2965665",
-    "registry_commit_sha": null
+    "registry_commit_sha": "53e8d60c299ad3a6f65d14ec7f3e799dc9d227a9"
   }
 }
