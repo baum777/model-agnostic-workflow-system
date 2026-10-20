@@ -69,7 +69,9 @@ function buildBoundGraph() {
     graphId: 'graph_run_0001',
     root,
     workUnits: [rootWorkUnit],
-    harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' }
+    harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' },
+    qualifications: [{ qualification_id: 'qual_or_glm_ana_0001', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_planner_dev' }],
+    qualifiedFingerprints: { fp_planner_dev: { fingerprint_id: 'fp_planner_dev', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/planner-test/1' } } }
   });
   return { workUnits, graphStore, graph, candidate, rootWorkUnit };
 }
@@ -98,7 +100,7 @@ test('candidate missing a mandatory stage cannot be bound (OD-02)', () => {
   const candidate = buildCandidate({ template, workUnits: [rootWorkUnit] });
   candidate.nodes = candidate.nodes.filter((node) => node.stage !== 'verification');
   assert.throws(
-    () => planAndBind({ template, candidate, routingForNode: () => ({ ...binding }), workGraphStore: createWorkGraphStore({ root }), graphId: 'graph_x', root, workUnits: [], harnessContext: { context_id: 'hctx_x', context: 'development_harness' } }),
+    () => planAndBind({ template, candidate, routingForNode: () => ({ ...binding }), workGraphStore: createWorkGraphStore({ root }), graphId: 'graph_x', root, workUnits: [], harnessContext: { context_id: 'hctx_x', context: 'development_harness' }, qualifications: [{ qualification_id: 'qual_or_glm_ana_0001', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_planner_dev' }], qualifiedFingerprints: { fp_planner_dev: { fingerprint_id: 'fp_planner_dev', executor_id: 'exec_openrouter_glm', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/planner-test/1' } } } }),
     (error) => error instanceof FailClosedError && error.code === 'CANDIDATE_INVALID' && error.message.includes('verification')
   );
 });

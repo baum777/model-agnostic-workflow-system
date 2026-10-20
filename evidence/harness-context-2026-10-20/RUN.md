@@ -126,9 +126,13 @@ New regression tests: reference-only re-anchoring requires evidence; cross-run r
 
 387/387 PASS.
 
+## Pre-merge independent review (codex, round 10 on `7a56a97`)
+
+1×P1, real, repaired on this head: a direct `planAndBind` call accepted any `qualification_ref`, so a development-bound graph could activate with a qualification earned under the other context. Repaired: the qualification gate moved INTO the binding path — `planAndBind` now resolves the qualification and its qualified fingerprint, verifies the context binding (`assertQualificationContextBinding`) and the executor ownership, and fails closed when the inputs are absent. The engine passes its qualification inputs down. Regression tests: foreign-context qualification refused, missing inputs refused, dev-context qualification binds. 388/388 PASS.
+
 ## Verification
 
-- `node --test tests/vnext/*.test.mjs` — 387/387 PASS (includes the S11 tests across all nine repair rounds and all coordinated amendments).
+- `node --test tests/vnext/*.test.mjs` — 388/388 PASS (includes the S11 tests across all ten repair rounds and all coordinated amendments).
 - `npm run eval:maws-vnext` — ok:true (now includes `harness-context.contracts.json`).
 - `npm run validate-harness-context` — CLI smoke: valid record exit 0, unknown-vocabulary record exit 1.
 - Full engine path: `runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.json` completes COMPLETED with the bound dev context (CLI test asserts this continuously).
