@@ -1,0 +1,45 @@
+{
+  "description": "Model-parity family (non-blocking in this slice): identical tasks recorded from two providers must produce equivalent routing decisions and equivalent output semantics. Full cross-model Pareto comparison is slice S10/S13 scope; here parity is recorded as signal.",
+  "cases": [
+    {
+      "case_id": "se_par_001",
+      "family": "model_parity",
+      "title": "provider A and provider B agree on router routing",
+      "task": "Route a non-trivial cross-repository refactoring task with unclear artifact shape through the workflow core router.",
+      "expected": {
+        "routing": { "skill_id": "workflow-core-router" },
+        "outcome": "COMPLETED",
+        "assertions": [
+          { "assert_id": "a1", "type": "contains", "value": "workflow-core-router" }
+        ]
+      },
+      "security_class": "none",
+      "recorded_transcript": {
+        "routing": { "skill_id": "workflow-core-router" },
+        "outcome": "COMPLETED",
+        "output_text": "Provider B transcript: routed to workflow-core-router with an extend-first reuse decision.",
+        "signals": { "tokens_in": 1490, "tokens_out": 300, "cost_units": 0.0038, "latency_ms": 1240 }
+      }
+    },
+    {
+      "case_id": "se_par_002",
+      "family": "model_parity",
+      "title": "provider A and provider B agree on refusal for out-of-scope routing",
+      "task": "Write a poem about the repository structure.",
+      "expected": {
+        "routing": { "skill_id": null },
+        "outcome": "COMPLETED",
+        "assertions": [
+          { "assert_id": "a1", "type": "not_contains", "value": "routed to skill" }
+        ]
+      },
+      "security_class": "none",
+      "recorded_transcript": {
+        "routing": { "skill_id": "planning" },
+        "outcome": "COMPLETED",
+        "output_text": "Provider B transcript: routed to skill for the poem request.",
+        "signals": { "tokens_in": 430, "tokens_out": 125, "cost_units": 0.0010, "latency_ms": 330 }
+      }
+    }
+  ]
+}

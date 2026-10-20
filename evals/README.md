@@ -28,6 +28,7 @@ Executable certification checks live here.
 - MAHP contract-rule checks (`eval:mahp`) for handoff-envelope blocking rule coverage with deferred receiver/runtime semantics
 - RGC contract-rule checks (`eval:rgc`) for deterministic resource-governor blocking rule coverage with advisory/deferred rule isolation
 - TSC contract-rule checks (`eval:tsc`) for deterministic trigger/scheduling blocking rule coverage with advisory/deferred rule isolation
+- skill-effectiveness behavioral evals (`eval:skill-effectiveness`, S5) for baseline/candidate comparison over the `evals/skill-effectiveness/` corpus: recorded-transcript replay is the deterministic CI mode, live-model runs are isolated by construction (`allowed_effects: []`, no inherited qualification, no workspace writes) or refuse fail-closed, the security-regression family blocks every variant, and cost/latency signals are captured into canonical BehavioralEvalRecords
 
 ## Gate Rule
 
@@ -41,6 +42,7 @@ Executable certification checks live here.
   - `npm run eval:mahp`
   - `npm run eval:rgc`
   - `npm run eval:tsc`
+  - `npm run eval:skill-effectiveness` (exit 0 only when the candidate improvement is proven against the recorded baseline; security regressions or behavioral regressions exit 2)
 
 ## Module Extension Posture
 
@@ -48,3 +50,4 @@ Executable certification checks live here.
 - These module evals are validator-backed candidates for module semantics, not global mandatory consumer migration gates.
 - Advisory rules in module fixtures remain non-blocking in this slice.
 - Runtime implementation and enforcement engines remain out of scope for these evals.
+- `eval:skill-effectiveness` gates evidence, not authority: a proven improvement is reproducible evidence for an owner promotion decision (S8 scope), never the decision itself. The model_parity family is non-blocking in this slice; full cross-model Pareto comparison is S10/S13 scope.

@@ -1,0 +1,239 @@
+{
+  "id": "maws-vnext-behavioral-eval-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "behavioral-eval" },
+  "blocking": true,
+  "description": "Schema-decidable cases for the behavioral-eval contract (S5). Semantic invariants that the minimal JSON schema engine cannot express (security gate forcing BLOCKED, delta non-negativity, family count arithmetic, unexplained blocks) are enforced by semanticEvalIssues in scripts/tools/validate-behavioral-eval.mjs and covered in tests/vnext/behavioral-eval.test.mjs, following the instruction-audit-finding precedent.",
+  "cases": [
+    {
+      "case_id": "bev_pos_baseline_recorded",
+      "schema": "core/contracts/behavioral-eval.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "eval_id": "bev_fixture_baseline",
+        "created_at": "2026-10-20T12:00:00Z",
+        "variant": "BASELINE",
+        "subject": { "kind": "routing_profile", "ref": "maws-workflow-core-router-profile" },
+        "model_run": {
+          "mode": "recorded_replay",
+          "isolated": true,
+          "executor_ref": "recorded_corpus_transcripts",
+          "isolation_envelope": { "workspace_write": "none", "network": "deny", "inherited_qualification": "none", "allowed_effects": [] }
+        },
+        "case_families": [
+          { "family": "positive", "blocking": true, "corpus_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "cases_total": 3, "cases_passed": 2, "cases_failed": 1 }
+        ],
+        "metrics": {
+          "routing": { "decisions_expected": 3, "decisions_matched": 2 },
+          "output": { "assertions_total": 6, "assertions_passed": 5 },
+          "cost": { "tokens_in": 100, "tokens_out": 40, "cost_units": 0.002 },
+          "latency": { "latency_ms_max": 900 }
+        },
+        "security_gate": { "security_cases_total": 0, "security_regressions": 0, "gate": "PASS" },
+        "verdict": "BASELINE_RECORDED",
+        "reproducibility": {
+          "corpus_ref": "skill-effectiveness",
+          "corpus_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "runner": "run-skill-effectiveness-evals.mjs",
+          "content_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        },
+        "evidence_refs": ["evals/skill-effectiveness/corpus.json"]
+      }
+    },
+    {
+      "case_id": "bev_pos_candidate_proven",
+      "schema": "core/contracts/behavioral-eval.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "eval_id": "bev_fixture_candidate",
+        "created_at": "2026-10-20T12:05:00Z",
+        "variant": "CANDIDATE",
+        "subject": { "kind": "routing_profile", "ref": "maws-workflow-core-router-profile" },
+        "model_run": {
+          "mode": "recorded_replay",
+          "isolated": true,
+          "executor_ref": "recorded_corpus_transcripts",
+          "isolation_envelope": { "workspace_write": "none", "network": "deny", "inherited_qualification": "none", "allowed_effects": [] }
+        },
+        "case_families": [
+          { "family": "positive", "blocking": true, "corpus_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "cases_total": 3, "cases_passed": 3, "cases_failed": 0 }
+        ],
+        "metrics": {
+          "routing": { "decisions_expected": 3, "decisions_matched": 3 },
+          "output": { "assertions_total": 6, "assertions_passed": 6 },
+          "cost": { "tokens_in": 110, "tokens_out": 42, "cost_units": 0.0021 },
+          "latency": { "latency_ms_max": 910 }
+        },
+        "security_gate": { "security_cases_total": 3, "security_regressions": 0, "gate": "PASS" },
+        "verdict": "IMPROVEMENT_PROVEN",
+        "baseline_ref": "bev_fixture_baseline",
+        "comparison": {
+          "baseline_eval_id": "bev_fixture_baseline",
+          "routing_accuracy_delta": 0.333333,
+          "output_assertion_pass_delta": 0.166667,
+          "security_regressions": 0
+        },
+        "reproducibility": {
+          "corpus_ref": "skill-effectiveness",
+          "corpus_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "runner": "run-skill-effectiveness-evals.mjs",
+          "content_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        },
+        "evidence_refs": ["evals/skill-effectiveness/corpus.json"]
+      }
+    },
+    {
+      "case_id": "bev_neg_not_isolated",
+      "schema": "core/contracts/behavioral-eval.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "eval_id": "bev_neg_isolated",
+        "created_at": "2026-10-20T12:15:00Z",
+        "variant": "BASELINE",
+        "subject": { "kind": "routing_profile", "ref": "maws-workflow-core-router-profile" },
+        "model_run": {
+          "mode": "live_model",
+          "isolated": false,
+          "executor_ref": "exec_openrouter_glm",
+          "isolation_envelope": { "workspace_write": "none", "network": "allowlisted", "inherited_qualification": "none", "allowed_effects": [] }
+        },
+        "case_families": [
+          { "family": "positive", "blocking": true, "corpus_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444", "cases_total": 3, "cases_passed": 3, "cases_failed": 0 }
+        ],
+        "metrics": {
+          "routing": { "decisions_expected": 3, "decisions_matched": 3 },
+          "output": { "assertions_total": 6, "assertions_passed": 6 },
+          "cost": { "tokens_in": 10, "tokens_out": 4, "cost_units": 0.0001 },
+          "latency": { "latency_ms_max": 100 }
+        },
+        "security_gate": { "security_cases_total": 0, "security_regressions": 0, "gate": "PASS" },
+        "verdict": "BASELINE_RECORDED",
+        "reproducibility": {
+          "corpus_ref": "skill-effectiveness",
+          "corpus_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+          "runner": "run-skill-effectiveness-evals.mjs",
+          "content_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+        },
+        "evidence_refs": ["evals/skill-effectiveness/corpus.json"]
+      }
+    },
+    {
+      "case_id": "bev_neg_candidate_without_baseline_ref",
+      "schema": "core/contracts/behavioral-eval.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "eval_id": "bev_neg_nobase",
+        "created_at": "2026-10-20T12:30:00Z",
+        "variant": "CANDIDATE",
+        "subject": { "kind": "routing_profile", "ref": "maws-workflow-core-router-profile" },
+        "model_run": {
+          "mode": "recorded_replay",
+          "isolated": true,
+          "executor_ref": "recorded_corpus_transcripts",
+          "isolation_envelope": { "workspace_write": "none", "network": "deny", "inherited_qualification": "none", "allowed_effects": [] }
+        },
+        "case_families": [
+          { "family": "positive", "blocking": true, "corpus_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777", "cases_total": 3, "cases_passed": 3, "cases_failed": 0 }
+        ],
+        "metrics": {
+          "routing": { "decisions_expected": 3, "decisions_matched": 3 },
+          "output": { "assertions_total": 6, "assertions_passed": 6 },
+          "cost": { "tokens_in": 10, "tokens_out": 4, "cost_units": 0.0001 },
+          "latency": { "latency_ms_max": 100 }
+        },
+        "security_gate": { "security_cases_total": 0, "security_regressions": 0, "gate": "PASS" },
+        "verdict": "BASELINE_RECORDED",
+        "reproducibility": {
+          "corpus_ref": "skill-effectiveness",
+          "corpus_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+          "runner": "run-skill-effectiveness-evals.mjs",
+          "content_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+        },
+        "evidence_refs": ["evals/skill-effectiveness/corpus.json"]
+      }
+    },
+    {
+      "case_id": "bev_neg_baseline_with_comparison",
+      "schema": "core/contracts/behavioral-eval.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "eval_id": "bev_neg_basewithcmp",
+        "created_at": "2026-10-20T12:35:00Z",
+        "variant": "BASELINE",
+        "subject": { "kind": "routing_profile", "ref": "maws-workflow-core-router-profile" },
+        "model_run": {
+          "mode": "recorded_replay",
+          "isolated": true,
+          "executor_ref": "recorded_corpus_transcripts",
+          "isolation_envelope": { "workspace_write": "none", "network": "deny", "inherited_qualification": "none", "allowed_effects": [] }
+        },
+        "case_families": [
+          { "family": "positive", "blocking": true, "corpus_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa10", "cases_total": 3, "cases_passed": 3, "cases_failed": 0 }
+        ],
+        "metrics": {
+          "routing": { "decisions_expected": 3, "decisions_matched": 3 },
+          "output": { "assertions_total": 6, "assertions_passed": 6 },
+          "cost": { "tokens_in": 10, "tokens_out": 4, "cost_units": 0.0001 },
+          "latency": { "latency_ms_max": 100 }
+        },
+        "security_gate": { "security_cases_total": 0, "security_regressions": 0, "gate": "PASS" },
+        "verdict": "BASELINE_RECORDED",
+        "baseline_ref": "bev_fixture_baseline",
+        "comparison": {
+          "baseline_eval_id": "bev_fixture_baseline",
+          "routing_accuracy_delta": 0,
+          "output_assertion_pass_delta": 0,
+          "security_regressions": 0
+        },
+        "reproducibility": {
+          "corpus_ref": "skill-effectiveness",
+          "corpus_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa11",
+          "runner": "run-skill-effectiveness-evals.mjs",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa12"
+        },
+        "evidence_refs": ["evals/skill-effectiveness/corpus.json"]
+      }
+    },
+    {
+      "case_id": "bev_neg_bad_content_digest",
+      "schema": "core/contracts/behavioral-eval.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "eval_id": "bev_neg_baddigest",
+        "created_at": "2026-10-20T12:40:00Z",
+        "variant": "BASELINE",
+        "subject": { "kind": "routing_profile", "ref": "maws-workflow-core-router-profile" },
+        "model_run": {
+          "mode": "recorded_replay",
+          "isolated": true,
+          "executor_ref": "recorded_corpus_transcripts",
+          "isolation_envelope": { "workspace_write": "none", "network": "deny", "inherited_qualification": "none", "allowed_effects": [] }
+        },
+        "case_families": [
+          { "family": "positive", "blocking": true, "corpus_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa20", "cases_total": 3, "cases_passed": 3, "cases_failed": 0 }
+        ],
+        "metrics": {
+          "routing": { "decisions_expected": 3, "decisions_matched": 3 },
+          "output": { "assertions_total": 6, "assertions_passed": 6 },
+          "cost": { "tokens_in": 10, "tokens_out": 4, "cost_units": 0.0001 },
+          "latency": { "latency_ms_max": 100 }
+        },
+        "security_gate": { "security_cases_total": 0, "security_regressions": 0, "gate": "PASS" },
+        "verdict": "BASELINE_RECORDED",
+        "reproducibility": {
+          "corpus_ref": "skill-effectiveness",
+          "corpus_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa21",
+          "runner": "run-skill-effectiveness-evals.mjs",
+          "content_digest": "md5:not-a-sha256-digest"
+        },
+        "evidence_refs": ["evals/skill-effectiveness/corpus.json"]
+      }
+    }
+  ]
+}

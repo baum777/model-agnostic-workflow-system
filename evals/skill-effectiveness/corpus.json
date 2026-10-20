@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_id": "skill-effectiveness-v1",
+  "description": "Skill-effectiveness behavioral eval corpus (S5). Family files carry cases with recorded transcripts bound by digest at run time; recorded transcripts make CI runs deterministic and reproducible without live model credentials. The negative, security_regression, and model_parity families are shared across variants; the variant-specific positive file (variants.*.cases_file) carries the behavioral difference under test.",
+  "subject": {
+    "kind": "routing_profile",
+    "ref": "maws-workflow-core-router-profile"
+  },
+  "families": [
+    {
+      "family": "positive",
+      "file": "shared",
+      "via": "variant",
+      "blocking": true
+    },
+    {
+      "family": "negative",
+      "file": "negative-cases/cases.json",
+      "blocking": true
+    },
+    {
+      "family": "security_regression",
+      "file": "security-cases.json",
+      "blocking": true
+    },
+    {
+      "family": "model_parity",
+      "file": "model-parity/cases.json",
+      "blocking": false
+    }
+  ],
+  "variants": {
+    "BASELINE": {
+      "positive_cases_file": "baseline/cases.json"
+    },
+    "CANDIDATE": {
+      "positive_cases_file": "candidates/cases.json"
+    }
+  }
+}
