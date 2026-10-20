@@ -12,9 +12,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 import {
   auditInstructionSources,
+  semanticFindingIssues,
   AUDIT_SCHEMA_VERSION,
   AUDIT_TAXONOMY
 } from '../../runtime/instructions/instruction-auditor.mjs';
@@ -175,6 +177,107 @@ test('audit is read-only: the tree is byte-identical after two audit runs', () =
     auditInstructionSources({ root: tmp, revision: REVISION });
     auditInstructionSources({ root: tmp, revision: REVISION });
     assertTreesIdentical(before, snapshotTree(tmp));
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('same target on the same line via different edge kinds yields distinct finding ids (codex P2 repair)', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'maws-s3-idcoll-'));
+  try {
+    const fixed = ['AGENTS.md', 'WORKFLOW.md', 'docs/governance/source-hierarchy.md', 'docs/authority-matrix.md', 'docs/model-agnostic-core-prompt-system.md', 'core/contracts/workflow-routing-map.json', 'core/contracts/permission-boundary.json', 'core/contracts/workflow-memory-contract.json'];
+    for (const rel of fixed) {
+      fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
+      fs.writeFileSync(path.join(tmp, rel), `stub ${rel}\n`);
+    }
+    fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
+    fs.writeFileSync(
+      path.join(tmp, 'core/skills/demo-skill/SKILL.md'),
+      '# Demo\n\nSame target twice: [as link](./missing.md) and as `./missing.md`.\n'
+    );
+    fs.mkdirSync(path.join(tmp, '.agents/skills/local-demo'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, '.agents/skills/local-demo/SKILL.md'), '# Local\n');
+    fs.writeFileSync(path.join(tmp, 'package.json'), `${JSON.stringify({ name: 'x', private: true })}\n`);
+
+    const audit = auditInstructionSources({ root: tmp, revision: REVISION });
+    const stales = audit.findings.filter((finding) => finding.finding_class === 'STALE_REFERENCE');
+    assert.equal(stales.length, 2, 'the link edge and the inline-path edge are two findings');
+    assert.notEqual(stales[0].finding_id, stales[1].finding_id, 'edge kind is part of the finding identity');
+    for (const finding of stales) {
+      assert.equal(finding.line_range[0], 3);
+      assert.deepEqual(semanticFindingIssues(finding), []);
+    }
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('semantic finding checks enforce the line_range ordering invariant (codex P2 repair)', () => {
+  const reversed = {
+    finding_class: 'STALE_REFERENCE',
+    line_range: [10, 2]
+  };
+  assert.ok(semanticFindingIssues(reversed).length > 0, 'reversed range must be reported');
+  assert.deepEqual(semanticFindingIssues({ line_range: [7, 7] }), [], 'single-line range passes');
+  assert.deepEqual(semanticFindingIssues({ line_range: [12, 30] }), [], 'ordered multi-line range passes');
+  assert.deepEqual(semanticFindingIssues({}), [], 'non-finding input yields no issues (schema handles shape)');
+  const emitted = auditInstructionSources({ root: ROOT, revision: REVISION });
+  for (const finding of emitted.findings) {
+    assert.deepEqual(semanticFindingIssues(finding), [], 'the static emitter must never produce reversed ranges');
+  }
+});
+
+test('CLI revision gate: unresolvable revision exits 2 without a report (codex P1 repair)', () => {
+  const cli = path.join(ROOT, 'scripts', 'tools', 'validate-instruction-integrity.mjs');
+  let failed = false;
+  try {
+    execFileSync('node', [cli, '--revision', 'not-a-real-revision'], { stdio: 'pipe' });
+  } catch (error) {
+    failed = true;
+    assert.equal(error.status, 2, 'unresolvable revision must exit 2');
+    assert.ok(error.stderr.toString().includes('AUDIT_REVISION_UNVERIFIED'));
+  }
+  assert.ok(failed, 'the CLI must refuse an unresolvable revision');
+});
+
+test('CLI revision gate: a clean committed tree at HEAD audits, a dirty tree is refused', () => {
+  const cli = path.join(ROOT, 'scripts', 'tools', 'validate-instruction-integrity.mjs');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'maws-s3-cligate-'));
+  try {
+    const fixed = ['AGENTS.md', 'WORKFLOW.md', 'docs/governance/source-hierarchy.md', 'docs/authority-matrix.md', 'docs/model-agnostic-core-prompt-system.md', 'core/contracts/workflow-routing-map.json', 'core/contracts/permission-boundary.json', 'core/contracts/workflow-memory-contract.json'];
+    for (const rel of fixed) {
+      fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true });
+      fs.writeFileSync(path.join(tmp, rel), `stub ${rel}\n`);
+    }
+    fs.mkdirSync(path.join(tmp, 'core/skills/demo-skill'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'core/skills/demo-skill/SKILL.md'), '# Demo\n\nBroken: [missing](./nope.md)\n');
+    fs.mkdirSync(path.join(tmp, '.agents/skills/local-demo'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, '.agents/skills/local-demo/SKILL.md'), '# Local\n');
+    fs.writeFileSync(path.join(tmp, 'package.json'), `${JSON.stringify({ name: 'x', private: true })}\n`);
+
+    const git = (...args) => execFileSync('git', ['-C', tmp, ...args], { encoding: 'utf8' }).trim();
+    git('init', '--quiet');
+    git('config', 'user.email', 'test@example.invalid');
+    git('config', 'user.name', 'MAWS Test');
+    git('config', 'commit.gpgsign', 'false');
+    git('add', '-A');
+    git('commit', '--quiet', '-m', 'fixture');
+    const head = git('rev-parse', 'HEAD');
+
+    const clean = execFileSync('node', [cli, '--revision', head, '--root', tmp], { encoding: 'utf8' });
+    assert.ok(clean.includes('revision verified'), `verified run must say so: ${clean.split('\n')[0]}`);
+    assert.ok(clean.includes('1 findings'), `the planted dangling link must be found: ${clean.split('\n')[0]}`);
+
+    fs.appendFileSync(path.join(tmp, 'AGENTS.md'), 'dirty\n');
+    let refused = false;
+    try {
+      execFileSync('node', [cli, '--revision', head, '--root', tmp], { stdio: 'pipe' });
+    } catch (error) {
+      refused = true;
+      assert.equal(error.status, 2, 'a dirty tree must exit 2');
+      assert.ok(error.stderr.toString().includes('dirty'));
+    }
+    assert.ok(refused, 'the CLI must refuse to stamp a revision onto a dirty tree');
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
