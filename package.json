@@ -29,6 +29,7 @@
     "eval:skill-effectiveness": "node scripts/tools/run-skill-effectiveness-evals.mjs",
     "eval:context-assembly": "node scripts/tools/run-context-assembly-evals.mjs",
     "eval:benchmark-comparison": "node scripts/tools/run-comparative-benchmarks.mjs",
+    "promote-skill-candidate": "node scripts/tools/promote-skill-candidate.mjs",
     "test:vnext": "node --test tests/vnext/*.test.mjs",
     "test:skill-frontdoor": "node --test tests/vnext/skill-frontdoor.test.mjs",
     "validate-maws-vnext": "node scripts/tools/validate-maws-vnext-contracts.mjs",

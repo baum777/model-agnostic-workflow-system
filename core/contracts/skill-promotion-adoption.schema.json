@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/skill-promotion-adoption.schema.json",
+  "title": "SkillPromotionAdoptionRecord Contract",
+  "description": "S8 (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED): canonical record of one owner-governed skill promotion. The record binds the whole promotion chain: the skill frontdoor admission (mandatory complement of behavioral evidence, never replaced by it), the S5 behavioral eval evidence bound by content digest, the canonical owner approval, the versioned canonical adoption (adopted version strictly greater than the superseded version, adoption digest over the bound chain), the registry/provider export regeneration, and the post-adoption readback. authority_granted is false by construction: Feedback != Rule, Proposal != Applied Change, Eval PASS != Authority, Approval != Permission -- the adoption changes canonical skill content and never grants permission, qualification, or runtime authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "adoption_id", "candidate", "frontdoor_admission",
+    "eval_evidence", "owner_approval", "canonical_adoption",
+    "export_regeneration", "post_adoption_readback", "authority_granted",
+    "created_at"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "adoption_id": { "type": "string", "pattern": "^adopt_[a-z0-9_]+$" },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["skill_id", "adopted_version", "candidate_digest"],
+      "properties": {
+        "skill_id": { "type": "string", "minLength": 1 },
+        "adopted_version": { "$ref": "#/$defs/semver" },
+        "candidate_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "frontdoor_admission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_ref", "admission_digest", "implementation_disposition"],
+      "properties": {
+        "record_ref": { "type": "string", "minLength": 1 },
+        "admission_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "implementation_disposition": { "const": "ELIGIBLE" }
+      }
+    },
+    "eval_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["behavioral_eval_records", "improvement_proven"],
+      "properties": {
+        "behavioral_eval_records": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["record_ref", "content_digest", "verdict"],
+            "properties": {
+              "record_ref": { "type": "string", "minLength": 1 },
+              "content_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+              "verdict": { "enum": ["BASELINE_RECORDED", "IMPROVEMENT_PROVEN", "IMPROVEMENT_REJECTED", "BLOCKED"] }
+            }
+          }
+        },
+        "improvement_proven": { "type": "boolean" }
+      }
+    },
+    "owner_approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approver", "decision_ref", "approved_at"],
+      "properties": {
+        "approver": { "const": "canonical_owner" },
+        "decision_ref": { "type": "string", "minLength": 1 },
+        "approved_at": { "type": "string", "minLength": 1 }
+      }
+    },
+    "canonical_adoption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical_path", "superseded_version", "adoption_digest", "adopted_at"],
+      "properties": {
+        "canonical_path": { "type": "string", "minLength": 1 },
+        "superseded_version": { "$ref": "#/$defs/semver" },
+        "adoption_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "adopted_at": { "type": "string", "minLength": 1 }
+      }
+    },
+    "export_regeneration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["performed", "export_refs", "regenerated_at"],
+      "properties": {
+        "performed": { "const": true },
+        "export_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "regenerated_at": { "type": "string", "minLength": 1 }
+      }
+    },
+    "post_adoption_readback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["performed", "readback_digest_match", "readback_at"],
+      "properties": {
+        "performed": { "const": true },
+        "readback_digest_match": { "type": "boolean" },
+        "readback_at": { "type": "string", "minLength": 1 }
+      }
+    },
+    "authority_granted": { "const": false },
+    "created_at": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "semver": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" }
+  }
+}
