@@ -58,6 +58,13 @@ function isGitRange(target) {
 
 // Documented absences. A reference that the source explicitly states does not
 // exist is a recorded finding about the repository, not a broken reference.
+//
+// The phrase is bound to a target, never to a whole line. A line that states
+// an absence for one subject and mentions another path must not silence that
+// path: "If config is not found, see `docs/missing.md`" states something about
+// the configuration, not about `docs/missing.md`, so the missing file stays a
+// finding. Only a phrase whose subject is the target itself records a
+// documented absence for that target.
 const ABSENCE_STATEMENT = [
   /\bnot present\b/i,
   /\bdoes not exist\b/i,
@@ -68,6 +75,16 @@ const ABSENCE_STATEMENT = [
   /\bnicht vorhanden\b/i,
   /\bnicht existierend\b/i
 ];
+
+// Auxiliaries and copulas that may stand between the subject and the absence
+// phrase ("`docs/legacy.md` was not present"). One trailing auxiliary is
+// removed before the subject test, so the phrase still binds to the target it
+// governs.
+const ABSENCE_AUXILIARIES = new Set([
+  'is', 'are', 'was', 'were', 'be', 'been', 'being', 'do', 'does', 'did',
+  'has', 'have', 'had', 'will', 'would', 'can', 'could', 'should', 'shall',
+  'must', 'may', 'might'
+]);
 
 // Consumer-local and workspace-local contract directories. These paths are
 // declared by the consumer repository (`.codex/`, `.qwen/`) or by the
@@ -80,8 +97,51 @@ function isGlobPattern(target) {
   return WILDCARD.test(target);
 }
 
-function statesAbsence(lineText) {
-  return ABSENCE_STATEMENT.some((pattern) => pattern.test(lineText));
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// The subject of an absence phrase is the text immediately before it. The
+// target counts as that subject when it ends the subject text: bare (with a
+// token boundary, so `config.toml` does not match the tail of
+// `supabase/config.toml`), as a markdown code span, as a quoted path, or as
+// the target of a markdown link.
+function subjectIsTarget(subjectText, target) {
+  const escaped = escapeRegExp(target);
+  const forms = [
+    new RegExp(`(^|[^A-Za-z0-9._/-])${escaped}$`),
+    new RegExp(`\`${escaped}\`$`),
+    new RegExp(`"${escaped}"$`),
+    new RegExp(`'${escaped}'$`),
+    new RegExp(`\\]\\(${escaped}\\)$`)
+  ];
+  return forms.some((form) => form.test(subjectText));
+}
+
+// Does an absence phrase on this line govern this specific target?
+//
+// The phrase is bound to its subject, not to the line. The binding is
+// deliberately conservative and fails closed: the phrase governs the target
+// only when the target stands immediately before the phrase, allowing one
+// trailing auxiliary or copula. Every other reading — a phrase about a
+// different subject, a phrase in another clause, an ambiguous line — leaves
+// the target unbound, so the target keeps its own resolution result and
+// remains a candidate finding instead of becoming a false clean result.
+function absenceGovernsTarget(lineText, target) {
+  if (typeof lineText !== 'string' || lineText.length === 0) return false;
+  if (typeof target !== 'string' || target.length === 0) return false;
+  for (const pattern of ABSENCE_STATEMENT) {
+    const globalPattern = new RegExp(pattern.source, `${pattern.flags.replace(/g/g, '')}g`);
+    for (const match of lineText.matchAll(globalPattern)) {
+      let subject = lineText.slice(0, match.index).replace(/\s+$/, '');
+      const auxiliary = subject.match(/[ \t]+([A-Za-z]+)$/);
+      if (auxiliary && ABSENCE_AUXILIARIES.has(auxiliary[1].toLowerCase())) {
+        subject = subject.slice(0, subject.length - auxiliary[0].length);
+      }
+      if (subjectIsTarget(subject, target)) return true;
+    }
+  }
+  return false;
 }
 
 function isNonRepositoryPath(target) {
@@ -147,13 +207,18 @@ function extractEdges(sourcePath, content) {
 // The middle four are recorded in the graph with their own status, so the
 // auditor can report them without claiming a defect, and so the counts stay
 // visible instead of being silently dropped.
+//
+// A `documented_absence` classification is bound to the target the absence
+// phrase governs. The phrase is not a property of the line: a line that
+// states an absence for one subject and mentions another path leaves that
+// path unresolved, so it keeps producing a finding when the file is missing.
 function resolveFileEdge(root, sourcePath, target, base, lineText) {
   const fragmentIndex = target.indexOf('#');
   const fileTarget = fragmentIndex >= 0 ? target.slice(0, fragmentIndex) : target;
   if (fileTarget.length === 0) return { resolved: null, status: 'dangling' };
   if (isGlobPattern(fileTarget)) return { resolved: null, status: 'glob_pattern' };
   if (isGitRange(fileTarget)) return { resolved: null, status: 'git_range' };
-  if (statesAbsence(lineText ?? '')) return { resolved: null, status: 'documented_absence' };
+  if (absenceGovernsTarget(lineText ?? '', fileTarget)) return { resolved: null, status: 'documented_absence' };
   if (isNonRepositoryPath(fileTarget)) return { resolved: null, status: 'external_workspace' };
   if (fileTarget.startsWith('/')) {
     const rooted = fileTarget.slice(1);

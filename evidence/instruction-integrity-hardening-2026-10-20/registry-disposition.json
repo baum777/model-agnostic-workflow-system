@@ -30,14 +30,15 @@
     ],
     "evidence_refs": [
       "evidence/instruction-integrity-hardening-2026-10-20/RUN.md",
-      "re-audit at f5a0d716: ia_e01a2196431a30ba, 0 findings (0 blocker), 0 contract violations, reference classes 395 resolved / 2 glob_pattern / 1 git_range / 1 documented_absence / 11 external_workspace / 0 dangling",
-      "npm run test:vnext (319/319 pass, 0 fail)",
-      "node --test tests/vnext/instruction-auditor.test.mjs (10/10 pass)",
-      "node --test tests/vnext/instruction-resolver.test.mjs (6/6 pass)",
-      "node --test tests/vnext/instruction-inventory.test.mjs (6/6 pass)",
-      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
-      "npm run eval:maws-vnext (exit 0); npm run validate-instruction-integrity (21 cases checked, 0 unexpected results)",
-      "git log --format='%G?' on f5a0d716f23725e3b277f8984beb28e8405dc53b reports G (validly signed)"
+      "re-audit at f5a0d716: ia_e01a2196431a30ba, 0 findings (0 blocker), 0 contract violations, reference classes 395 resolved / 2 glob_pattern / 1 git_range / 1 documented_absence / 11 external_workspace / 0 dangling (report artifact: evidence/instruction-integrity-hardening-2026-10-20/audit-report-f5a0d716.json)",
+      "npm run test:vnext at f5a0d716 (319/319 pass, 0 fail)",
+      "node --test tests/vnext/instruction-auditor.test.mjs at f5a0d716 (10/10 pass)",
+      "node --test tests/vnext/instruction-resolver.test.mjs at f5a0d716 (6/6 pass)",
+      "node --test tests/vnext/instruction-inventory.test.mjs at f5a0d716 (6/6 pass)",
+      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets at f5a0d716 (PASS)",
+      "npm run eval:maws-vnext at f5a0d716 (exit 0); npm run validate-instruction-integrity at f5a0d716 (21 cases checked, 0 unexpected results)",
+      "git log --format='%G?' on f5a0d716f23725e3b277f8984beb28e8405dc53b reports G (validly signed)",
+      "post-review repair (absence phrase scoped to its target in runtime/instructions/instruction-resolver.mjs; working tree state, no implementation commit yet): npm run test:vnext (339/339 pass, 0 fail); node --test tests/vnext/instruction-resolver.test.mjs (7/7 pass); npm run validate / validate-maws-vnext (PASS); re-audit at f5a0d716 with the repaired resolver reproduces ia_e01a2196431a30ba with the same reference classes (395 resolved / 2 glob_pattern / 1 git_range / 1 documented_absence / 11 external_workspace / 0 dangling) and the same report digest"
     ],
     "implementation_commit_sha": "f5a0d716f23725e3b277f8984beb28e8405dc53b",
     "registry_commit_sha": null,

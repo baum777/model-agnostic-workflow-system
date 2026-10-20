@@ -68,6 +68,29 @@ function writeMinimalDeclaredTree(tmp, { withPackageJson = true } = {}) {
   }
 }
 
+// A tree that plants the absence-scope cases: an absence phrase about one
+// subject next to a referenced path, a genuine documented absence, and an
+// absence phrase that governs a different subject than the referenced path.
+function writeAbsenceScopeTree(tmp) {
+  writeMinimalDeclaredTree(tmp);
+  fs.mkdirSync(path.join(tmp, 'core/skills/absence-scope'), { recursive: true });
+  fs.writeFileSync(
+    path.join(tmp, 'core/skills/absence-scope/SKILL.md'),
+    [
+      '# Absence scope',
+      '',
+      'If config is not found, see `docs/missing.md`.',
+      'If config is not found, see [the migration guide](docs/missing.md).',
+      'A plain prose path docs/plain.md is not a code span and is not extracted.',
+      '`docs/legacy.md` was not present in the inspected repo.',
+      '`docs/legacy2.md` does not exist.',
+      '`docs/legacy3.md` does not exist; see `docs/current.md` for the replacement.',
+      'The config file does not exist; see `docs/missing2.md`.',
+      ''
+    ].join('\n')
+  );
+}
+
 function snapshotTree(root) {
   const snapshot = new Map();
   const walk = (dir) => {
@@ -172,6 +195,73 @@ test('closed extraction rules: resolved, dangling, external, and command edges (
     const absence = skillEdges.find((edge) => edge.target === '.codex/shared-core-map.json');
     assert.ok(absence, 'a documented absence must produce an edge');
     assert.equal(absence.status, 'documented_absence');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('absence phrases bind to their target, not to the line (target-scoped classification)', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'maws-s2-absence-scope-'));
+  try {
+    writeAbsenceScopeTree(tmp);
+    const graph = buildInstructionGraph({ root: tmp, revision: REVISION });
+    const edges = graph.edges.filter((edge) => edge.from === 'core/skills/absence-scope/SKILL.md');
+    const edge = (kind, target, line) => edges.find((item) => item.kind === kind && item.target === target && item.line === line);
+
+    // (a) The codex counter-example: the absence phrase is about the
+    // configuration, not about the referenced path. The missing path must
+    // stay a finding instead of being recorded as a documented absence.
+    const codeSpan = edge('inline_path', 'docs/missing.md', 3);
+    assert.ok(codeSpan, 'the code span must produce an edge');
+    assert.equal(codeSpan.status, 'dangling', 'an absence phrase about another subject must not silence the missing target');
+    assert.equal(codeSpan.resolved, null);
+
+    // The same counter-example arriving as a markdown link is the same
+    // defect: the link target is missing and the phrase does not govern it.
+    const link = edge('md_link', 'docs/missing.md', 4);
+    assert.ok(link, 'the markdown link must produce an edge');
+    assert.equal(link.status, 'dangling', 'an absence phrase about another subject must not silence a missing link target');
+    assert.equal(link.resolved, null);
+
+    // A path written as plain prose is outside the closed extraction rules
+    // and produces no edge at all — no classification, no finding.
+    assert.ok(
+      !edges.some((item) => item.target === 'docs/plain.md'),
+      'a plain prose path must not become an edge'
+    );
+
+    // (b) A genuine documented absence keeps its classification: the phrase
+    // is the statement about that very target.
+    const accepted = edge('inline_path', 'docs/legacy.md', 6);
+    assert.ok(accepted, 'the documented absence must produce an edge');
+    assert.equal(accepted.status, 'documented_absence');
+
+    const explicit = edge('inline_path', 'docs/legacy2.md', 7);
+    assert.ok(explicit, 'the explicit absence must produce an edge');
+    assert.equal(explicit.status, 'documented_absence');
+
+    // (c) The phrase governs a different subject than the referenced target:
+    // the target it names is documented, the second path is not, and the
+    // second path must stay a finding when it is missing.
+    const governed = edge('inline_path', 'docs/legacy3.md', 8);
+    assert.ok(governed, 'the governed target must produce an edge');
+    assert.equal(governed.status, 'documented_absence');
+
+    const notGoverned = edge('inline_path', 'docs/current.md', 8);
+    assert.ok(notGoverned, 'the second path on the line must produce an edge');
+    assert.equal(notGoverned.status, 'dangling', 'a phrase about another subject must not silence a missing target');
+
+    const aboutConfig = edge('inline_path', 'docs/missing2.md', 9);
+    assert.ok(aboutConfig, 'the referenced path must produce an edge');
+    assert.equal(aboutConfig.status, 'dangling', 'an absence phrase about a non-path subject must not silence a missing target');
+
+    // Fail-closed: the scoped classification must not hide the planted
+    // missing targets from the dangling count.
+    assert.equal(
+      graph.edges.filter((item) => item.status === 'dangling' && item.from === 'core/skills/absence-scope/SKILL.md').length,
+      4,
+      'every missing target whose absence phrase does not govern it must stay a finding'
+    );
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
