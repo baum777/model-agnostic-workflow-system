@@ -1,0 +1,54 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S4 of MAWS-SII-TARGET-SPEC-001 adds a new canonical contract to core/contracts/ (skill-improvement-proposal.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding. The registry write is its own registered change and follows after the owner merges the source change (precedent: evidence/skill-feedback-contract-2026-10-20/, which followed the same two-phase REQUIRED_BUT_BLOCKED -> UPDATED rebind pattern). This slice deliberately leaves the change uncommitted in its worktree, so no registry commit exists yet and registry_commit_sha stays null; implementation_commit_sha is a placeholder that must be bound to the landing commit.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/skill-improvement-proposal.schema.json"
+    ],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md",
+      "docs/governance/registry-disposition.md"
+    ],
+    "source_refs": [
+      "core/contracts/skill-improvement-proposal.schema.json",
+      "core/contracts/README.md",
+      "runtime/skills/feedback-analyzer.mjs",
+      "runtime/skills/improvement-classifier.mjs",
+      "scripts/tools/validate-skill-improvement-proposal.mjs",
+      "evals/fixtures/maws-vnext/skill-improvement-proposal.contracts.json",
+      "tests/vnext/skill-improvement.test.mjs",
+      "evals/catalog.json",
+      "package.json"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/skill-improvement-analyzer-2026-10-20/RUN.md",
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
+    ],
+    "evidence_refs": [
+      "evidence/skill-improvement-analyzer-2026-10-20/RUN.md (incl. owner decisions and mutation evidence)",
+      "npm run validate-skill-improvement-proposal (fixture: 16 cases checked, 0 unexpected results)",
+      "npm run eval:maws-vnext (exit 0, 16/16 fixtures passed including skill-improvement-proposal)",
+      "npm run test:vnext (415/415 pass, 0 fail; baseline before the change 386/386; includes tests/vnext/skill-improvement.test.mjs, 29 tests)",
+      "npm run validate / validate-neutral / validate-maws-vnext (PASS)",
+      "mutation evidence: three guards reverted and observed to fail (classifier area guard, analyzer missing-evidence guard, contract CREATE_SKILL owner-review rule), all restored afterwards",
+      "node --check on runtime/skills/feedback-analyzer.mjs, runtime/skills/improvement-classifier.mjs, scripts/tools/validate-skill-improvement-proposal.mjs (PASS)"
+    ],
+    "implementation_commit_sha": "PENDING_COMMIT:maws-s4-improver-20261020",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/skill-improvement-analyzer-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/skill-improvement-proposal.schema.json (new canonical contract in this change set)",
+      "core/contracts/README.md canonical files list (skill-improvement-proposal.schema.json added)",
+      "evals/fixtures/maws-vnext/skill-improvement-proposal.contracts.json (contract-backed fixture registered in evals/catalog.json)"
+    ],
+    "registry_baseline_sha": "7a56a972bb388abe70c6a6e35c91b16955e7e468"
+  }
+}

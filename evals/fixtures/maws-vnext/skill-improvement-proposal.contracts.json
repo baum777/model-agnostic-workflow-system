@@ -1,0 +1,644 @@
+{
+  "id": "maws-vnext-skill-improvement-proposal-contracts",
+  "kind": "maws-vnext",
+  "target": {
+    "name": "skill-improvement-proposal"
+  },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "skill-improvement-valid-extend-skill",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_extend_diag_loop_001",
+        "created_at": "2026-10-20T10:00:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_operator_extend_diag_loop_001",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "sandbox:runs/20261019T154500Z/next-gate.md"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_2f6c1b8a4d5e7f90",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "responsible_area": "skill",
+        "decision": "EXTEND_SKILL",
+        "target_skill_ref": "core/skills/diagnostic-feedback-loop/SKILL.md",
+        "inferred_cause": "the required skill instruction was missing or wrong",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "extend core/skills/diagnostic-feedback-loop/SKILL.md with the proven instruction gap of the diagnosed case",
+          "paths": ["core/skills/diagnostic-feedback-loop/SKILL.md"]
+        },
+        "evidence_refs": [
+          "sandbox:runs/20261019T154500Z/next-gate.md",
+          "file:core/skills/diagnostic-feedback-loop/SKILL.md"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": ["core/skills/diagnostic-feedback-loop/SKILL.md"],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-valid-reuse-existing-skill",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_reuse_selection_002",
+        "created_at": "2026-10-20T10:05:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_failed_eval_routing_001",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "artifact:artifacts/runtime-runs/run_20261020_evalrouting/eval-trace.json"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_9a8b7c6d5e4f3021",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "SKILL_SELECTION_ERROR",
+        "responsible_area": "routing",
+        "decision": "REUSE",
+        "target_skill_ref": "core/skills/diagnostic-feedback-loop/SKILL.md",
+        "inferred_cause": "the active skill did not cover the task",
+        "change_scope": {
+          "surface": "none",
+          "summary": "existing skill core/skills/diagnostic-feedback-loop/SKILL.md already covers the diagnosed case; the skill surface is not changed",
+          "paths": []
+        },
+        "evidence_refs": [
+          "artifact:artifacts/runtime-runs/run_20261020_evalrouting/eval-trace.json"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": ["core/skills/diagnostic-feedback-loop/SKILL.md"],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": false,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-valid-tool-contract-no-change",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_tool_contract_no_change_003",
+        "created_at": "2026-10-20T10:10:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_tool_contract_repair_validator_001",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "file:core/contracts/tool-contracts/catalog.json"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_1122334455667788",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "TOOL_CONTRACT_ERROR",
+        "responsible_area": "tool_contract",
+        "decision": "NO_CHANGE",
+        "inferred_cause": "the demonstrated cause lies in the tool contract, not in the skill surface",
+        "change_scope": {
+          "surface": "none",
+          "summary": "the demonstrated cause belongs to the tool_contract surface, not to the skill surface, so no skill change is proposed",
+          "paths": []
+        },
+        "evidence_refs": [
+          "file:core/contracts/tool-contracts/catalog.json",
+          "run:run_20261020_toolcontract"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": [],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": false,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-valid-needs-more-evidence",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_needs_more_evidence_004",
+        "created_at": "2026-10-20T10:15:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_verification_receipt_missing_001",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "artifact:artifacts/runtime-runs/run_20261020_v2/verification.json"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_9988776655443322",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "EVIDENCE_GAP",
+        "responsible_area": "validator",
+        "decision": "NEEDS_MORE_EVIDENCE",
+        "inferred_cause": "the deviation could not be reproduced from the available evidence",
+        "change_scope": {
+          "surface": "none",
+          "summary": "the available evidence does not prove a cause, so no skill improvement is proposed and no cause is guessed",
+          "paths": []
+        },
+        "evidence_refs": [
+          "artifact:artifacts/runtime-runs/run_20261020_v2/verification.json"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": [],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-valid-create-skill-owner-review",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_create_skill_005",
+        "created_at": "2026-10-20T10:20:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_recurring_rework_draft_005",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "operator:owner session notes 2026-10-20"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_5566778899aabbcc",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "responsible_area": "skill",
+        "decision": "CREATE_SKILL",
+        "inferred_cause": "the required skill instruction was missing or wrong",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "create a new skill instruction file for the proven recurring pattern behind the diagnosed case",
+          "paths": ["drafts/skills/regression-evidence-preserver/SKILL.md"]
+        },
+        "evidence_refs": [
+          "operator:owner session notes 2026-10-20",
+          "eval:eval:skill-routing 2026-10-20",
+          "run:run_20261020_rework_01"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": [],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-valid-unknown-root-cause-no-guess",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_unknown_root_cause_006",
+        "created_at": "2026-10-20T10:25:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_positive_reference_minrepro_001",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "file:core/skills/behavior-first-tdd/SKILL.md"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_ddeeff0011223344",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "UNKNOWN_ROOT_CAUSE",
+        "responsible_area": null,
+        "decision": "NEEDS_MORE_EVIDENCE",
+        "inferred_cause": null,
+        "change_scope": {
+          "surface": "none",
+          "summary": "the available evidence does not prove a cause, so no skill improvement is proposed and no cause is guessed",
+          "paths": []
+        },
+        "evidence_refs": [
+          "file:core/skills/behavior-first-tdd/SKILL.md"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": [],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-create-skill-without-owner-review",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_create_skill_no_review_101",
+        "created_at": "2026-10-20T11:00:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_recurring_rework_draft_006",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "operator:owner session notes 2026-10-20"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_ffeeddccbbaa9988",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "responsible_area": "skill",
+        "decision": "CREATE_SKILL",
+        "inferred_cause": "the required skill instruction was missing or wrong",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "create a new skill instruction file for the proven recurring pattern behind the diagnosed case",
+          "paths": ["drafts/skills/regression-evidence-preserver/SKILL.md"]
+        },
+        "evidence_refs": [
+          "operator:owner session notes 2026-10-20"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": [],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": false,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-tool-contract-skill-change-forbidden",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_tool_contract_extend_102",
+        "created_at": "2026-10-20T11:05:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_tool_contract_repair_validator_002",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "file:core/contracts/tool-contracts/catalog.json"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_0011223344556677",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "TOOL_CONTRACT_ERROR",
+        "responsible_area": "tool_contract",
+        "decision": "EXTEND_SKILL",
+        "target_skill_ref": "core/skills/diagnostic-feedback-loop/SKILL.md",
+        "inferred_cause": "the demonstrated cause lies in the tool contract, not in the skill surface",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "extend core/skills/diagnostic-feedback-loop/SKILL.md although the proven cause lies in the tool contract",
+          "paths": ["core/skills/diagnostic-feedback-loop/SKILL.md"]
+        },
+        "evidence_refs": [
+          "file:core/contracts/tool-contracts/catalog.json"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": ["core/skills/diagnostic-feedback-loop/SKILL.md"],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-extend-without-target",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_extend_without_target_103",
+        "created_at": "2026-10-20T11:10:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_operator_extend_diag_loop_002",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "sandbox:runs/20261019T154500Z/next-gate.md"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_8899aabbccddeeff",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "responsible_area": "skill",
+        "decision": "EXTEND_SKILL",
+        "inferred_cause": "the required skill instruction was missing or wrong",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "extend the diagnosed skill instruction file",
+          "paths": ["core/skills/diagnostic-feedback-loop/SKILL.md"]
+        },
+        "evidence_refs": [
+          "sandbox:runs/20261019T154500Z/next-gate.md"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": ["core/skills/diagnostic-feedback-loop/SKILL.md"],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-no-change-with-target",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_no_change_with_target_104",
+        "created_at": "2026-10-20T11:15:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_tool_contract_repair_validator_003",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "file:core/contracts/tool-contracts/catalog.json"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_7766554433221100",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "TOOL_CONTRACT_ERROR",
+        "responsible_area": "tool_contract",
+        "decision": "NO_CHANGE",
+        "target_skill_ref": "core/skills/diagnostic-feedback-loop/SKILL.md",
+        "inferred_cause": "the demonstrated cause lies in the tool contract, not in the skill surface",
+        "change_scope": {
+          "surface": "none",
+          "summary": "no skill change is proposed",
+          "paths": []
+        },
+        "evidence_refs": [
+          "file:core/contracts/tool-contracts/catalog.json"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": [],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": false,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-authority-granted",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_authority_granted_105",
+        "created_at": "2026-10-20T11:20:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_operator_extend_diag_loop_003",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "sandbox:runs/20261019T154500Z/next-gate.md"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_5544332211ffeedd",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "responsible_area": "skill",
+        "decision": "EXTEND_SKILL",
+        "target_skill_ref": "core/skills/diagnostic-feedback-loop/SKILL.md",
+        "inferred_cause": "the required skill instruction was missing or wrong",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "extend core/skills/diagnostic-feedback-loop/SKILL.md",
+          "paths": ["core/skills/diagnostic-feedback-loop/SKILL.md"]
+        },
+        "evidence_refs": [
+          "sandbox:runs/20261019T154500Z/next-gate.md"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": ["core/skills/diagnostic-feedback-loop/SKILL.md"],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": true
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-missing-evidence-refs",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_no_evidence_106",
+        "created_at": "2026-10-20T11:25:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_operator_extend_diag_loop_004",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "sandbox:runs/20261019T154500Z/next-gate.md"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_33221100ffeeddcc",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "responsible_area": "skill",
+        "decision": "EXTEND_SKILL",
+        "target_skill_ref": "core/skills/diagnostic-feedback-loop/SKILL.md",
+        "inferred_cause": "the required skill instruction was missing or wrong",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "extend core/skills/diagnostic-feedback-loop/SKILL.md",
+          "paths": ["core/skills/diagnostic-feedback-loop/SKILL.md"]
+        },
+        "evidence_refs": [],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": ["core/skills/diagnostic-feedback-loop/SKILL.md"],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-unknown-decision-value",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_unknown_decision_107",
+        "created_at": "2026-10-20T11:30:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_operator_extend_diag_loop_005",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "sandbox:runs/20261019T154500Z/next-gate.md"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_221100ffeeddccbb",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "responsible_area": "skill",
+        "decision": "PROMOTE",
+        "target_skill_ref": "core/skills/diagnostic-feedback-loop/SKILL.md",
+        "inferred_cause": "the required skill instruction was missing or wrong",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "promote the candidate skill",
+          "paths": ["core/skills/diagnostic-feedback-loop/SKILL.md"]
+        },
+        "evidence_refs": [
+          "sandbox:runs/20261019T154500Z/next-gate.md"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": ["core/skills/diagnostic-feedback-loop/SKILL.md"],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-area-class-mismatch",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_area_mismatch_108",
+        "created_at": "2026-10-20T11:35:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_tool_contract_repair_validator_004",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "file:core/contracts/tool-contracts/catalog.json"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_1100ffeeddccbbaa",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "TOOL_CONTRACT_ERROR",
+        "responsible_area": "skill",
+        "decision": "NO_CHANGE",
+        "inferred_cause": "the demonstrated cause lies in the tool contract, not in the skill surface",
+        "change_scope": {
+          "surface": "none",
+          "summary": "no skill change is proposed",
+          "paths": []
+        },
+        "evidence_refs": [
+          "file:core/contracts/tool-contracts/catalog.json"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": [],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": false,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-scope-without-change",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_scope_without_change_109",
+        "created_at": "2026-10-20T11:40:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_tool_contract_repair_validator_005",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "file:core/contracts/tool-contracts/catalog.json"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_00ffeeddccbbaa99",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "TOOL_CONTRACT_ERROR",
+        "responsible_area": "tool_contract",
+        "decision": "NO_CHANGE",
+        "inferred_cause": "the demonstrated cause lies in the tool contract, not in the skill surface",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "the change scope claims a skill file although no change is proposed",
+          "paths": ["core/skills/diagnostic-feedback-loop/SKILL.md"]
+        },
+        "evidence_refs": [
+          "file:core/contracts/tool-contracts/catalog.json"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": [],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": false,
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "skill-improvement-invalid-target-path-outside-skill-trees",
+      "schema": "core/contracts/skill-improvement-proposal.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "proposal_id": "sip_target_path_invalid_110",
+        "created_at": "2026-10-20T11:45:00Z",
+        "feedback_ref": {
+          "feedback_id": "fb_operator_extend_diag_loop_006",
+          "feedback_schema_version": "1.0.0",
+          "source_ref": "sandbox:runs/20261019T154500Z/next-gate.md"
+        },
+        "diagnosis_ref": {
+          "diagnosis_id": "dg_ffeeddccbbaa9988",
+          "diagnosis_schema_version": "1.0.0"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "responsible_area": "skill",
+        "decision": "EXTEND_SKILL",
+        "target_skill_ref": "core/skills/../../etc/passwd",
+        "inferred_cause": "the required skill instruction was missing or wrong",
+        "change_scope": {
+          "surface": "skill_instruction_file",
+          "summary": "extend a file outside the declared skill trees",
+          "paths": ["core/skills/../../etc/passwd"]
+        },
+        "evidence_refs": [
+          "sandbox:runs/20261019T154500Z/next-gate.md"
+        ],
+        "candidate_evaluation": {
+          "universe_ref": "instruction_inventory@1.0.0",
+          "universe_digest": "5ba8a2545951ab2185dfb0fc9c7c11509a7712178664fdbdb9e988f459a3946e",
+          "candidates_considered": ["core/skills/../../etc/passwd"],
+          "rejected_candidates": []
+        },
+        "requires_owner_review": true,
+        "authority_granted": false
+      }
+    }
+  ]
+}
