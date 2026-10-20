@@ -1,0 +1,39 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Scope is proposal staging only: the owner-provided MAWS-SII-TARGET-SPEC-001 v0.1.0 (PROPOSED) is materialized verbatim under docs/proposals/ together with the S0 current-state map and this run record. docs/proposals/README.md classes these files as non-canonical review material, and Section 21 of the specification itself states that it creates no authority, qualification, permission or runtime activation. No CONTRACT_RECORD, PROVENANCE or SUPERSESSION surface was created, altered or superseded: the staged specification proposes future contracts but is not one, and no canonical surface changed meaning. No Registry write is required under the closed relevance taxonomy; implementation slices S1+ will each carry their own disposition (REQUIRED_BUT_BLOCKED for new canonical contracts, per the execution-intake-binding precedent).",
+    "registry_baseline_sha": "UNVERIFIED_NO_REGISTRY_WRITE",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/README.md"
+    ],
+    "source_refs": [
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/sii-materialization-2026-10-20/RUN.md"
+    ],
+    "evidence_refs": [
+      "evidence/sii-materialization-2026-10-20/RUN.md",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "implementation_commit_sha": "e17f01cf4916c34c4d39069452ab0434c94c4d9a",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/sii-materialization-2026-10-20/registry-disposition.json",
+      "npm run validate (PASS, issues: [])",
+      "npm run validate-neutral (PASS, issues: [])",
+      "npm run validate-maws-vnext (PASS, issues: [])",
+      "npm run test:vnext (287/287 pass, 0 fail)"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}
