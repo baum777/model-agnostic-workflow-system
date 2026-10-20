@@ -1,0 +1,32 @@
+{
+  "registry_disposition": {
+    "contract": "registry-disposition.v1",
+    "change_id": "MAWS-S11-HARNESS-CONTEXT-2026-10-20",
+    "summary": "S11 harness context separation: new HarnessContext contract, WorkUnit/bound-graph/supersession context anchoring, executor invocation context gate, run-engine context binding with R1-R6 fail-closed enforcement, validator, fixture, and tests.",
+    "source_of_authority": "Bounded owner run directive 2026-10-20 (run S11 implementation, then close S7/S13/S8); preparation document docs/proposals/harness-context-separation-implementation-plan-2026-10-20.md (recommendations adopted as disclosed run decisions).",
+    "source_refs": [
+      "docs/proposals/skill-intelligence-target-spec.md (MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED, section 4.3 + slice S11)",
+      "docs/proposals/harness-context-separation-implementation-plan-2026-10-20.md",
+      "core/contracts/harness-context.schema.json",
+      "runtime/harness-context/context-binding.mjs",
+      "scripts/tools/validate-harness-context.mjs",
+      "evals/fixtures/maws-vnext/harness-context.contracts.json",
+      "tests/vnext/harness-context.test.mjs",
+      "evidence/harness-context-2026-10-20/RUN.md"
+    ],
+    "evidence_refs": [],
+    "implementation_commit_sha": null,
+    "registry_commit_sha": null,
+    "registry_baseline_sha": "75bdabe",
+    "disposition_status": "REQUIRED_BUT_BLOCKED",
+    "affected_records": [],
+    "object_mutations": [
+      "NEW CONTRACT_RECORD: core/contracts/harness-context.schema.json (HarnessContext 1.0.0)",
+      "AMENDED CONTRACT: core/contracts/work-unit.schema.json (+harness_context_ref)",
+      "AMENDED CONTRACT: core/contracts/bound-execution-graph.schema.json (executor_binding harness context; superseded_by.context_change)",
+      "AMENDED CONTRACT: core/contracts/graph-supersession-record.schema.json (+context_change)",
+      "NO_CHANGE intended for existing CONTRACT_RECORDs of unchanged contracts"
+    ],
+    "notes": "REQUIRED_BUT_BLOCKED phase: the Registry CONTRACT_RECORD for the new contract and the run change registration are written after the source PR merges; this disposition rebinds to UPDATED with the registry commit sha at that point."
+  }
+}
