@@ -61,5 +61,8 @@ jobs:
       - name: Skill frontdoor regression tests
         run: npm run test:skill-frontdoor
 
+      - name: Validate repair Registry disposition
+        run: node scripts/tools/validate-registry-disposition.mjs evidence/maws-security-repair-2026-10-20/registry-disposition.json
+
       - name: Loop repo CI gate
         run: node scripts/tools/ci-gate.mjs
