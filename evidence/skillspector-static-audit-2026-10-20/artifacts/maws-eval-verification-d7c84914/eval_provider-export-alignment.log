@@ -1,0 +1,27 @@
+
+> model-agnostic-workflow-system@0.2.1 eval:provider-export-alignment
+> node scripts/tools/run-certification-evals.mjs --kind provider-export-alignment
+
+{
+  "ok": true,
+  "root": "/home/runner/work/model-agnostic-workflow-system/model-agnostic-workflow-system",
+  "suite": "provider-neutral-certification",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "blockingFailures": 0,
+  "filters": {
+    "kinds": [
+      "provider-export-alignment"
+    ]
+  },
+  "results": [
+    {
+      "id": "provider-export-alignment",
+      "kind": "provider-export-alignment",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    }
+  ]
+}
