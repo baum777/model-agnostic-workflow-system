@@ -1,37 +1,67 @@
 {
   "registry_disposition": {
-    "contract": "registry-disposition.v1",
-    "change_id": "MAWS-S11-HARNESS-CONTEXT-2026-10-20",
-    "summary": "S11 harness context separation: new HarnessContext contract, WorkUnit/bound-graph/supersession context anchoring, executor invocation context gate, run-engine context binding with R1-R6 fail-closed enforcement, validator, fixture, and tests.",
-    "source_of_authority": "Bounded owner run directive 2026-10-20 (run S11 implementation, then close S7/S13/S8); preparation document docs/proposals/harness-context-separation-implementation-plan-2026-10-20.md (recommendations adopted as disclosed run decisions).",
-    "source_refs": [
-      "docs/proposals/skill-intelligence-target-spec.md (MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED, section 4.3 + slice S11)",
-      "docs/proposals/harness-context-separation-implementation-plan-2026-10-20.md",
-      "core/contracts/harness-context.schema.json",
-      "runtime/harness-context/context-binding.mjs",
-      "scripts/tools/validate-harness-context.mjs",
-      "evals/fixtures/maws-vnext/harness-context.contracts.json",
-      "tests/vnext/harness-context.test.mjs",
-      "evidence/harness-context-2026-10-20/RUN.md"
-    ],
-    "evidence_refs": [],
-    "implementation_commit_sha": "6cae530ada0124c288e6eefdb51ec506cf51b8e5",
-    "registry_commit_sha": "60a8063b6a7dd9b8b5e7e04a1d3c6493fed76584",
-    "registry_baseline_sha": "75bdabe",
-    "disposition_status": "UPDATED",
+    "status": "UPDATED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S11 harness context separation, slice S11 of the PROPOSED MAWS-SII-TARGET-SPEC-001 v0.2.0, executed under the bounded owner run directive of 2026-10-20 (run S11 implementierung und closure S7, S13 und S8); the preparation document docs/proposals/harness-context-separation-implementation-plan-2026-10-20.md was adopted as disclosed run decisions. The slice creates a new canonical contract, core/contracts/harness-context.schema.json (HarnessContext 1.0.0), which is a CONTRACT_RECORD under this repository's adopted relevance classes, and amends three existing CONTRACT_RECORD surfaces: work-unit.schema.json (+harness_context_ref), bound-execution-graph.schema.json (executor binding carries harness_context + harness_context_ref; a context change is an explicit, evidence-backed supersession transition) and graph-supersession-record.schema.json (+context_change). The harness context is a routing and binding dimension, never an authority source: authority_grant is 'none' by construction, a development_harness record must not carry an authority surface, and a unitera_product record pins the unitera-os authority surface reference-only and versioned. The required Registry write is COMPLETE: the run change registration MAWS_HARNESS_CONTEXT_2026_10_20_001.yaml and the CONTRACT_RECORD projection MAWS_HARNESS_CONTEXT_CONTRACT_2026_10_20_001.yaml were published in baum777/unitera-registry pull request 230 and merged as 60a8063b6a7dd9b8b5e7e04a1d3c6493fed76584 with both registry CI gates green (registry validation offline PASS; cross-repository reachability PASS with 436 verified current claims and 0 unverifiable for the new records). The source publication is MAWS pull request 42 merged as 7a56a972bb388abe70c6a6e35c91b16955e7e468 plus the rule-enforcement consolidation pull request 45 merged as dcaa4b4a97250425f3ae7f8eee1166419eb401e3; the Atlas representation is unitera_atlas pull request 177 merged as c52bb88f447b2e4280cf82315689d45b493e5888. The contract, the binding rules and the evidence are runtime input only: they grant no permission, qualify no executor, activate no product runtime and replace no authority or approval decision. This disposition is a shape repair only: the recorded facts are unchanged; the artifact is rewritten into the canonical registry-disposition.v1 grammar because the previous artifact did not satisfy the repository's own contract.",
     "affected_records": [
       "CONTRACT_RECORD:core/contracts/harness-context.schema.json",
       "CONTRACT_RECORD:core/contracts/bound-execution-graph.schema.json",
       "CONTRACT_RECORD:core/contracts/work-unit.schema.json",
       "CONTRACT_RECORD:core/contracts/graph-supersession-record.schema.json"
     ],
-    "object_mutations": [
-      "NEW CONTRACT_RECORD: core/contracts/harness-context.schema.json (HarnessContext 1.0.0)",
-      "AMENDED CONTRACT: core/contracts/work-unit.schema.json (+harness_context_ref)",
-      "AMENDED CONTRACT: core/contracts/bound-execution-graph.schema.json (executor_binding harness context; superseded_by.context_change)",
-      "AMENDED CONTRACT: core/contracts/graph-supersession-record.schema.json (+context_change)",
-      "NO_CHANGE intended for existing CONTRACT_RECORDs of unchanged contracts"
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "docs/proposals/harness-context-separation-implementation-plan-2026-10-20.md"
     ],
-    "notes": "UPDATED phase: the Registry write succeeded. The run change registration MAWS_HARNESS_CONTEXT_2026_10_20_001.yaml and the CONTRACT_RECORD projection MAWS_HARNESS_CONTEXT_CONTRACT_2026_10_20_001.yaml were published in unitera-registry pull request 230 and merged as 60a8063b6a7dd9b8b5e7e04a1d3c6493fed76584 with both registry CI gates green (registry validation offline PASS, cross-repository reachability PASS with 436 verified current claims and 0 unverifiable for the new records). The source publication is MAWS pull request 42 merged as 7a56a972bb388abe70c6a6e35c91b16955e7e468, plus the rule-enforcement consolidation follow-up pull request 45 merged as dcaa4b4a97250425f3ae7f8eee1166419eb401e3. The Atlas representation is unitera_atlas pull request 177 merged as c52bb88f447b2e4280cf82315689d45b493e5888."
+    "source_refs": [
+      "core/contracts/harness-context.schema.json",
+      "core/contracts/work-unit.schema.json",
+      "core/contracts/bound-execution-graph.schema.json",
+      "core/contracts/graph-supersession-record.schema.json",
+      "runtime/harness-context/context-binding.mjs",
+      "runtime/planner/hybrid-planner.mjs",
+      "runtime/planner/revision-engine.mjs",
+      "runtime/planner/work-graph-store.mjs",
+      "runtime/orchestrator/run-engine.mjs",
+      "runtime/executors/executor-base.mjs",
+      "runtime/cli/runtime-run.mjs",
+      "scripts/tools/validate-harness-context.mjs",
+      "evals/fixtures/maws-vnext/harness-context.contracts.json",
+      "evals/catalog.json",
+      "package.json",
+      "tests/vnext/harness-context.test.mjs",
+      "evidence/harness-context-2026-10-20/RUN.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/harness-context-2026-10-20/RUN.md",
+      "evidence/harness-context-2026-10-20/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "node --test tests/vnext/*.test.mjs (all pass; the S11 harness-context suite contributes 36 tests, the suite total is recorded in evidence/harness-context-2026-10-20/RUN.md)",
+      "npm run validate-harness-context (fixture cases checked, 0 unexpected results)",
+      "npm run eval:maws-vnext with the catalog-registered harness-context fixture (PASS)",
+      "npm run validate-maws-vnext (issues: [])",
+      "pre-merge independent review: the first implementation passed ten review rounds, each finding confirmed real and repaired at the named path; the rules were then consolidated into one canonical check (assertGraphBindingIntegrity) instead of per-path re-implementations",
+      "source publication: MAWS pull request 42 merged as 7a56a972bb388abe70c6a6e35c91b16955e7e468, rule consolidation pull request 45 merged as dcaa4b4a97250425f3ae7f8eee1166419eb401e3, disposition rebind pull request 46 merged as 2cd0edcc2f538d1aa9ad1a810dd828515eac0a98",
+      "registry publication: baum777/unitera-registry pull request 230 merged as 60a8063b6a7dd9b8b5e7e04a1d3c6493fed76584 (registry validation offline PASS; cross-repository reachability PASS, 436 verified current claims, 0 unverifiable for the new records)",
+      "atlas representation: unitera_atlas pull request 177 merged as c52bb88f447b2e4280cf82315689d45b493e5888 (claim C-MAWS-S11-HARNESS-CONTEXT-2026-10-20)",
+      "validator: node scripts/tools/validate-registry-disposition.mjs evidence/harness-context-2026-10-20/registry-disposition.json (PASS)"
+    ],
+    "implementation_commit_sha": "6cae530ada0124c288e6eefdb51ec506cf51b8e5",
+    "registry_commit_sha": "60a8063b6a7dd9b8b5e7e04a1d3c6493fed76584",
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/harness-context-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (closed relevance taxonomy: a new canonical contract and three amended contract surfaces are CONTRACT_RECORD relevance)"
+    ],
+    "registry_baseline_sha": "75bdabe"
   }
 }
