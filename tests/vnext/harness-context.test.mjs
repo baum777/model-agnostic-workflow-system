@@ -36,6 +36,7 @@ import { semanticContextIssues } from '../../scripts/tools/validate-harness-cont
 import { createWorkUnitStore } from '../../runtime/planner/work-unit-store.mjs';
 import { createWorkGraphStore } from '../../runtime/planner/work-graph-store.mjs';
 import { buildCandidate, planAndBind } from '../../runtime/planner/hybrid-planner.mjs';
+import { bindGraph } from '../../runtime/planner/graph-versioning.mjs';
 import { createRevisionEngine } from '../../runtime/planner/revision-engine.mjs';
 import { FailClosedError } from '../../runtime/vnext/util.mjs';
 
@@ -457,7 +458,7 @@ function buildContextBoundGraph(graphId, workUnitOverrides = {}) {
   return { workUnits, graphStore, graph, rootWu };
 }
 
-test('R3 regression (codex P1): a rebind that changes the context without evidence fails closed at activation', () => {
+test('R3 regression (codex P1 round 2): a revision can never change the context -- immutable WorkUnits cannot follow', () => {
   const { graphStore, rootWu } = buildContextBoundGraph('graph_s11_r3a');
   const engine = createRevisionEngine({ workGraphStore: graphStore, root });
   assert.throws(
@@ -469,29 +470,53 @@ test('R3 regression (codex P1): a rebind that changes the context without eviden
       motivation: 'move the workload into the product harness',
       payload: { executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd2', qualification_ref: 'q', selection_mode: 'FALLBACK', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_product' } }
     }),
-    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_SWITCH_UNEVIDENCED'
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
+      && /cannot change the harness context/.test(error.message)
   );
+  // The rejection must not poison the graph: the active version is
+  // unchanged and the discarded candidate frees its version slot.
   assert.equal(graphStore.activeVersion('graph_s11_r3a'), 1);
   assert.equal(rootWu.harness_context_ref, 'hctx_graph_dev');
+  const followUp = engine.submit('graph_s11_r3a', {
+    request_id: 'rev_followup_budget',
+    base_graph_version: 1,
+    request_type: 'update_budget',
+    source: 'runtime',
+    motivation: 'no context delta',
+    payload: {}
+  });
+  assert.equal(followUp.decision.outcome, 'ACCEPTED');
+  assert.equal(graphStore.activeVersion('graph_s11_r3a'), 2);
 });
 
-test('R3 regression (codex P1): an evidenced context change activates and lands on the supersession record', () => {
-  const { graphStore } = buildContextBoundGraph('graph_s11_r3b');
-  const engine = createRevisionEngine({ workGraphStore: graphStore, root });
-  const { decision, newGraph } = engine.submit('graph_s11_r3b', {
-    request_id: 'rev_ctxswitch_evidenced',
-    base_graph_version: 1,
-    request_type: 'rebind_executor',
-    source: 'verifier',
-    motivation: 'move the workload into the product harness',
-    payload: {
-      executor_binding: { executor_id: 'exec_local_tests', routing_decision_ref: 'rd2', qualification_ref: 'q', selection_mode: 'FALLBACK', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_product' },
-      context_change: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/context-switches/rev_ctxswitch_evidenced.json' }
-    }
+test('R3 regression (codex P1 round 1): the store activation gate requires evidence for a real context transition', () => {
+  const { graphStore, rootWu } = buildContextBoundGraph('graph_s11_r3b');
+  const candidateBindings = { executor_id: 'exec_local_tests', routing_decision_ref: 'rd2', qualification_ref: 'q', selection_mode: 'FALLBACK', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_product' };
+  const v2 = bindGraph({
+    candidate: buildCandidate({ template: s11Template, workUnits: [rootWu] }),
+    bindings: [{ node_id: 'node_00_analysis', executor_binding: { ...candidateBindings } }, { node_id: 'node_01_verification', executor_binding: { ...candidateBindings } }],
+    graphId: 'graph_s11_r3b',
+    graphVersion: 2,
+    root
   });
-  assert.equal(decision.outcome, 'ACCEPTED');
-  assert.equal(newGraph.nodes[0].executor_binding.harness_context, 'unitera_product');
-  const record = graphStore.allSupersessions().at(-1);
+  graphStore.registerVersion(v2, { activate: false });
+
+  // Unevidenced transition -> rejected, candidate discarded, slot freed.
+  assert.throws(
+    () => graphStore.activateVersion('graph_s11_r3b', 2, { reason: 'unevidenced switch' }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_SWITCH_UNEVIDENCED'
+  );
+  assert.equal(graphStore.activeVersion('graph_s11_r3b'), 1);
+  assert.equal(graphStore.discardCandidateVersion('graph_s11_r3b', 2), true);
+
+  // Re-register and activate WITH the evidenced transition.
+  graphStore.registerVersion(v2, { activate: false });
+  const { record } = graphStore.activateVersion('graph_s11_r3b', 2, {
+    reason: 'evidenced plan change',
+    revisionRequestRef: 'rev_ctxswitch_evidenced',
+    contextChange: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/context-switches/rev_ctxswitch_evidenced.json' }
+  });
+  assert.equal(graphStore.activeVersion('graph_s11_r3b'), 2);
   assert.deepEqual(record.context_change, {
     from_context: 'development_harness',
     to_context: 'unitera_product',
@@ -564,4 +589,40 @@ test('validator regression (codex P2): multiple or non-matching context referenc
   const superstring = semanticContextIssues({ root, harnessContext: devContext({ context_id: 'hctx_expected' }), boundGraph: mkGraph(['hctx_expected_extra']) });
   assert.ok(superstring.some((issue) => issue.includes('does not match bound record hctx_expected')));
   assert.deepEqual(semanticContextIssues({ root, harnessContext: devContext({ context_id: 'hctx_expected' }), boundGraph: mkGraph(['hctx_expected']) }), []);
+});
+
+test('S11 regression (codex P1 round 2): initial graphs cannot mix harness context values under one ref', () => {
+  const workUnits = createWorkUnitStore({ root });
+  const rootWu = workUnits.create({
+    work_unit_id: 'wu_s11_mixedpair', objective: 'x',
+    required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
+    context_envelope_ref: 'ctx/s11',
+    authority_ceiling: { scope_ref: 'scope/s11', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_s11_mixedpair',
+    created_by: 'interaction_session', run_ref: 'run_s11',
+    harness_context_ref: 'hctx_graph_dev'
+  });
+  assert.throws(
+    () => planAndBind({
+      template: s11Template,
+      candidate: buildCandidate({ template: s11Template, workUnits: [rootWu] }),
+      routingForNode: (node) => node.stage === 'analysis'
+        ? { executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_graph_dev' }
+        : { executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_dev' },
+      workGraphStore: createWorkGraphStore({ root }),
+      graphId: 'graph_s11_mixedpair',
+      root,
+      workUnits: [rootWu]
+    }),
+    (error) => /mixed harness context pairs/.test(error.message)
+  );
+});
+
+test('S11 regression (codex P1 round 2): the active version can never be discarded', () => {
+  const { graphStore } = buildContextBoundGraph('graph_s11_discard_guard');
+  assert.throws(
+    () => graphStore.discardCandidateVersion('graph_s11_discard_guard', 1),
+    (error) => error instanceof FailClosedError && error.code === 'GRAPH_VERSION_ACTIVE'
+  );
+  assert.equal(graphStore.discardCandidateVersion('graph_s11_discard_guard', 99), false);
 });

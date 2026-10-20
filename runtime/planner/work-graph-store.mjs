@@ -122,6 +122,22 @@ function bindingContexts(graph) {
       return requireVersion(graphEntry(graphId), version);
     },
 
+    // Remove a candidate version that was registered with activate:false
+    // and then REJECTED during activation. Never touches the active version
+    // or any superseded history; frees the version slot again so a corrected
+    // request can recompute the same version number.
+    discardCandidateVersion(graphId, version) {
+      const entry = graphEntry(graphId);
+      if (entry.activeVersion === version) {
+        throw new FailClosedError('GRAPH_VERSION_ACTIVE', `cannot discard active version ${version} of ${graphId}`);
+      }
+      if (!entry.versions.has(version)) {
+        return false;
+      }
+      entry.versions.delete(version);
+      return true;
+    },
+
     supersessionsOf(graphId) {
       return supersessions.filter((record) => {
         const entry = graphs.get(graphId);

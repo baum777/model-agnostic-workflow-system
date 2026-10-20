@@ -32,6 +32,16 @@ export function validateCandidateGraph(candidate, template) {
 
 export function bindGraph({ candidate, bindings, graphId, graphVersion, root, createdAt = nowIso() }) {
   const bindingByNode = new Map(bindings.map((binding) => [binding.node_id, binding.executor_binding]));
+  // S11: one graph version binds ONE (harness_context, harness_context_ref)
+  // pair. A mixed pair (different values under one ref, or vice versa) fails
+  // closed before registration; initial activation never routes through the
+  // supersession gate, so this is the enforcement point for v1 graphs.
+  const contextPairs = new Set(
+    [...bindingByNode.values()].map((binding) => `${binding.harness_context ?? ''}|${binding.harness_context_ref ?? ''}`)
+  );
+  if (contextPairs.size > 1) {
+    throw new Error(`bound graph violates contract: nodes declare mixed harness context pairs (${[...contextPairs].join(', ')}); one graph version binds one context`);
+  }
   const nodes = candidate.nodes.map((node) => {
     const executorBinding = bindingByNode.get(node.node_id);
     if (!executorBinding) {

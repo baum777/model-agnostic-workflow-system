@@ -109,6 +109,21 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
       if (candidateNodes.length === 0) {
         throw new FailClosedError('REVISION_EMPTIES_GRAPH', 'revision would leave the graph without nodes');
       }
+      // S11 R3/R4: the referenced WorkUnits are immutable, so a graph
+      // revision cannot change the harness context -- a context switch is a
+      // bound plan change that re-anchors WorkUnits through a new plan.
+      // Supersession records still represent evidenced transitions on the
+      // read side (graph-supersession-record.schema.json context_change),
+      // but the live revision path fails closed here.
+      const contextPair = (node) => `${node.executor_binding.harness_context ?? ''}|${node.executor_binding.harness_context_ref ?? ''}`;
+      const contextChanged = new Set(candidateNodes.map(contextPair)).size > 1
+        || [...new Set(candidateNodes.map(contextPair))].some((pair) => !activeGraph.nodes.some((node) => contextPair(node) === pair));
+      if (contextChanged) {
+        throw new FailClosedError(
+          'CONTEXT_BINDING_CONFLICT',
+          'a graph revision cannot change the harness context; the referenced WorkUnits are immutable and a context switch is a bound plan change that re-anchors WorkUnits through a new plan'
+        );
+      }
       const newGraph = buildNewVersion
         ? buildNewVersion({ baseGraph: activeGraph, nodes: candidateNodes, newVersionNumber, request })
         : deepFreeze({
@@ -117,15 +132,25 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
           nodes: deepFreeze(candidateNodes),
           created_at: decidedAt()
         });
+      // Registration and activation are one atomic step from the caller's
+      // perspective: a candidate rejected during activation is discarded so
+      // the version slot stays usable for corrected requests.
       workGraphStore.registerVersion(newGraph, { activate: false });
-      const { record } = workGraphStore.activateVersion(graphId, newVersionNumber, {
-        reason: `accepted revision ${request.request_id} (${request.request_type})`,
-        revisionRequestRef: request.request_id,
-        // S11 R3: the revision request may declare an evidenced context
-        // transition; the store asserts it against the ACTUAL binding delta
-        // and fails closed (CONTEXT_SWITCH_UNEVIDENCED / CONTEXT_BINDING_CONFLICT).
-        contextChange: (request.payload && request.payload.context_change) || null
-      });
+      let activated;
+      try {
+        activated = workGraphStore.activateVersion(graphId, newVersionNumber, {
+          reason: `accepted revision ${request.request_id} (${request.request_type})`,
+          revisionRequestRef: request.request_id,
+          // S11 R3: a revision payload may declare an evidenced context
+          // transition for the store's activation gate; the context-delta
+          // refusal above has already rejected live context switches.
+          contextChange: (request.payload && request.payload.context_change) || null
+        });
+      } catch (error) {
+        workGraphStore.discardCandidateVersion(graphId, newVersionNumber);
+        throw error;
+      }
+      const { record } = activated;
       const decision = {
         decision_id: newId('rdec'),
         request_ref: request.request_id,
