@@ -54,6 +54,27 @@ envelope). No engine change, no transport change.
   closes via the registry projection after owner merge, same chain as S2b
   wave 1.
 
+## Round 2 — Codex review (P1 x2, P2 x1), repaired before merge
+
+6. **Work unit did not carry the declared envelope id** (P1): the engine
+   still synthesized `ctx/<runId>/envelope`. The engine now accepts an
+   optional `contextEnvelopeRef` (synthetic fallback preserved for
+   engine-only callers) and the runner passes the validated `envelope_id` —
+   `work-unit.json` references the declared envelope.
+7. **Per-invocation usage unaccounted** (P1): a multi-stage routing of one
+   executor counted its tokens once and the run could report COMPLETED with
+   an `EXCEEDED_AT_RUNTIME` annotation. Runtime usage is now accumulated per
+   invocation; an exceeding run emits the spine's declared
+   `resource.budget_exceeded` event (`BUDGET_EXHAUSTED`), keeps the honest
+   artifact, then fails closed with `RUN_CONTEXT_BUDGET_EXCEEDED` — never
+   COMPLETED.
+8. **UTF-16 vs UTF-8** (P2): the estimator now measures UTF-8 JSON bytes
+   (`Buffer.byteLength`), so non-ASCII content cannot shrink the estimate.
+
+Round-2 verification: budget tests 7/7 (three new: cumulative enforcement
+with on-disk evidence, UTF-8 byte estimate, work-unit envelope binding),
+full suite 285/285, validators PASS.
+
 ## Not claimed
 
 - No live executor metering, no cross-run/global budget scope (spine

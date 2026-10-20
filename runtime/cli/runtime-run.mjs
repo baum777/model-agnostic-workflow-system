@@ -69,10 +69,11 @@ function fixtureExecutorImplementation(executorId, binding, now) {
   });
 }
 
-// Deterministic context token estimate (JSON bytes / 4). Fixture-lane
-// heuristic, recorded as such in the evidence bundle — not a tokenizer.
+// Deterministic context token estimate (UTF-8 JSON bytes / 4). Fixture-lane
+// heuristic, recorded as such in the evidence bundle — not a tokenizer. Bytes
+// (not UTF-16 code units) so non-ASCII content cannot shrink the estimate.
 function estimateTokens(value) {
-  return Math.ceil(JSON.stringify(value ?? '').length / 4);
+  return Math.ceil(Buffer.byteLength(JSON.stringify(value ?? ''), 'utf8') / 4);
 }
 
 export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, now = null } = {}) {
@@ -334,6 +335,7 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     interactionSession,
     workRequest,
     template,
+    contextEnvelopeRef: contextEnvelope.envelope_id,
     profiles,
     subsumptionRecords: spec.subsumption_records || [],
     qualifications,
@@ -386,21 +388,44 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
   }
 
   // S3 evidence: the declared context envelope, its pre-execution verdict and
-  // the token usage the run actually reported.
+  // the token usage the run actually reported — accounted cumulatively per
+  // invocation (an executor routed to several stages pays per invocation).
   const executionTokenUsage = (outcome.executionResults || []).reduce((usage, result) => {
     const tokens = result.metrics && typeof result.metrics.tokens_in === 'number' ? result.metrics.tokens_in : 0;
     usage[result.executor_id] = (usage[result.executor_id] || 0) + tokens;
     usage.total += tokens;
     return usage;
   }, { total: 0 });
+  const budgetExceeded = contextTokenEstimate + executionTokenUsage.total > contextEnvelope.token_budget;
   artifactWriter.write('context-envelope.json', {
     envelope: contextEnvelope,
     context_token_estimate: contextTokenEstimate,
     declared_executor_tokens_in: declaredExecutorTokens,
     execution_token_usage: executionTokenUsage,
     budget_limit: contextEnvelope.token_budget,
-    verdict: contextTokenEstimate + executionTokenUsage.total <= contextEnvelope.token_budget ? 'WITHIN_BUDGET' : 'EXCEEDED_AT_RUNTIME'
+    verdict: budgetExceeded ? 'EXCEEDED_AT_RUNTIME' : 'WITHIN_BUDGET'
   });
+  if (budgetExceeded) {
+    // Fail closed: a run that exceeded its declared envelope never reports
+    // COMPLETED — the evidence bundle (event stream + artifact) keeps the
+    // honest record, then the runner fails.
+    eventSink({
+      family: 'resource',
+      type: 'budget_exceeded',
+      run_id: spec.run_id,
+      occurred_at: clock(),
+      provenance: 'observed',
+      details: {
+        budget_scope: 'run',
+        budget_limit: contextEnvelope.token_budget,
+        budget_used: contextTokenEstimate + executionTokenUsage.total,
+        unit: 'tokens',
+        envelope_id: contextEnvelope.envelope_id,
+        error_class: 'BUDGET_EXHAUSTED'
+      }
+    });
+    throw new SpecError('RUN_CONTEXT_BUDGET_EXCEEDED', `run exceeded its declared context envelope ${contextEnvelope.envelope_id}: context ${contextTokenEstimate} + executed tokens ${executionTokenUsage.total} > budget ${contextEnvelope.token_budget}; the run never reports COMPLETED on a budget violation`);
+  }
 
   const summary = {
     ok: outcome.status === 'COMPLETED',

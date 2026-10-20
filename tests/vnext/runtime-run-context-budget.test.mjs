@@ -53,6 +53,46 @@ test('the reference spec declares its envelope and records the budget verdict', 
   assert.equal(record.envelope.envelope_id, 'ctx_reference_audit_0001');
   assert.equal(record.verdict, 'WITHIN_BUDGET');
   assert.equal(record.execution_token_usage.exec_openrouter_glm, 10);
+
+  // The work unit's context_envelope_ref is the DECLARED envelope id — the
+  // synthetic dead reference is gone.
+  const workUnit = JSON.parse(fs.readFileSync(path.join(runDir, 'work-unit.json'), 'utf8'));
+  assert.equal(workUnit.context_envelope_ref, 'ctx_reference_audit_0001');
+});
+
+test('cumulative per-invocation usage is enforced: a budget-exceeding run never reports COMPLETED', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_budget_multi_stage_0001';
+    spec.context_envelope = { envelope_id: 'ctx_budget_multi_stage_0001', token_budget: 32 };
+    spec.template.mandatory_stages = ['analysis', 'analysis2', 'effect', 'verification'];
+    spec.work_request.stageCapabilities.analysis2 = ['cap_repository_analysis'];
+  });
+  const outDir = path.join(dir, 'run');
+  await assert.rejects(
+    () => runRuntimeRun({ specPath, outDir }),
+    (error) => error.code === 'RUN_CONTEXT_BUDGET_EXCEEDED' && /never reports COMPLETED/.test(error.message)
+  );
+  // The evidence bundle keeps the honest record: exceeded verdict + declared
+  // budget_exceeded event with BUDGET_EXHAUSTED error class.
+  const record = JSON.parse(fs.readFileSync(path.join(outDir, 'context-envelope.json'), 'utf8'));
+  assert.equal(record.verdict, 'EXCEEDED_AT_RUNTIME');
+  assert.equal(record.execution_token_usage.exec_openrouter_glm, 20);
+  const eventLines = fs.readFileSync(path.join(outDir, 'run-events.jsonl'), 'utf8').trim().split('\n');
+  const exceeded = eventLines.map((line) => JSON.parse(line)).find((event) => event.type === 'budget_exceeded');
+  assert.ok(exceeded, 'resource.budget_exceeded must be emitted');
+  assert.equal(exceeded.details.error_class, 'BUDGET_EXHAUSTED');
+});
+
+test('the estimate measures UTF-8 bytes, not UTF-16 code units', async () => {
+  const { specPath, dir } = writeSpec((spec) => {
+    spec.run_id = 'run_budget_utf8_0001';
+    spec.context_envelope = { envelope_id: 'ctx_budget_utf8_0001', token_budget: 16 };
+    spec.work_request.objective = '€'.repeat(40);
+  });
+  await assert.rejects(
+    () => runRuntimeRun({ specPath, outDir: path.join(dir, 'run') }),
+    (error) => error.code === 'SPEC_CONTEXT_BUDGET_EXCEEDED' && /no silent truncation/.test(error.message)
+  );
 });
 
 test('a context estimate above the declared budget fails closed (no silent truncation)', async () => {

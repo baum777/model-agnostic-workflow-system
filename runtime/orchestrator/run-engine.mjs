@@ -39,6 +39,7 @@ export async function executeWorkRun(options) {
     thresholdDecider = null,
     executorImplementations,
     verifier,
+    contextEnvelopeRef = null,
     eventSink = () => {},
     artifactWriter = null,
     outputsRegistry = () => [],
@@ -69,7 +70,9 @@ export async function executeWorkRun(options) {
     work_unit_id: `wu_${runId}_root`,
     objective: workRequest.objective,
     required_capabilities: workRequest.requiredCapabilities,
-    context_envelope_ref: `ctx/${runId}/envelope`,
+    // The context envelope the caller declared (S3); the synthetic fallback
+    // keeps engine-only callers unchanged.
+    context_envelope_ref: contextEnvelopeRef || `ctx/${runId}/envelope`,
     authority_ceiling: template.authority_ceiling_default,
     decomposition_policy_ref: template.template_id,
     completion_contract_ref: `cc_${runId}_root`,
