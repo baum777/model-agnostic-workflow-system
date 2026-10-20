@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 // S8 governance promotion (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED).
 // Implements the versioned canonical adoption path for a skill candidate:
-// frontdoor admission binding, S5 behavioral eval evidence bound by content
-// digest, canonical owner approval, versioned adoption, export
-// regeneration, and post-adoption readback.
+// frontdoor admission bound to the exact candidate identity and content, S5
+// behavioral eval evidence bound by content digest, subject, corpus and age,
+// canonical owner approval bound to the approved candidate digest, versioned
+// adoption with the superseded version READ FROM THE CANONICAL TREE, an
+// append-only adoption ledger, and the post-adoption readback.
 //
 // Separation rules (spec 12.3/13.4): the promotion chain changes canonical
 // skill content and NOTHING else -- no permission, no qualification, no
@@ -16,7 +18,7 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { canonicalJson, nowIso, FailClosedError } from '../../runtime/vnext/util.mjs';
+import { canonicalJson, nowIso } from '../../runtime/vnext/util.mjs';
 import { validateInstanceAgainstContract } from './validate-maws-vnext-contracts.mjs';
 import { validateBehavioralEvalRecord, semanticEvalIssues } from './validate-behavioral-eval.mjs';
 import { computeContentDigest } from './run-skill-effectiveness-evals.mjs';
@@ -24,6 +26,13 @@ import { computeContentDigest } from './run-skill-effectiveness-evals.mjs';
 const ADOPTION_CONTRACT = 'core/contracts/skill-promotion-adoption.schema.json';
 const FRONTDOOR_CONTRACT = 'core/contracts/skill-frontdoor-admission.schema.json';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const SKILL_ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
+const DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/;
+const DEFAULT_MAX_EVIDENCE_AGE_DAYS = 90;
+// The export surfaces of THIS repository. The canonical export regeneration
+// is NOT performed by this slice (see exportRegenerationState below); the
+// refs name the surfaces that a regeneration would have to rewrite.
+const DEFAULT_EXPORT_REFS = ['contracts/core-registry.json', 'providers/'];
 
 export class PromotionError extends Error {
   constructor(code, message) {
@@ -75,6 +84,22 @@ export function readAndDigestJson(filePath) {
   return { record, digest: sha256Prefixed(canonicalJson(record)) };
 }
 
+// screenedDigestOf(admission) -> the sha256 digest the frontdoor recorded for
+// the screened candidate. The frontdoor binds the immutable source identity
+// of the candidate it screened; a promotion may only adopt exactly what was
+// screened.
+export function screenedDigestOf(admission) {
+  const sourceRevision = admission?.candidate?.source_revision;
+  if (!isNonEmptyString(sourceRevision)) {
+    promotionError('FRONTDOOR_SOURCE_REVISION_UNBOUND', 'the frontdoor admission carries no candidate source revision');
+  }
+  const match = sourceRevision.match(/sha256:[a-f0-9]{64}/);
+  if (!match) {
+    promotionError('FRONTDOOR_SOURCE_REVISION_UNBOUND', `the frontdoor source revision "${sourceRevision}" carries no sha256 content digest`);
+  }
+  return match[0];
+}
+
 // validateFrontdoorAdmission({ admissionPath, root }) -> { record, digest }.
 // The frontdoor is a mandatory complement of behavioral evidence: the
 // admission must be schema-valid, implementation-ELIGIBLE, and must never
@@ -94,15 +119,24 @@ export function validateFrontdoorAdmission({ admissionPath, root = REPO_ROOT }) 
   return { record, digest };
 }
 
-// validateEvalEvidence({ evalRecords, root }) -> the bound evidence list.
-// Every referenced S5 behavioral eval record must be schema-valid, carry
-// matching content digest, and none may be BLOCKED; improvement proof
-// requires at least one IMPROVEMENT_PROVEN record.
-export function validateEvalEvidence({ evalRecords, root = REPO_ROOT }) {
+// validateEvalEvidence({ evalRecords, root, skillId, now, maxEvidenceAgeDays })
+// -> the bound evidence list. Every referenced S5 behavioral eval record must
+// be schema-valid, carry a matching content digest, measure THE promoted
+// skill, come from ONE corpus, be within the evidence age bound, and none may
+// be BLOCKED; improvement proof requires at least one IMPROVEMENT_PROVEN
+// record.
+export function validateEvalEvidence({
+  evalRecords,
+  root = REPO_ROOT,
+  skillId,
+  now = nowIso,
+  maxEvidenceAgeDays = DEFAULT_MAX_EVIDENCE_AGE_DAYS
+}) {
   if (!Array.isArray(evalRecords) || evalRecords.length === 0) {
     promotionError('EVAL_EVIDENCE_MISSING', 'promotion requires at least one behavioral eval record');
   }
   const bound = [];
+  const corpusDigests = new Set();
   for (const entry of evalRecords) {
     const issues = validateBehavioralEvalRecord(entry.record, root);
     if (issues.length > 0) {
@@ -120,14 +154,174 @@ export function validateEvalEvidence({ evalRecords, root = REPO_ROOT }) {
     if (entry.record.verdict === 'BLOCKED') {
       promotionError('EVAL_EVIDENCE_BLOCKED', `${entry.record_ref}: a BLOCKED behavioral eval can never support promotion`);
     }
+    // The evidence must measure the promoted skill itself: an eval of a
+    // different subject never authorizes this promotion.
+    if (isNonEmptyString(skillId) && entry.record.subject?.ref !== skillId) {
+      promotionError('EVAL_EVIDENCE_SUBJECT_MISMATCH', `${entry.record_ref}: the eval measured subject "${entry.record.subject?.ref}", not the promoted skill "${skillId}"`);
+    }
+    const corpusDigest = entry.record.reproducibility?.corpus_digest;
+    if (!DIGEST_PATTERN.test(String(corpusDigest))) {
+      promotionError('EVAL_EVIDENCE_CORPUS_MISMATCH', `${entry.record_ref}: the eval carries no corpus digest`);
+    }
+    corpusDigests.add(corpusDigest);
+    // Evidence freshness: a stale measurement cannot support a promotion.
+    const createdAt = Date.parse(entry.record.created_at);
+    if (Number.isNaN(createdAt)) {
+      promotionError('EVAL_EVIDENCE_STALE', `${entry.record_ref}: created_at "${entry.record.created_at}" is not a timestamp`);
+    }
+    const ageDays = (Date.parse(now()) - createdAt) / 86400000;
+    if (ageDays > maxEvidenceAgeDays) {
+      promotionError('EVAL_EVIDENCE_STALE', `${entry.record_ref}: the evidence is ${ageDays.toFixed(1)} days old, the bound is ${maxEvidenceAgeDays} days`);
+    }
     bound.push({
       record_ref: entry.record_ref,
       content_digest: digest,
-      verdict: entry.record.verdict
+      verdict: entry.record.verdict,
+      subject_ref: entry.record.subject.ref,
+      corpus_digest: corpusDigest,
+      created_at: entry.record.created_at
     });
   }
+  if (corpusDigests.size !== 1) {
+    promotionError('EVAL_EVIDENCE_CORPUS_MISMATCH', `the bound evidence comes from ${corpusDigests.size} different corpora; one promotion binds one corpus`);
+  }
   const improvementProven = bound.some((entry) => entry.verdict === 'IMPROVEMENT_PROVEN');
-  return { behavioral_eval_records: bound, improvement_proven: improvementProven };
+  return {
+    behavioral_eval_records: bound,
+    improvement_proven: improvementProven,
+    corpus_digest: [...corpusDigests][0],
+    max_evidence_age_days: maxEvidenceAgeDays
+  };
+}
+
+// validateOwnerApproval({ ownerApproval, candidateDigest }) -> the approval
+// as the record states it. The approval must name the candidate content it
+// approves; an approval that is not bound to a digest approves nothing.
+export function validateOwnerApproval({ ownerApproval, candidateDigest }) {
+  if (!ownerApproval || ownerApproval.approver !== 'canonical_owner' || !isNonEmptyString(ownerApproval.decision_ref) || !isNonEmptyString(ownerApproval.approved_at)) {
+    promotionError('OWNER_APPROVAL_MISSING', 'promotion requires canonical owner approval (approver, decision_ref, approved_at); approval is never implied');
+  }
+  if (Number.isNaN(Date.parse(ownerApproval.approved_at))) {
+    promotionError('OWNER_APPROVAL_INVALID', `approved_at "${ownerApproval.approved_at}" is not a timestamp`);
+  }
+  if (ownerApproval.candidate_digest !== candidateDigest) {
+    promotionError('OWNER_APPROVAL_CANDIDATE_MISMATCH', `the owner approval binds candidate digest ${String(ownerApproval.candidate_digest)}, the promoted content digests to ${candidateDigest}`);
+  }
+  return {
+    approver: 'canonical_owner',
+    decision_ref: ownerApproval.decision_ref,
+    approved_at: ownerApproval.approved_at,
+    candidate_digest: ownerApproval.candidate_digest
+  };
+}
+
+// readFrontmatterVersion(content) -> the version declared in the artifact's
+// own frontmatter, or null when the artifact declares none.
+export function readFrontmatterVersion(content) {
+  if (!isNonEmptyString(content)) return null;
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!match) return null;
+  const versionLine = match[1].split(/\r?\n/).find((line) => /^version\s*:/.test(line));
+  if (!versionLine) return null;
+  const value = versionLine.replace(/^version\s*:\s*/, '').trim().replace(/^["']|["']$/g, '');
+  return isNonEmptyString(value) ? value : null;
+}
+
+// resolveCanonicalPaths({ canonicalRoot, skillId }) -> { canonicalPath,
+// canonicalPathRelative, ledgerPath, ledgerPathRelative } with the resolved
+// path proven to stay INSIDE the canonical root.
+export function resolveCanonicalPaths({ canonicalRoot, skillId }) {
+  if (!isNonEmptyString(skillId) || !SKILL_ID_PATTERN.test(skillId)) {
+    promotionError('PROMOTION_SKILL_ID_INVALID', `skill id "${String(skillId)}" must match ${SKILL_ID_PATTERN}`);
+  }
+  const root = path.resolve(canonicalRoot);
+  const canonicalPathRelative = `skills/${skillId}/SKILL.md`;
+  const ledgerPathRelative = `skills/${skillId}/ADOPTIONS.jsonl`;
+  const canonicalPath = path.resolve(root, canonicalPathRelative);
+  const ledgerPath = path.resolve(root, ledgerPathRelative);
+  if (!canonicalPath.startsWith(`${root}${path.sep}`) || !ledgerPath.startsWith(`${root}${path.sep}`)) {
+    promotionError('PROMOTION_PATH_ESCAPE', `the canonical path for "${skillId}" escapes the canonical root`);
+  }
+  return { canonicalPath, canonicalPathRelative, ledgerPath, ledgerPathRelative };
+}
+
+// readAdoptionLedger({ ledgerPath }) -> the recorded prior adoptions. The
+// ledger makes the applied change reconstructable and the promotion
+// replay-protected.
+export function readAdoptionLedger({ ledgerPath }) {
+  if (!fs.existsSync(ledgerPath)) return [];
+  const entries = [];
+  for (const line of fs.readFileSync(ledgerPath, 'utf8').split(/\r?\n/)) {
+    if (!line.trim()) continue;
+    try {
+      entries.push(JSON.parse(line));
+    } catch (error) {
+      promotionError('ADOPTION_LEDGER_CORRUPT', `the adoption ledger ${ledgerPath} holds an unreadable entry: ${error.message}`);
+    }
+  }
+  return entries;
+}
+
+// assertAdoptionAllowed({ adoptionId, skillId, adoptedVersion, ledger }) ->
+// fail closed on a replayed adoption id or on an adoption that does not move
+// the skill past the version it was already adopted at. The ledger is the
+// applied-change history, so a promotion is always reconstructable.
+export function assertAdoptionAllowed({ adoptionId, skillId, adoptedVersion, ledger }) {
+  for (const entry of ledger) {
+    if (entry.adoption_id === adoptionId) {
+      promotionError('PROMOTION_REPLAYED', `adoption id "${adoptionId}" was already applied at ${String(entry.adopted_at)}`);
+    }
+    if (entry.skill_id === skillId && compareSemver(adoptedVersion, entry.adopted_version) <= 0) {
+      promotionError('PROMOTION_ALREADY_ADOPTED', `skill "${skillId}" was already adopted at version ${entry.adopted_version} by adoption "${entry.adoption_id}"`);
+    }
+  }
+}
+
+// exportRegenerationState({ exportRefs, now }) -> the truthful export state.
+// This slice writes the canonical skill file only; the canonical registry and
+// provider export surfaces are NOT regenerated here, and the record says so
+// instead of claiming a regeneration that never happened.
+export function exportRegenerationState({ exportRefs = DEFAULT_EXPORT_REFS, now = nowIso }) {
+  return {
+    performed: false,
+    export_refs: [...exportRefs],
+    regenerated_at: null,
+    not_performed_reason: 'the canonical registry and provider export surfaces are not regenerated by this slice; the promotion writes the canonical skill file only, and the export regeneration remains an open obligation'
+  };
+}
+
+// semanticPromotionIssues(record) -> string[]. The invariants the minimal
+// schema engine cannot express: the evidence proves an improvement, the
+// evidence measured the promoted skill, the admission screened the adopted
+// content, the approval binds the adopted content, and the record grants no
+// authority.
+export function semanticPromotionIssues(record) {
+  const issues = [];
+  if (record.authority_granted !== false) {
+    issues.push('authority_granted: a promotion never grants authority');
+  }
+  const records = record.eval_evidence?.behavioral_eval_records ?? [];
+  if (record.eval_evidence?.improvement_proven === true && !records.some((entry) => entry.verdict === 'IMPROVEMENT_PROVEN')) {
+    issues.push('eval_evidence: improvement_proven is asserted without an IMPROVEMENT_PROVEN record');
+  }
+  for (const entry of records) {
+    if (entry.subject_ref !== record.candidate?.skill_id) {
+      issues.push(`eval_evidence: ${entry.record_ref} measured subject "${entry.subject_ref}", not the promoted skill`);
+    }
+  }
+  if (record.candidate?.screened_digest !== record.candidate?.candidate_digest) {
+    issues.push('candidate: the screened content digest differs from the adopted content digest');
+  }
+  if (record.frontdoor_admission?.screened_digest !== record.candidate?.candidate_digest) {
+    issues.push('frontdoor_admission: the frontdoor screened other content than the adopted content');
+  }
+  if (record.owner_approval?.candidate_digest !== record.candidate?.candidate_digest) {
+    issues.push('owner_approval: the approval does not bind the adopted content');
+  }
+  if (record.post_adoption_readback?.readback_digest_match !== true) {
+    issues.push('post_adoption_readback: the readback did not match');
+  }
+  return issues;
 }
 
 // promoteSkillCandidate({ adoptionId, skillId, adoptedVersion,
@@ -137,7 +331,9 @@ export function validateEvalEvidence({ evalRecords, root = REPO_ROOT }) {
 //
 // Executes the full chain against the caller-provided canonicalRoot (a real
 // promotion on the live tree is an owner act) and performs the
-// post-adoption readback (re-read + digest match) fail-closed.
+// post-adoption readback (re-read + digest match) fail-closed. A record that
+// does not satisfy the contract leaves NO mutation behind: the canonical file
+// is restored before the issues are returned.
 export function promoteSkillCandidate({
   adoptionId,
   skillId,
@@ -149,77 +345,158 @@ export function promoteSkillCandidate({
   evalRecords,
   ownerApproval,
   canonicalRoot,
-  exportRefs = ['contracts/core-registry.json', 'provider-exports/'],
+  exportRefs = DEFAULT_EXPORT_REFS,
   now = nowIso,
-  root = REPO_ROOT
+  root = REPO_ROOT,
+  maxEvidenceAgeDays = DEFAULT_MAX_EVIDENCE_AGE_DAYS
 }) {
+  const paths = resolveCanonicalPaths({ canonicalRoot, skillId });
   const admission = validateFrontdoorAdmission({ admissionPath, root });
-  const evalEvidence = validateEvalEvidence({ evalRecords, root });
+  const screenedDigest = screenedDigestOf(admission.record);
 
-  if (!ownerApproval || ownerApproval.approver !== 'canonical_owner' || !isNonEmptyString(ownerApproval.decision_ref) || !isNonEmptyString(ownerApproval.approved_at)) {
-    promotionError('OWNER_APPROVAL_MISSING', 'promotion requires canonical owner approval (approver, decision_ref, approved_at); approval is never implied');
+  // The promotion may only adopt what the frontdoor screened, for the skill
+  // the frontdoor screened: an admission for another skill or another
+  // content never authorizes this adoption.
+  if (admission.record.candidate.skill_id !== skillId) {
+    promotionError('PROMOTION_CANDIDATE_IDENTITY_MISMATCH', `the frontdoor screened skill "${admission.record.candidate.skill_id}", not "${skillId}"`);
   }
-  if (compareSemver(adoptedVersion, supersededVersion) <= 0) {
-    promotionError('ADOPTION_VERSION_REGRESSION', `adopted version ${adoptedVersion} must be strictly greater than the superseded version ${supersededVersion}`);
+  if (screenedDigest !== candidateDigest) {
+    promotionError('PROMOTION_CANDIDATE_CONTENT_MISMATCH', `the frontdoor screened content ${screenedDigest}, the promoted content digests to ${candidateDigest}`);
+  }
+
+  const evalEvidence = validateEvalEvidence({ evalRecords, root, skillId, now, maxEvidenceAgeDays });
+  const approval = validateOwnerApproval({ ownerApproval, candidateDigest });
+
+  // Replay protection comes FIRST: the ledger records every applied
+  // adoption, so a replayed adoption id or an adoption that does not move
+  // the skill past its last adopted version is refused before anything is
+  // read or written.
+  const ledger = readAdoptionLedger({ ledgerPath: paths.ledgerPath });
+  assertAdoptionAllowed({ adoptionId, skillId, adoptedVersion, ledger });
+
+  // The superseded version is READ FROM THE CANONICAL TREE, never asserted
+  // by the caller: a self-declared prior version would allow a silent
+  // downgrade of a live skill.
+  const priorContent = fs.existsSync(paths.canonicalPath) ? fs.readFileSync(paths.canonicalPath, 'utf8') : null;
+  let effectiveSupersededVersion = supersededVersion;
+  let supersededVersionSource = 'no_prior_canonical_version';
+  if (priorContent !== null) {
+    const canonicalVersion = readFrontmatterVersion(priorContent);
+    if (canonicalVersion === null) {
+      promotionError('ADOPTION_SUPERSEDED_VERSION_UNDECLARED', `the canonical skill file ${paths.canonicalPathRelative} declares no version; the superseded version cannot be read from the canonical tree`);
+    }
+    effectiveSupersededVersion = canonicalVersion;
+    supersededVersionSource = 'canonical_skill_file';
+  }
+  if (compareSemver(adoptedVersion, effectiveSupersededVersion) <= 0) {
+    promotionError('ADOPTION_VERSION_REGRESSION', `adopted version ${adoptedVersion} must be strictly greater than the superseded version ${effectiveSupersededVersion} (${supersededVersionSource})`);
+  }
+  // The adopted version must be the version the artifact itself declares.
+  const artifactVersion = readFrontmatterVersion(candidateContent);
+  if (artifactVersion === null) {
+    promotionError('ADOPTION_VERSION_UNDECLARED', 'the promoted artifact declares no version in its frontmatter');
+  }
+  if (artifactVersion !== adoptedVersion) {
+    promotionError('ADOPTION_VERSION_ARTIFACT_MISMATCH', `the promoted artifact declares version ${artifactVersion}, the adoption records ${adoptedVersion}`);
   }
   if (evalEvidence.improvement_proven === false) {
     promotionError('IMPROVEMENT_NOT_PROVEN', 'promotion requires at least one IMPROVEMENT_PROVEN behavioral eval record');
   }
 
-  // Canonical adoption: materialize the candidate into the caller's
-  // canonical root and verify by readback.
-  const relativePath = `skills/${skillId}/SKILL.md`;
-  const canonicalPath = path.join(canonicalRoot, relativePath);
-  fs.mkdirSync(path.dirname(canonicalPath), { recursive: true });
-  fs.writeFileSync(canonicalPath, candidateContent);
-  const readbackDigest = sha256Prefixed(fs.readFileSync(canonicalPath, 'utf8'));
-  const readbackDigestMatch = readbackDigest === candidateDigest;
-  if (!readbackDigestMatch) {
-    promotionError('READBACK_DIGEST_MISMATCH', `post-adoption readback failed: canonical file digests to ${readbackDigest}, expected ${candidateDigest}`);
-  }
-
   const adoptionDigest = sha256Prefixed(canonicalJson({
     skill_id: skillId,
     adopted_version: adoptedVersion,
-    superseded_version: supersededVersion,
+    superseded_version: effectiveSupersededVersion,
     candidate_digest: candidateDigest,
+    screened_digest: screenedDigest,
     frontdoor_admission_digest: admission.digest,
-    eval_evidence: evalEvidence.behavioral_eval_records
+    eval_evidence: evalEvidence.behavioral_eval_records,
+    owner_approval: approval
   }));
+
+  // Canonical adoption: materialize the candidate into the caller's
+  // canonical root and verify by readback. A contract-invalid record leaves
+  // no mutation behind.
+  fs.mkdirSync(path.dirname(paths.canonicalPath), { recursive: true });
+  fs.writeFileSync(paths.canonicalPath, candidateContent);
+  const readbackDigest = sha256Prefixed(fs.readFileSync(paths.canonicalPath, 'utf8'));
+  const readbackDigestMatch = readbackDigest === candidateDigest;
+  if (!readbackDigestMatch) {
+    restoreCanonicalFile({ canonicalPath: paths.canonicalPath, priorContent });
+    promotionError('READBACK_DIGEST_MISMATCH', `post-adoption readback failed: canonical file digests to ${readbackDigest}, expected ${candidateDigest}`);
+  }
 
   const record = {
     schema_version: '1.0.0',
     adoption_id: adoptionId,
-    candidate: { skill_id: skillId, adopted_version: adoptedVersion, candidate_digest: candidateDigest },
+    candidate: {
+      skill_id: skillId,
+      adopted_version: adoptedVersion,
+      candidate_digest: candidateDigest,
+      screened_digest: screenedDigest
+    },
     frontdoor_admission: {
       record_ref: path.relative(root, admissionPath).replace(/\\/g, '/'),
       admission_digest: admission.digest,
-      implementation_disposition: 'ELIGIBLE'
+      implementation_disposition: 'ELIGIBLE',
+      screened_digest: screenedDigest
     },
     eval_evidence: evalEvidence,
-    owner_approval: { approver: 'canonical_owner', decision_ref: ownerApproval.decision_ref, approved_at: ownerApproval.approved_at },
+    owner_approval: approval,
     canonical_adoption: {
-      canonical_path: relativePath,
-      superseded_version: supersededVersion,
+      canonical_path: paths.canonicalPathRelative,
+      superseded_version: effectiveSupersededVersion,
+      superseded_version_source: supersededVersionSource,
       adoption_digest: adoptionDigest,
-      adopted_at: now()
+      adopted_at: now(),
+      adoption_ledger_ref: paths.ledgerPathRelative
     },
-    export_regeneration: {
-      performed: true,
-      export_refs: exportRefs,
-      regenerated_at: now()
-    },
+    export_regeneration: exportRegenerationState({ exportRefs, now }),
     post_adoption_readback: {
       performed: true,
-      readback_digest_match: true,
+      readback_digest_match: readbackDigestMatch,
       readback_at: now()
     },
     authority_granted: false,
     created_at: now()
   };
 
-  const issues = validateInstanceAgainstContract(record, ADOPTION_CONTRACT, root);
-  return { record, issues, canonicalPath, admissionDigest: admission.digest };
+  const issues = [
+    ...validateInstanceAgainstContract(record, ADOPTION_CONTRACT, root),
+    ...semanticPromotionIssues(record)
+  ];
+  if (issues.length > 0) {
+    restoreCanonicalFile({ canonicalPath: paths.canonicalPath, priorContent });
+    return { record, issues, canonicalPath: paths.canonicalPath, admissionDigest: admission.digest };
+  }
+
+  // The applied change is recorded: the ledger makes it reconstructable.
+  fs.appendFileSync(paths.ledgerPath, `${JSON.stringify({
+    adoption_id: adoptionId,
+    skill_id: skillId,
+    adopted_version: adoptedVersion,
+    superseded_version: effectiveSupersededVersion,
+    adoption_digest: adoptionDigest,
+    candidate_digest: candidateDigest,
+    adopted_at: record.canonical_adoption.adopted_at
+  })}\n`);
+
+  return { record, issues, canonicalPath: paths.canonicalPath, admissionDigest: admission.digest };
+}
+
+// restoreCanonicalFile -> undo a canonical write when the record does not
+// satisfy the contract: the failed promotion leaves no mutation behind.
+function restoreCanonicalFile({ canonicalPath, priorContent }) {
+  if (priorContent === null) {
+    try {
+      fs.rmSync(canonicalPath, { force: true });
+    } catch (error) {
+      // The caller already receives the failing issues; the rollback failure
+      // is reported through them.
+    }
+    return;
+  }
+  fs.writeFileSync(canonicalPath, priorContent);
 }
 
 // postAdoptionReadback({ record, canonicalRoot }) -> string[] issues.
@@ -243,18 +520,34 @@ export function postAdoptionReadback({ record, canonicalRoot }) {
   if (record.post_adoption_readback.readback_digest_match !== true) {
     issues.push('post_adoption_readback: the recorded readback did not match');
   }
+  const ledger = readAdoptionLedger({ ledgerPath: path.join(canonicalRoot, record.canonical_adoption.adoption_ledger_ref) });
+  if (!ledger.some((entry) => entry.adoption_digest === record.canonical_adoption.adoption_digest)) {
+    issues.push('post_adoption_readback: the adoption ledger holds no entry for this adoption');
+  }
   return issues;
 }
 
-function runCli(args) {
+export function runCli(args) {
   const inputIndex = args.indexOf('--input');
   if (inputIndex === -1) {
     console.error('usage: promote-skill-candidate.mjs --input <adoption-input.json>');
     return { ok: false, issues: ['no adoption input given'] };
   }
-  const input = JSON.parse(fs.readFileSync(path.resolve(args[inputIndex + 1]), 'utf8'));
-  const { record, issues } = promoteSkillCandidate({ ...input, root: REPO_ROOT, canonicalRoot: path.resolve(input.canonical_root) });
-  return { ok: issues.length === 0, issues, record };
+  let input;
+  try {
+    input = JSON.parse(fs.readFileSync(path.resolve(args[inputIndex + 1]), 'utf8'));
+  } catch (error) {
+    return { ok: false, issues: [`PROMOTION_INPUT_UNREADABLE: ${error.message}`] };
+  }
+  try {
+    const { record, issues } = promoteSkillCandidate({ ...input, root: REPO_ROOT, canonicalRoot: path.resolve(input.canonical_root) });
+    return { ok: issues.length === 0, issues, record };
+  } catch (error) {
+    if (error instanceof PromotionError) {
+      return { ok: false, issues: [`${error.code}: ${error.message}`], record: null };
+    }
+    throw error;
+  }
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

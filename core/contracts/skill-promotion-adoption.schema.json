@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "core/contracts/skill-promotion-adoption.schema.json",
   "title": "SkillPromotionAdoptionRecord Contract",
-  "description": "S8 (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED): canonical record of one owner-governed skill promotion. The record binds the whole promotion chain: the skill frontdoor admission (mandatory complement of behavioral evidence, never replaced by it), the S5 behavioral eval evidence bound by content digest, the canonical owner approval, the versioned canonical adoption (adopted version strictly greater than the superseded version, adoption digest over the bound chain), the registry/provider export regeneration, and the post-adoption readback. authority_granted is false by construction: Feedback != Rule, Proposal != Applied Change, Eval PASS != Authority, Approval != Permission -- the adoption changes canonical skill content and never grants permission, qualification, or runtime authority.",
+  "description": "S8 (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED): canonical record of one owner-governed skill promotion. The record binds the whole promotion chain: the skill frontdoor admission (mandatory complement of behavioral evidence, never replaced by it) bound to the EXACT candidate identity and content that is adopted, the S5 behavioral eval evidence bound by content digest, subject and corpus and age, the canonical owner approval bound to the approved candidate digest, the versioned canonical adoption (the adopted version strictly greater than the superseded version READ FROM THE CANONICAL TREE, the adoption digest over the whole bound chain, and an append-only adoption ledger that makes the applied change reconstructable and replay-protected), the export regeneration state, and the post-adoption readback. authority_granted is false by construction: Feedback != Rule, Proposal != Applied Change, Eval PASS != Authority, Approval != Permission -- the adoption changes canonical skill content and never grants permission, qualification, or runtime authority.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -17,27 +17,29 @@
     "candidate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["skill_id", "adopted_version", "candidate_digest"],
+      "required": ["skill_id", "adopted_version", "candidate_digest", "screened_digest"],
       "properties": {
-        "skill_id": { "type": "string", "minLength": 1 },
+        "skill_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
         "adopted_version": { "$ref": "#/$defs/semver" },
-        "candidate_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        "candidate_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "screened_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
       }
     },
     "frontdoor_admission": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["record_ref", "admission_digest", "implementation_disposition"],
+      "required": ["record_ref", "admission_digest", "implementation_disposition", "screened_digest"],
       "properties": {
         "record_ref": { "type": "string", "minLength": 1 },
         "admission_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "implementation_disposition": { "const": "ELIGIBLE" }
+        "implementation_disposition": { "const": "ELIGIBLE" },
+        "screened_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
       }
     },
     "eval_evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["behavioral_eval_records", "improvement_proven"],
+      "required": ["behavioral_eval_records", "improvement_proven", "corpus_digest", "max_evidence_age_days"],
       "properties": {
         "behavioral_eval_records": {
           "type": "array",
@@ -45,36 +47,44 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["record_ref", "content_digest", "verdict"],
+            "required": ["record_ref", "content_digest", "verdict", "subject_ref", "corpus_digest", "created_at"],
             "properties": {
               "record_ref": { "type": "string", "minLength": 1 },
               "content_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-              "verdict": { "enum": ["BASELINE_RECORDED", "IMPROVEMENT_PROVEN", "IMPROVEMENT_REJECTED", "BLOCKED"] }
+              "verdict": { "enum": ["BASELINE_RECORDED", "IMPROVEMENT_PROVEN", "IMPROVEMENT_REJECTED", "BLOCKED"] },
+              "subject_ref": { "type": "string", "minLength": 1 },
+              "corpus_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+              "created_at": { "type": "string", "minLength": 1 }
             }
           }
         },
-        "improvement_proven": { "type": "boolean" }
+        "improvement_proven": { "type": "boolean" },
+        "corpus_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "max_evidence_age_days": { "type": "integer", "minimum": 1 }
       }
     },
     "owner_approval": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["approver", "decision_ref", "approved_at"],
+      "required": ["approver", "decision_ref", "approved_at", "candidate_digest"],
       "properties": {
         "approver": { "const": "canonical_owner" },
         "decision_ref": { "type": "string", "minLength": 1 },
-        "approved_at": { "type": "string", "minLength": 1 }
+        "approved_at": { "type": "string", "minLength": 1 },
+        "candidate_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
       }
     },
     "canonical_adoption": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["canonical_path", "superseded_version", "adoption_digest", "adopted_at"],
+      "required": ["canonical_path", "superseded_version", "superseded_version_source", "adoption_digest", "adopted_at", "adoption_ledger_ref"],
       "properties": {
-        "canonical_path": { "type": "string", "minLength": 1 },
+        "canonical_path": { "type": "string", "pattern": "^skills/[a-z0-9][a-z0-9._-]*/SKILL\\.md$" },
         "superseded_version": { "$ref": "#/$defs/semver" },
+        "superseded_version_source": { "enum": ["canonical_skill_file", "no_prior_canonical_version"] },
         "adoption_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "adopted_at": { "type": "string", "minLength": 1 }
+        "adopted_at": { "type": "string", "minLength": 1 },
+        "adoption_ledger_ref": { "type": "string", "pattern": "^skills/[a-z0-9][a-z0-9._-]*/ADOPTIONS\\.jsonl$" }
       }
     },
     "export_regeneration": {
@@ -82,10 +92,37 @@
       "additionalProperties": false,
       "required": ["performed", "export_refs", "regenerated_at"],
       "properties": {
-        "performed": { "const": true },
+        "performed": { "type": "boolean" },
         "export_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
-        "regenerated_at": { "type": "string", "minLength": 1 }
-      }
+        "regenerated_at": { "type": ["string", "null"], "minLength": 1 },
+        "not_performed_reason": { "type": "string", "minLength": 1 },
+        "export_digests": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["export_ref", "digest"],
+            "properties": {
+              "export_ref": { "type": "string", "minLength": 1 },
+              "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "performed": { "const": true } }, "required": ["performed"] },
+          "then": {
+            "required": ["export_digests"],
+            "properties": { "regenerated_at": { "type": "string", "minLength": 1 } }
+          },
+          "else": {
+            "required": ["not_performed_reason"],
+            "properties": { "regenerated_at": { "const": null } }
+          }
+        }
+      ]
     },
     "post_adoption_readback": {
       "type": "object",
@@ -93,7 +130,7 @@
       "required": ["performed", "readback_digest_match", "readback_at"],
       "properties": {
         "performed": { "const": true },
-        "readback_digest_match": { "type": "boolean" },
+        "readback_digest_match": { "const": true },
         "readback_at": { "type": "string", "minLength": 1 }
       }
     },
