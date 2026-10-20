@@ -91,7 +91,7 @@ export function evaluateContextAssembly({ casesPath = CASES_PATH, root = ROOT, r
     if (scenario.expect.conflict_kind && !result.bundle.conflicts.some((conflict) => conflict.kind === scenario.expect.conflict_kind)) {
       failures.push(`${scenario.scenario_id}: expected a ${scenario.expect.conflict_kind} conflict`);
     }
-    const issues = validateInstructionBundle(result.bundle, root);
+    const issues = validateInstructionBundle(result.bundle, root, { verifyBindingsAgainstInventory: true });
     if (issues.length > 0) {
       failures.push(`${scenario.scenario_id}: bundle invalid: ${issues.join('; ')}`);
     }

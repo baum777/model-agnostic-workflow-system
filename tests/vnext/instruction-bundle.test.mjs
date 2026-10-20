@@ -194,3 +194,56 @@ test('semantics: B1-B5 bite on exactly their violation', () => {
   payloadContext.context_binding_refs[0].inline_context = 'duplicated payload';
   assert.ok(semanticBundleIssues(payloadContext).some((issue) => issue.startsWith('B5')), 'B5 must reject context payloads');
 });
+
+test('codex F2: equal-slot entries must be strictly ref-ordered', () => {
+  const base = fixtureCase('bundle_pos_eligible').instance;
+  const swapped = structuredClone(base);
+  swapped.selected_sources = [
+    { ref: 'zz-later.md', binding_class: 'workspace_selected', assembly_slot: 'overlay', source_digest: 'sha256:' + 'a'.repeat(64) },
+    { ref: 'aa-earlier.md', binding_class: 'workspace_selected', assembly_slot: 'overlay', source_digest: 'sha256:' + 'b'.repeat(64) },
+    ...base.selected_sources
+  ];
+  swapped.instruction_classes.overlay = 2;
+  swapped.effective_instruction_digest = computeEffectiveInstructionDigest(swapped);
+  assert.ok(semanticBundleIssues(swapped).some((issue) => issue.startsWith('B2')), 'B2 must compare refs inside a slot, not only slot ranks');
+});
+
+test('codex F3: dot-segment selections deduplicate onto the same source', () => {
+  const tmp = writeTempInstructionTree();
+  try {
+    const { bundle, selected_source_count } = assembleTempBundle(tmp, {
+      selection: { referenceRefs: ['./docs/governance-note.md', 'docs/governance/../governance-note.md'] }
+    });
+    const hits = bundle.selected_sources.filter((source) => source.ref === 'docs/governance-note.md');
+    assert.equal(hits.length, 1, 'equivalent path variants must hit one source');
+    assert.equal(bundle.conflicts.length, 0, JSON.stringify(bundle.conflicts));
+    void selected_source_count;
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('codex F1: an eligible bundle that dropped a binding source fails the inventory-verified check', () => {
+  const tmp = writeTempInstructionTree();
+  try {
+    const { bundle } = assembleTempBundle(tmp, { selection: { skillRefs: ['core/skills/alpha/SKILL.md'] } });
+    assert.deepEqual(validateInstructionBundle(bundle, ROOT, { verifyBindingsAgainstInventory: true, inventoryRoot: tmp }), []);
+
+    const pruned = structuredClone(bundle);
+    const dropped = pruned.selected_sources.find((source) => source.binding_class === 'canonical');
+    pruned.selected_sources = pruned.selected_sources.filter((source) => source.ref !== dropped.ref);
+    pruned.instruction_classes[dropped.assembly_slot] -= 1;
+    pruned.effective_instruction_digest = computeEffectiveInstructionDigest(pruned);
+
+    const structuralOnly = validateInstructionBundle(pruned, ROOT, { inventoryRoot: tmp });
+    assert.equal(structuralOnly.filter((issue) => issue.startsWith('B3')).length, 0, 'structural mode keeps at least one source per class, so it documents its own boundary');
+
+    const verified = validateInstructionBundle(pruned, ROOT, { verifyBindingsAgainstInventory: true, inventoryRoot: tmp });
+    assert.ok(
+      verified.some((issue) => issue.startsWith('B3') && issue.includes(dropped.ref)),
+      `inventory-verified B3 must catch the dropped binding source: ${verified.join('; ')}`
+    );
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});

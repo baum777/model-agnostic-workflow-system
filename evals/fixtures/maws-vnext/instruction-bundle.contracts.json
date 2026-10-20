@@ -1,7 +1,9 @@
 {
   "id": "maws-vnext-instruction-bundle-contracts",
   "kind": "maws-vnext",
-  "target": { "name": "instruction-bundle" },
+  "target": {
+    "name": "instruction-bundle"
+  },
   "blocking": true,
   "description": "Schema-decidable cases for the instruction-bundle contract (S6). Semantic invariants the minimal JSON schema engine cannot express (digest recomputability B1, canonical assembly order and duplicate refs B2, binding-source retention for eligible bundles B3, instruction_classes count consistency B4, reference-only context bindings B5) are enforced by semanticBundleIssues in scripts/tools/validate-instruction-bundle.mjs and covered in tests/vnext/instruction-bundle.test.mjs, following the instruction-audit-finding precedent.",
   "cases": [
@@ -15,21 +17,53 @@
         "created_at": "2026-10-20T18:00:00Z",
         "task_ref": "tasks/s6-fixture",
         "workflow_class": "workflow_contract_amendment",
-        "instruction_classes": { "core": 1, "workflow_contract": 1, "overlay": 0, "skills": 1, "references": 0, "evidence": 0 },
+        "instruction_classes": {
+          "core": 1,
+          "workflow_contract": 1,
+          "overlay": 0,
+          "skills": 1,
+          "references": 0,
+          "evidence": 0
+        },
         "selected_sources": [
-          { "ref": "AGENTS.md", "binding_class": "canonical", "assembly_slot": "core", "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
-          { "ref": "core/contracts/permission-boundary.json", "binding_class": "canonical_contract", "assembly_slot": "workflow_contract", "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
-          { "ref": "core/skills/review/SKILL.md", "binding_class": "workspace_selected", "assembly_slot": "skills", "source_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" }
+          {
+            "ref": "AGENTS.md",
+            "binding_class": "canonical",
+            "assembly_slot": "core",
+            "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "ref": "core/contracts/permission-boundary.json",
+            "binding_class": "canonical_contract",
+            "assembly_slot": "workflow_contract",
+            "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          {
+            "ref": "core/skills/review/SKILL.md",
+            "binding_class": "workspace_selected",
+            "assembly_slot": "skills",
+            "source_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+          }
         ],
         "context_binding_refs": [
-          { "compiler": "coreos-context-compiler", "contract_version": "1.0.0", "compilation_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "realm": "personal" }
+          {
+            "compiler": "coreos-context-compiler",
+            "contract_version": "1.0.0",
+            "compilation_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "realm": "personal"
+          }
         ],
         "executor_profile_ref": "exec_profiles/default",
         "assembly_policy_ref": "assembly_policies/s6-default",
         "conflicts": [],
         "eligible_for_execution": true,
         "effective_instruction_digest": "sha256:0150d626f23ab49b15c5436f0663f1508d36ecfb7331f03ba6312912c5b40534",
-        "provenance": { "assembled_at": "2026-10-20T18:00:00Z", "assembler_version": "instruction-bundle-assembler 1.0.0", "source_snapshot_ref": "instruction-inventory probe" }
+        "provenance": {
+          "assembled_at": "2026-10-20T18:00:00Z",
+          "assembler_version": "instruction-bundle-assembler 1.0.0",
+          "source_snapshot_ref": "instruction-inventory probe",
+          "source_revision": "fixture-probe"
+        }
       }
     },
     {
@@ -42,10 +76,27 @@
         "created_at": "2026-10-20T18:05:00Z",
         "task_ref": "tasks/s6-fixture",
         "workflow_class": "workflow_contract_amendment",
-        "instruction_classes": { "core": 1, "workflow_contract": 1, "overlay": 0, "skills": 0, "references": 0, "evidence": 0 },
+        "instruction_classes": {
+          "core": 1,
+          "workflow_contract": 1,
+          "overlay": 0,
+          "skills": 0,
+          "references": 0,
+          "evidence": 0
+        },
         "selected_sources": [
-          { "ref": "AGENTS.md", "binding_class": "canonical", "assembly_slot": "core", "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
-          { "ref": "core/contracts/permission-boundary.json", "binding_class": "canonical_contract", "assembly_slot": "workflow_contract", "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }
+          {
+            "ref": "AGENTS.md",
+            "binding_class": "canonical",
+            "assembly_slot": "core",
+            "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "ref": "core/contracts/permission-boundary.json",
+            "binding_class": "canonical_contract",
+            "assembly_slot": "workflow_contract",
+            "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
         ],
         "context_binding_refs": [],
         "executor_profile_ref": "exec_profiles/default",
@@ -53,7 +104,12 @@
         "conflicts": [],
         "eligible_for_execution": true,
         "effective_instruction_digest": "md5:not-a-sha256-digest",
-        "provenance": { "assembled_at": "2026-10-20T18:05:00Z", "assembler_version": "instruction-bundle-assembler 1.0.0", "source_snapshot_ref": "instruction-inventory probe" }
+        "provenance": {
+          "assembled_at": "2026-10-20T18:05:00Z",
+          "assembler_version": "instruction-bundle-assembler 1.0.0",
+          "source_snapshot_ref": "instruction-inventory probe",
+          "source_revision": "fixture-probe"
+        }
       }
     },
     {
@@ -66,10 +122,27 @@
         "created_at": "2026-10-20T18:10:00Z",
         "task_ref": "tasks/s6-fixture",
         "workflow_class": "workflow_contract_amendment",
-        "instruction_classes": { "core": 1, "workflow_contract": 1, "overlay": 0, "skills": 0, "references": 0, "evidence": 0 },
+        "instruction_classes": {
+          "core": 1,
+          "workflow_contract": 1,
+          "overlay": 0,
+          "skills": 0,
+          "references": 0,
+          "evidence": 0
+        },
         "selected_sources": [
-          { "ref": "AGENTS.md", "binding_class": "canonical", "assembly_slot": "always_on_core", "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
-          { "ref": "core/contracts/permission-boundary.json", "binding_class": "canonical_contract", "assembly_slot": "workflow_contract", "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }
+          {
+            "ref": "AGENTS.md",
+            "binding_class": "canonical",
+            "assembly_slot": "always_on_core",
+            "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "ref": "core/contracts/permission-boundary.json",
+            "binding_class": "canonical_contract",
+            "assembly_slot": "workflow_contract",
+            "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
         ],
         "context_binding_refs": [],
         "executor_profile_ref": "exec_profiles/default",
@@ -77,7 +150,12 @@
         "conflicts": [],
         "eligible_for_execution": true,
         "effective_instruction_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
-        "provenance": { "assembled_at": "2026-10-20T18:10:00Z", "assembler_version": "instruction-bundle-assembler 1.0.0", "source_snapshot_ref": "instruction-inventory probe" }
+        "provenance": {
+          "assembled_at": "2026-10-20T18:10:00Z",
+          "assembler_version": "instruction-bundle-assembler 1.0.0",
+          "source_snapshot_ref": "instruction-inventory probe",
+          "source_revision": "fixture-probe"
+        }
       }
     },
     {
@@ -90,20 +168,46 @@
         "created_at": "2026-10-20T18:15:00Z",
         "task_ref": "tasks/s6-fixture",
         "workflow_class": "workflow_contract_amendment",
-        "instruction_classes": { "core": 1, "workflow_contract": 1, "overlay": 0, "skills": 0, "references": 0, "evidence": 0 },
+        "instruction_classes": {
+          "core": 1,
+          "workflow_contract": 1,
+          "overlay": 0,
+          "skills": 0,
+          "references": 0,
+          "evidence": 0
+        },
         "selected_sources": [
-          { "ref": "AGENTS.md", "binding_class": "canonical", "assembly_slot": "core", "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
-          { "ref": "core/contracts/permission-boundary.json", "binding_class": "canonical_contract", "assembly_slot": "workflow_contract", "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }
+          {
+            "ref": "AGENTS.md",
+            "binding_class": "canonical",
+            "assembly_slot": "core",
+            "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "ref": "core/contracts/permission-boundary.json",
+            "binding_class": "canonical_contract",
+            "assembly_slot": "workflow_contract",
+            "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
         ],
         "context_binding_refs": [
-          { "compiler": "maws-second-compiler", "contract_version": "1.0.0", "compilation_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333" }
+          {
+            "compiler": "maws-second-compiler",
+            "contract_version": "1.0.0",
+            "compilation_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+          }
         ],
         "executor_profile_ref": "exec_profiles/default",
         "assembly_policy_ref": "assembly_policies/s6-default",
         "conflicts": [],
         "eligible_for_execution": true,
         "effective_instruction_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
-        "provenance": { "assembled_at": "2026-10-20T18:15:00Z", "assembler_version": "instruction-bundle-assembler 1.0.0", "source_snapshot_ref": "instruction-inventory probe" }
+        "provenance": {
+          "assembled_at": "2026-10-20T18:15:00Z",
+          "assembler_version": "instruction-bundle-assembler 1.0.0",
+          "source_snapshot_ref": "instruction-inventory probe",
+          "source_revision": "fixture-probe"
+        }
       }
     },
     {
@@ -116,20 +220,47 @@
         "created_at": "2026-10-20T18:20:00Z",
         "task_ref": "tasks/s6-fixture",
         "workflow_class": "workflow_contract_amendment",
-        "instruction_classes": { "core": 1, "workflow_contract": 1, "overlay": 0, "skills": 0, "references": 0, "evidence": 0 },
+        "instruction_classes": {
+          "core": 1,
+          "workflow_contract": 1,
+          "overlay": 0,
+          "skills": 0,
+          "references": 0,
+          "evidence": 0
+        },
         "selected_sources": [
-          { "ref": "AGENTS.md", "binding_class": "canonical", "assembly_slot": "core", "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
-          { "ref": "core/contracts/permission-boundary.json", "binding_class": "canonical_contract", "assembly_slot": "workflow_contract", "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }
+          {
+            "ref": "AGENTS.md",
+            "binding_class": "canonical",
+            "assembly_slot": "core",
+            "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "ref": "core/contracts/permission-boundary.json",
+            "binding_class": "canonical_contract",
+            "assembly_slot": "workflow_contract",
+            "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
         ],
         "context_binding_refs": [],
         "executor_profile_ref": "exec_profiles/default",
         "assembly_policy_ref": "assembly_policies/s6-default",
         "conflicts": [
-          { "conflict_id": "conflict_001", "kind": "missing_required_context", "ref": "sha256:9999999999999999999999999999999999999999999999999999999999999999", "message": "required compiled context is absent" }
+          {
+            "conflict_id": "conflict_001",
+            "kind": "missing_required_context",
+            "ref": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+            "message": "required compiled context is absent"
+          }
         ],
         "eligible_for_execution": true,
         "effective_instruction_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
-        "provenance": { "assembled_at": "2026-10-20T18:20:00Z", "assembler_version": "instruction-bundle-assembler 1.0.0", "source_snapshot_ref": "instruction-inventory probe" }
+        "provenance": {
+          "assembled_at": "2026-10-20T18:20:00Z",
+          "assembler_version": "instruction-bundle-assembler 1.0.0",
+          "source_snapshot_ref": "instruction-inventory probe",
+          "source_revision": "fixture-probe"
+        }
       }
     },
     {
@@ -142,10 +273,27 @@
         "created_at": "2026-10-20T18:25:00Z",
         "task_ref": "tasks/s6-fixture",
         "workflow_class": "workflow_contract_amendment",
-        "instruction_classes": { "core": 1, "workflow_contract": 1, "overlay": 0, "skills": 0, "references": 0, "evidence": 0 },
+        "instruction_classes": {
+          "core": 1,
+          "workflow_contract": 1,
+          "overlay": 0,
+          "skills": 0,
+          "references": 0,
+          "evidence": 0
+        },
         "selected_sources": [
-          { "ref": "AGENTS.md", "binding_class": "canonical", "assembly_slot": "core", "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
-          { "ref": "core/contracts/permission-boundary.json", "binding_class": "canonical_contract", "assembly_slot": "workflow_contract", "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }
+          {
+            "ref": "AGENTS.md",
+            "binding_class": "canonical",
+            "assembly_slot": "core",
+            "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "ref": "core/contracts/permission-boundary.json",
+            "binding_class": "canonical_contract",
+            "assembly_slot": "workflow_contract",
+            "source_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
         ],
         "context_binding_refs": [],
         "executor_profile_ref": "exec_profiles/default",
@@ -153,7 +301,12 @@
         "conflicts": [],
         "eligible_for_execution": false,
         "effective_instruction_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
-        "provenance": { "assembled_at": "2026-10-20T18:25:00Z", "assembler_version": "instruction-bundle-assembler 1.0.0", "source_snapshot_ref": "instruction-inventory probe" }
+        "provenance": {
+          "assembled_at": "2026-10-20T18:25:00Z",
+          "assembler_version": "instruction-bundle-assembler 1.0.0",
+          "source_snapshot_ref": "instruction-inventory probe",
+          "source_revision": "fixture-probe"
+        }
       }
     }
   ]

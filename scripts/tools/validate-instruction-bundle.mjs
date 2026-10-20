@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 
 import { validateInstanceAgainstContract } from './validate-maws-vnext-contracts.mjs';
 import { computeEffectiveInstructionDigest } from '../../runtime/context/instruction-bundle-assembler.mjs';
+import { buildInstructionInventory } from '../../runtime/instructions/instruction-inventory.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SCHEMA_PATH = 'core/contracts/instruction-bundle.schema.json';
@@ -35,20 +36,23 @@ const SLOT_ORDER = ['core', 'workflow_contract', 'overlay', 'skills', 'reference
  * - B2: selected_sources must be in canonical assembly order (slot order per
  *       spec 7.2, then ref) with no duplicate refs.
  * - B3: an execution-eligible bundle must carry at least one binding source
- *       of each canonical authority class (context reduction never removes
- *       binding rules, spec 7.3 rule 7).
+ *       of each canonical authority class (structural mode). With
+ *       inventoryVerification ({root, revision}) the check is exact: the S2
+ *       inventory is rebuilt at the bundle's source revision and every
+ *       canonical binding source must be present with its digest — a bundle
+ *       that dropped any binding rule can never pass as executable.
  * - B4: instruction_classes counts must equal the per-slot source counts.
  * - B5: context binding refs are references only - no content payload field
  *       beyond the reference identity.
  */
-export function semanticBundleIssues(bundle) {
+export function semanticBundleIssues(bundle, inventoryVerification = null) {
   const issues = [];
 
   if (bundle.effective_instruction_digest !== computeEffectiveInstructionDigest(bundle)) {
     issues.push('B1: effective_instruction_digest does not match the bundle content and order');
   }
 
-  let lastRank = -1;
+  let previous = null;
   const seen = new Set();
   for (const source of bundle.selected_sources) {
     const rank = SLOT_ORDER.indexOf(source.assembly_slot);
@@ -56,11 +60,13 @@ export function semanticBundleIssues(bundle) {
       issues.push(`B2: unknown assembly_slot ${source.assembly_slot}`);
       continue;
     }
-    if (rank < lastRank) {
-      issues.push('B2: selected_sources are not in canonical assembly order');
-      break;
+    if (previous) {
+      if (rank < previous.rank || (rank === previous.rank && source.ref <= previous.ref)) {
+        issues.push('B2: selected_sources are not in canonical assembly order');
+        break;
+      }
     }
-    lastRank = rank;
+    previous = { rank, ref: source.ref };
     if (seen.has(source.ref)) {
       issues.push(`B2: duplicate source ref ${source.ref}`);
     }
@@ -68,9 +74,35 @@ export function semanticBundleIssues(bundle) {
   }
 
   if (bundle.eligible_for_execution) {
-    for (const bindingClass of ['canonical', 'canonical_contract']) {
-      if (!bundle.selected_sources.some((source) => source.binding_class === bindingClass)) {
-        issues.push(`B3: eligible bundle carries no ${bindingClass} binding source`);
+    if (inventoryVerification) {
+      let inventory;
+      try {
+        inventory = buildInstructionInventory({ root: inventoryVerification.root, revision: inventoryVerification.revision });
+      } catch (error) {
+        issues.push(`B3: the source snapshot named by the eligible bundle cannot be rebuilt (${error.message})`);
+        inventory = null;
+      }
+      if (inventory) {
+        const bundleSources = new Map(bundle.selected_sources.map((source) => [source.ref, source]));
+        for (const source of inventory.sources) {
+          if (!['canonical', 'canonical_contract'].includes(source.authority_class)) {
+            continue;
+          }
+          const retained = bundleSources.get(source.path);
+          if (!retained) {
+            issues.push(`B3: eligible bundle dropped binding source ${source.path}`);
+          } else if (retained.source_digest !== `sha256:${source.sha256}`) {
+            issues.push(`B3: binding source ${source.path} digests differ from the source snapshot`);
+          } else if (retained.binding_class !== source.authority_class) {
+            issues.push(`B3: binding source ${source.path} carries binding_class ${retained.binding_class}, expected ${source.authority_class}`);
+          }
+        }
+      }
+    } else {
+      for (const bindingClass of ['canonical', 'canonical_contract']) {
+        if (!bundle.selected_sources.some((source) => source.binding_class === bindingClass)) {
+          issues.push(`B3: eligible bundle carries no ${bindingClass} binding source`);
+        }
       }
     }
   }
@@ -92,10 +124,13 @@ export function semanticBundleIssues(bundle) {
   return issues;
 }
 
-export function validateInstructionBundle(bundle, root = ROOT) {
+export function validateInstructionBundle(bundle, root = ROOT, options = {}) {
   const issues = validateInstanceAgainstContract(bundle, SCHEMA_PATH, root);
   if (issues.length === 0 && bundle && typeof bundle === 'object') {
-    issues.push(...semanticBundleIssues(bundle));
+    const inventoryVerification = options.verifyBindingsAgainstInventory
+      ? { root: options.inventoryRoot ?? root, revision: bundle.provenance?.source_revision }
+      : null;
+    issues.push(...semanticBundleIssues(bundle, inventoryVerification));
   }
   return issues;
 }

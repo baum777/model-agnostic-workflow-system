@@ -39,6 +39,18 @@ No second context compiler and no second canonical context manifest; the bundle 
 
 `registry-disposition.json` in this directory: `REQUIRED_BUT_BLOCKED` initially, affected record `CONTRACT_RECORD:core/contracts/instruction-bundle.schema.json`, `registry_commit_sha: null`. The Registry write (CONTRACT_RECORD projection + run change registration) follows this repository's merge; this disposition is rebound to `UPDATED` with the registry merge SHA in the follow-up owner evidence update.
 
+## Pre-merge codex review round
+
+The codex connector reviewed PR #39 before merge (triggered via `@codex review`) and raised three findings, all confirmed real and repaired in this publication:
+
+- **F1 (P1) B3 failed open for externally supplied bundles** — the structural check only required one canonical and one canonical_contract source, so a hand-edited bundle could drop binding rules and stay "eligible". The contract now carries `provenance.source_revision`, and B3 has an inventory-verified mode: it rebuilds the S2 instruction inventory at that revision and requires every canonical binding source to be present with its matching digest and binding class. The shipped gate (`eval:context-assembly`) runs in the verified mode; the standalone validator documents the structural fallback (synthetic bundles without a rebuildable tree) as its explicit boundary, and a regression test proves a dropped binding source is caught in verified mode.
+- **F2 (P2) B2 ignored ref order inside a slot** — canonical order is (slot, ref); the check now compares each source with its predecessor by slot rank and then ref, so swapped same-slot entries (even with a recomputed digest) are rejected.
+- **F3 (P2) dot-segment selections duplicated sources** — selection refs are normalized (posix) before the dedup lookup, so `docs/../AGENTS.md` and `./core/skills/alpha/SKILL.md` hit the same source instead of adding a duplicate `workspace_selected` entry.
+
+Found and fixed during the same round: the assembler's sort used `localeCompare` while B2 compares code-unit order — the canonical order is now code-unit (byte) order in both places, deterministic and locale-independent.
+
+Verification after the repairs: `test:vnext` 350/350 (3 new codex-repair regression tests), `eval:context-assembly` exit 0, `validate-instruction-bundle` 6 fixture cases clean; disposition validator PASS.
+
 ## Next gate
 
 - S7 (Qualification Integration) becomes unblocked once S6 is merged/registered/mapped AND S11 is implemented (dependency matrix §3); S7 owns the coordinated qualification-fingerprint amendment binding the `effective_instruction_digest`.

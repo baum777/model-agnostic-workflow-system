@@ -108,7 +108,7 @@
     "provenance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["assembler_version", "source_snapshot_ref"],
+      "required": ["assembler_version", "source_revision", "source_snapshot_ref"],
       "properties": {
         "assembled_at": {
           "type": "string",
@@ -117,6 +117,11 @@
         "assembler_version": {
           "type": "string",
           "minLength": 1
+        },
+        "source_revision": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The revision binding the source snapshot was taken at; the binding-retention check (B3, inventory-verified mode) rebuilds the S2 instruction inventory at this revision and requires every canonical binding source to be present with its digest."
         },
         "source_snapshot_ref": {
           "type": "string",

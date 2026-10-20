@@ -33,13 +33,14 @@
       "evidence/instruction-bundles-2026-10-20/registry-disposition.json"
     ],
     "evidence_refs": [
-      "npm run test:vnext (347/347 pass, 0 fail, including 9 new S6 tests)",
-      "node --test tests/vnext/instruction-bundle.test.mjs (8/8 pass)",
+      "npm run test:vnext (350/350 pass, 0 fail, after the pre-merge codex repair round; 347/347 at the original commit)",
+      "node --test tests/vnext/instruction-bundle.test.mjs (11/11 pass, including the F1/F2/F3 codex-repair regression tests)",
       "node --test tests/vnext/context-assembly.test.mjs (1/1 pass)",
       "npm run validate-instruction-bundle (6 fixture cases checked, 0 unexpected results)",
-      "npm run eval:context-assembly (exit 0: reduction, retention, eligibility and determinism proven over the real repository tree)",
+      "npm run eval:context-assembly (exit 0: reduction, retention, eligibility and determinism proven over the real repository tree; bundles validated in the inventory-verified B3 mode)",
       "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
       "npm run eval:maws-vnext with the new catalog-registered fixture (PASS); the Chrome-dependent render/a11y kinds remain unclaimed (pre-existing environmental Chromium ENOENT, unchanged from the S5 wave record)",
+      "pre-merge codex review: three findings (one P1, two P2), all confirmed real and repaired in this publication - B3 inventory-verified binding retention with provenance.source_revision, B2 ref-order comparison inside assembly slots, and dot-segment normalization before source dedup; the assembler/validator canonical order was aligned to code-unit ordering in the same round",
       "validator: scripts/tools/validate-registry-disposition.mjs on this file (PASS)"
     ],
     "validation": [

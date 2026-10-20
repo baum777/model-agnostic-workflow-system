@@ -150,7 +150,14 @@ export function assembleInstructionBundle(options) {
   }
 
   const selectOptional = (slot, refs) => {
-    for (const ref of refs || []) {
+    for (const rawRef of refs || []) {
+      // Normalize dot segments before dedup: an equivalent path variant
+      // (docs/../AGENTS.md, ./core/skills/alpha/SKILL.md) must hit the same
+      // source, never add a duplicate under a second textual ref.
+      const ref = path.posix.normalize(String(rawRef).replace(/^\.\//, ''));
+      if (ref.startsWith('../') || ref === '..') {
+        throw new AssemblyError('BUNDLE_REF_ESCAPES_ROOT', rawRef);
+      }
       if (selected.has(ref)) {
         continue;
       }
@@ -187,10 +194,18 @@ export function assembleInstructionBundle(options) {
     }
   }
 
-  // Canonical order: slot order per spec 7.2, then ref.
+  // Canonical order: slot order per spec 7.2, then ref in code-unit (byte)
+  // order — deterministic and locale-independent, matching the validator's
+  // B2 comparison exactly.
   const orderedSources = [...selected.values()].sort((a, b) => {
     const slotDelta = SLOT_ORDER.indexOf(a.assembly_slot) - SLOT_ORDER.indexOf(b.assembly_slot);
-    return slotDelta !== 0 ? slotDelta : a.ref.localeCompare(b.ref);
+    if (slotDelta !== 0) {
+      return slotDelta;
+    }
+    if (a.ref < b.ref) {
+      return -1;
+    }
+    return a.ref > b.ref ? 1 : 0;
   });
 
   const instructionClasses = {};
@@ -229,6 +244,7 @@ export function assembleInstructionBundle(options) {
     provenance: {
       assembled_at: new Date().toISOString(),
       assembler_version: ASSEMBLER_VERSION,
+      source_revision: revision,
       source_snapshot_ref: `instruction-inventory ${inventory.digest} at revision ${revision}`
     }
   };
