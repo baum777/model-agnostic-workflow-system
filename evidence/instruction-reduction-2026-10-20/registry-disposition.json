@@ -1,9 +1,9 @@
 {
   "registry_disposition": {
     "status": "NO_CHANGE",
-    "material_change": false,
+    "material_change": true,
     "registry_relevant_change": false,
-    "reason": "S4 wave A instruction reduction: the AGENTS.md registry-disposition consumer binding shrinks to the validator-backed core (binding statement, this repo's adopted relevance classes, scope and non-authority statement, contract/schema/validator pointers); the removed six-step sequence restated rules that scripts/tools/validate-registry-disposition.mjs already enforces mechanically and that the policy document docs/governance/registry-disposition.md owns. No canonical contract under core/contracts/ changed, no provenance record changed, no supersession relationship changed — none of this repository's adopted relevance classes (CONTRACT_RECORD, PROVENANCE, SUPERSESSION) is touched by an instruction-layer documentation reduction, so no Registry write arises from this change.",
+    "reason": "S4 wave A instruction reduction in the canonical AGENTS.md of this repository: the registry-disposition consumer binding shrinks to the validator-backed core (binding statement, this repository's adopted relevance classes, the material_change / registry_relevant_change determination, the evidence obligation, the scope and non-authority statement, and contract/schema/validator pointers). The removed six-step sequence restated rules that scripts/tools/validate-registry-disposition.mjs enforces mechanically (closed status vocabulary, the NO_CHANGE/UPDATED/REQUIRED_BUT_BLOCKED transitions, and the affected-record and classification-evidence bindings) and that the policy document docs/governance/registry-disposition.md owns. The evidence obligation itself is not mechanically enforced by the validator and is therefore retained explicitly in the binding as a run obligation (Codex P2 finding on PR #23, repaired in e2b7d11e4e021b45a49341d6b35ca6ed0654bdda). material_change is true because the run changed a durable canonical repository artifact (AGENTS.md). registry_relevant_change is false: no canonical contract under core/contracts/ changed, no provenance record changed, no supersession relationship changed, so none of this repository's adopted relevance classes (CONTRACT_RECORD, PROVENANCE, SUPERSESSION) is touched by an instruction-layer reduction and no Registry write arises.",
     "affected_records": [],
     "authority_refs": [
       "docs/governance/registry-disposition.md",
@@ -15,8 +15,9 @@
     "supersession_refs": [],
     "provenance_refs": [],
     "evidence_refs": [
-      "scripts/tools/validate-registry-disposition.mjs (enforces the disposition rule set the removed sequence restated)",
-      "docs/governance/registry-disposition.md (owns the disposition sequence)"
+      "AGENTS.md (Registry Disposition Consumer Binding — validator-backed core plus retained evidence obligation)",
+      "docs/governance/registry-disposition.md (owns the disposition sequence and the closed relevance taxonomy)",
+      "scripts/tools/validate-registry-disposition.mjs (mechanically enforces the status vocabulary, the transitions, and the affected-record / classification-evidence bindings; does not enforce evidence substance)"
     ],
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-reduction-2026-10-20/registry-disposition.json"
@@ -27,7 +28,7 @@
       "docs/governance/registry-disposition.md (closed relevance taxonomy)"
     ],
     "registry_baseline_sha": "UNVERIFIED_NO_REGISTRY_WRITE",
-    "implementation_commit_sha": "dd56088ebc1873da718c2e3e2379b762dc091ee4",
+    "implementation_commit_sha": "e2b7d11e4e021b45a49341d6b35ca6ed0654bdda",
     "registry_commit_sha": null
   }
 }
