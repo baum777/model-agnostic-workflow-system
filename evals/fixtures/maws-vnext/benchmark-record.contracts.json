@@ -13,13 +13,19 @@
         "schema_version": "1.0.0",
         "benchmark_id": "bench_fixture_v1",
         "task_set_ref": "evals/benchmark/comparison/tasks.json",
+        "eval_family": "fixture-deterministic-acceptance-v1",
+        "authority_domain": "development_harness/in_process_fixture",
         "baseline_variant": {
           "variant": "single_executor",
-          "executor_ids": ["exec_bench_generalist"]
+          "executor_ids": ["exec_bench_generalist"],
+          "executor_profile_ref": "prof_bench_worker",
+          "eval_family": "fixture-deterministic-acceptance-v1"
         },
         "candidate_variant": {
           "variant": "policy_bound_multi_executor",
           "executor_ids": ["exec_bench_generalist", "exec_bench_specialist_a"],
+          "executor_profile_ref": "prof_bench_worker",
+          "eval_family": "fixture-deterministic-acceptance-v1",
           "composition_policy_ref": "comp_benchmark_comparison_v1"
         },
         "measures_baseline": {
@@ -43,12 +49,19 @@
             }
           ]
         },
-        "context_isolation": { "checked": true, "worker_sessions_isolated": true, "evidence_ref": "evals/benchmark/comparison/tasks.json" },
-        "authority_budget_inheritance": { "checked": true, "child_ceilings_within_parent": true, "budget_within_parent_cap": true, "evidence_ref": "evals/benchmark/comparison/tasks.json#composition_policy" },
+        "context_isolation": { "checked": true, "worker_sessions_isolated": true, "worker_session_count": 3, "evidence_ref": "evals/benchmark/comparison/tasks.json" },
+        "authority_budget_inheritance": { "checked": true, "child_ceilings_within_parent": true, "budget_within_parent_cap": true, "violations": [], "evidence_ref": "evals/benchmark/comparison/tasks.json#composition_policy" },
         "selection_criteria": {
           "single_executor_tasks": [],
           "composed_tasks": ["bench_task_fixture_one"],
-          "counterproductive_cases": []
+          "counterproductive_cases": [
+            {
+              "task_id": "bench_task_fixture_two",
+              "reason": "a policy-permitted composition of 2 executors would exceed the single-executor baseline on cost_units",
+              "composition_ref": "cd_fixture_0002",
+              "worse_on": ["cost_units"]
+            }
+          ]
         },
         "comparison_only": true,
         "created_at": "2026-10-20T00:00:00Z"
@@ -63,13 +76,20 @@
         "schema_version": "1.0.0",
         "benchmark_id": "bench_fixture_v2",
         "task_set_ref": "evals/benchmark/comparison/tasks.json",
+        "eval_family": "fixture-deterministic-acceptance-v1",
+        "authority_domain": "development_harness/in_process_fixture",
         "baseline_variant": {
           "variant": "single_executor",
-          "executor_ids": ["exec_bench_generalist"]
+          "executor_ids": ["exec_bench_generalist"],
+          "executor_profile_ref": "prof_bench_worker",
+          "eval_family": "fixture-deterministic-acceptance-v1"
         },
         "candidate_variant": {
           "variant": "policy_bound_multi_executor",
-          "executor_ids": ["exec_bench_generalist", "exec_bench_specialist_a"]
+          "executor_ids": ["exec_bench_generalist", "exec_bench_specialist_a"],
+          "executor_profile_ref": "prof_bench_worker",
+          "eval_family": "fixture-deterministic-acceptance-v1",
+          "composition_policy_ref": "comp_benchmark_comparison_v1"
         },
         "measures_baseline": {
           "totals": { "tokens_in": 100, "tokens_out": 40, "cost_units": 2, "latency_ms": 500, "interventions": 0 },
@@ -103,7 +123,7 @@
       }
     },
     {
-      "case_id": "benchmark-record-rejects-unbound-candidate-variant",
+      "case_id": "benchmark-record-rejects-unbound-baseline-variant",
       "schema": "core/contracts/benchmark-record.schema.json",
       "valid": false,
       "guards": ["S13"],
@@ -111,13 +131,20 @@
         "schema_version": "1.0.0",
         "benchmark_id": "bench_fixture_v3",
         "task_set_ref": "evals/benchmark/comparison/tasks.json",
+        "eval_family": "fixture-deterministic-acceptance-v1",
+        "authority_domain": "development_harness/in_process_fixture",
         "baseline_variant": {
           "variant": "policy_bound_multi_executor",
-          "executor_ids": ["exec_bench_generalist"]
+          "executor_ids": ["exec_bench_generalist"],
+          "executor_profile_ref": "prof_bench_worker",
+          "eval_family": "fixture-deterministic-acceptance-v1"
         },
         "candidate_variant": {
           "variant": "policy_bound_multi_executor",
-          "executor_ids": ["exec_bench_generalist"]
+          "executor_ids": ["exec_bench_generalist"],
+          "executor_profile_ref": "prof_bench_worker",
+          "eval_family": "fixture-deterministic-acceptance-v1",
+          "composition_policy_ref": "comp_benchmark_comparison_v1"
         },
         "measures_baseline": {
           "totals": { "tokens_in": 100, "tokens_out": 40, "cost_units": 2, "latency_ms": 500, "interventions": 0 },
@@ -145,6 +172,67 @@
           "single_executor_tasks": ["bench_task_fixture_one"],
           "composed_tasks": [],
           "counterproductive_cases": []
+        },
+        "comparison_only": true,
+        "created_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "benchmark-record-rejects-counterproductive-case-without-measured-dimension",
+      "schema": "core/contracts/benchmark-record.schema.json",
+      "valid": false,
+      "guards": ["S13"],
+      "instance": {
+        "schema_version": "1.0.0",
+        "benchmark_id": "bench_fixture_v4",
+        "task_set_ref": "evals/benchmark/comparison/tasks.json",
+        "eval_family": "fixture-deterministic-acceptance-v1",
+        "authority_domain": "development_harness/in_process_fixture",
+        "baseline_variant": {
+          "variant": "single_executor",
+          "executor_ids": ["exec_bench_generalist"],
+          "executor_profile_ref": "prof_bench_worker",
+          "eval_family": "fixture-deterministic-acceptance-v1"
+        },
+        "candidate_variant": {
+          "variant": "policy_bound_multi_executor",
+          "executor_ids": ["exec_bench_generalist"],
+          "executor_profile_ref": "prof_bench_worker",
+          "eval_family": "fixture-deterministic-acceptance-v1",
+          "composition_policy_ref": "comp_benchmark_comparison_v1"
+        },
+        "measures_baseline": {
+          "totals": { "tokens_in": 100, "tokens_out": 40, "cost_units": 2, "latency_ms": 500, "interventions": 0 },
+          "per_task": [
+            {
+              "task_id": "bench_task_fixture_one",
+              "tokens_in": 100, "tokens_out": 40, "cost_units": 2, "latency_ms": 500, "interventions": 0,
+              "verification_outcome": "PASS", "artifact_quality": "MEETS_CRITERIA"
+            }
+          ]
+        },
+        "measures_candidate": {
+          "totals": { "tokens_in": 110, "tokens_out": 38, "cost_units": 2, "latency_ms": 320, "interventions": 0 },
+          "per_task": [
+            {
+              "task_id": "bench_task_fixture_one",
+              "tokens_in": 110, "tokens_out": 38, "cost_units": 2, "latency_ms": 320, "interventions": 0,
+              "verification_outcome": "PASS", "artifact_quality": "MEETS_CRITERIA"
+            }
+          ]
+        },
+        "context_isolation": { "checked": true, "worker_sessions_isolated": true },
+        "authority_budget_inheritance": { "checked": true, "child_ceilings_within_parent": true, "budget_within_parent_cap": true },
+        "selection_criteria": {
+          "single_executor_tasks": ["bench_task_fixture_one"],
+          "composed_tasks": [],
+          "counterproductive_cases": [
+            {
+              "task_id": "bench_task_fixture_one",
+              "reason": "parallelization is counterproductive here",
+              "composition_ref": "cd_fixture_0003"
+            }
+          ]
         },
         "comparison_only": true,
         "created_at": "2026-10-20T00:00:00Z"
