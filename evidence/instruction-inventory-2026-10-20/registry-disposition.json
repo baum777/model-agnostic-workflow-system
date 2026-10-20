@@ -3,7 +3,7 @@
     "status": "NO_CHANGE",
     "material_change": true,
     "registry_relevant_change": false,
-    "reason": "Scope is S2 wave 1 of the PROPOSED MAWS-SII-TARGET-SPEC-001: a read-only instruction-inventory module, a stdout-only CLI, and tests. Determination under the closed relevance taxonomy: no registered record changed — the slice creates no contract (no file under core/contracts/ touched), no canonical claim (no authority-matrix or canonical-files edit), no authority mapping, no dependency or lifecycle binding, and no supersession; it is proposal-scoped implementation of a not-yet-adopted specification. The inventory is analysis input only: it grants no permission, loads nothing into any runtime, and activates nothing. Registry relevance will be re-evaluated when the SII slices land adopted contracts (S1 already carries the pending CONTRACT_RECORD obligation for skill-feedback.schema.json).",
+    "reason": "Scope is S2 wave 1 of the PROPOSED MAWS-SII-TARGET-SPEC-001: a read-only instruction-inventory module, a stdout-only CLI, and tests. Determination under the closed relevance taxonomy: no registered record changed — the slice creates no contract (no file under core/contracts/ touched), no canonical claim (no authority-matrix or canonical-files edit), no authority mapping, no dependency or lifecycle binding, and no supersession; it is proposal-scoped implementation of a not-yet-adopted specification. The inventory is analysis input only: it grants no permission, loads nothing into any runtime, and activates nothing. Registry relevance will be re-evaluated when the SII slices land adopted contracts (S1 already carries the pending CONTRACT_RECORD obligation for skill-feedback.schema.json). The change registration for this change is published in the Registry repository (baum777/unitera-registry) as registry/MAWS_INSTRUCTION_INVENTORY_2026_10_20_001.yaml and merged as 15ef3f3315d927150e05b4349ef4d2e59c29a88a (pull request 220); it is a representation of the change, not an object mutation caused by it. The contract field registry_commit_sha stays null: registry-disposition.v1 invariant 4 forbids a non-null value unless the status is UPDATED, and invariant 2 requires UPDATED to carry a non-empty affected_records list, which this change does not have because no registry-relevant class changed. The published registration SHA is therefore carried as publication evidence only, and only after the publication succeeded.",
     "registry_baseline_sha": "74c5be614641f5c89b7c3a989021ad7b53c8f466",
     "affected_records": [],
     "authority_refs": [
@@ -26,7 +26,8 @@
       "node --test tests/vnext/instruction-inventory.test.mjs (6/6 pass: coverage, digest determinism + revision/content sensitivity, fail-closed negatives, byte-identical read-only proof)",
       "npm run test:vnext (301/301 pass, 0 fail)",
       "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
-      "CLI smoke: build-instruction-inventory.mjs --revision 739b9c8 (29 sources, digest bound); without --revision exits 2"
+      "CLI smoke: build-instruction-inventory.mjs --revision 739b9c8 (29 sources, digest bound); without --revision exits 2",
+      "registry/MAWS_INSTRUCTION_INVENTORY_2026_10_20_001.yaml in baum777/unitera-registry, published as merge 15ef3f3315d927150e05b4349ef4d2e59c29a88a (pull request 220) - the change registration for this change, published after this disposition's classification and therefore cited here as publication evidence only"
     ],
     "implementation_commit_sha": "6730a00928c55d46091c6675fd12ea97186f1627",
     "registry_commit_sha": null,

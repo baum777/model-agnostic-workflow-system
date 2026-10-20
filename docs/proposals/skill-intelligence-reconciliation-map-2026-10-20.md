@@ -94,12 +94,15 @@ disposition vocabulary. Until this is resolved, the "register everything" obliga
 policy accident rather than a decision. This is a governance decision, not an engineering
 change, and it is not taken here.
 
-**S3 instruction-integrity hardening (MAWS PR #32) — open, outside this run's scope.**
+**S3 instruction-integrity hardening (MAWS PR #32) — registered in the parallel wave.**
 Merge `1d466511691156082a428d0f180a9d7cd51c4767` landed during this run with its own
 `NO_CHANGE` disposition
-(`evidence/instruction-integrity-hardening-2026-10-20/registry-disposition.json`) and no
-Registry change registration. It is recorded here so it is not lost, but closing it is
-outside the bounded scope of this run.
+(`evidence/instruction-integrity-hardening-2026-10-20/registry-disposition.json`). When this
+map was written the change had no Registry change registration; that gap was closed in the
+same window by the parallel hardening registration
+(`registry/MAWS_INSTRUCTION_INTEGRITY_HARDENING_2026_10_20_001.yaml`, Registry pull request
+#219) and represented in the Atlas. The statement below that it was unregistered was written
+before that publication and is superseded by it.
 
 ## 3. Slice dependencies: S5–S8 against S11–S13
 
@@ -206,3 +209,30 @@ separately. Reversal is a single `mv`.
 - `python3 scripts/validate_atlas.py` — PASS, 0 errors.
 - Fast-forward preconditions were proven per checkout before every merge, and every
   unmerged or diverged checkout is listed in §5.2 rather than silently skipped.
+
+
+## 8. Post-merge status of this reconciliation run
+
+Recorded after the publications of this run, so the map states the closed scope and the
+residual scope separately.
+
+**Published and closed by this run**
+
+| Item | Publication |
+|---|---|
+| This map | MAWS pull request 33, merge `87c58609ae8138122b81762f35757192006bdffb` |
+| S0 change registration | `registry/MAWS_SII_MATERIALIZATION_2026_10_20_001.yaml` (Registry pull request 220, merge `15ef3f3315d927150e05b4349ef4d2e59c29a88a`) |
+| S2 wave 1 change registration | `registry/MAWS_INSTRUCTION_INVENTORY_2026_10_20_001.yaml` (same Registry pull request) |
+| S2 wave 2 change registration | `registry/MAWS_INSTRUCTION_REFERENCE_GRAPH_2026_10_20_001.yaml` (same Registry pull request) |
+| Atlas representation of all four | `data/claims-post-sii-reconciliation-2026-10-20.yaml` (Atlas pull request 167, merge `851a6911cea051418cdd9dccf6f9afd535ec5799`) |
+| Unitera_Systems S4 repair leg | merged as `11a27cd74d25f4774662554c404d4b57563ae924` after the approving review by `t-wim` at the exact head |
+
+**Still open after this run**
+
+- The **coreos S4 wave A leg** — published on the branch, open as pull request 20, blocked
+  by the Mimosa L3 pre-push gate; the two Codex P2 repairs are prepared in the local commit
+  `f996214` and unpublished.
+- The **Registry/Atlas `NO_CHANGE` governance contradiction** (§ 2.2) — an owner decision.
+- The **open instruction findings** (§ 4) — reported, not repaired.
+- The **SII transformation itself** — S5–S8 and S11–S13 are not started; the program remains
+  **PARTIAL**.
