@@ -148,6 +148,9 @@ function classifyReport(report) {
   if (!report || typeof report !== 'object' || Array.isArray(report)) {
     return incomplete('report schema not understood');
   }
+  if (report.metadata?.skillspector_version !== '2.12.0') {
+    return incomplete('unqualified skillspector report version');
+  }
   const completion = report.analysis_completeness;
   const risk = report.risk_assessment;
   if (report.execution_successful !== true || !completion ||
