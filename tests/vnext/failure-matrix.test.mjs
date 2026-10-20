@@ -45,7 +45,8 @@ function baseWorld() {
     components: {
       model_id: null, provider_id: null, runtime_harness: 'development_harness/in_process_fixture/1',
       tool_contract_refs: ['tests/vnext/failure-matrix.test.mjs'], api_surface_version: '2026-09',
-      qualification_profile_ref: 'qualprofile_v1'
+      qualification_profile_ref: 'qualprofile_v1',
+      effective_instruction_digest: 'sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6'
     },
     digest: 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2'
   });
