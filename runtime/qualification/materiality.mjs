@@ -6,8 +6,9 @@
 // unroutable without requalification. Pure, injectable clock.
 import { FailClosedError, newId, nowIso, canonicalJson } from '../vnext/util.mjs';
 
-// All qualification-relevant components: the six fingerprint components plus
-// the top-level execution_profile_ref (materiality-decision contract enum).
+// All qualification-relevant components: the seven fingerprint components
+// (S7 added the effective instruction bundle digest) plus the top-level
+// execution_profile_ref (materiality-decision contract enum).
 export const TRACKED_COMPONENTS = [
   'model_id',
   'provider_id',
@@ -15,7 +16,8 @@ export const TRACKED_COMPONENTS = [
   'tool_contract_refs',
   'api_surface_version',
   'qualification_profile_ref',
-  'execution_profile_ref'
+  'execution_profile_ref',
+  'effective_instruction_digest'
 ];
 
 function resolveStamp(now) {

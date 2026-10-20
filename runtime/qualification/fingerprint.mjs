@@ -1,6 +1,7 @@
 // MAWS vNext — Phase 3 qualification runtime: qualification fingerprint
-// (OD-12). A fingerprint captures all qualification-relevant execution state
-// and hashes it deterministically (canonical JSON -> sha256). Pure function,
+// (OD-12, S7). A fingerprint captures all qualification-relevant execution
+// state -- including the effective instruction bundle digest -- and hashes it
+// deterministically (canonical JSON -> sha256). Pure function,
 // fail closed on unexpected component shapes. No authority logic.
 import { FailClosedError, newId, canonicalJson, sha256Hex } from '../vnext/util.mjs';
 
@@ -11,7 +12,8 @@ export const FINGERPRINT_COMPONENT_KEYS = [
   'runtime_harness',
   'tool_contract_refs',
   'api_surface_version',
-  'qualification_profile_ref'
+  'qualification_profile_ref',
+  'effective_instruction_digest'
 ];
 
 const NULLABLE_COMPONENTS = new Set(['model_id', 'provider_id']);
@@ -46,6 +48,12 @@ function validateComponents(components) {
       }
       if (new Set(value).size !== value.length) {
         throw new FailClosedError('FINGERPRINT_COMPONENTS_INVALID', 'component "tool_contract_refs" must not contain duplicates');
+      }
+      continue;
+    }
+    if (key === 'effective_instruction_digest') {
+      if (!/^sha256:[a-f0-9]{64}$/.test(value)) {
+        throw new FailClosedError('FINGERPRINT_COMPONENTS_INVALID', 'component "effective_instruction_digest" must be a "sha256:"-prefixed 64-character lowercase hex digest (the instruction bundle digest form)');
       }
       continue;
     }
