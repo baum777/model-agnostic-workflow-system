@@ -1,0 +1,49 @@
+name: MAWS comprehensive eval verification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/maws-audit-evals.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  evals:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout immutable code
+        uses: actions/checkout@v4
+        with:
+          ref: d7c84914ea3ba339a0a96454dd06fa18904527d0
+          persist-credentials: false
+      - name: Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Dependency install without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Execute bounded full evaluation matrix
+        shell: bash
+        run: |
+          set +e
+          mkdir -p audit-results
+          for task in eval eval:maws-vnext eval:secret-boundary eval:provider-export-alignment test:activation; do
+            slug=$(echo "$task" | tr ':' '_')
+            echo "::group::npm run $task"
+            timeout 180 npm run "$task" > "audit-results/$slug.log" 2>&1
+            rc=$?
+            printf '%s\n' "$rc" > "audit-results/$slug.exit"
+            tail -35 "audit-results/$slug.log"
+            echo "::endgroup::"
+          done
+      - name: Publish evaluation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maws-eval-verification-d7c84914
+          path: audit-results/
+          retention-days: 7
+          if-no-files-found: error
