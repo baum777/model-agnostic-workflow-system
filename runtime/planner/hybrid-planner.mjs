@@ -48,16 +48,21 @@ export function buildCandidate({ template, workUnits, stageWorkUnitMap = {} }) {
 // recommended) enables the S11 binding-scope check: every bound node's
 // executor binding must reference the SAME harness context record as its
 // WorkUnit.
-export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt, workUnits }) {
+export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt, workUnits, harnessContext }) {
   const issues = validateCandidateGraph(candidate, template);
   if (issues.length > 0) {
     throw new FailClosedError('CANDIDATE_INVALID', issues.join('; '));
   }
 
-  // S11: the WorkUnit collection is REQUIRED. Without it the binding gate
-  // would silently skip every WorkUnit/context comparison.
+  // S11: the WorkUnit collection and the validated HarnessContext record
+  // are REQUIRED. Without them the binding gate could not compare the
+  // bound (context value, record id) pair against the single source of
+  // truth, and a uniform false value could be registered.
   if (!Array.isArray(workUnits)) {
     throw new FailClosedError('CONTEXT_BINDING_MISSING', 'planAndBind requires the workUnits collection; binding without WorkUnit resolution is not permitted');
+  }
+  if (!harnessContext || typeof harnessContext !== 'object' || harnessContext.context_id === undefined || harnessContext.context === undefined) {
+    throw new FailClosedError('CONTEXT_BINDING_MISSING', 'planAndBind requires the validated harnessContext record; binding without context resolution is not permitted');
   }
   const workUnitById = new Map(
     workUnits.filter((workUnit) => workUnit && typeof workUnit === 'object').map((workUnit) => [workUnit.work_unit_id, workUnit])
@@ -76,10 +81,16 @@ export function planAndBind({ template, candidate, routingForNode, workGraphStor
     if (typeof workUnit.harness_context_ref !== 'string' || workUnit.harness_context_ref.length === 0) {
       throw new FailClosedError('CONTEXT_BINDING_MISSING', `work unit ${workUnit.work_unit_id} carries no harness_context_ref; it cannot bind an executor`);
     }
-    if (workUnit.harness_context_ref !== executorBinding.harness_context_ref) {
+    if (workUnit.harness_context_ref !== harnessContext.context_id) {
       throw new FailClosedError(
         'CONTEXT_BINDING_CONFLICT',
-        `node ${node.node_id} binds context "${executorBinding.harness_context_ref}" but its work unit ${workUnit.work_unit_id} declares "${workUnit.harness_context_ref}"`
+        `work unit ${workUnit.work_unit_id} declares context "${workUnit.harness_context_ref}" but the run is bound to "${harnessContext.context_id}"`
+      );
+    }
+    if (executorBinding.harness_context !== harnessContext.context || executorBinding.harness_context_ref !== harnessContext.context_id) {
+      throw new FailClosedError(
+        'CONTEXT_BINDING_CONFLICT',
+        `node ${node.node_id} binds ("${executorBinding.harness_context}", "${executorBinding.harness_context_ref}") but the validated record is ("${harnessContext.context}", "${harnessContext.context_id}")`
       );
     }
     bindings.push({ node_id: node.node_id, executor_binding: executorBinding });

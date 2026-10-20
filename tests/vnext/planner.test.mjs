@@ -68,7 +68,8 @@ function buildBoundGraph() {
     workGraphStore: graphStore,
     graphId: 'graph_run_0001',
     root,
-    workUnits: [rootWorkUnit]
+    workUnits: [rootWorkUnit],
+    harnessContext: { context_id: 'hctx_planner_test_dev', context: 'development_harness', run_ref: 'run_0001', authority_grant: 'none', created_at: '2026-09-25T00:00:00Z' }
   });
   return { workUnits, graphStore, graph, candidate, rootWorkUnit };
 }
@@ -97,7 +98,7 @@ test('candidate missing a mandatory stage cannot be bound (OD-02)', () => {
   const candidate = buildCandidate({ template, workUnits: [rootWorkUnit] });
   candidate.nodes = candidate.nodes.filter((node) => node.stage !== 'verification');
   assert.throws(
-    () => planAndBind({ template, candidate, routingForNode: () => ({ ...binding }), workGraphStore: createWorkGraphStore({ root }), graphId: 'graph_x', root }),
+    () => planAndBind({ template, candidate, routingForNode: () => ({ ...binding }), workGraphStore: createWorkGraphStore({ root }), graphId: 'graph_x', root, workUnits: [], harnessContext: { context_id: 'hctx_x', context: 'development_harness' } }),
     (error) => error instanceof FailClosedError && error.code === 'CANDIDATE_INVALID' && error.message.includes('verification')
   );
 });

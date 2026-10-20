@@ -471,7 +471,8 @@ function buildContextBoundGraph(graphId, workUnitOverrides = {}) {
     workGraphStore: graphStore,
     graphId,
     root,
-    workUnits: [rootWu]
+    workUnits: [rootWu],
+    harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
   });
   return { workUnits, graphStore, graph, rootWu };
 }
@@ -610,7 +611,8 @@ test('binding-scope regression (codex P1): planAndBind refuses bindings that dis
       workGraphStore: createWorkGraphStore({ root }),
       graphId: 'graph_s11_mismatch',
       root,
-      workUnits: [rootWu]
+      workUnits: [rootWu],
+      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
     }),
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
@@ -653,9 +655,10 @@ test('S11 regression (codex P1 round 2): initial graphs cannot mix harness conte
       workGraphStore: createWorkGraphStore({ root }),
       graphId: 'graph_s11_mixedpair',
       root,
-      workUnits: [rootWu]
+      workUnits: [rootWu],
+      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
     }),
-    (error) => /mixed harness context pairs/.test(error.message)
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
 });
 
@@ -666,4 +669,32 @@ test('S11 regression (codex P1 round 2): the active version can never be discard
     (error) => error instanceof FailClosedError && error.code === 'GRAPH_VERSION_ACTIVE'
   );
   assert.equal(graphStore.discardCandidateVersion('graph_s11_discard_guard', 99), false);
+});
+
+test('S11 regression (codex P1 round 5): the binding context value must match the validated record value', () => {
+  const workUnits = createWorkUnitStore({ root });
+  const rootWu = workUnits.create({
+    work_unit_id: 'wu_s11_falsevalue', objective: 'x',
+    required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
+    context_envelope_ref: 'ctx/s11',
+    authority_ceiling: { scope_ref: 'scope/s11', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_s11_falsevalue',
+    created_by: 'interaction_session', run_ref: 'run_s11',
+    harness_context_ref: 'hctx_graph_dev'
+  });
+  // Uniform false value: every node claims unitera_product under the DEV
+  // record's id. The pair is uniform, but it contradicts the record.
+  assert.throws(
+    () => planAndBind({
+      template: s11Template,
+      candidate: buildCandidate({ template: s11Template, workUnits: [rootWu] }),
+      routingForNode: () => ({ executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: 'q', selection_mode: 'NORMAL_SELECTION', harness_context: 'unitera_product', harness_context_ref: 'hctx_graph_dev' }),
+      workGraphStore: createWorkGraphStore({ root }),
+      graphId: 'graph_s11_falsevalue',
+      root,
+      workUnits: [rootWu],
+      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
+    }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
+  );
 });

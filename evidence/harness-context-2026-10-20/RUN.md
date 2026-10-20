@@ -89,9 +89,13 @@ New regression tests: reference-only re-anchoring requires evidence; cross-run r
 
 383/383 PASS.
 
+## Pre-merge independent review (codex, round 5 on `c751cb3`)
+
+1×P1, real, repaired on this head: a uniform FALSE value (every node claiming a different context value under the referenced record's id) passed the ref-only comparison. Repaired: `planAndBind` now requires the VALIDATED harness-context record and compares both the record id AND the context value of every binding against it (plus every work unit's ref). Regression test with the uniform-false-value graph included; the round-2 mixed-pair scenario is now caught earlier with the precise `CONTEXT_BINDING_CONFLICT` code (bindGraph's uniform-pair gate remains as defense in depth for direct callers). 384/384 PASS.
+
 ## Verification
 
-- `node --test tests/vnext/*.test.mjs` — 383/383 PASS (includes the S11 tests across all four repair rounds and all coordinated amendments).
+- `node --test tests/vnext/*.test.mjs` — 384/384 PASS (includes the S11 tests across all five repair rounds and all coordinated amendments).
 - `npm run eval:maws-vnext` — ok:true (now includes `harness-context.contracts.json`).
 - `npm run validate-harness-context` — CLI smoke: valid record exit 0, unknown-vocabulary record exit 1.
 - Full engine path: `runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.json` completes COMPLETED with the bound dev context (CLI test asserts this continuously).
