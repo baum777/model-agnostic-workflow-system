@@ -1,0 +1,77 @@
+name: MAWS full-source audit snapshot
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/maws-full-source-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout immutable MAWS source without credentials
+        uses: actions/checkout@v4
+        with:
+          ref: d7c84914ea3ba339a0a96454dd06fa18904527d0
+          persist-credentials: false
+      - name: Verify audited commit and archive complete tracked tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = 'd7c84914ea3ba339a0a96454dd06fa18904527d0'
+          mkdir -p /tmp/maws-audit
+          git archive --format=zip --output=/tmp/maws-audit/maws-source.zip HEAD
+          git ls-tree -r --name-only HEAD > /tmp/maws-audit/tracked-files.txt
+          git rev-parse HEAD > /tmp/maws-audit/commit-sha.txt
+          sha256sum /tmp/maws-audit/maws-source.zip > /tmp/maws-audit/archive-sha256.txt
+          wc -l /tmp/maws-audit/tracked-files.txt
+          du -h /tmp/maws-audit/maws-source.zip
+      - name: Upload audit source snapshot (no repository writes)
+        uses: actions/upload-artifact@v4
+        with:
+          name: maws-full-source-audit-d7c84914
+          path: /tmp/maws-audit/
+          retention-days: 7
+          if-no-files-found: error
+
+  tests:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout immutable MAWS source without credentials
+        uses: actions/checkout@v4
+        with:
+          ref: d7c84914ea3ba339a0a96454dd06fa18904527d0
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Execute built-in validation and tests without install
+        shell: bash
+        run: |
+          set +e
+          mkdir -p /tmp/maws-audit-tests
+          for task in validate validate-neutral validate-maws-vnext validate-secrets scan-secrets test:vnext test:skill-frontdoor eval; do
+            echo "::group::npm run $task"
+            timeout 170 npm run "$task" > "/tmp/maws-audit-tests/$task.log" 2>&1
+            rc=$?
+            echo "$rc" > "/tmp/maws-audit-tests/$task.exit"
+            tail -40 "/tmp/maws-audit-tests/$task.log"
+            echo "::endgroup::"
+          done
+          echo "complete" > /tmp/maws-audit-tests/run.finished
+      - name: Upload test result artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maws-audit-test-results-d7c84914
+          path: /tmp/maws-audit-tests/
+          if-no-files-found: warn
+          retention-days: 7
