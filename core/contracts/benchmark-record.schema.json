@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/benchmark-record.schema.json",
+  "title": "ComparativeBenchmarkRecord Contract",
+  "description": "S13 (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, section 10.6, PROPOSED): canonical record of one comparative benchmark run measuring the orchestration form itself -- a static single-executor baseline against a policy-bound multi-executor candidate over the SAME fixed task set and eval family. Measures token, cost, latency, interventions, verification outcome, and artifact quality against independent acceptance criteria; records context-isolation and authority/budget-inheritance checks and derives routing/composition selection criteria including documented counterproductive cases. comparison_only is const true: a benchmark result is a comparison basis, never an approval for broader autonomy, never a qualification, and never its own success assertion.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "benchmark_id", "task_set_ref", "baseline_variant",
+    "candidate_variant", "measures_baseline", "measures_candidate",
+    "context_isolation", "authority_budget_inheritance", "selection_criteria",
+    "comparison_only", "created_at"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "benchmark_id": { "type": "string", "pattern": "^bench_[a-z0-9_]+$" },
+    "task_set_ref": { "type": "string", "minLength": 1 },
+    "baseline_variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variant", "executor_ids"],
+      "properties": {
+        "variant": { "const": "single_executor" },
+        "executor_ids": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+        "composition_policy_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "candidate_variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["variant", "executor_ids"],
+      "properties": {
+        "variant": { "const": "policy_bound_multi_executor" },
+        "executor_ids": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" },
+        "composition_policy_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "measures_baseline": { "$ref": "#/$defs/variantMeasures" },
+    "measures_candidate": { "$ref": "#/$defs/variantMeasures" },
+    "context_isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checked", "worker_sessions_isolated"],
+      "properties": {
+        "checked": { "const": true },
+        "worker_sessions_isolated": { "type": "boolean" },
+        "evidence_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "authority_budget_inheritance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checked", "child_ceilings_within_parent", "budget_within_parent_cap"],
+      "properties": {
+        "checked": { "const": true },
+        "child_ceilings_within_parent": { "type": "boolean" },
+        "budget_within_parent_cap": { "type": "boolean" },
+        "evidence_ref": { "type": "string", "minLength": 1 }
+      }
+    },
+    "selection_criteria": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["single_executor_tasks", "composed_tasks", "counterproductive_cases"],
+      "properties": {
+        "single_executor_tasks": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "composed_tasks": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "counterproductive_cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["task_id", "reason"],
+            "properties": {
+              "task_id": { "type": "string", "minLength": 1 },
+              "reason": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "comparison_only": { "const": true },
+    "created_at": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "variantMeasures": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["totals", "per_task"],
+      "properties": {
+        "totals": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tokens_in", "tokens_out", "cost_units", "latency_ms", "interventions"],
+          "properties": {
+            "tokens_in": { "type": "number", "minimum": 0 },
+            "tokens_out": { "type": "number", "minimum": 0 },
+            "cost_units": { "type": "number", "minimum": 0 },
+            "latency_ms": { "type": "number", "minimum": 0 },
+            "interventions": { "type": "number", "minimum": 0 }
+          }
+        },
+        "per_task": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "task_id", "tokens_in", "tokens_out", "cost_units", "latency_ms",
+              "interventions", "verification_outcome", "artifact_quality"
+            ],
+            "properties": {
+              "task_id": { "type": "string", "minLength": 1 },
+              "tokens_in": { "type": "number", "minimum": 0 },
+              "tokens_out": { "type": "number", "minimum": 0 },
+              "cost_units": { "type": "number", "minimum": 0 },
+              "latency_ms": { "type": "number", "minimum": 0 },
+              "interventions": { "type": "number", "minimum": 0 },
+              "verification_outcome": { "enum": ["PASS", "FAIL", "BLOCKED"] },
+              "artifact_quality": { "enum": ["MEETS_CRITERIA", "BELOW_CRITERIA"] },
+              "composition_ref": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "registry_disposition": {
+    "contract": "registry-disposition.v1",
+    "change_id": "MAWS-S13-COMPARATIVE-BENCHMARK-2026-10-20",
+    "summary": "S13 comparative benchmark harness: ComparativeBenchmarkRecord contract, fixed task set, deterministic baseline-vs-candidate runner with composition-policy gate, context-isolation and authority/budget-inheritance checks, selection criteria and counterproductive-case documentation.",
+    "source_of_authority": "Bounded owner run directive 2026-10-20 (run S11 implementation, then close S7/S13/S8).",
+    "source_refs": [
+      "docs/proposals/skill-intelligence-target-spec.md (MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED, section 10.6 + slice S13)",
+      "core/contracts/benchmark-record.schema.json",
+      "evals/benchmark/comparison/tasks.json",
+      "scripts/tools/run-comparative-benchmarks.mjs",
+      "evals/fixtures/maws-vnext/benchmark-record.contracts.json",
+      "tests/vnext/benchmark-comparison.test.mjs",
+      "evidence/benchmark-comparison-2026-10-20/RUN.md"
+    ],
+    "evidence_refs": [],
+    "implementation_commit_sha": null,
+    "registry_commit_sha": null,
+    "registry_baseline_sha": "75bdabe",
+    "disposition_status": "REQUIRED_BUT_BLOCKED",
+    "affected_records": [],
+    "object_mutations": [
+      "NEW CONTRACT_RECORD: core/contracts/benchmark-record.schema.json (ComparativeBenchmarkRecord 1.0.0)",
+      "NO_CHANGE intended for existing CONTRACT_RECORDs of unchanged contracts"
+    ],
+    "notes": "REQUIRED_BUT_BLOCKED phase; rebinds to UPDATED with the registry commit sha after the Registry write."
+  }
+}
