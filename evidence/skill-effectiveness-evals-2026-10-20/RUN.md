@@ -40,6 +40,18 @@ No live provider credentials are required or used in CI; no second registry; no 
 
 `registry-disposition.json` in this directory: `REQUIRED_BUT_BLOCKED`, `material_change: true`, `registry_relevant_change: true`, affected record `CONTRACT_RECORD:core/contracts/behavioral-eval.schema.json`, `registry_commit_sha: null`. The Registry write (CONTRACT_RECORD projection + run change registration) follows this repository's merge as a separate Unitera-registry change; this disposition is rebound to `UPDATED` with the registry merge SHA in the follow-up owner evidence update.
 
+## Repair round (post-merge codex review of PR #35)
+
+The codex connector reviewed PR #35 at the merged head after merge and raised five findings, all confirmed real and repaired in the follow-up repair publication (branch `fix/s5-codex-repair-20261020`):
+
+- **F1 (P1) digest sealed before comparison** — the candidate's content digest was computed while the verdict was still `PENDING_COMPARISON`, so it did not authenticate the final record. The pipeline now compares first and seals only the completed record; a regression test recomputes the digest of the final record.
+- **F2 (P1) unenforced isolation claims for live runs** — an in-process executor the harness cannot contain ran while the record claimed `isolated: true` / `workspace_write: none`. The contract now distinguishes enforced from declared: `recorded_replay` keeps `isolated: true` (enforced by construction); `live_model` records `isolated: false` with `workspace_write: uncontained_process`, and the schema forbids `IMPROVEMENT_PROVEN` for uncontained records (rule R6, schema-expressed and mirrored in `semanticEvalIssues`).
+- **F3 (P1) unvalidated supplied baseline records** — `--baseline-record` input is now contract-validated, verified against its own content seal (post-seal edits are rejected), and identity-bound to this corpus (freshly recomputed baseline-variant corpus digest), run mode, and subject; codes `BASELINE_RECORD_INVALID` / `BASELINE_RECORD_MISMATCH`.
+- **F4 (P1) security assertion failures not counted as regressions** — a security case now counts as a regression unless the subject refused AND the full evaluation (including leak assertions) passed; a blocked-but-leaking transcript forces the security gate and `BLOCKED` in every variant.
+- **F5 (P2) absolute paths in digests** — family and corpus digests bind the manifest-declared logical paths, so identical corpus content hashes identically in any checkout directory (regression test across two temp checkouts).
+
+Verification after the repair round: `test:vnext` 338/338 (4 new regression tests for F1/F3/F4/F5), `eval:skill-effectiveness` exit 0 (`IMPROVEMENT_PROVEN`), `validate-behavioral-eval` 7 fixture cases clean, `validate` / `validate-maws-vnext` PASS; the two committed eval records were regenerated and re-validated at the repair head.
+
 ## Next gate
 
 - Registry write for the new CONTRACT_RECORD + change registration, then the rebind to `UPDATED`.

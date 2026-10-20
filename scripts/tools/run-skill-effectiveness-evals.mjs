@@ -29,8 +29,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { defineExecutor } from '../../runtime/executors/executor-base.mjs';
+import { validateBehavioralEvalRecord } from './validate-behavioral-eval.mjs';
 
 const RUNNER_ID = 'run-skill-effectiveness-evals.mjs';
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CORPUS_SCHEMA_VERSION = '1.0.0';
 const RUN_SCHEMA_VERSION = '1.0.0';
 const ASSERTION_TYPES = new Set(['contains', 'not_contains', 'equals', 'regex']);
@@ -103,7 +105,10 @@ export function loadCorpus(corpusDir) {
     }
     const familyPath = family.via === 'variant' ? null : resolveInside(corpusDir, family.file);
     const cases = familyPath ? loadCases(familyPath) : [];
-    families.set(family.family, { ...family, cases, file: familyPath });
+    // Digests bind the manifest-declared logical path, never the resolved
+    // absolute path, so identical corpus content hashes identically in any
+    // checkout directory.
+    families.set(family.family, { ...family, cases, file: familyPath, logical_file: family.file });
   }
   const variants = new Map();
   for (const [variantName, variantSpec] of Object.entries(manifest.variants)) {
@@ -111,7 +116,11 @@ export function loadCorpus(corpusDir) {
     const positivePath = resolveInside(corpusDir, variantSpec.positive_cases_file);
     positiveFamily.cases = loadCases(positivePath);
     positiveFamily.file = positivePath;
-    variants.set(variantName, { positive_cases_file: positivePath, positive_cases: positiveFamily.cases });
+    variants.set(variantName, {
+      positive_cases_file: positivePath,
+      positive_cases_logical_file: variantSpec.positive_cases_file,
+      positive_cases: positiveFamily.cases
+    });
   }
   return { corpusDir, manifest, families, variants, subject: manifest.subject };
 }
@@ -282,12 +291,17 @@ export async function runVariant(options) {
       metrics.latency.latency_ms_max = Math.max(metrics.latency.latency_ms_max, Number(signals.latency_ms) || 0);
 
       if (caseEntry.security_class !== 'none') {
+        // A security case is a regression unless the subject refused AND the
+        // full evaluation passed: a BLOCKED outcome whose output still leaks
+        // the forbidden material is a regression, not a pass.
         securityCasesTotal += 1;
-        if (transcript.outcome !== 'BLOCKED') {
+        if (transcript.outcome !== 'BLOCKED' || !evaluation.casePassed) {
           securityRegressions += 1;
           casesFailed += 1;
           continue;
         }
+        casesPassed += 1;
+        continue;
       }
       if (evaluation.casePassed) {
         casesPassed += 1;
@@ -295,10 +309,13 @@ export async function runVariant(options) {
         casesFailed += 1;
       }
     }
+    const digestLogicalFile = familyName === 'positive'
+      ? corpus.variants.get(variant).positive_cases_logical_file
+      : family.logical_file;
     familyResults.push({
       family: familyName,
       blocking: family.blocking === true,
-      corpus_digest: sha256Canonical({ file: familyName === 'positive' ? corpus.variants.get(variant).positive_cases_file : family.file, cases: family.cases }),
+      corpus_digest: sha256Canonical({ file: digestLogicalFile, cases: family.cases }),
       cases_total: family.cases.length,
       cases_passed: casesPassed,
       cases_failed: casesFailed
@@ -333,10 +350,15 @@ export async function runVariant(options) {
     subject,
     model_run: {
       mode,
-      isolated: true,
+      // Isolation honesty: recorded_replay enforces the envelope by
+      // construction (no process runs at all). A live_model run through an
+      // in-process executor the harness cannot contain is recorded as an
+      // uncontained process with isolated false — evidence, but never
+      // improvement-proof (schema forbids IMPROVEMENT_PROVEN then).
+      isolated: mode === 'recorded_replay',
       executor_ref: mode === 'recorded_replay' ? 'recorded_corpus_transcripts' : executor.executor_id,
       isolation_envelope: {
-        workspace_write: 'none',
+        workspace_write: mode === 'recorded_replay' ? 'none' : 'uncontained_process',
         network: mode === 'recorded_replay' ? 'deny' : 'allowlisted',
         inherited_qualification: 'none',
         allowed_effects: []
@@ -360,14 +382,23 @@ export async function runVariant(options) {
 }
 
 /**
+ * Content digest over the canonical form of a record with the digest field
+ * itself and the creation time excluded, so identical content hashes
+ * identically across runs and checkout directories.
+ */
+export function computeContentDigest(record) {
+  const clone = structuredClone(record);
+  delete clone.reproducibility.content_digest;
+  delete clone.created_at;
+  return sha256Canonical(clone);
+}
+
+/**
  * Seal a record: compute the content digest over the canonical form with the
  * digest field itself removed, then insert it.
  */
 export function finalizeRecord(record) {
-  const withoutDigest = structuredClone(record);
-  delete withoutDigest.reproducibility.content_digest;
-  delete withoutDigest.created_at;
-  record.reproducibility.content_digest = sha256Canonical(withoutDigest);
+  record.reproducibility.content_digest = computeContentDigest(record);
   return record;
 }
 
@@ -406,22 +437,69 @@ export function compareRecords(baselineRecord, candidateRecord) {
 }
 
 /**
- * Full pipeline: baseline run, candidate run, comparison. Returns both
- * finalized records and the final verdict.
+ * Validate a supplied baseline record before it is trusted as the comparison
+ * reference: contract + semantics must hold, and the identity fields must
+ * bind it to THIS corpus, mode, and subject — a valid-looking record from
+ * another experiment must never produce IMPROVEMENT_PROVEN here.
+ */
+export function assertBaselineRecordUsable(baselineRecord, candidateContext) {
+  const { corpusDigest, mode, subjectRef } = candidateContext;
+  if (baselineRecord.variant !== 'BASELINE' || baselineRecord.verdict !== 'BASELINE_RECORDED') {
+    throw new EvalConfigError('BASELINE_RECORD_INVALID', 'baseline record must be a BASELINE record with verdict BASELINE_RECORDED');
+  }
+  if (baselineRecord.reproducibility?.content_digest !== computeContentDigest(baselineRecord)) {
+    throw new EvalConfigError('BASELINE_RECORD_INVALID', 'baseline record fails its own content seal (edited after sealing)');
+  }
+  const issues = validateBehavioralEvalRecord(baselineRecord, ROOT);
+  if (issues.length > 0) {
+    throw new EvalConfigError('BASELINE_RECORD_INVALID', `baseline record fails validation: ${issues.join('; ')}`);
+  }
+  if (baselineRecord.reproducibility.corpus_digest !== corpusDigest) {
+    throw new EvalConfigError('BASELINE_RECORD_MISMATCH', 'baseline corpus_digest does not match the candidate corpus');
+  }
+  if (baselineRecord.model_run.mode !== mode) {
+    throw new EvalConfigError('BASELINE_RECORD_MISMATCH', 'baseline run mode does not match the candidate run mode');
+  }
+  if (baselineRecord.subject.ref !== subjectRef) {
+    throw new EvalConfigError('BASELINE_RECORD_MISMATCH', 'baseline subject.ref does not match the candidate subject');
+  }
+  return baselineRecord;
+}
+
+/**
+ * Full pipeline: baseline run, candidate run, comparison. The candidate is
+ * sealed only AFTER the comparison, so its content digest authenticates the
+ * final record. Returns both finalized records and the final verdict.
  */
 export async function runSkillEffectivenessEval(options) {
   const { corpus, mode = 'recorded_replay', executor = null, instructionRevision, baselineRecordPath, evalIdBase } = options;
   const base = evalIdBase || 'bev_skill_effectiveness';
-  const baselineRecord = baselineRecordPath
-    ? JSON.parse(fs.readFileSync(baselineRecordPath, 'utf8'))
-    : finalizeRecord(await runVariant({ corpus, variant: 'BASELINE', mode, executor, evalId: `${base}_baseline`, instructionRevision }));
-  if (baselineRecord.verdict === 'BLOCKED') {
-    return { baselineRecord, candidateRecord: null, finalVerdict: 'BLOCKED' };
+  let baselineRecord = null;
+  if (baselineRecordPath) {
+    // Supplied baselines are untrusted input until validated below; the
+    // identity binding happens after the candidate exists, because the
+    // binding target is the candidate's own corpus digest.
+    baselineRecord = JSON.parse(fs.readFileSync(baselineRecordPath, 'utf8'));
+  } else {
+    baselineRecord = finalizeRecord(await runVariant({ corpus, variant: 'BASELINE', mode, executor, evalId: `${base}_baseline`, instructionRevision }));
+    if (baselineRecord.verdict === 'BLOCKED') {
+      return { baselineRecord, candidateRecord: null, finalVerdict: 'BLOCKED' };
+    }
   }
-  const candidateRecord = finalizeRecord(
-    await runVariant({ corpus, variant: 'CANDIDATE', mode, executor, evalId: `${base}_candidate`, instructionRevision })
-  );
+  const candidateRecord = await runVariant({ corpus, variant: 'CANDIDATE', mode, executor, evalId: `${base}_candidate`, instructionRevision });
+  if (baselineRecordPath) {
+    // The corpus digest is variant-specific (each variant carries its own
+    // positive file), so the binding target is the digest a genuine BASELINE
+    // run over THIS corpus produces, recomputed here.
+    const baselineProbe = await runVariant({ corpus, variant: 'BASELINE', mode, executor, evalId: `${base}_baseline_probe`, instructionRevision });
+    assertBaselineRecordUsable(baselineRecord, {
+      corpusDigest: baselineProbe.reproducibility.corpus_digest,
+      mode,
+      subjectRef: corpus.subject.ref
+    });
+  }
   compareRecords(baselineRecord, candidateRecord);
+  finalizeRecord(candidateRecord);
   return { baselineRecord, candidateRecord, finalVerdict: candidateRecord.verdict };
 }
 

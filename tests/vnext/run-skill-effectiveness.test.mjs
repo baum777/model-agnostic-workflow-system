@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import {
   EvalConfigError,
   compareRecords,
+  computeContentDigest,
   evaluateTranscript,
   finalizeRecord,
   loadCorpus,
@@ -179,7 +180,8 @@ test('live mode: refuses without an executor and isolates invocations when given
   }
 
   const record = finalizeRecord(await runVariant({ corpus, variant: 'BASELINE', mode: 'live_model', executor: fakeExecutor, evalId: 'bev_test_live' }));
-  assert.equal(record.model_run.isolated, true);
+  assert.equal(record.model_run.isolated, false, 'uncontained live executors must not claim enforced isolation');
+  assert.equal(record.model_run.isolation_envelope.workspace_write, 'uncontained_process');
   assert.equal(record.model_run.executor_ref, 'exec_test_eval_harness');
   assert.ok(invocations.length > 0);
   for (const invocation of invocations) {
@@ -221,5 +223,85 @@ test('loadCorpus: escaping family paths are rejected', () => {
     assert.throws(() => loadCorpus(tmp), (error) => error instanceof EvalConfigError && error.code === 'CORPUS_PATH_ESCAPES_ROOT');
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('F1: the sealed candidate digest authenticates the final post-comparison record', async () => {
+  const corpus = loadCorpus(CORPUS_DIR);
+  const { candidateRecord } = await runSkillEffectivenessEval({ corpus, mode: 'recorded_replay' });
+  assert.equal(computeContentDigest(candidateRecord), candidateRecord.reproducibility.content_digest);
+  assert.ok(candidateRecord.comparison, 'final record carries the comparison');
+});
+
+test('F3: a supplied baseline record is validated and identity-bound', async () => {
+  const corpus = loadCorpus(CORPUS_DIR);
+  const { baselineRecord } = await runSkillEffectivenessEval({ corpus, mode: 'recorded_replay' });
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 's5-baseline-'));
+  const baselinePath = path.join(tmp, 'baseline.json');
+  try {
+    fs.writeFileSync(baselinePath, JSON.stringify(baselineRecord));
+
+    const tampered = structuredClone(baselineRecord);
+    tampered.metrics.routing.decisions_matched = 0;
+    const tamperedPath = path.join(tmp, 'tampered.json');
+    fs.writeFileSync(tamperedPath, JSON.stringify(tampered));
+    await assert.rejects(
+      () => runSkillEffectivenessEval({ corpus: loadCorpus(CORPUS_DIR), mode: 'recorded_replay', baselineRecordPath: tamperedPath }),
+      (error) => error instanceof EvalConfigError && error.code === 'BASELINE_RECORD_INVALID'
+    );
+
+    const foreign = structuredClone(baselineRecord);
+    foreign.reproducibility.corpus_digest = 'sha256:' + 'f'.repeat(64);
+    finalizeRecord(foreign);
+    const foreignPath = path.join(tmp, 'foreign.json');
+    fs.writeFileSync(foreignPath, JSON.stringify(foreign));
+    await assert.rejects(
+      () => runSkillEffectivenessEval({ corpus: loadCorpus(CORPUS_DIR), mode: 'recorded_replay', baselineRecordPath: foreignPath }),
+      (error) => error instanceof EvalConfigError && error.code === 'BASELINE_RECORD_MISMATCH'
+    );
+
+    const { candidateRecord, finalVerdict } = await runSkillEffectivenessEval({
+      corpus: loadCorpus(CORPUS_DIR),
+      mode: 'recorded_replay',
+      baselineRecordPath: baselinePath
+    });
+    assert.equal(finalVerdict, 'IMPROVEMENT_PROVEN');
+    assert.equal(candidateRecord.comparison.baseline_eval_id, baselineRecord.eval_id);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('F4: a refused security case whose output still leaks counts as a regression', async () => {
+  const tmp = writeTempCorpus((dir) => {
+    const cases = readSecurityCases(dir);
+    cases.cases[0].recorded_transcript.outcome = 'BLOCKED';
+    cases.cases[0].recorded_transcript.output_text = 'Refused, but here it is anyway: sk-or-fake';
+    fs.writeFileSync(path.join(dir, 'security-cases.json'), JSON.stringify(cases, null, 2));
+  });
+  try {
+    const corpus = loadCorpus(tmp);
+    const { baselineRecord, finalVerdict } = await runSkillEffectivenessEval({ corpus, mode: 'recorded_replay' });
+    assert.equal(baselineRecord.security_gate.security_regressions, 1);
+    assert.equal(baselineRecord.security_gate.gate, 'BLOCK');
+    assert.equal(finalVerdict, 'BLOCKED');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('F5: corpus digests are independent of the checkout directory', async () => {
+  const first = writeTempCorpus(() => {});
+  const second = writeTempCorpus(() => {});
+  try {
+    const recFirst = await runVariant({ corpus: loadCorpus(first), variant: 'BASELINE', mode: 'recorded_replay', evalId: 'bev_digest_probe' });
+    const recSecond = await runVariant({ corpus: loadCorpus(second), variant: 'BASELINE', mode: 'recorded_replay', evalId: 'bev_digest_probe' });
+    assert.equal(recFirst.reproducibility.corpus_digest, recSecond.reproducibility.corpus_digest);
+    for (let index = 0; index < recFirst.case_families.length; index += 1) {
+      assert.equal(recFirst.case_families[index].corpus_digest, recSecond.case_families[index].corpus_digest);
+    }
+  } finally {
+    fs.rmSync(first, { recursive: true, force: true });
+    fs.rmSync(second, { recursive: true, force: true });
   }
 });

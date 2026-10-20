@@ -30,10 +30,11 @@ test('fixture: every labeled positive case validates clean', () => {
 
 test('fixture: every labeled negative case fails for exactly its invariant', () => {
   const negatives = {
-    bev_neg_not_isolated: 'isolated',
+    bev_neg_not_isolated: 'uncontained_process',
     bev_neg_candidate_without_baseline_ref: 'verdict',
     bev_neg_baseline_with_comparison: 'NOT match',
-    bev_neg_bad_content_digest: 'pattern'
+    bev_neg_bad_content_digest: 'pattern',
+    bev_neg_uncontained_proven: 'verdict'
   };
   for (const [caseId, expectedSignal] of Object.entries(negatives)) {
     const issues = validateBehavioralEvalRecord(fixtureCase(caseId).instance, ROOT);
