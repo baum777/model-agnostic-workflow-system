@@ -1,0 +1,26 @@
+{
+  "registry_disposition": {
+    "contract": "registry-disposition.v1",
+    "change_id": "MAWS-S7-QUALIFICATION-INTEGRATION-2026-10-20",
+    "summary": "S7 qualification integration: effective_instruction_digest as a required qualification fingerprint component, tracked by materiality; stale qualification blocked via MATERIAL_FINGERPRINT_DRIFT; model-switch regression secured.",
+    "source_of_authority": "Bounded owner run directive 2026-10-20 (run S11 implementation, then close S7/S13/S8).",
+    "source_refs": [
+      "docs/proposals/skill-intelligence-target-spec.md (MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED, sections 11.2/11.3 + slice S7)",
+      "core/contracts/qualification-fingerprint.schema.json",
+      "runtime/qualification/fingerprint.mjs",
+      "runtime/qualification/materiality.mjs",
+      "evidence/qualification-integration-2026-10-20/RUN.md"
+    ],
+    "evidence_refs": [],
+    "implementation_commit_sha": null,
+    "registry_commit_sha": null,
+    "registry_baseline_sha": "75bdabe",
+    "disposition_status": "REQUIRED_BUT_BLOCKED",
+    "affected_records": [],
+    "object_mutations": [
+      "AMENDED CONTRACT: core/contracts/qualification-fingerprint.schema.json (components.required + properties.effective_instruction_digest)",
+      "NO_CHANGE intended for existing CONTRACT_RECORDs of unchanged contracts"
+    ],
+    "notes": "REQUIRED_BUT_BLOCKED phase; rebinds to UPDATED with the registry commit sha after the Registry write."
+  }
+}
