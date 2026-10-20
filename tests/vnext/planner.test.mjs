@@ -180,8 +180,8 @@ test('revision anchored at active version is accepted and creates a new immutabl
     workUnits: [rootWorkUnit],
     // S11 R4 on the revision path: a qualification-replacing rebind must
     // prove the new qualification was earned under the bound context.
-    qualifications: [{ qualification_id: 'qual_local_tests_verify_0001', fingerprint_ref: 'fp_local_tests_dev' }],
-    qualifiedFingerprints: { fp_local_tests_dev: { fingerprint_id: 'fp_local_tests_dev', components: { runtime_harness: 'development_harness/planner-test/1' } } }
+    qualifications: [{ qualification_id: 'qual_local_tests_verify_0001', executor_id: 'exec_local_tests', capability_id: 'cap_deterministic_verification', fingerprint_ref: 'fp_local_tests_dev' }],
+    qualifiedFingerprints: { fp_local_tests_dev: { fingerprint_id: 'fp_local_tests_dev', executor_id: 'exec_local_tests', capability_id: 'cap_deterministic_verification', components: { runtime_harness: 'development_harness/planner-test/1' } } }
   });
   assert.equal(decision.outcome, 'ACCEPTED');
   assert.equal(decision.new_graph_version, 2);

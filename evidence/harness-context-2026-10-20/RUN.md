@@ -117,9 +117,18 @@ New regression tests: reference-only re-anchoring requires evidence; cross-run r
 
 1×P1, real, repaired on this head: an `add_node` revision claims a qualification for the first time and had no previous binding to compare against, so the qualification-context check was skipped for it. Repaired: the check now applies to every node whose qualification is not demonstrably unchanged (new nodes included) — absent qualification/fingerprint inputs fail closed with `CONTEXT_BINDING_MISSING`; the error message distinguishes a new node from a replaced qualification ref. Regression test included. 386/386 PASS.
 
+## Pre-merge independent review (codex, round 9 on `6cae530`)
+
+2×P1, all assessed as real and repaired on this head:
+
+1. **P1 qualification ownership:** a rebind that changed the executor but kept the previous qualification ref skipped validation, and even a changed ref was never checked for ownership. Repaired: the check applies whenever ANY qualification-bearing field changed (qualification ref OR executor id), and additionally verifies that the qualification's `executor_id` and the fingerprint's executor scope match the bound executor — a qualification is never transferable between executors. Regression tests: foreign qualification refused, executor swap with foreign qualification refused.
+2. **P1 initial-version uniformity:** the store's context-pair gate only ran for transitions, so a schema-valid v1 mixing development and product nodes could become active. Repaired: the uniformity check (and a no-binding check) now runs in `registerVersion` AND in `activateVersion` for the initial version; only the transition comparison stays conditional on a previous version. Regression test: mixed v1 refused.
+
+387/387 PASS.
+
 ## Verification
 
-- `node --test tests/vnext/*.test.mjs` — 386/386 PASS (includes the S11 tests across all eight repair rounds and all coordinated amendments).
+- `node --test tests/vnext/*.test.mjs` — 387/387 PASS (includes the S11 tests across all nine repair rounds and all coordinated amendments).
 - `npm run eval:maws-vnext` — ok:true (now includes `harness-context.contracts.json`).
 - `npm run validate-harness-context` — CLI smoke: valid record exit 0, unknown-vocabulary record exit 1.
 - Full engine path: `runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.json` completes COMPLETED with the bound dev context (CLI test asserts this continuously).
