@@ -138,6 +138,13 @@ Ten review rounds each found real gaps in the same area: the context-binding rul
 
 Every graph-PRODUCING path now calls it: `planAndBind` (on the bound graph) and the revision engine (on the candidate AND on a callback-substituted graph). The store keeps the two rules it can decide from the graph alone (uniformity, transition evidence) and documents the boundary. The individual rule helpers remain exported and used by the canonical check.
 
+## Closure state (recorded after the Registry write)
+
+- SOURCE: MAWS PR #42 merged as `7a56a972bb388abe70c6a6e35c91b16955e7e468`; the rule-enforcement consolidation PR #45 merged as `dcaa4b4a97250425f3ae7f8eee1166419eb401e3`.
+- REGISTRY: unitera-registry PR #230 merged as `60a8063b6a7dd9b8b5e7e04a1d3c6493fed76584` (run change registration + CONTRACT_RECORD projection; both CI gates green).
+- ATLAS: unitera_atlas PR #177 merged as `c52bb88f447b2e4280cf82315689d45b493e5888` (navigation claim `C-MAWS-S11-HARNESS-CONTEXT-2026-10-20`).
+- The owner-side disposition moved from REQUIRED_BUT_BLOCKED to UPDATED with `registry_commit_sha` bound to the Registry merge commit; `affected_records` lists the four CONTRACT_RECORD projections.
+
 ## Verification
 
 - `node --test tests/vnext/*.test.mjs` — 388/388 PASS (includes the S11 tests across all ten repair rounds, the consolidation refactor, and all coordinated amendments).
