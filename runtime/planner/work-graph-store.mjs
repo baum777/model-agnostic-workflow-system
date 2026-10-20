@@ -52,6 +52,16 @@ function bindingContextPairs(graph) {
       if (!Object.isFrozen(graph)) {
         throw new FailClosedError('GRAPH_NOT_IMMUTABLE', 'bound graphs must be frozen before registration');
       }
+      // S11: the uniformity check applies to the INITIAL version too --
+      // a graph mixing development and product nodes never becomes a
+      // registered (and therefore activatable) version.
+      const graphPairs = bindingContextPairs(graph);
+      if (graphPairs.size > 1) {
+        throw new FailClosedError('CONTEXT_BINDING_CONFLICT', 'a graph version with mixed node harness context pairs cannot be registered; one graph version binds one context pair');
+      }
+      if (graphPairs.size === 0) {
+        throw new FailClosedError('CONTEXT_BINDING_MISSING', 'a graph version without any harness context binding cannot be registered');
+      }
       // S11 R3: a noninitial DIRECT activation is a transition like any
       // other and routes through the same evidenced supersession gate, so
       // a repeated planAndBind cannot switch the context unevidenced.
@@ -97,10 +107,21 @@ function bindingContextPairs(graph) {
       // explicit, evidence-backed transition asserted against the ACTUAL
       // binding-pair delta between the superseded and the activating graph.
       let contextChangeRecord = null;
+      // The uniformity check applies to EVERY activation, including the
+      // initial version: a schema-valid graph mixing development and
+      // product nodes must never become active.
+      const nextPairs = bindingContextPairs(activating);
+      if (nextPairs.size > 1) {
+        throw new FailClosedError('CONTEXT_BINDING_CONFLICT', 'a graph version with mixed node harness context pairs cannot activate; one graph version binds one context pair');
+      }
+      if (nextPairs.size === 0) {
+        throw new FailClosedError('CONTEXT_BINDING_MISSING', 'a graph version without any harness context binding cannot activate');
+      }
+      // The transition comparison needs a previous version; the initial
+      // version has none.
       if (previousActive !== null) {
         const previousPairs = bindingContextPairs(requireVersion(entry, previousActive));
-        const nextPairs = bindingContextPairs(activating);
-        if (previousPairs.size > 1 || nextPairs.size > 1) {
+        if (previousPairs.size > 1) {
           throw new FailClosedError('CONTEXT_BINDING_CONFLICT', 'a graph version with mixed node harness context pairs cannot activate; one graph version binds one context pair');
         }
         assertSupersessionContextChange({

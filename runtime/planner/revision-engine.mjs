@@ -144,11 +144,15 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
       const assertQualificationsHoldContext = (nodes) => {
         for (const node of nodes) {
           const previous = activeGraph.nodes.find((candidate) => candidate.node_id === node.node_id);
-          // Skip only when a previous binding EXISTS and the qualification
-          // ref is unchanged -- a NEW node (add_node) claims a qualification
-          // for the first time and must prove the context binding like a
-          // changed ref does.
-          if (previous && previous.executor_binding.qualification_ref === node.executor_binding.qualification_ref) {
+          // Skip only when a previous binding EXISTS and NO
+          // qualification-bearing field changed: a new node (add_node)
+          // claims a qualification for the first time, a changed
+          // qualification_ref needs re-proof, and a CHANGED EXECUTOR
+          // needs the ownership proof (the qualification must belong to
+          // the newly bound executor).
+          const executorChanged = !previous || previous.executor_binding.executor_id !== node.executor_binding.executor_id;
+          const qualificationChanged = !previous || previous.executor_binding.qualification_ref !== node.executor_binding.qualification_ref;
+          if (previous && !executorChanged && !qualificationChanged) {
             continue;
           }
           if (!Array.isArray(qualifications) || qualifiedFingerprints === null || typeof qualifiedFingerprints !== 'object') {
@@ -161,6 +165,22 @@ export function createRevisionEngine({ workGraphStore, root, decidedAt = nowIso 
           const fingerprint = qualification ? Object.values(qualifiedFingerprints).find((entry) => entry && entry.fingerprint_id === qualification.fingerprint_ref) : null;
           if (!fingerprint) {
             throw new FailClosedError('CONTEXT_BINDING_CONFLICT', `routing replacement on node ${node.node_id} references qualification ${node.executor_binding.qualification_ref} without a resolvable fingerprint; an ambiguous qualification binds no executor`);
+          }
+          // Ownership: the qualification must belong to the bound executor
+          // and the fingerprint must carry the same executor/capability
+          // scope. A qualification is never transferable between
+          // executors.
+          if (qualification.executor_id !== node.executor_binding.executor_id) {
+            throw new FailClosedError(
+              'CONTEXT_BINDING_CONFLICT',
+              `node ${node.node_id} binds executor "${node.executor_binding.executor_id}" but qualification ${node.executor_binding.qualification_ref} belongs to "${qualification.executor_id}"`
+            );
+          }
+          if (fingerprint.executor_id !== undefined && fingerprint.executor_id !== node.executor_binding.executor_id) {
+            throw new FailClosedError(
+              'CONTEXT_BINDING_CONFLICT',
+              `node ${node.node_id} binds executor "${node.executor_binding.executor_id}" but fingerprint ${fingerprint.fingerprint_id} belongs to "${fingerprint.executor_id}"`
+            );
           }
           assertQualificationContextBinding({ runtimeHarness: fingerprint.components.runtime_harness, context: activeGraph.nodes[0].executor_binding.harness_context });
         }
