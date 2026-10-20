@@ -1,0 +1,51 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S3 of MAWS-SII-TARGET-SPEC-001 adds a new canonical contract to core/contracts/ (instruction-audit-finding.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the audit-finding record class it introduces. The registry write has not happened yet in this change set and is its own registered change; it is blocked only on execution order (source PR first, registry projection second, then rebind of this disposition to UPDATED with the registry commit), following the execution-intake-binding precedent. Until the rebind, this disposition records the pending registry obligation.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/instruction-audit-finding.schema.json"
+    ],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md",
+      "docs/governance/registry-disposition.md"
+    ],
+    "source_refs": [
+      "core/contracts/instruction-audit-finding.schema.json",
+      "core/contracts/README.md",
+      "runtime/instructions/instruction-auditor.mjs",
+      "scripts/tools/validate-instruction-integrity.mjs",
+      "evals/fixtures/maws-vnext/instruction-audit-findings.contracts.json",
+      "evals/catalog.json",
+      "tests/vnext/instruction-auditor.test.mjs",
+      "package.json"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/instruction-auditor-2026-10-20/RUN.md",
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
+    ],
+    "evidence_refs": [
+      "evidence/instruction-auditor-2026-10-20/RUN.md",
+      "evidence/audit-report-866ab49.json (live audit ia_2366a005f76a00ed: 10 findings, 0 blocker, 0 contract violations)",
+      "npm run validate-instruction-integrity (fixture: 18 cases checked, 0 unexpected results)",
+      "npm run eval:maws-vnext (exit 0, fixture registered and covered)",
+      "npm run test:vnext (312/312 pass, 0 fail; includes tests/vnext/instruction-auditor.test.mjs)",
+      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)"
+    ],
+    "implementation_commit_sha": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-auditor-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/instruction-audit-finding.schema.json (new canonical contract in this change set)",
+      "core/contracts/README.md canonical files list (instruction-audit-finding.schema.json added)"
+    ],
+    "registry_baseline_sha": "5afc852a8e98c3b3ea4d7bf7bd58a645cad72d86"
+  }
+}

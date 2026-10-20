@@ -21,6 +21,9 @@ Canonical machine-readable contracts for the portable slice.
 - `core/contracts/execution-intake-binding.schema.json`
 - `core/contracts/context-envelope.schema.json`
 - `core/contracts/skill-feedback.schema.json`
+- `core/contracts/instruction-audit-finding.schema.json`
+
+`core/contracts/instruction-audit-finding.schema.json` is the canonical machine-readable record for one instruction-integrity audit finding (spec section 6.4). It carries the closed section 6.2 finding taxonomy (10 classes), deterministic provenance (source path, revision, 1-based line range, authority class) and the advisory posture: a valid finding is analysis output that gates nothing by itself, `semantic_advisory` findings can never carry `blocker` risk, and `blocker` risk or the `AUTHORITY_LEAK` class always force `requires_owner_review`. Static reference analysis (`STALE_REFERENCE`, `INVALID_COMMAND`) is deterministic; the remaining classes are declared not statically analyzable by the wave 1 auditor and may only be recorded as operator-supplied advisory records.
 
 Execution evidence and certification artifact contracts are defined in `core/contracts/output-contracts.json`.
 

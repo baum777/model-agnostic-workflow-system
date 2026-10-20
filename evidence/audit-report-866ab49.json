@@ -1,0 +1,292 @@
+{
+  "schema_version": "1.0.0",
+  "audit_id": "ia_2366a005f76a00ed",
+  "revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+  "graph_digest": "3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+  "source_count": 29,
+  "edge_count": 355,
+  "findings": [
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_55023b19e58c2e0e",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "core/skills/supabase-deployment/SKILL.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        52,
+        52
+      ],
+      "authority_class": "shared_core",
+      "observed_problem": "reference `supabase/config.toml` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:core/skills/supabase-deployment/SKILL.md#L52:inline_path:supabase/config.toml"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in core/skills/supabase-deployment/SKILL.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    },
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_708b761c859c527b",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "core/skills/supabase-deployment/SKILL.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        41,
+        41
+      ],
+      "authority_class": "shared_core",
+      "observed_problem": "reference `supabase/config.toml` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:core/skills/supabase-deployment/SKILL.md#L41:inline_path:supabase/config.toml"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in core/skills/supabase-deployment/SKILL.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    },
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_50700693bad51558",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "docs/authority-matrix.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        195,
+        195
+      ],
+      "authority_class": "canonical",
+      "observed_problem": "reference `.codex/repo-intake-inputs.json` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:docs/authority-matrix.md#L195:inline_path:.codex/repo-intake-inputs.json"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in docs/authority-matrix.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    },
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_6d4863a8e7573e0f",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "docs/authority-matrix.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        196,
+        196
+      ],
+      "authority_class": "canonical",
+      "observed_problem": "reference `.codex/runtime-policy-inputs.json` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:docs/authority-matrix.md#L196:inline_path:.codex/runtime-policy-inputs.json"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in docs/authority-matrix.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    },
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_ca808cc72a7f6a90",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "docs/authority-matrix.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        213,
+        213
+      ],
+      "authority_class": "canonical",
+      "observed_problem": "reference `.codex/runtime-policy-inputs.json` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:docs/authority-matrix.md#L213:inline_path:.codex/runtime-policy-inputs.json"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in docs/authority-matrix.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    },
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_cbdc32dd1fac56d9",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "docs/authority-matrix.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        161,
+        161
+      ],
+      "authority_class": "canonical",
+      "observed_problem": "reference `core/skills/neon-db-setup/SKILL.md` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:docs/authority-matrix.md#L161:inline_path:core/skills/neon-db-setup/SKILL.md"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in docs/authority-matrix.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    },
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_dc597c9523b6f84c",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "docs/authority-matrix.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        212,
+        212
+      ],
+      "authority_class": "canonical",
+      "observed_problem": "reference `.codex/repo-intake-inputs.json` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:docs/authority-matrix.md#L212:inline_path:.codex/repo-intake-inputs.json"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in docs/authority-matrix.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    },
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_1395f4733fa3b1fd",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "docs/governance/source-hierarchy.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        29,
+        29
+      ],
+      "authority_class": "canonical",
+      "observed_problem": "reference `core/skills/*/SKILL.md` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:docs/governance/source-hierarchy.md#L29:inline_path:core/skills/*/SKILL.md"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in docs/governance/source-hierarchy.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    },
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_33856bcbaafafa2a",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "docs/governance/source-hierarchy.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        29,
+        29
+      ],
+      "authority_class": "canonical",
+      "observed_problem": "reference `skills/*/SKILL.md` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:docs/governance/source-hierarchy.md#L29:inline_path:skills/*/SKILL.md"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in docs/governance/source-hierarchy.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    },
+    {
+      "schema_version": "1.0.0",
+      "audit_id": "ia_2366a005f76a00ed",
+      "finding_id": "iaf_115f72cc61ca9298",
+      "finding_class": "STALE_REFERENCE",
+      "determinism": "deterministic",
+      "source_path": "docs/model-agnostic-core-prompt-system.md",
+      "source_revision": "866ab49ef6056aa2cc929744c5ed6b4c5a83d63e",
+      "line_range": [
+        40,
+        40
+      ],
+      "authority_class": "canonical",
+      "observed_problem": "reference `.codex/shared-core-map.json` (inline_path) does not resolve to an existing file",
+      "evidence_refs": [
+        "graph:3e725ce82cd98c9deba6d4cf12f47bf8cc540bbae16204d35c304ca81eb82dcb",
+        "edge:docs/model-agnostic-core-prompt-system.md#L40:inline_path:.codex/shared-core-map.json"
+      ],
+      "inferred_cause": null,
+      "risk_level": "high",
+      "confidence": "high",
+      "recommended_action": "repair or remove the reference in docs/model-agnostic-core-prompt-system.md so it resolves inside the repository (owner action; the auditor is read-only)",
+      "requires_owner_review": false
+    }
+  ],
+  "findings_count": 10,
+  "coverage": {
+    "classes_analyzed": [
+      "STALE_REFERENCE",
+      "INVALID_COMMAND"
+    ],
+    "classes_declared_not_analyzable": [
+      {
+        "finding_class": "RULE_CONFLICT",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "PRECEDENCE_CONFLICT",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "OVERCONSTRAINT",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "REDUNDANT_INSTRUCTION",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "CONTEXT_OVERLOAD",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "AUTHORITY_LEAK",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "MODEL_DRIFT",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      },
+      {
+        "finding_class": "SKILL_ROUTING_AMBIGUITY",
+        "reason": "not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result"
+      }
+    ]
+  },
+  "digest": "d44c4116303aff7dd89211e82dfb0a635ef1b879d9595d5c2307ca851d8599f8"
+}

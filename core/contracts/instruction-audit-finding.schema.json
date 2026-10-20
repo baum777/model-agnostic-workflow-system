@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "maws-vnext/instruction-audit-finding.schema.json",
+  "title": "MAWS vNext Instruction Audit Finding",
+  "description": "Canonical machine-readable contract for one instruction-integrity audit finding (MAWS-SII-TARGET-SPEC-001 section 6.4). A finding is analysis output from the read-only S3 auditor: it records a detected or declared instruction problem with deterministic provenance (source path, revision, line range, authority class) and an advisory recommendation. A valid finding grants no permission, mutates nothing, blocks nothing by itself, and replaces no authority or approval decision; deterministically proven integrity errors may only gate via existing gate policy owned elsewhere.",
+  "type": "object",
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "audit_id": {
+      "type": "string",
+      "pattern": "^ia_[a-z0-9_]+$",
+      "description": "Identifier of the audit run that produced this finding; deterministic function of the audited revision and graph digest."
+    },
+    "finding_id": {
+      "type": "string",
+      "pattern": "^iaf_[a-z0-9_]+$",
+      "description": "Stable identifier for this finding; deterministic function of class, source, line range and evidence so re-running the auditor on an unchanged tree reproduces the id."
+    },
+    "finding_class": {
+      "enum": [
+        "STALE_REFERENCE",
+        "INVALID_COMMAND",
+        "RULE_CONFLICT",
+        "PRECEDENCE_CONFLICT",
+        "OVERCONSTRAINT",
+        "REDUNDANT_INSTRUCTION",
+        "CONTEXT_OVERLOAD",
+        "AUTHORITY_LEAK",
+        "MODEL_DRIFT",
+        "SKILL_ROUTING_AMBIGUITY"
+      ],
+      "description": "Closed audit taxonomy from spec section 6.2."
+    },
+    "determinism": {
+      "enum": ["deterministic", "semantic_advisory"],
+      "description": "deterministic: the problem is reproducibly proven by static reference analysis; semantic_advisory: the diagnosis is heuristic and must never gate."
+    },
+    "source_path": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Repo-relative posix path of the instruction source the finding is anchored to."
+    },
+    "source_revision": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Repository revision the source was audited at; an audit without a revision binding cannot be reconstructed."
+    },
+    "line_range": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "type": "integer", "minimum": 1 },
+      "description": "1-based inclusive [start_line, end_line] with start <= end; convention enforced by the emitting auditor and reviewed fixtures."
+    },
+    "authority_class": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Authority class of the audited source (inventory classification: canonical, canonical_contract, shared_core, repo_local)."
+    },
+    "observed_problem": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable statement of what was observed, evidence-anchored."
+    },
+    "evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "At least one evidence anchor (graph edge coordinates, file content locator, or run artifact)."
+    },
+    "inferred_cause": {
+      "type": ["string", "null"],
+      "description": "Best-effort cause hypothesis or null when the auditor does not infer causes."
+    },
+    "risk_level": {
+      "enum": ["low", "medium", "high", "blocker"]
+    },
+    "confidence": {
+      "enum": ["low", "medium", "high"],
+      "description": "Confidence in the diagnosis, not in the authority of the finding."
+    },
+    "recommended_action": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Advisory recommendation for the owner; the auditor itself never applies changes."
+    },
+    "requires_owner_review": {
+      "type": "boolean",
+      "description": "True whenever the finding could have governance effect (blocker risk). Forced by the fail-closed rule below."
+    }
+  },
+  "required": [
+    "schema_version",
+    "audit_id",
+    "finding_id",
+    "finding_class",
+    "determinism",
+    "source_path",
+    "source_revision",
+    "line_range",
+    "authority_class",
+    "observed_problem",
+    "evidence_refs",
+    "inferred_cause",
+    "risk_level",
+    "confidence",
+    "recommended_action",
+    "requires_owner_review"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "determinism": { "const": "semantic_advisory" } },
+        "required": ["determinism"]
+      },
+      "then": {
+        "properties": {
+          "risk_level": { "enum": ["low", "medium", "high"] }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "risk_level": { "const": "blocker" } },
+        "required": ["risk_level"]
+      },
+      "then": {
+        "properties": { "requires_owner_review": { "const": true } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "finding_class": { "const": "AUTHORITY_LEAK" } },
+        "required": ["finding_class"]
+      },
+      "then": {
+        "properties": { "requires_owner_review": { "const": true } }
+      }
+    }
+  ]
+}
