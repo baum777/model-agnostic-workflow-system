@@ -1,7 +1,9 @@
 {
   "id": "maws-vnext-skill-feedback-contracts",
   "kind": "maws-vnext",
-  "target": { "name": "skill-feedback" },
+  "target": {
+    "name": "skill-feedback"
+  },
   "blocking": true,
   "cases": [
     {
@@ -23,8 +25,8 @@
         "error_class": "SKILL_INSTRUCTION_ERROR",
         "observed_problem": "Skill activation guidance did not require minimizing the reproduction before hypothesizing, causing two wasted instrumentation rounds.",
         "evidence_refs": [
-          "sandbox/runs/20261019T154500Z/next-gate.md",
-          "core/skills/diagnostic-feedback-loop/SKILL.md"
+          "sandbox:runs/20261019T154500Z/next-gate.md",
+          "file:core/skills/diagnostic-feedback-loop/SKILL.md"
         ],
         "risk_class": "MEDIUM",
         "confidence": "high",
@@ -56,7 +58,7 @@
         "error_class": "SKILL_SELECTION_ERROR",
         "observed_problem": "Routing eval selected a read-only diagnosis skill for a workspace-write task.",
         "evidence_refs": [
-          "artifacts/runtime-runs/run_20261020_evalrouting/eval-trace.json"
+          "artifact:artifacts/runtime-runs/run_20261020_evalrouting/eval-trace.json"
         ],
         "risk_class": "LOW",
         "confidence": "medium",
@@ -90,8 +92,8 @@
         "error_class": "EXECUTOR_BEHAVIOR_ERROR",
         "observed_problem": "Executor reported reconcile PASSED although the prepare stage was skipped, producing a dishonest completion receipt.",
         "evidence_refs": [
-          "artifacts/runtime-runs/run_20261020_intakeregr/run-events.jsonl",
-          "runtime/intake/execution-control-fixture.mjs"
+          "artifact:artifacts/runtime-runs/run_20261020_intakeregr/run-events.jsonl",
+          "file:runtime/intake/execution-control-fixture.mjs"
         ],
         "risk_class": "HIGH",
         "confidence": "high",
@@ -123,8 +125,8 @@
         "error_class": "UNKNOWN_ROOT_CAUSE",
         "observed_problem": "Reference capture, not a defect report: the minimize-before-hypothesize loop produced verified regression evidence on the first pass.",
         "evidence_refs": [
-          "core/skills/behavior-first-tdd/SKILL.md",
-          "sandbox/runs/20261020T090000Z/validation.md"
+          "file:core/skills/behavior-first-tdd/SKILL.md",
+          "sandbox:runs/20261020T090000Z/validation.md"
         ],
         "risk_class": "LOW",
         "confidence": "high",
@@ -156,7 +158,7 @@
         "error_class": "VERIFICATION_GAP",
         "observed_problem": "Completion declared PASS without a verifier receipt reference.",
         "evidence_refs": [
-          "artifacts/runtime-runs/run_20261020_v2/verification.json"
+          "artifact:artifacts/runtime-runs/run_20261020_v2/verification.json"
         ],
         "risk_class": "MEDIUM",
         "confidence": "medium",
@@ -180,10 +182,14 @@
           "category": "model_self_report",
           "ref": "model claims it followed the skill"
         },
-        "subject": { "task_ref": "self-report exclusion probe" },
+        "subject": {
+          "task_ref": "self-report exclusion probe"
+        },
         "error_class": "EVIDENCE_GAP",
         "observed_problem": "Model self-report is not independent execution evidence (spec 8.2).",
-        "evidence_refs": ["sandbox/runs/20261020T140000Z/notes.md"],
+        "evidence_refs": [
+          "sandbox/runs/20261020T140000Z/notes.md"
+        ],
         "risk_class": "LOW",
         "confidence": "low",
         "requires_owner_review": false,
@@ -202,11 +208,18 @@
         "schema_version": "1.0.0",
         "feedback_id": "fb_unknown_class_001",
         "created_at": "2026-10-20T14:10:00Z",
-        "source": { "category": "run_evidence", "ref": "artifacts/runtime-runs/run_20261020_x/run-events.jsonl" },
-        "subject": { "task_ref": "error-class taxonomy probe" },
+        "source": {
+          "category": "run_evidence",
+          "ref": "artifacts/runtime-runs/run_20261020_x/run-events.jsonl"
+        },
+        "subject": {
+          "task_ref": "error-class taxonomy probe"
+        },
         "error_class": "SKILL_SKILL_ERROR",
         "observed_problem": "Error class outside the closed spec 8.3 taxonomy.",
-        "evidence_refs": ["artifacts/runtime-runs/run_20261020_x/run-events.jsonl"],
+        "evidence_refs": [
+          "artifacts/runtime-runs/run_20261020_x/run-events.jsonl"
+        ],
         "risk_class": "LOW",
         "confidence": "low",
         "requires_owner_review": false,
@@ -225,8 +238,13 @@
         "schema_version": "1.0.0",
         "feedback_id": "fb_empty_evidence_001",
         "created_at": "2026-10-20T14:20:00Z",
-        "source": { "category": "operator_correction", "ref": "owner correction without locator" },
-        "subject": { "task_ref": "evidence minimum probe" },
+        "source": {
+          "category": "operator_correction",
+          "ref": "owner correction without locator"
+        },
+        "subject": {
+          "task_ref": "evidence minimum probe"
+        },
         "error_class": "EVIDENCE_GAP",
         "observed_problem": "A record without any evidence ref cannot be reconstructed later.",
         "evidence_refs": [],
@@ -248,11 +266,18 @@
         "schema_version": "1.0.0",
         "feedback_id": "FB-001",
         "created_at": "2026-10-20T14:30:00Z",
-        "source": { "category": "routing_error", "ref": "eval:skill-routing" },
-        "subject": { "task_ref": "id pattern probe" },
+        "source": {
+          "category": "routing_error",
+          "ref": "eval:skill-routing"
+        },
+        "subject": {
+          "task_ref": "id pattern probe"
+        },
         "error_class": "SKILL_SELECTION_ERROR",
         "observed_problem": "Feedback id violates the fb_ lowercase pattern.",
-        "evidence_refs": ["evals/catalog.json"],
+        "evidence_refs": [
+          "evals/catalog.json"
+        ],
         "risk_class": "LOW",
         "confidence": "high",
         "requires_owner_review": false,
@@ -271,11 +296,18 @@
         "schema_version": "1.0.0",
         "feedback_id": "fb_extra_property_001",
         "created_at": "2026-10-20T14:40:00Z",
-        "source": { "category": "run_evidence", "ref": "artifacts/runtime-runs/run_20261020_y/run-events.jsonl" },
-        "subject": { "task_ref": "closed-shape probe" },
+        "source": {
+          "category": "run_evidence",
+          "ref": "artifacts/runtime-runs/run_20261020_y/run-events.jsonl"
+        },
+        "subject": {
+          "task_ref": "closed-shape probe"
+        },
         "error_class": "EVIDENCE_GAP",
         "observed_problem": "Unknown top-level field notes must fail closed.",
-        "evidence_refs": ["artifacts/runtime-runs/run_20261020_y/run-events.jsonl"],
+        "evidence_refs": [
+          "artifacts/runtime-runs/run_20261020_y/run-events.jsonl"
+        ],
         "risk_class": "LOW",
         "confidence": "low",
         "requires_owner_review": false,
@@ -295,11 +327,18 @@
         "schema_version": "1.0.0",
         "feedback_id": "fb_bad_risk_class_001",
         "created_at": "2026-10-20T14:50:00Z",
-        "source": { "category": "regression", "ref": "tests/vnext/failure-matrix.test.mjs" },
-        "subject": { "task_ref": "risk vocabulary probe" },
+        "source": {
+          "category": "regression",
+          "ref": "tests/vnext/failure-matrix.test.mjs"
+        },
+        "subject": {
+          "task_ref": "risk vocabulary probe"
+        },
         "error_class": "EXECUTOR_BEHAVIOR_ERROR",
         "observed_problem": "Lowercase risk class is outside the shared maws-vnext-common vocabulary.",
-        "evidence_refs": ["core/contracts/maws-vnext-common.schema.json"],
+        "evidence_refs": [
+          "core/contracts/maws-vnext-common.schema.json"
+        ],
         "risk_class": "low",
         "confidence": "medium",
         "requires_owner_review": false,
@@ -318,11 +357,18 @@
         "schema_version": "1.0.0",
         "feedback_id": "fb_missing_task_ref_001",
         "created_at": "2026-10-20T15:00:00Z",
-        "source": { "category": "verification_failure", "ref": "artifacts/runtime-runs/run_20261020_z/verification.json" },
-        "subject": { "run_ref": "artifacts/runtime-runs/run_20261020_z/verification.json" },
+        "source": {
+          "category": "verification_failure",
+          "ref": "artifacts/runtime-runs/run_20261020_z/verification.json"
+        },
+        "subject": {
+          "run_ref": "artifacts/runtime-runs/run_20261020_z/verification.json"
+        },
         "error_class": "VERIFICATION_GAP",
         "observed_problem": "Subject without task_ref cannot be tied back to a work request.",
-        "evidence_refs": ["artifacts/runtime-runs/run_20261020_z/verification.json"],
+        "evidence_refs": [
+          "artifacts/runtime-runs/run_20261020_z/verification.json"
+        ],
         "risk_class": "MEDIUM",
         "confidence": "high",
         "requires_owner_review": false,
@@ -341,11 +387,18 @@
         "schema_version": "1.0.0",
         "feedback_id": "fb_unattributed_no_review_001",
         "created_at": "2026-10-20T15:10:00Z",
-        "source": { "category": "run_evidence", "ref": "artifacts/runtime-runs/run_20261020_u/run-events.jsonl" },
-        "subject": { "task_ref": "fail-closed owner-review probe" },
+        "source": {
+          "category": "run_evidence",
+          "ref": "artifacts/runtime-runs/run_20261020_u/run-events.jsonl"
+        },
+        "subject": {
+          "task_ref": "fail-closed owner-review probe"
+        },
         "error_class": "UNKNOWN_ROOT_CAUSE",
         "observed_problem": "Unattributed records must not bypass owner review.",
-        "evidence_refs": ["artifacts/runtime-runs/run_20261020_u/run-events.jsonl"],
+        "evidence_refs": [
+          "artifacts/runtime-runs/run_20261020_u/run-events.jsonl"
+        ],
         "risk_class": "MEDIUM",
         "confidence": "low",
         "requires_owner_review": false,
@@ -364,11 +417,19 @@
         "schema_version": "1.0.0",
         "feedback_id": "fb_create_skill_no_review_001",
         "created_at": "2026-10-20T15:20:00Z",
-        "source": { "category": "recurring_manual_rework", "ref": "owner session notes 2026-10-20" },
-        "subject": { "task_ref": "create-gate probe", "skill_ref": "drafts/skills/new-candidate" },
+        "source": {
+          "category": "recurring_manual_rework",
+          "ref": "owner session notes 2026-10-20"
+        },
+        "subject": {
+          "task_ref": "create-gate probe",
+          "skill_ref": "drafts/skills/new-candidate"
+        },
         "error_class": "SKILL_INSTRUCTION_ERROR",
         "observed_problem": "CREATE_SKILL proposals must not bypass owner review (spec 8.4 gate).",
-        "evidence_refs": ["docs/proposals/skill-intelligence-target-spec.md"],
+        "evidence_refs": [
+          "docs/proposals/skill-intelligence-target-spec.md"
+        ],
         "risk_class": "HIGH",
         "confidence": "high",
         "proposed_disposition": "CREATE_SKILL",
@@ -388,11 +449,18 @@
         "schema_version": "1.0.0",
         "feedback_id": "fb_bad_timestamp_001",
         "created_at": "2026-10-20 15:30:00",
-        "source": { "category": "failed_eval", "ref": "eval:maws-vnext" },
-        "subject": { "task_ref": "timestamp format probe" },
+        "source": {
+          "category": "failed_eval",
+          "ref": "eval:maws-vnext"
+        },
+        "subject": {
+          "task_ref": "timestamp format probe"
+        },
         "error_class": "EVIDENCE_GAP",
         "observed_problem": "created_at must be a UTC ISO-8601 instant.",
-        "evidence_refs": ["evals/catalog.json"],
+        "evidence_refs": [
+          "evals/catalog.json"
+        ],
         "risk_class": "LOW",
         "confidence": "high",
         "requires_owner_review": false,
@@ -411,17 +479,184 @@
         "schema_version": "1.0.0",
         "feedback_id": "fb_unknown_disposition_001",
         "created_at": "2026-10-20T15:40:00Z",
-        "source": { "category": "operator_correction", "ref": "owner correction 2026-10-20" },
-        "subject": { "task_ref": "disposition vocabulary probe" },
+        "source": {
+          "category": "operator_correction",
+          "ref": "owner correction 2026-10-20"
+        },
+        "subject": {
+          "task_ref": "disposition vocabulary probe"
+        },
         "error_class": "SKILL_INSTRUCTION_ERROR",
         "observed_problem": "PROMOTE is not a Stage-3 disposition; promotion is never a feedback decision.",
-        "evidence_refs": ["docs/proposals/skill-intelligence-target-spec.md"],
+        "evidence_refs": [
+          "docs/proposals/skill-intelligence-target-spec.md"
+        ],
         "risk_class": "HIGH",
         "confidence": "high",
         "proposed_disposition": "PROMOTE",
         "requires_owner_review": true,
         "provenance": {
           "captured_at": "2026-10-20T15:45:00Z",
+          "captured_by": "operator:baum",
+          "source_revision": "982bc548e8b43c3ce1b09474d118740e1c6df372"
+        }
+      }
+    },
+    {
+      "case_id": "skill-feedback-valid-tool-contract-repair-disposition",
+      "schema": "core/contracts/skill-feedback.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "feedback_id": "fb_tool_contract_repair_validator_001",
+        "created_at": "2026-10-20T09:00:00Z",
+        "source": {
+          "category": "operator_correction",
+          "ref": "owner session 2026-10-19 correction on diagnostic-feedback-loop usage"
+        },
+        "subject": {
+          "task_ref": "baum-os work order 2026-10-19 diagnosis lane"
+        },
+        "error_class": "TOOL_CONTRACT_ERROR",
+        "observed_problem": "Tool contract catalog advertised a capability the executor could not honour; the repair area is the validator/contract surface, not the skill.",
+        "evidence_refs": [
+          "file:core/contracts/tool-contracts/catalog.json",
+          "run:run_20261020_toolcontract"
+        ],
+        "risk_class": "MEDIUM",
+        "confidence": "high",
+        "proposed_disposition": "REPAIR_VALIDATOR",
+        "requires_owner_review": false,
+        "provenance": {
+          "captured_at": "2026-10-20T09:05:00Z",
+          "captured_by": "operator:baum",
+          "source_revision": "982bc548e8b43c3ce1b09474d118740e1c6df372"
+        }
+      }
+    },
+    {
+      "case_id": "skill-feedback-invalid-tool-contract-skill-change-forbidden",
+      "schema": "core/contracts/skill-feedback.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "feedback_id": "fb_tool_contract_extend_forbidden_001",
+        "created_at": "2026-10-20T09:00:00Z",
+        "source": {
+          "category": "operator_correction",
+          "ref": "owner session 2026-10-19 correction on diagnostic-feedback-loop usage"
+        },
+        "subject": {
+          "task_ref": "baum-os work order 2026-10-19 diagnosis lane"
+        },
+        "error_class": "TOOL_CONTRACT_ERROR",
+        "observed_problem": "Tool contract catalog advertised a capability the executor could not honour; the repair area is the validator/contract surface, not the skill.",
+        "evidence_refs": [
+          "file:core/contracts/tool-contracts/catalog.json",
+          "run:run_20261020_toolcontract"
+        ],
+        "risk_class": "MEDIUM",
+        "confidence": "high",
+        "proposed_disposition": "EXTEND_SKILL",
+        "requires_owner_review": false,
+        "provenance": {
+          "captured_at": "2026-10-20T09:05:00Z",
+          "captured_by": "operator:baum",
+          "source_revision": "982bc548e8b43c3ce1b09474d118740e1c6df372"
+        }
+      }
+    },
+    {
+      "case_id": "skill-feedback-invalid-tool-contract-create-forbidden",
+      "schema": "core/contracts/skill-feedback.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "feedback_id": "fb_tool_contract_create_forbidden_001",
+        "created_at": "2026-10-20T09:00:00Z",
+        "source": {
+          "category": "operator_correction",
+          "ref": "owner session 2026-10-19 correction on diagnostic-feedback-loop usage"
+        },
+        "subject": {
+          "task_ref": "baum-os work order 2026-10-19 diagnosis lane"
+        },
+        "error_class": "TOOL_CONTRACT_ERROR",
+        "observed_problem": "Tool contract catalog advertised a capability the executor could not honour; the repair area is the validator/contract surface, not the skill.",
+        "evidence_refs": [
+          "file:core/contracts/tool-contracts/catalog.json",
+          "run:run_20261020_toolcontract"
+        ],
+        "risk_class": "MEDIUM",
+        "confidence": "high",
+        "proposed_disposition": "CREATE_SKILL",
+        "requires_owner_review": true,
+        "provenance": {
+          "captured_at": "2026-10-20T09:05:00Z",
+          "captured_by": "operator:baum",
+          "source_revision": "982bc548e8b43c3ce1b09474d118740e1c6df372"
+        }
+      }
+    },
+    {
+      "case_id": "skill-feedback-invalid-selfreport-evidence-forbidden",
+      "schema": "core/contracts/skill-feedback.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "feedback_id": "fb_selfreport_evidence_forbidden_001",
+        "created_at": "2026-10-20T09:00:00Z",
+        "source": {
+          "category": "operator_correction",
+          "ref": "owner session 2026-10-19 correction on diagnostic-feedback-loop usage"
+        },
+        "subject": {
+          "task_ref": "baum-os work order 2026-10-19 diagnosis lane",
+          "skill_ref": "core/skills/diagnostic-feedback-loop/SKILL.md"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "observed_problem": "Skill activation guidance did not require minimizing the reproduction before hypothesizing, causing two wasted instrumentation rounds.",
+        "evidence_refs": [
+          "model self-report: trust me"
+        ],
+        "risk_class": "MEDIUM",
+        "confidence": "high",
+        "proposed_disposition": "EXTEND_SKILL",
+        "requires_owner_review": true,
+        "provenance": {
+          "captured_at": "2026-10-20T09:05:00Z",
+          "captured_by": "operator:baum",
+          "source_revision": "982bc548e8b43c3ce1b09474d118740e1c6df372"
+        }
+      }
+    },
+    {
+      "case_id": "skill-feedback-invalid-unscheme-evidence-forbidden",
+      "schema": "core/contracts/skill-feedback.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "feedback_id": "fb_unscheme_evidence_forbidden_001",
+        "created_at": "2026-10-20T09:00:00Z",
+        "source": {
+          "category": "operator_correction",
+          "ref": "owner session 2026-10-19 correction on diagnostic-feedback-loop usage"
+        },
+        "subject": {
+          "task_ref": "baum-os work order 2026-10-19 diagnosis lane",
+          "skill_ref": "core/skills/diagnostic-feedback-loop/SKILL.md"
+        },
+        "error_class": "SKILL_INSTRUCTION_ERROR",
+        "observed_problem": "Skill activation guidance did not require minimizing the reproduction before hypothesizing, causing two wasted instrumentation rounds.",
+        "evidence_refs": [
+          "some/run/artifact.json"
+        ],
+        "risk_class": "MEDIUM",
+        "confidence": "high",
+        "proposed_disposition": "EXTEND_SKILL",
+        "requires_owner_review": true,
+        "provenance": {
+          "captured_at": "2026-10-20T09:05:00Z",
           "captured_by": "operator:baum",
           "source_revision": "982bc548e8b43c3ce1b09474d118740e1c6df372"
         }

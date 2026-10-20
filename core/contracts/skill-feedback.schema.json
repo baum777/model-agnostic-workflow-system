@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "core/contracts/skill-feedback.schema.json",
   "title": "SkillFeedback Contract",
-  "description": "S1 of MAWS-SII-TARGET-SPEC-001 (PROPOSED): structured, versioned feedback record for the Skill Intelligence improvement lifecycle (spec sections 8.2, 8.3, 9 Stage 1). Feedback is analysis input, never authority: a valid record grants no permission, promotes no skill, and changes no qualification state. Model self-report is deterministically excluded as a source category (spec 8.2: model self-report is not independent execution evidence) and may only appear inside observed_problem prose, never as source.category or evidence_refs. positive_reference_example captures carry UNKNOWN_ROOT_CAUSE (no defect attributed) and are therefore forced through the owner-review rule like every other unattributed record. Records with error_class UNKNOWN_ROOT_CAUSE or proposed_disposition CREATE_SKILL always require owner review, enforced by if/then below.",
+  "description": "S1 of MAWS-SII-TARGET-SPEC-001 (PROPOSED): structured, versioned feedback record for the Skill Intelligence improvement lifecycle (spec sections 8.2, 8.3, 9 Stage 1). Feedback is analysis input, never authority: a valid record grants no permission, promotes no skill, and changes no qualification state. Model self-report is deterministically excluded as a source category (spec 8.2: model self-report is not independent execution evidence) and may only appear inside observed_problem prose, never as source.category — and never as evidence, enforced structurally by the closed evidence_refs scheme set. positive_reference_example captures carry UNKNOWN_ROOT_CAUSE (no defect attributed) and are therefore forced through the owner-review rule like every other unattributed record. Records with error_class UNKNOWN_ROOT_CAUSE or proposed_disposition CREATE_SKILL always require owner review, and records with error_class TOOL_CONTRACT_ERROR can never carry a skill-changing proposed_disposition (spec: the skill is not the improvement area when the demonstrated cause is exclusively in the tool contract), all enforced by if/then below.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -79,9 +79,14 @@
     "observed_problem": { "type": "string", "minLength": 1 },
     "evidence_refs": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(artifact|edge|eval|file|graph|operator|path|review|run|sandbox|session|ticket|url):\\S.*$"
+      },
       "uniqueItems": true,
-      "minItems": 1
+      "minItems": 1,
+      "description": "At least one evidence anchor per ref, each carrying a closed source-kind scheme (artifact:, edge:, eval:, file:, graph:, operator:, path:, review:, run:, sandbox:, session:, ticket:, url:). The scheme set is closed so model self-report cannot appear as evidence: there is no self-report scheme, and unmarked prose refs are rejected."
     },
     "risk_class": { "$ref": "maws-vnext-common.schema.json#/$defs/riskClass" },
     "confidence": { "enum": ["low", "medium", "high"] },
@@ -135,6 +140,27 @@
       },
       "then": {
         "properties": { "requires_owner_review": { "const": true } }
+      }
+    },
+    {
+      "if": {
+        "required": ["error_class", "proposed_disposition"],
+        "properties": { "error_class": { "const": "TOOL_CONTRACT_ERROR" } }
+      },
+      "then": {
+        "properties": {
+          "proposed_disposition": {
+            "enum": [
+              "NO_CHANGE",
+              "REUSE",
+              "REPAIR_INSTRUCTION",
+              "REPAIR_ROUTING",
+              "REPAIR_VALIDATOR",
+              "REPAIR_RUNTIME",
+              "NEEDS_MORE_EVIDENCE"
+            ]
+          }
+        }
       }
     }
   ]

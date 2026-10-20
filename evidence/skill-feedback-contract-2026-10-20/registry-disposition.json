@@ -3,7 +3,7 @@
     "status": "REQUIRED_BUT_BLOCKED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "S1 of MAWS-SII-TARGET-SPEC-001 adds a new canonical contract to core/contracts/ (skill-feedback.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the analysis-only feedback record class it introduces. The registry write has not happened yet in this change set and is its own registered change; it is blocked only on execution order (source PR first, registry projection second, then rebind of this disposition to UPDATED with the registry commit), following the execution-intake-binding precedent. Until the rebind, this disposition records the pending registry obligation.",
+    "reason": "S1 of MAWS-SII-TARGET-SPEC-001 adds a new canonical contract to core/contracts/ (skill-feedback.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the analysis-only feedback record class it introduces. The registry write has not happened yet in this change set and is its own registered change; it is blocked only on execution order (source PR first, registry projection second, then rebind of this disposition to UPDATED with the registry commit), following the execution-intake-binding precedent. Before that write, the codex review findings raised after the PR #22 merge were repaired in a follow-up source change (this disposition binds the repaired implementation_commit_sha): evidence_refs now carry a closed source-kind scheme structurally excluding model self-report, and TOOL_CONTRACT_ERROR records can never carry skill-changing dispositions. Until the rebind, this disposition records the pending registry obligation.",
     "affected_records": [
       "CONTRACT_RECORD:core/contracts/skill-feedback.schema.json"
     ],
@@ -28,14 +28,14 @@
       "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
     ],
     "evidence_refs": [
-      "evidence/skill-feedback-contract-2026-10-20/RUN.md",
-      "npm run validate-skill-feedback (fixture: 16 cases checked, 0 unexpected results)",
-      "npm run eval:maws-vnext (exit 0, 11/11 fixtures passed including skill-feedback)",
-      "npm run test:vnext (295/295 pass, 0 fail; includes tests/vnext/skill-feedback.test.mjs)",
-      "npm run validate / validate-neutral / validate-maws-vnext (PASS, issues: [])",
-      "npm run validate-secrets / scan-secrets (PASS)"
+      "evidence/skill-feedback-contract-2026-10-20/RUN.md (incl. repair-round addendum)",
+      "npm run validate-skill-feedback (fixture: 21 cases checked, 0 unexpected results)",
+      "npm run eval:maws-vnext (exit 0, 12/12 fixtures passed including skill-feedback)",
+      "npm run test:vnext (314/314 pass, 0 fail; includes tests/vnext/skill-feedback.test.mjs, 10 tests)",
+      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
+      "codex review findings at 613a5e7 (2 P2, has_unresolved_findings at merge time) repaired by this change set"
     ],
-    "implementation_commit_sha": "b778c9be6bb75f8052eb23c3d89a63956434f506",
+    "implementation_commit_sha": "c5f6fbedd45c53f95b3cc69b2ed5f598557fe220",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/skill-feedback-contract-2026-10-20/registry-disposition.json"
