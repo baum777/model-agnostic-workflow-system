@@ -140,57 +140,42 @@ function extractReportStatus(report) {
 }
 
 function classifyReport(report) {
+  // NVIDIA SkillSpector 2.12.0: evidence must be complete, not merely issue-free.
   const findings = collectFindings(report);
-  const status = extractReportStatus(report);
-  const hasFindingsArray = Array.isArray(report?.findings) || Array.isArray(report?.issues) || Array.isArray(report?.results);
   const counts = summarizeFindings(findings);
-  const blockingFinding = findings.find((finding) => {
-    const severity = String(finding?.severity ?? finding?.level ?? finding?.risk ?? '').trim().toLowerCase();
-    return severity === 'high' || severity === 'critical';
-  });
-
-  if (status === 'blocked' || status === 'fail' || status === 'failed' || status === 'error') {
-    return {
-      ok: false,
-      reason: `scanner reported ${status}`,
-      findings,
-      counts
-    };
+  const incomplete = (reason) => ({ ok: false, incomplete: true, reason, findings, counts });
+  const blocked = (reason) => ({ ok: false, incomplete: false, reason, findings, counts });
+  if (!report || typeof report !== 'object' || Array.isArray(report)) {
+    return incomplete('report schema not understood');
   }
-
-  if (blockingFinding) {
-    return {
-      ok: false,
-      reason: 'blocking findings present',
-      findings,
-      counts
-    };
+  const completion = report.analysis_completeness;
+  const risk = report.risk_assessment;
+  if (report.execution_successful !== true || !completion ||
+      completion.execution_successful !== true || completion.is_complete !== true ||
+      completion.status !== 'complete') {
+    return incomplete('skillspector analysis incomplete or unsuccessful');
   }
-
-  if (status === 'pass' || status === 'ok' || status === 'allow' || status === 'allowed' || status === 'clean') {
-    return {
-      ok: true,
-      reason: 'scanner passed',
-      findings,
-      counts
-    };
+  if (!Array.isArray(report.issues) || !risk || typeof risk !== 'object' ||
+      !Number.isInteger(risk.score) || typeof risk.severity !== 'string' ||
+      typeof risk.max_issue_severity !== 'string' || typeof risk.recommendation !== 'string') {
+    return incomplete('skillspector report schema missing required fields');
   }
-
-  if (hasFindingsArray) {
-    return {
-      ok: true,
-      reason: 'scanner findings contained no blocking severity',
-      findings,
-      counts
-    };
+  const allowedSeverity = new Set(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']);
+  const severity = risk.severity.toUpperCase();
+  const maxSeverity = risk.max_issue_severity.toUpperCase();
+  const recommendation = risk.recommendation.toUpperCase();
+  if (!allowedSeverity.has(severity) || !allowedSeverity.has(maxSeverity) ||
+      !['SAFE', 'CAUTION', 'DO_NOT_INSTALL'].includes(recommendation) || counts.unknown > 0) {
+    return incomplete('skillspector report contains unrecognized severity or recommendation');
   }
-
-  return {
-    ok: false,
-    reason: 'report schema not understood',
-    findings,
-    counts
-  };
+  if (counts.high || counts.critical || ['HIGH', 'CRITICAL'].includes(severity) ||
+      ['HIGH', 'CRITICAL'].includes(maxSeverity) || recommendation === 'DO_NOT_INSTALL') {
+    return blocked('blocking findings present');
+  }
+  if (recommendation !== 'SAFE') {
+    return incomplete('skillspector recommendation requires further review');
+  }
+  return { ok: true, incomplete: false, reason: 'skillspector complete and safe', findings, counts };
 }
 
 function renderDecisionMarkdown({
@@ -226,6 +211,30 @@ ${classificationLine}- Owner decision: ${ownerDecision}
 `;
 }
 
+function isSafeEvidencePath(root, runDir, reportPath) {
+  const evidenceRoot = path.resolve(root, 'sandbox', 'runs');
+  const contained = (candidate, base) => {
+    const relative = path.relative(base, candidate);
+    return Boolean(relative) && relative !== '..' &&
+      !relative.startsWith('..' + path.sep) && !path.isAbsolute(relative);
+  };
+  if (!contained(runDir, evidenceRoot) || !contained(reportPath, runDir)) return false;
+  // Reject any pre-existing symbolic link on the evidence path.
+  for (const candidate of [evidenceRoot, runDir, reportPath]) {
+    let current = candidate;
+    while (current !== path.dirname(current)) {
+      try {
+        if (fs.lstatSync(current).isSymbolicLink()) return false;
+      } catch (error) {
+        if (error.code !== 'ENOENT') return false;
+      }
+      if (current === path.resolve(root)) break;
+      current = path.dirname(current);
+    }
+  }
+  return true;
+}
+
 function runPreinstallSkillRiskCheck({
   repoRoot = workspaceRoot(),
   target,
@@ -240,25 +249,7 @@ function runPreinstallSkillRiskCheck({
   const reportPath = requestedReportPath ? path.resolve(requestedReportPath) : context.reportPath;
   const decisionPath = path.join(runDir, DEFAULT_DECISION_FILENAME);
 
-  if (!isInsideRoot(path.join(context.repoRoot, 'sandbox', 'runs'), runDir)) {
-    fs.mkdirSync(runDir, { recursive: true });
-    writeText(
-      decisionPath,
-      renderDecisionMarkdown({
-        evidencePath: `${runDir.replace(/\\/g, '/')}/`,
-        target: String(target || '<missing>'),
-        type: String(type || '<missing>'),
-        scanCommand: 'not run',
-        reportPath,
-        findingsSummary: 'no parsed report',
-        blockReason: `Run directory must live under sandbox/runs: ${runDir}`,
-        ownerDecision: 'blocked',
-        acceptedRisk: 'none',
-        scopeLimit: 'exact target only; no transitive install scope',
-        rollbackPath: 'rerun the gate and let it create the default sandbox/runs timestamped directory',
-        createdAt: now.toISOString()
-      })
-    );
+  if (!isSafeEvidencePath(context.repoRoot, runDir, reportPath)) {
     return {
       ok: false,
       blocked: true,
