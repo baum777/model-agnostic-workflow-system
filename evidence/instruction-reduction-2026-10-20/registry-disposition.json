@@ -1,0 +1,33 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": false,
+    "registry_relevant_change": false,
+    "reason": "S4 wave A instruction reduction: the AGENTS.md registry-disposition consumer binding shrinks to the validator-backed core (binding statement, this repo's adopted relevance classes, scope and non-authority statement, contract/schema/validator pointers); the removed six-step sequence restated rules that scripts/tools/validate-registry-disposition.mjs already enforces mechanically and that the policy document docs/governance/registry-disposition.md owns. No canonical contract under core/contracts/ changed, no provenance record changed, no supersession relationship changed — none of this repository's adopted relevance classes (CONTRACT_RECORD, PROVENANCE, SUPERSESSION) is touched by an instruction-layer documentation reduction, so no Registry write arises from this change.",
+    "affected_records": [],
+    "authority_refs": [
+      "docs/governance/registry-disposition.md",
+      "AGENTS.md"
+    ],
+    "source_refs": [
+      "AGENTS.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [],
+    "evidence_refs": [
+      "scripts/tools/validate-registry-disposition.mjs (enforces the disposition rule set the removed sequence restated)",
+      "docs/governance/registry-disposition.md (owns the disposition sequence)"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-reduction-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding — this repository's adopted relevance classes)",
+      "docs/governance/registry-disposition.md (closed relevance taxonomy)"
+    ],
+    "registry_baseline_sha": "UNVERIFIED_NO_REGISTRY_WRITE",
+    "implementation_commit_sha": "01f3e9c81314434ff67ba4c60547c8c92b724993",
+    "registry_commit_sha": null
+  }
+}
