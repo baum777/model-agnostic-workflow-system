@@ -74,5 +74,16 @@ The proposed § 14 paths for S11–S13 were collision-checked against
   `NO_CHANGE`, proposal staging only, no registry-relevant class changed. The change
   registration itself is a separate record in the Registry repository
   (`baum777/unitera-registry`); it is not an object mutation of this revision.
+  The contract field `registry_commit_sha` stays `null`: `registry-disposition.v1`
+  invariant 4 forbids a non-null value unless the status is `UPDATED`, and invariant 2
+  requires `UPDATED` to carry a non-empty `affected_records` list — which this change
+  does not have, because no registry-relevant class changed. The published registration
+  SHA is carried as publication evidence instead, and only after the publication
+  succeeded.
+- **Published Registry change registration:**
+  `registry/MAWS_SII_TARGET_SPEC_V0_2_0_2026_10_20_001.yaml` in `baum777/unitera-registry`,
+  merged as `03cf866183e878a88f5b0e5c02b00f56152893c7` (pull request 215), with
+  `registry_object_mutation: NONE_IDENTIFIED` and the owner-side `NO_CHANGE`
+  classification reproduced in the determination text.
 - Atlas representation: a navigation-only claim supplement in `baum777/unitera_atlas`,
   pinned to the merge event of this publication and to the Registry publication.
