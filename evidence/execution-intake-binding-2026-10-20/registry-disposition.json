@@ -1,9 +1,9 @@
 {
   "registry_disposition": {
-    "status": "REQUIRED_BUT_BLOCKED",
+    "status": "UPDATED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "S2b wave 1 adds a new canonical contract to core/contracts/ (execution-intake-binding.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the runtime capability it introduces. The registry write cannot be performed from this repository and follows as its own registered change (registry change registration plus, if the registry contract provides for it, a contract-record projection) after the owner merges the source PR; until that projection merges, the disposition is REQUIRED_BUT_BLOCKED with no registry commit to bind.",
+    "reason": "S2b wave 1 adds a new canonical contract to core/contracts/ (execution-intake-binding.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the runtime capability it introduces. The registry write followed as its own registered change after the owner merged the source PR: the registry PR projection/maws-intake-binding-20261020 carried the change registration MAWS_EXECUTION_INTAKE_BINDING_2026_10_20_001.yaml plus the machine-readable CONTRACT_RECORD projection MAWS_EXECUTION_INTAKE_BINDING_CONTRACT_2026_10_20_001.yaml and merged as registry_commit_sha below, closing this disposition; this update rebinds the disposition to UPDATED with that registry commit.",
     "affected_records": [
       "CONTRACT_RECORD:core/contracts/execution-intake-binding.schema.json"
     ],
@@ -35,6 +35,6 @@
     ],
     "registry_baseline_sha": "d5c7604043fe4bf6b50b5428353cf7e0c85152ab",
     "implementation_commit_sha": "33933434414b8df9b0f659adbb6325493c6a7dc7",
-    "registry_commit_sha": null
+    "registry_commit_sha": "9ef65e36965e5e8cf612c2a3e94c83b44afd0e2d"
   }
 }

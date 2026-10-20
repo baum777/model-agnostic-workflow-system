@@ -98,6 +98,20 @@ outcome model — OD-NEW-1 recommendation implemented).
     recorded an all-OK chain with status `executed`. Now `execute` is FAILED,
     `reconcile` NOT_RUN, record status `failed`.
 
+## Disposition closure (2026-10-20)
+
+The registry projection merged as
+`9ef65e36965e5e8cf612c2a3e94c83b44afd0e2d` (registry PR
+projection/maws-intake-binding-20261020: change registration
+`MAWS_EXECUTION_INTAKE_BINDING_2026_10_20_001.yaml` plus the machine-readable
+CONTRACT_RECORD projection `MAWS_EXECUTION_INTAKE_BINDING_CONTRACT_2026_10_20_001.yaml`;
+companion hardening registration `MAWS_RUNTIME_RUN_P1_HARDENING_2026_10_20_001.yaml`
+merged as `c2554a34`). `registry-disposition.json` in this directory is
+rebound to **UPDATED** with `registry_commit_sha` `9ef65e36`; the Atlas
+representation (claims, audits note, declared fixture-only
+execution-control-intake edge, human-readable relation updates) merged as
+`900f0c65` (atlas PR claims/maws-s2b-hardening-intake-20261020).
+
 Round-2 verification: intake tests 12/12 (five new: unbound executor,
 capability mismatch, FAILED outcome evidence, per-scope snapshot keying plus
 the carried re-keyed snapshot-binding test), full suite 279/279, validators
