@@ -19,6 +19,7 @@ Canonical machine-readable contracts for the portable slice.
 - `core/contracts/trigger-scheduling.json`
 - `core/contracts/skill-frontdoor-admission.schema.json`
 - `core/contracts/execution-intake-binding.schema.json`
+- `core/contracts/context-envelope.schema.json`
 
 Execution evidence and certification artifact contracts are defined in `core/contracts/output-contracts.json`.
 
