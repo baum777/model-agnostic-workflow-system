@@ -1,5 +1,10 @@
 {
   "run_id": "run_cli_reference_audit_0001",
+  "context_envelope": {
+    "envelope_id": "ctx_reference_audit_0001",
+    "token_budget": 4096,
+    "description": "Reference run context envelope: objective, bounded payload and declared executor tokens fit well within budget"
+  },
   "interaction_session": {
     "session_id": "sess_runtime_run_reference",
     "interaction_host": "zcode",

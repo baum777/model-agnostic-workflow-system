@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/context-envelope.schema.json",
+  "title": "ContextEnvelope Contract",
+  "description": "S3: the declared context envelope of a governed run. The run's context content (objective plus bounded payload) and the declared executor token usage must fit the envelope budget; the runner enforces both fail-closed (SPEC_CONTEXT_BUDGET_EXCEEDED) and emits the observability spine's declared resource.budget_check event. The work unit's context_envelope_ref points at this declared envelope — it is no longer a nominal, never-resolved string. Minimal by design: no deferred budget-engine semantics, no runtime metering (the resource-governor stays a declaration).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["envelope_id", "token_budget"],
+  "properties": {
+    "envelope_id": { "type": "string", "pattern": "^ctx_[a-z0-9_]+$" },
+    "token_budget": { "type": "integer", "minimum": 1 },
+    "description": { "type": "string", "minLength": 1 }
+  }
+}

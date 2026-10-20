@@ -69,6 +69,13 @@ function fixtureExecutorImplementation(executorId, binding, now) {
   });
 }
 
+// Deterministic context token estimate (UTF-8 JSON bytes / 4). Fixture-lane
+// heuristic, recorded as such in the evidence bundle — not a tokenizer. Bytes
+// (not UTF-16 code units) so non-ASCII content cannot shrink the estimate.
+function estimateTokens(value) {
+  return Math.ceil(Buffer.byteLength(JSON.stringify(value ?? ''), 'utf8') / 4);
+}
+
 export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, now = null } = {}) {
   const root = repoRoot
     || path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -200,6 +207,24 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     }
   }
 
+  // --- S3 context envelope: the declared budget the run must fit into. The
+  // work unit's context_envelope_ref points at this declaration; context
+  // content and declared executor token usage are enforced fail-closed —
+  // no silent truncation, no under-dimensioned envelope.
+  const contextEnvelope = requireObject(spec, 'context_envelope');
+  validateOrThrow(contextEnvelope, 'core/contracts/context-envelope.schema.json', 'SPEC_CONTEXT_ENVELOPE_INVALID', root);
+  const contextTokenEstimate = estimateTokens(workRequest.objective) + estimateTokens(workRequest.boundedPayload);
+  const declaredExecutorTokens = Object.values(executorBindings).reduce((sum, binding) => {
+    const tokens = binding && binding.result && binding.result.metrics && binding.result.metrics.tokens_in;
+    return sum + (typeof tokens === 'number' && tokens > 0 ? tokens : 0);
+  }, 0);
+  if (contextTokenEstimate > contextEnvelope.token_budget) {
+    throw new SpecError('SPEC_CONTEXT_BUDGET_EXCEEDED', `context estimate ${contextTokenEstimate} tokens (objective + bounded payload) exceeds the declared envelope budget ${contextEnvelope.token_budget} (${contextEnvelope.envelope_id}); no silent truncation`);
+  }
+  if (contextTokenEstimate + declaredExecutorTokens > contextEnvelope.token_budget) {
+    throw new SpecError('SPEC_CONTEXT_BUDGET_EXCEEDED', `context estimate ${contextTokenEstimate} plus declared executor tokens_in ${declaredExecutorTokens} exceeds the declared envelope budget ${contextEnvelope.token_budget} (${contextEnvelope.envelope_id}); the envelope is under-dimensioned for its own declarations`);
+  }
+
   // --- deny-by-default availability/policy/budget: an executor that the spec
   // does not explicitly admit is ineligible, never silently admitted.
   const availability = spec.availability || {};
@@ -272,6 +297,26 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     fs.appendFileSync(path.join(runDir, 'run-events.jsonl'), `${JSON.stringify(event)}\n`);
   };
 
+  // S3: make the observability spine's declared resource.budget_check event
+  // real — the envelope verdict is recorded before anything executes.
+  eventSink({
+    family: 'resource',
+    type: 'budget_check',
+    run_id: spec.run_id,
+    occurred_at: clock(),
+    provenance: 'observed',
+    details: {
+      budget_scope: 'run',
+      budget_limit: contextEnvelope.token_budget,
+      budget_used: contextTokenEstimate + declaredExecutorTokens,
+      unit: 'tokens',
+      envelope_id: contextEnvelope.envelope_id,
+      context_token_estimate: contextTokenEstimate,
+      declared_executor_tokens_in: declaredExecutorTokens,
+      verdict: 'WITHIN_BUDGET'
+    }
+  });
+
   // --- Jev bounded preference (fixture mode only, like the reference run).
   const jevSpec = spec.jev || { mode: 'fixture', case_id: 'valid-preference' };
   if (jevSpec.mode !== 'fixture') {
@@ -290,6 +335,7 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     interactionSession,
     workRequest,
     template,
+    contextEnvelopeRef: contextEnvelope.envelope_id,
     profiles,
     subsumptionRecords: spec.subsumption_records || [],
     qualifications,
@@ -339,6 +385,46 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
   // business_outcome stays 'not_asserted' by construction.
   if (intentBindingRecords.length > 0) {
     artifactWriter.write('intent-bindings.json', intentBindingRecords);
+  }
+
+  // S3 evidence: the declared context envelope, its pre-execution verdict and
+  // the token usage the run actually reported — accounted cumulatively per
+  // invocation (an executor routed to several stages pays per invocation).
+  const executionTokenUsage = (outcome.executionResults || []).reduce((usage, result) => {
+    const tokens = result.metrics && typeof result.metrics.tokens_in === 'number' ? result.metrics.tokens_in : 0;
+    usage[result.executor_id] = (usage[result.executor_id] || 0) + tokens;
+    usage.total += tokens;
+    return usage;
+  }, { total: 0 });
+  const budgetExceeded = contextTokenEstimate + executionTokenUsage.total > contextEnvelope.token_budget;
+  artifactWriter.write('context-envelope.json', {
+    envelope: contextEnvelope,
+    context_token_estimate: contextTokenEstimate,
+    declared_executor_tokens_in: declaredExecutorTokens,
+    execution_token_usage: executionTokenUsage,
+    budget_limit: contextEnvelope.token_budget,
+    verdict: budgetExceeded ? 'EXCEEDED_AT_RUNTIME' : 'WITHIN_BUDGET'
+  });
+  if (budgetExceeded) {
+    // Fail closed: a run that exceeded its declared envelope never reports
+    // COMPLETED — the evidence bundle (event stream + artifact) keeps the
+    // honest record, then the runner fails.
+    eventSink({
+      family: 'resource',
+      type: 'budget_exceeded',
+      run_id: spec.run_id,
+      occurred_at: clock(),
+      provenance: 'observed',
+      details: {
+        budget_scope: 'run',
+        budget_limit: contextEnvelope.token_budget,
+        budget_used: contextTokenEstimate + executionTokenUsage.total,
+        unit: 'tokens',
+        envelope_id: contextEnvelope.envelope_id,
+        error_class: 'BUDGET_EXHAUSTED'
+      }
+    });
+    throw new SpecError('RUN_CONTEXT_BUDGET_EXCEEDED', `run exceeded its declared context envelope ${contextEnvelope.envelope_id}: context ${contextTokenEstimate} + executed tokens ${executionTokenUsage.total} > budget ${contextEnvelope.token_budget}; the run never reports COMPLETED on a budget violation`);
   }
 
   const summary = {

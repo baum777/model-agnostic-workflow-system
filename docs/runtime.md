@@ -209,6 +209,37 @@ authorize -> execute -> reconcile) under the canonical
   only the live lane can produce. The run evidence bundle records what the
   simulated chain actually executed in `intent-bindings.json`.
 
+## Context envelope (S3): budgeting the actual execution path
+
+Every run spec declares its `context_envelope` under the canonical
+`core/contracts/context-envelope.schema.json` contract
+(`envelope_id`, `token_budget`). The runner enforces it fail-closed before
+anything executes:
+
+- The deterministic context estimate (objective plus bounded payload,
+  UTF-8 JSON bytes / 4 — a fixture-lane heuristic, recorded as such) must
+  fit the budget; no silent truncation (`SPEC_CONTEXT_BUDGET_EXCEEDED`).
+- The declared executor `tokens_in` must fit alongside the context estimate
+  — an envelope its own declarations exceed is under-dimensioned and fails
+  closed.
+- Runtime usage is accounted **cumulatively per invocation** (an executor
+  routed to several stages pays per invocation); a run that exceeds its
+  envelope emits the spine's declared `resource.budget_exceeded` event
+  (`BUDGET_EXHAUSTED`), keeps the honest evidence record
+  (`context-envelope.json`, verdict `EXCEEDED_AT_RUNTIME`) and then fails
+  closed with `RUN_CONTEXT_BUDGET_EXCEEDED` — a budget violation never
+  reports COMPLETED.
+- The observability spine's declared `resource.budget_check` event is
+  actually emitted (budget scope run, limit, used, unit tokens, verdict),
+  and the evidence bundle gains `context-envelope.json` with the declaration,
+  the pre-execution verdict and the token usage the run reported.
+
+The work unit's `context_envelope_ref` is the declared `envelope_id` — the
+previously synthetic, never-resolved `ctx/<runId>/envelope` string remains
+only as the engine's fallback for engine-only callers. Runtime token metering
+over live executors is NOT claimed — declared metrics only; live metering
+belongs to the live lane.
+
 ## Artifact Contract
 
 Each dry-run creates:
