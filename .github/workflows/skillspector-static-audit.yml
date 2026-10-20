@@ -1,0 +1,115 @@
+# Ephemeral audit-only workflow; do not merge to main.
+# Scans an immutable repository commit with NVIDIA SkillSpector in static mode.
+name: NVIDIA SkillSpector static security audit
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/skillspector-static-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact audited source commit without persisted credentials
+        uses: actions/checkout@v4
+        with:
+          ref: d7c84914ea3ba339a0a96454dd06fa18904527d0
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install pinned NVIDIA SkillSpector
+        run: |
+          uv tool install 'git+https://github.com/NVIDIA/SkillSpector.git@95a52d89fa16f608f0b18ccee76b0918ea4b7eef'
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Scan exact repository and skill directories (static only; no LLM)
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python3 - <<'PY'
+          import datetime
+          import json
+          import pathlib
+          import subprocess
+          import sys
+          import time
+
+          source_sha = "d7c84914ea3ba339a0a96454dd06fa18904527d0"
+          scanner_sha = "95a52d89fa16f608f0b18ccee76b0918ea4b7eef"
+          out = pathlib.Path("sandbox/runs/skillspector-gha-20261020")
+          out.mkdir(parents=True, exist_ok=True)
+          detected_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          assert detected_sha == source_sha, f"Wrong checkout: {detected_sha}"
+          skills = sorted(path.parent for path in pathlib.Path(".").rglob("SKILL.md") if ".git" not in path.parts)
+          targets = [(".", "repository")] + [(str(path), f"skill-{i:03d}") for i, path in enumerate(skills, 1)]
+          records = []
+          for index, (target, label) in enumerate(targets, 1):
+              report = out / (label + ".json")
+              cmd = ["skillspector", "scan", target, "--no-llm", "--format", "json", "--output", str(report)]
+              print(f"[{index}/{len(targets)}] scanning {target}", flush=True)
+              start = time.monotonic()
+              timeout = False
+              try:
+                  run = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+                  rc, err = run.returncode, run.stderr[-1500:]
+              except subprocess.TimeoutExpired:
+                  rc, err, timeout = 124, "TIMEOUT_120S", True
+              parsed = None
+              if report.is_file():
+                  try:
+                      parsed = json.loads(report.read_text(encoding="utf-8"))
+                  except (ValueError, UnicodeError) as exc:
+                      err += "; UNPARSABLE_REPORT:" + str(exc)
+              records.append({
+                  "target": target,
+                  "report_path": str(report),
+                  "returncode": rc,
+                  "timeout": timeout,
+                  "report_created": report.is_file(),
+                  "report_parseable": parsed is not None,
+                  "risk_score": parsed.get("risk_score") if isinstance(parsed, dict) else None,
+                  "severity": parsed.get("severity") if isinstance(parsed, dict) else None,
+                  "safe_to_install": parsed.get("safe_to_install") if isinstance(parsed, dict) else None,
+                  "stderr_tail": err,
+                  "duration_sec": round(time.monotonic() - start, 2),
+                  "intentional_test_fixture": target.startswith("tests/fixtures/")
+              })
+          summary = {
+              "tool": "NVIDIA/SkillSpector",
+              "scanner_commit_sha": scanner_sha,
+              "source_repository": "baum777/model-agnostic-workflow-system",
+              "source_commit_sha": source_sha,
+              "mode": "static_only_no_llm",
+              "no_install_or_activation_of_scanned_material": True,
+              "scan_count": len(records),
+              "records": records
+          }
+          (out / "audit-summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+          counts = {
+              "targets": len(records),
+              "complete_reports": sum(x["report_parseable"] for x in records),
+              "nonzero_exit": sum(x["returncode"] != 0 for x in records),
+              "missing_reports": sum(not x["report_created"] for x in records),
+          }
+          print("SkillSpector scan result:", json.dumps(counts), flush=True)
+          if counts["missing_reports"] or counts["nonzero_exit"]:
+              print("Scan has incomplete, failing, or blocking entries; inspect artifact.", flush=True)
+              sys.exit(1)
+          PY
+
+      - name: Upload static audit evidence regardless of scanner verdict
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skillspector-static-maws-20261020
+          path: sandbox/runs/skillspector-gha-20261020/
+          if-no-files-found: warn
+          retention-days: 14
