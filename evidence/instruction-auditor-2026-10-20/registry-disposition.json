@@ -1,9 +1,9 @@
 {
   "registry_disposition": {
-    "status": "REQUIRED_BUT_BLOCKED",
+    "status": "UPDATED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "S3 of MAWS-SII-TARGET-SPEC-001 adds a new canonical contract to core/contracts/ (instruction-audit-finding.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the audit-finding record class it introduces. The registry write has not happened yet in this change set and is its own registered change; it is blocked only on execution order (source PR first, registry projection second, then rebind of this disposition to UPDATED with the registry commit), following the execution-intake-binding precedent. Before that write, the codex review findings raised after the PR #26 merge were repaired in a follow-up source change (this disposition binds the repaired implementation_commit_sha): the audit CLI now verifies the requested revision fail-closed, the finding identity includes the graph edge kind, and the line_range ordering invariant is enforced by a semantic check on top of schema validation. Until the rebind, this disposition records the pending registry obligation.",
+    "reason": "S3 of MAWS-SII-TARGET-SPEC-001 adds a new canonical contract to core/contracts/ (instruction-audit-finding.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding. The registry write followed as its own registered change after the owner merged the source PR: the registry pull request projection/sii-contracts-20261020 carried the run change registration MAWS_INSTRUCTION_AUDIT_FINDING_2026_10_20_001.yaml plus the machine-readable CONTRACT_RECORD projection MAWS_INSTRUCTION_AUDIT_FINDING_CONTRACT_2026_10_20_001.yaml and merged as the registry commit below, closing this disposition. The contract was published in pull request 26 and repaired in pull request 30 before that registry write, so the registered contract state is the repaired one. This update rebinds the disposition to UPDATED with that registry commit.",
     "affected_records": [
       "CONTRACT_RECORD:core/contracts/instruction-audit-finding.schema.json"
     ],
@@ -35,10 +35,11 @@
       "npm run eval:maws-vnext (exit 0, fixture registered and covered)",
       "npm run test:vnext (318/318 pass, 0 fail; includes tests/vnext/instruction-auditor.test.mjs, 9 tests)",
       "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (PASS)",
-      "codex review findings at 2603ba3 (1 P1, 2 P2, has_unresolved_findings at merge time) repaired by this change set"
+      "codex review findings at 2603ba3 (1 P1, 2 P2, has_unresolved_findings at merge time) repaired by this change set",
+      "registry pull request 216 (projection/sii-contracts-20261020) merged as e22eb3351b6a1d810272ac9c605f9d212bfd0d88; records registry/MAWS_INSTRUCTION_AUDIT_FINDING_2026_10_20_001.yaml (run change registration) and registry/MAWS_INSTRUCTION_AUDIT_FINDING_CONTRACT_2026_10_20_001.yaml (CONTRACT_RECORD projection); registry CI gates registry validation and cross-repository reachability both PASS at the merge commit"
     ],
     "implementation_commit_sha": "82a638a268afccfc612ee184d8e536ab7230241c",
-    "registry_commit_sha": null,
+    "registry_commit_sha": "e22eb3351b6a1d810272ac9c605f9d212bfd0d88",
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-auditor-2026-10-20/registry-disposition.json"
     ],

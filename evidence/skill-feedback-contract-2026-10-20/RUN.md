@@ -65,3 +65,17 @@ Verification after repair: fixture validator 21 cases / 0 unexpected;
 / validate-maws-vnext / validate-secrets / scan-secrets PASS. The S1
 disposition is rebound to repair commit `c5f6fbedd45c53f95b3cc69b2ed5f598557fe220`
 while staying REQUIRED_BUT_BLOCKED until the registry write.
+
+## Registry write (two-phase closure, 2026-10-20)
+
+The pending CONTRACT_RECORD obligation was discharged by the registry pull
+request `projection/sii-contracts-20261020` (pull request 216), which
+published `registry/MAWS_SKILL_FEEDBACK_2026_10_20_001.yaml` (run change
+registration) and `registry/MAWS_SKILL_FEEDBACK_CONTRACT_2026_10_20_001.yaml`
+(CONTRACT_RECORD projection) and merged as
+`e22eb3351b6a1d810272ac9c605f9d212bfd0d88`. Both registry CI gates passed at
+that merge commit (registry validation offline, cross-repository
+reachability). This disposition is rebound from REQUIRED_BUT_BLOCKED to
+UPDATED with `registry_commit_sha` equal to that merge commit. The registered
+contract state is the repaired one (pull request 27), and both publications
+are named in the registry record so the history stays reconstructable.

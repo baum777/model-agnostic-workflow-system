@@ -139,3 +139,19 @@ satisfies every clause of that section as implemented:
 
 No code change was required for this alignment; the wave 1 design already
 matched the clarified boundary.
+
+## Registry write (two-phase closure, 2026-10-20)
+
+The pending CONTRACT_RECORD obligation was discharged by the registry pull
+request `projection/sii-contracts-20261020` (pull request 216), which
+published `registry/MAWS_INSTRUCTION_AUDIT_FINDING_2026_10_20_001.yaml` (run
+change registration) and
+`registry/MAWS_INSTRUCTION_AUDIT_FINDING_CONTRACT_2026_10_20_001.yaml`
+(CONTRACT_RECORD projection) and merged as
+`e22eb3351b6a1d810272ac9c605f9d212bfd0d88`. Both registry CI gates passed at
+that merge commit (registry validation offline, cross-repository
+reachability). This disposition is rebound from REQUIRED_BUT_BLOCKED to
+UPDATED with `registry_commit_sha` equal to that merge commit. The registered
+contract state is the repaired one (pull request 30, including the disclosed
+signing deviation of commit 82a638a), and both publications are named in the
+registry record so the history stays reconstructable.
