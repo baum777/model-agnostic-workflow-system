@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { assertRunRoot, resolveRuntimeRunDir } from './run-paths.mjs';
 import { SERVICE_CAPABLE_ACTIONS } from '../service/service-actions.mjs';
 import { SERVICE_API_ENDPOINTS } from '../service/service-api-design.mjs';
 
@@ -49,7 +50,7 @@ function readJsonLines(filePath) {
 }
 
 function findLatestRunDir(repoRoot) {
-  const runRoot = path.join(repoRoot, 'artifacts', 'runtime-runs');
+  const runRoot = assertRunRoot(repoRoot);
   if (!fs.existsSync(runRoot)) {
     return null;
   }
@@ -59,6 +60,7 @@ function findLatestRunDir(repoRoot) {
     .map((entry) => path.join(runRoot, entry.name))
     .map((runDir) => {
       try {
+        resolveRuntimeRunDir(repoRoot, path.basename(runDir));
         const manifest = readJson(path.join(runDir, 'manifest.json'));
         const createdAt = Date.parse(manifest.createdAt);
         if (manifest.runId !== path.basename(runDir) || Number.isNaN(createdAt)) {
@@ -370,11 +372,13 @@ function validateServiceRequestShape(serviceRequests, runId) {
 
 function validateRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } = {}) {
   const root = path.resolve(repoRoot);
-  const runDir = latest
-    ? findLatestRunDir(root)
-    : runId
-      ? path.join(root, 'artifacts', 'runtime-runs', runId)
-      : null;
+  let runDir;
+  try {
+    runDir = latest ? findLatestRunDir(root)
+      : runId ? resolveRuntimeRunDir(root, runId) : null;
+  } catch (error) {
+    return { ok: false, issues: [error.message], runDir: null };
+  }
   const issues = [];
 
   if (!runDir || !fs.existsSync(runDir)) {
