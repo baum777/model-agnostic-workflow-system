@@ -1,0 +1,50 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Scope is a docs-only proposal revision of MAWS-SII-TARGET-SPEC-001 from v0.1.0 to v0.2.0, executed under the bounded owner run instruction OWNER-DIRECTED-HARNESS-TRANSFORMATION-RECONCILIATION-2026-10-20 (reconciliation and registration of a harness-transformation proposal; integration into this specification; registration in Registry and Atlas; no canonical adoption). The revision adds three target areas (separate harness contexts in section 4.3 with slice S11, model-adaptive executor profiles in section 11.5 with slice S12, a comparative benchmark harness in section 10.6 with slice S13) and two clarifications (context ownership against the coreos-owned Context Compiler in sections 3.4 and 7.5, declared coverage boundaries of the instruction-audit taxonomy in section 6.6). material_change is true because a durable repository artifact changed (docs/proposals/skill-intelligence-target-spec.md, plus the CHANGELOG entry). registry_relevant_change is false: no file under core/contracts/ was created, altered or removed, no canonical claim or authority-matrix entry changed, no supersession relationship over a registered object was created, and no registered binding was affected. The document remains non-canonical review material per docs/proposals/README.md and creates no authority, qualification, permission or runtime activation, so none of this repository's adopted relevance classes (CONTRACT_RECORD, PROVENANCE, SUPERSESSION) is touched. The change registration that the project-layer registration invariant requires for every change is published separately as its own record in the Registry repository (baum777/unitera-registry); that registration is a representation of this change, not an object mutation caused by it, and it is explicitly not asserted here as merged. The already-merged slices S0-S3 and the S4 wave A instruction reduction are neither restarted nor retroactively declared complete by this revision; the still-open Registry CONTRACT_RECORD obligation for S1 (core/contracts/skill-feedback.schema.json) remains open and is not discharged here.",
+    "registry_baseline_sha": "5afc852a8e98c3b3ea4d7bf7bd58a645cad72d86",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/README.md",
+      "docs/maws-vnext-owner-decisions.md"
+    ],
+    "source_refs": [
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/sii-target-spec-v0-2-0-2026-10-20/RUN.md"
+    ],
+    "evidence_refs": [
+      "evidence/sii-target-spec-v0-2-0-2026-10-20/RUN.md",
+      "docs/proposals/skill-intelligence-target-spec.md v0.2.0 (revision base origin/main ee7f094b2676963b20161f093ed5a9a01e0c018b, implementation commit cedeeeff67ac616bf597020f38a01d704c9127d6)",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md (S0 current-state reconciliation, 18/18 baseline components, 6/6 extension gaps, 16/16 proposed paths collision-free)",
+      "evidence/sii-materialization-2026-10-20/RUN.md (v0.1.0 materialization precedent, disposition NO_CHANGE, proposal staging only)",
+      "npm run validate (PASS, 0 issues; neutral and secret sub-results included)",
+      "npm run validate-neutral (PASS, 0 issues)",
+      "npm run validate-maws-vnext (PASS, 0 issues)",
+      "npm run test:vnext (314/314 pass, 0 fail)",
+      "npm run eval:maws-vnext (PASS, 0 issues, blocking gate passed)",
+      "npm run scan-secrets (0 findings)",
+      "npm run eval:secret-boundary (PASS, 0 issues)",
+      "collision check of the section 14 proposed paths for S11-S13 against origin/main ee7f094 (all free)"
+    ],
+    "implementation_commit_sha": "cedeeeff67ac616bf597020f38a01d704c9127d6",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/sii-target-spec-v0-2-0-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - this repository's adopted relevance classes: CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "docs/governance/registry-disposition.md (closed relevance taxonomy and the separation of material_change, registry_relevant_change and registry_write)",
+      "docs/proposals/README.md (proposal target / docs-only / non-canonical docs staging)",
+      "git diff ee7f094..cedeeef --name-only (docs/proposals/skill-intelligence-target-spec.md, CHANGELOG.md - no path under core/contracts/ touched)"
+    ]
+  }
+}
