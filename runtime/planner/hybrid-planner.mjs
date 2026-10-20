@@ -4,7 +4,7 @@
 // envelope through deterministic routing. The planner never grants authority.
 import { newId, FailClosedError } from '../vnext/util.mjs';
 import { deepFreeze } from './work-unit-store.mjs';
-import { validateHarnessContextRecord } from '../harness-context/context-binding.mjs';
+import { validateHarnessContextRecord, assertQualificationContextBinding } from '../harness-context/context-binding.mjs';
 import { validateCandidateGraph, bindGraph } from './graph-versioning.mjs';
 
 export function buildCandidate({ template, workUnits, stageWorkUnitMap = {} }) {
@@ -50,7 +50,7 @@ export function buildCandidate({ template, workUnits, stageWorkUnitMap = {} }) {
 // recommended) enables the S11 binding-scope check: every bound node's
 // executor binding must reference the SAME harness context record as its
 // WorkUnit.
-export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt, workUnits, harnessContext }) {
+export function planAndBind({ template, candidate, routingForNode, workGraphStore, graphId, root, createdAt, workUnits, harnessContext, qualifications = null, qualifiedFingerprints = null }) {
   const issues = validateCandidateGraph(candidate, template);
   if (issues.length > 0) {
     throw new FailClosedError('CANDIDATE_INVALID', issues.join('; '));
@@ -97,6 +97,38 @@ export function planAndBind({ template, candidate, routingForNode, workGraphStor
         'CONTEXT_BINDING_CONFLICT',
         `node ${node.node_id} binds ("${executorBinding.harness_context}", "${executorBinding.harness_context_ref}") but the validated record is ("${validatedContext.context}", "${validatedContext.context_id}")`
       );
+    }
+    // S11 R4 at the binding gate: the bound qualification must be earned
+    // under the bound context and must belong to the bound executor. A
+    // direct planner caller cannot skip this check.
+    if (executorBinding.qualification_ref) {
+      if (!Array.isArray(qualifications) || qualifiedFingerprints === null || typeof qualifiedFingerprints !== 'object') {
+        throw new FailClosedError(
+          'CONTEXT_BINDING_MISSING',
+          `node ${node.node_id} binds qualification "${executorBinding.qualification_ref}"; qualification and qualifiedFingerprint inputs are required to prove the context binding`
+        );
+      }
+      const qualification = qualifications.find((entry) => entry && entry.qualification_id === executorBinding.qualification_ref);
+      const fingerprint = qualification ? Object.values(qualifiedFingerprints).find((entry) => entry && entry.fingerprint_id === qualification.fingerprint_ref) : null;
+      if (!qualification || !fingerprint) {
+        throw new FailClosedError(
+          'CONTEXT_BINDING_CONFLICT',
+          `node ${node.node_id} references qualification ${executorBinding.qualification_ref} without a resolvable qualification/fingerprint pair; an ambiguous qualification binds no executor`
+        );
+      }
+      if (qualification.executor_id !== undefined && qualification.executor_id !== executorBinding.executor_id) {
+        throw new FailClosedError(
+          'CONTEXT_BINDING_CONFLICT',
+          `node ${node.node_id} binds executor "${executorBinding.executor_id}" but qualification ${executorBinding.qualification_ref} belongs to "${qualification.executor_id}"`
+        );
+      }
+      if (fingerprint.executor_id !== undefined && fingerprint.executor_id !== executorBinding.executor_id) {
+        throw new FailClosedError(
+          'CONTEXT_BINDING_CONFLICT',
+          `node ${node.node_id} binds executor "${executorBinding.executor_id}" but fingerprint ${fingerprint.fingerprint_id} belongs to "${fingerprint.executor_id}"`
+        );
+      }
+      assertQualificationContextBinding({ runtimeHarness: fingerprint.components.runtime_harness, context: validatedContext.context });
     }
     bindings.push({ node_id: node.node_id, executor_binding: executorBinding });
   }

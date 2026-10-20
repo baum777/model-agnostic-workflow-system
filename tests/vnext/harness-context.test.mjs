@@ -472,7 +472,9 @@ function buildContextBoundGraph(graphId, workUnitOverrides = {}) {
     graphId,
     root,
     workUnits: [rootWu],
-    harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
+    harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' },
+    qualifications: [{ qualification_id: 'q', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_dev' }],
+    qualifiedFingerprints: { fp_dev: { fingerprint_id: 'fp_dev', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/test/1' } } }
   });
   return { workUnits, graphStore, graph, rootWu };
 }
@@ -612,7 +614,8 @@ test('binding-scope regression (codex P1): planAndBind refuses bindings that dis
       graphId: 'graph_s11_mismatch',
       root,
       workUnits: [rootWu],
-      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
+      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' },
+      qualifications: [{ qualification_id: 'q', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_dev' }], qualifiedFingerprints: { fp_dev: { fingerprint_id: 'fp_dev', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/test/1' } } }
     }),
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
@@ -656,7 +659,8 @@ test('S11 regression (codex P1 round 2): initial graphs cannot mix harness conte
       graphId: 'graph_s11_mixedpair',
       root,
       workUnits: [rootWu],
-      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
+      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' },
+      qualifications: [{ qualification_id: 'q', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_dev' }], qualifiedFingerprints: { fp_dev: { fingerprint_id: 'fp_dev', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/test/1' } } }
     }),
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
@@ -693,7 +697,8 @@ test('S11 regression (codex P1 round 5): the binding context value must match th
       graphId: 'graph_s11_falsevalue',
       root,
       workUnits: [rootWu],
-      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
+      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' },
+      qualifications: [{ qualification_id: 'q', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_dev' }], qualifiedFingerprints: { fp_dev: { fingerprint_id: 'fp_dev', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/test/1' } } }
     }),
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
@@ -806,7 +811,8 @@ test('S11 regressions (codex rounds 7): callback substitution, qualification reb
       graphId: 'graph_s11_r7_mutate',
       root,
       workUnits: [mutableWu],
-      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' }
+      harnessContext: { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' },
+      qualifications: [{ qualification_id: 'q', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_dev' }], qualifiedFingerprints: { fp_dev: { fingerprint_id: 'fp_dev', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/test/1' } } }
     }),
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
@@ -907,4 +913,67 @@ test('S11 regressions (codex round 9): executor ownership and initial-version un
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
   );
   assert.equal(mixedStore.activeVersion('graph_s11_r9_mixed'), null);
+});
+
+test('S11 regression (codex P1 round 10): the direct planner binding gate proves the qualification context', () => {
+  const workUnits = createWorkUnitStore({ root });
+  const rootWu = workUnits.create({
+    work_unit_id: 'wu_s11_r10', objective: 'x',
+    required_capabilities: [{ capability_id: 'cap_repository_analysis' }],
+    context_envelope_ref: 'ctx/s11',
+    authority_ceiling: { scope_ref: 'scope/s11', allowed_effects: ['ephemeral'], delegation_depth_max: 0, authority_source_refs: ['p'] },
+    decomposition_policy_ref: 'tpl_audit_repair_v1', completion_contract_ref: 'cc_s11_r10',
+    created_by: 'interaction_session', run_ref: 'run_s11',
+    harness_context_ref: 'hctx_graph_dev'
+  });
+  const record = { context_id: 'hctx_graph_dev', context: 'development_harness', run_ref: 'run_s11', authority_grant: 'none', created_at: '2026-10-20T00:00:00Z' };
+  const binding = (qualificationRef) => ({ executor_id: 'exec_local_tests', routing_decision_ref: 'rd', qualification_ref: qualificationRef, selection_mode: 'NORMAL_SELECTION', harness_context: 'development_harness', harness_context_ref: 'hctx_graph_dev' });
+
+  // (1) a qualification earned under the OTHER context is refused at the
+  // binding gate, even though the WorkUnit and the binding pair match.
+  assert.throws(
+    () => planAndBind({
+      template: s11Template,
+      candidate: buildCandidate({ template: s11Template, workUnits: [rootWu] }),
+      routingForNode: () => binding('qual_product_context'),
+      workGraphStore: createWorkGraphStore({ root }),
+      graphId: 'graph_s11_r10',
+      root,
+      workUnits: [rootWu],
+      harnessContext: record,
+      qualifications: [{ qualification_id: 'qual_product_context', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_product' }],
+      qualifiedFingerprints: { fp_product: { fingerprint_id: 'fp_product', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'unitera_product/other/1' } } }
+    }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
+  );
+
+  // (2) without qualification inputs the gate fails closed.
+  assert.throws(
+    () => planAndBind({
+      template: s11Template,
+      candidate: buildCandidate({ template: s11Template, workUnits: [rootWu] }),
+      routingForNode: () => binding('q'),
+      workGraphStore: createWorkGraphStore({ root }),
+      graphId: 'graph_s11_r10b',
+      root,
+      workUnits: [rootWu],
+      harnessContext: record
+    }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_MISSING'
+  );
+
+  // (3) the dev-context qualification binds.
+  const graph = planAndBind({
+    template: s11Template,
+    candidate: buildCandidate({ template: s11Template, workUnits: [rootWu] }),
+    routingForNode: () => binding('q'),
+    workGraphStore: createWorkGraphStore({ root }),
+    graphId: 'graph_s11_r10c',
+    root,
+    workUnits: [rootWu],
+    harnessContext: record,
+    qualifications: [{ qualification_id: 'q', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', fingerprint_ref: 'fp_dev' }],
+    qualifiedFingerprints: { fp_dev: { fingerprint_id: 'fp_dev', executor_id: 'exec_local_tests', capability_id: 'cap_repository_analysis', components: { runtime_harness: 'development_harness/r10/1' } } }
+  });
+  assert.equal(graph.nodes[0].executor_binding.qualification_ref, 'q');
 });
