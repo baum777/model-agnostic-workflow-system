@@ -46,6 +46,7 @@ test('runPreinstallSkillRiskCheck passes a low-severity static report and writes
         reportPath,
         `${JSON.stringify({
           execution_successful: true,
+          metadata: { skillspector_version: '2.12.0' },
           analysis_completeness: { is_complete: true, status: 'complete', execution_successful: true },
           risk_assessment: { score: 10, severity: 'LOW', max_issue_severity: 'LOW', recommendation: 'SAFE' },
           issues: [{ severity: 'low', title: 'Informational note' }]
@@ -82,6 +83,7 @@ test('runPreinstallSkillRiskCheck blocks a critical finding even when the scan e
         reportPath,
         `${JSON.stringify({
           execution_successful: true,
+          metadata: { skillspector_version: '2.12.0' },
           analysis_completeness: { is_complete: true, status: 'complete', execution_successful: true },
           risk_assessment: { score: 90, severity: 'CRITICAL', max_issue_severity: 'CRITICAL', recommendation: 'DO_NOT_INSTALL' },
           issues: [
