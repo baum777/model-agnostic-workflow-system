@@ -27,7 +27,7 @@
       "docs/governance/registry-disposition.md (closed relevance taxonomy)"
     ],
     "registry_baseline_sha": "UNVERIFIED_NO_REGISTRY_WRITE",
-    "implementation_commit_sha": "01f3e9c81314434ff67ba4c60547c8c92b724993",
+    "implementation_commit_sha": "dd56088ebc1873da718c2e3e2379b762dc091ee4",
     "registry_commit_sha": null
   }
 }
