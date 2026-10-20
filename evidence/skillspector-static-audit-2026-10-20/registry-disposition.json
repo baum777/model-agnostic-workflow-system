@@ -1,0 +1,38 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Scope is evidence retention for a historical static-security audit run plus closure of the temporary audit PR #15 without merge. No adopted registry-disposition class changed: no CONTRACT_RECORD, PROVENANCE or SUPERSESSION surface was created, altered or superseded; the retained scanner reports and snapshots are inert evidence, not activation, adoption or authority. No Registry write is required under the closed relevance taxonomy.",
+    "registry_baseline_sha": "UNVERIFIED_NO_REGISTRY_WRITE",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md"
+    ],
+    "source_refs": [
+      ".github/workflows/skillspector-static-audit.yml",
+      ".github/workflows/maws-full-source-audit.yml",
+      ".github/workflows/maws-audit-evals.yml"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/skillspector-static-audit-2026-10-20/RUN.md"
+    ],
+    "evidence_refs": [
+      "evidence/skillspector-static-audit-2026-10-20/RUN.md",
+      "evidence/skillspector-static-audit-2026-10-20/FINDINGS_LEDGER.md",
+      "evidence/skillspector-static-audit-2026-10-20/GATE_VERIFICATION.md",
+      "https://github.com/baum777/model-agnostic-workflow-system/actions/runs/39348636394",
+      "https://github.com/baum777/model-agnostic-workflow-system/actions/runs/39348636408",
+      "https://github.com/baum777/model-agnostic-workflow-system/actions/runs/39348636467"
+    ],
+    "implementation_commit_sha": "8e275502df5217269a9052669da500b276ce1163",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/skillspector-static-audit-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}
