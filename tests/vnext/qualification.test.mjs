@@ -771,6 +771,13 @@ test('S7 the component digest is the S6 effective instruction digest and is sens
   assert.equal(decision.overall_class, 'MATERIAL');
   assert.deepEqual(decision.deltas.map((delta) => delta.component), ['effective_instruction_digest']);
   assert.equal(isRoutable(decision), false);
+  // The materiality decision the runtime produces must itself satisfy the
+  // materiality contract: the component enum is closed, so a component the
+  // runtime can emit has to be declared there.
+  assert.deepEqual(
+    validateAgainstContract(decision, 'core/contracts/materiality-decision.schema.json'),
+    []
+  );
 });
 
 test('S7 stale qualification: an instruction change blocks reuse via MATERIAL_FINGERPRINT_DRIFT', () => {
