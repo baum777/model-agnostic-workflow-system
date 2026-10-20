@@ -39,7 +39,10 @@ function requireFindingClass(findingClass) {
 
 function buildFinding({ auditId, graphDigest, findingClass, edge, authorityClass }) {
   requireFindingClass(findingClass);
-  const findingId = `iaf_${sha256Hex(canonicalJson({ audit_id: auditId, finding_class: findingClass, from: edge.from, line: edge.line, target: edge.target })).slice(0, 16)}`;
+  // Edge kind is part of the identity: the same missing target on the same
+  // line can arrive as both a markdown link and an inline path, and those
+  // are distinct findings that must not collapse into one id.
+  const findingId = `iaf_${sha256Hex(canonicalJson({ audit_id: auditId, finding_class: findingClass, from: edge.from, kind: edge.kind, line: edge.line, target: edge.target })).slice(0, 16)}`;
   return {
     schema_version: AUDIT_SCHEMA_VERSION,
     audit_id: auditId,
@@ -112,4 +115,21 @@ export function auditInstructionSources({ root, revision }) {
     coverage,
     digest
   };
+}
+
+// Semantic checks the schema engine cannot express (cross-field invariants).
+// The contract documents line_range as inclusive [start_line, end_line] with
+// start <= end; the JSON engine cannot compare array elements, so every
+// validation entry point (fixture mode, live round-trip) applies this check
+// on top of schema validation. Returns a list of human-readable issues.
+export function semanticFindingIssues(finding) {
+  const issues = [];
+  if (!finding || typeof finding !== 'object' || Array.isArray(finding)) return issues;
+  const range = finding.line_range;
+  if (Array.isArray(range) && range.length === 2
+    && Number.isInteger(range[0]) && Number.isInteger(range[1])
+    && range[0] > range[1]) {
+    issues.push(`line_range must be ordered [start, end] with start <= end, got [${range[0]}, ${range[1]}]`);
+  }
+  return issues;
 }

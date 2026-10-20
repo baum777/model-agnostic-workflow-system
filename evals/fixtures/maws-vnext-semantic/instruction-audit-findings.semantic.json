@@ -1,0 +1,75 @@
+{
+  "id": "maws-vnext-instruction-audit-finding-semantic",
+  "description": "Schema-passing instances with cross-field invariants the JSON schema engine cannot express. Checked by validate-instruction-integrity.mjs (fixture mode) via semanticFindingIssues; intentionally NOT registered in evals/catalog.json because the generic eval runner applies schema validation only.",
+  "cases": [
+    {
+      "case_id": "audit-finding-semantic-invalid-reversed-line-range",
+      "schema": "core/contracts/instruction-audit-finding.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "audit_id": "ia_0f1e2d3c4b5a6978",
+        "finding_id": "iaf_bb1e2d3c4b5a6978",
+        "finding_class": "STALE_REFERENCE",
+        "determinism": "deterministic",
+        "source_path": "AGENTS.md",
+        "source_revision": "ee7f094b2676963b20161f093ed5a9a01e0c018b",
+        "line_range": [10, 2],
+        "authority_class": "canonical",
+        "observed_problem": "reversed line range passes schema but must fail the semantic ordering invariant",
+        "evidence_refs": ["file:AGENTS.md"],
+        "inferred_cause": null,
+        "risk_level": "low",
+        "confidence": "high",
+        "recommended_action": "n/a",
+        "requires_owner_review": false
+      }
+    },
+    {
+      "case_id": "audit-finding-semantic-valid-single-line-range",
+      "schema": "core/contracts/instruction-audit-finding.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "audit_id": "ia_0f1e2d3c4b5a6978",
+        "finding_id": "iaf_cc1e2d3c4b5a6978",
+        "finding_class": "INVALID_COMMAND",
+        "determinism": "deterministic",
+        "source_path": "AGENTS.md",
+        "source_revision": "ee7f094b2676963b20161f093ed5a9a01e0c018b",
+        "line_range": [7, 7],
+        "authority_class": "canonical",
+        "observed_problem": "single-line range is the ordered degenerate case and must pass",
+        "evidence_refs": ["edge:AGENTS.md#L7:npm_run_command:missing-script"],
+        "inferred_cause": null,
+        "risk_level": "medium",
+        "confidence": "high",
+        "recommended_action": "n/a",
+        "requires_owner_review": false
+      }
+    },
+    {
+      "case_id": "audit-finding-semantic-valid-multi-line-range",
+      "schema": "core/contracts/instruction-audit-finding.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "audit_id": "ia_0f1e2d3c4b5a6978",
+        "finding_id": "iaf_dd1e2d3c4b5a6978",
+        "finding_class": "RULE_CONFLICT",
+        "determinism": "semantic_advisory",
+        "source_path": "WORKFLOW.md",
+        "source_revision": "ee7f094b2676963b20161f093ed5a9a01e0c018b",
+        "line_range": [12, 30],
+        "authority_class": "canonical",
+        "observed_problem": "ordered multi-line range must pass",
+        "evidence_refs": ["operator:session note"],
+        "inferred_cause": null,
+        "risk_level": "medium",
+        "confidence": "medium",
+        "recommended_action": "n/a",
+        "requires_owner_review": true
+      }
+    }
+  ]
+}
