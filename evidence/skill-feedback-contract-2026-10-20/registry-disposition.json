@@ -1,0 +1,50 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S1 of MAWS-SII-TARGET-SPEC-001 adds a new canonical contract to core/contracts/ (skill-feedback.schema.json), which is a CONTRACT_RECORD class change under the registry-disposition.v1 consumer binding: the Unitera registry must gain a representation of the new contract surface and of the analysis-only feedback record class it introduces. The registry write has not happened yet in this change set and is its own registered change; it is blocked only on execution order (source PR first, registry projection second, then rebind of this disposition to UPDATED with the registry commit), following the execution-intake-binding precedent. Until the rebind, this disposition records the pending registry obligation.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/skill-feedback.schema.json"
+    ],
+    "authority_refs": [
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/authority-matrix.md",
+      "docs/governance/registry-disposition.md"
+    ],
+    "source_refs": [
+      "core/contracts/skill-feedback.schema.json",
+      "core/contracts/README.md",
+      "evals/fixtures/maws-vnext/skill-feedback.contracts.json",
+      "scripts/tools/validate-skill-feedback.mjs",
+      "tests/vnext/skill-feedback.test.mjs",
+      "evals/catalog.json",
+      "package.json"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/skill-feedback-contract-2026-10-20/RUN.md",
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md"
+    ],
+    "evidence_refs": [
+      "evidence/skill-feedback-contract-2026-10-20/RUN.md",
+      "npm run validate-skill-feedback (fixture: 16 cases checked, 0 unexpected results)",
+      "npm run eval:maws-vnext (exit 0, 11/11 fixtures passed including skill-feedback)",
+      "npm run test:vnext (295/295 pass, 0 fail; includes tests/vnext/skill-feedback.test.mjs)",
+      "npm run validate / validate-neutral / validate-maws-vnext (PASS, issues: [])",
+      "npm run validate-secrets / scan-secrets (PASS)"
+    ],
+    "implementation_commit_sha": "b778c9be6bb75f8052eb23c3d89a63956434f506",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/skill-feedback-contract-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/skill-feedback.schema.json (new canonical contract in this change set)",
+      "core/contracts/README.md canonical files list (skill-feedback.schema.json added)"
+    ],
+    "registry_baseline_sha": "74c5be614641f5c89b7c3a989021ad7b53c8f466"
+  }
+}
