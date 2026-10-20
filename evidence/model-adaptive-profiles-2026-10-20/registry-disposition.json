@@ -3,7 +3,7 @@
     "status": "REQUIRED_BUT_BLOCKED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "S12 of MAWS-SII-TARGET-SPEC-001 v0.2.0 (section 11.5) adds a new canonical contract to core/contracts/ (executor-model-profile.schema.json) and amends an existing one (materiality-decision.schema.json, component vocabulary gains effective_instruction_digest). Both are CONTRACT_RECORD class changes under the registry-disposition.v1 consumer binding of this repository (AGENTS.md, Registry Disposition Consumer Binding: CONTRACT_RECORD, PROVENANCE, SUPERSESSION). The registry write is its own registered change and follows after the owner merges the source change (precedent: evidence/skill-feedback-contract-2026-10-20/ and evidence/instruction-bundles-2026-10-20/, which followed the same two-phase REQUIRED_BUT_BLOCKED -> UPDATED rebind pattern). This slice does not perform the registry write, so no registry commit exists yet and registry_commit_sha stays null; implementation_commit_sha is a placeholder that must be bound to the landing commit. No authority, permission, runtime activation or qualification state is granted or changed by this slice: a model-adaptive executor profile is a presentation layer with authority_grant none, and the qualification state is recorded, never conferred.",
+    "reason": "S12 of MAWS-SII-TARGET-SPEC-001 v0.2.0 (section 11.5) adds a new canonical contract to core/contracts/ (executor-model-profile.schema.json) and amends an existing one (materiality-decision.schema.json, component vocabulary gains effective_instruction_digest). Both are CONTRACT_RECORD class changes under the registry-disposition.v1 consumer binding of this repository (AGENTS.md, Registry Disposition Consumer Binding: CONTRACT_RECORD, PROVENANCE, SUPERSESSION). The S7 qualification-integration merge (PR #47, 27b17b6) landed between the first publication of this slice and the S7-compliance repair: it made effective_instruction_digest a REQUIRED component of core/contracts/qualification-fingerprint.schema.json, and the S12 slice - written before that merge - built qualification fingerprints without it, so after the rebase the canonical contract rejected every S12 fingerprint. The repair makes the S12 lane comply with the merged contract (the fixture and the inline test fingerprints carry the required component with canonically recomputed fingerprint digests; R8 compares the pinned digest, the fingerprint's digest component and the currently effective digest and refuses a fingerprint that states none), while reading the S7 contract, builder and materiality rules without amending them; the materiality-decision component enum carries effective_instruction_digest exactly once after the rebase, so the identical S7 and S12 amendments are de-duplicated. The registry write is its own registered change and follows after the owner merges the source change (precedent: evidence/skill-feedback-contract-2026-10-20/ and evidence/instruction-bundles-2026-10-20/, which followed the same two-phase REQUIRED_BUT_BLOCKED -> UPDATED rebind pattern). This slice does not perform the registry write, so no registry commit exists yet and registry_commit_sha stays null; implementation_commit_sha is bound to the landing commit of the S7-compliance repair. No authority, permission, runtime activation or qualification state is granted or changed by this slice: a model-adaptive executor profile is a presentation layer with authority_grant none, and the qualification state is recorded, never conferred.",
     "affected_records": [
       "CONTRACT_RECORD:core/contracts/executor-model-profile.schema.json",
       "CONTRACT_RECORD:core/contracts/materiality-decision.schema.json"
@@ -30,10 +30,12 @@
       "runtime/harness-context/profiles/model-adaptive/profiles/emp_minimax_text__v1_0_0.json",
       "runtime/harness-context/profiles/model-adaptive/profiles/emp_qwen_code_qwen3_max__v1_0_0.json",
       "scripts/tools/validate-executor-model-profile.mjs",
+      "scripts/tools/validate-registry-disposition.mjs",
       "evals/fixtures/maws-vnext/executor-model-profile.contracts.json",
       "evals/catalog.json",
       "evals/README.md",
       "tests/vnext/executor-model-profile.test.mjs",
+      "tests/vnext/registry-disposition-evidence.test.mjs",
       "package.json",
       "CHANGELOG.md"
     ],
@@ -43,15 +45,15 @@
       "evidence/model-adaptive-profiles-2026-10-20/registry-disposition.json"
     ],
     "evidence_refs": [
-      "evidence/model-adaptive-profiles-2026-10-20/RUN.md (incl. the six mutation-evidence records)",
+      "evidence/model-adaptive-profiles-2026-10-20/RUN.md (incl. the seven mutation-evidence records)",
       "npm run validate-executor-model-profile (fixture: 19 schema cases checked, 0 unexpected results; denial cases: 7 checked, 0 unexpected results; store: 6 profiles checked, 0 issues)",
-      "npm run test:vnext (476/476 pass, 0 fail; baseline before the change 419/419 on origin/main 7fb6a5a2; +57 from tests/vnext/executor-model-profile.test.mjs)",
-      "npm run validate-maws-vnext (PASS), npm run eval:maws-vnext (PASS, the new executor-model-profile fixture is registered and green)",
-      "npm run validate / validate-neutral / validate-secrets / scan-secrets (PASS), node scripts/tools/ci-gate.mjs (PASS CI Gate)",
-      "mutation evidence: six guards weakened and observed to fail (pinned-dimension comparison, model/provider coverage comparison, harness capability check, instruction-digest drift classification, the contract const 'unchanged' on authority_ceiling, the required pinned_dimensions block), all restored afterwards; the final tree carries no mutation marker",
+      "npm run test:vnext (488/488 pass, 0 fail; baseline of the same tree without tests/vnext/executor-model-profile.test.mjs 427/427; the S12 file contributes 61 tests)",
+      "npm run validate-maws-vnext (PASS, ok:true, contract fixtures 18 / cases 195), npm run eval:maws-vnext (PASS, ok:true, total 17, passed 17, failed 0)",
+      "npm run validate / validate-neutral (PASS, issueCount 0), npm run validate-registry-disposition evidence/model-adaptive-profiles-2026-10-20/registry-disposition.json (PASS, {\"passed\": true, \"issues\": []})",
+      "mutation evidence: seven guards weakened and observed to fail (pinned-dimension comparison, model/provider coverage comparison, harness capability check, instruction-digest drift classification, the contract const 'unchanged' on authority_ceiling, the required pinned_dimensions block, the S7 fingerprint effective_instruction_digest requirement), all restored afterwards; the final tree carries no mutation marker",
       "node --check on runtime/harness-context/profiles/model-adaptive/profile-resolver.mjs, executor-profile.mjs, profile-store.mjs and scripts/tools/validate-executor-model-profile.mjs (PASS)"
     ],
-    "implementation_commit_sha": "PENDING_COMMIT:s12/model-adaptive-profiles-20261020",
+    "implementation_commit_sha": "70d21a3c2bd426450fa6b061d11dae668f89e797",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/model-adaptive-profiles-2026-10-20/registry-disposition.json",
@@ -64,6 +66,6 @@
       "core/contracts/executor-model-profile.schema.json (new canonical contract in this change set)",
       "core/contracts/materiality-decision.schema.json (amended canonical contract in this change set: component vocabulary gains effective_instruction_digest)"
     ],
-    "registry_baseline_sha": "7fb6a5a2ad166cbac0ab43e3c1bb3dfdc1cdd255"
+    "registry_baseline_sha": "27b17b62800d5d37e14bfe48ecd210603c4e1cb6"
   }
 }
