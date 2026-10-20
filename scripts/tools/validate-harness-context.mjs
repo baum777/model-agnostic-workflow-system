@@ -91,10 +91,15 @@ export function semanticContextIssues({ harnessContext, workUnit, boundGraph, ro
       // A superseded graph records the NEXT version's transition target.
       const nextContext = supersededBy.context_change ? supersededBy.context_change.to_context : null;
       if (previousContext && nextContext) {
+        const previousRefs = new Set(
+          (boundGraph.nodes || []).map((node) => node?.executor_binding?.harness_context_ref).filter(Boolean)
+        );
+        const previousPair = `${previousContext}|${previousRefs.size === 1 ? [...previousRefs][0] : ''}`;
+        const nextPair = `${nextContext}|${supersededBy.context_change ? '' : previousPair.split('|')[1]}`;
         try {
           assertSupersessionContextChange({
-            previousContext,
-            nextContext,
+            previousPair,
+            nextPair,
             contextChange: supersededBy.context_change
           });
         } catch (error) {

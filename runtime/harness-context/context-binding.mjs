@@ -90,7 +90,9 @@ export function resolveHarnessContext({ contextRef, records, root }) {
     match = records.find((record) => record && record.context_id === contextRef) || null;
   } else if (records !== null && typeof records === 'object') {
     const entry = records[contextRef];
-    match = entry !== null && typeof entry === 'object' ? entry : null;
+    // A map entry only resolves the requested reference when it IS that
+    // record: a key containing a different context_id does not resolve.
+    match = entry !== null && typeof entry === 'object' && entry.context_id === contextRef ? entry : null;
   } else {
     failClosed('CONTEXT_BINDING_MISSING', 'no harness context records available for resolution');
   }
@@ -207,26 +209,29 @@ export function assertInvocationHarnessContext(record) {
   return validateHarnessContextRecord(record, REPO_ROOT);
 }
 
-// assertSupersessionContextChange({ previousContext, nextContext,
-// contextChange }) -> R3. A context change across graph versions is legal
-// only as an explicit, evidence-backed transition; anything else fails
-// closed. previousContext/nextContext are the bound context values of the
-// old and new graph; contextChange is the superseded_by.context_change
-// record (or null/undefined).
-export function assertSupersessionContextChange({ previousContext, nextContext, contextChange }) {
+// assertSupersessionContextChange({ previousPair, nextPair, contextChange })
+// -> R3 at PAIR level (context value + context record reference). A
+// transition across graph versions -- a context value change OR a
+// reference-only re-anchoring -- is legal only as an explicit,
+// evidence-backed context_change record; anything else fails closed.
+// previousPair/nextPair are "context|ref" strings; contextChange is the
+// supersession context_change record (or null/undefined).
+export function assertSupersessionContextChange({ previousPair, nextPair, contextChange }) {
+  const [previousContext] = String(previousPair).split('|');
+  const [nextContext] = String(nextPair).split('|');
   if (!HARNESS_CONTEXT_VALUES.includes(previousContext) || !HARNESS_CONTEXT_VALUES.includes(nextContext)) {
     failClosed('CONTEXT_VOCABULARY_UNKNOWN', 'supersession comparison requires declared harness contexts on both graph versions');
   }
-  if (previousContext === nextContext) {
+  if (String(previousPair) === String(nextPair)) {
     if (contextChange !== undefined && contextChange !== null) {
-      failClosed('CONTEXT_BINDING_CONFLICT', 'supersession declares a context change but both graph versions share the same context');
+      failClosed('CONTEXT_BINDING_CONFLICT', 'supersession declares a context change but both graph versions bind the identical context pair');
     }
     return;
   }
   if (!contextChange || typeof contextChange !== 'object') {
     failClosed(
       'CONTEXT_SWITCH_UNEVIDENCED',
-      `context changed from "${previousContext}" to "${nextContext}" without a supersession context_change record; a context switch is a bound plan change with its own evidence, not an implicit fallback`
+      `context binding changed from "${previousPair}" to "${nextPair}" without a supersession context_change record; a context switch is a bound plan change with its own evidence, not an implicit fallback`
     );
   }
   if (contextChange.from_context !== previousContext || contextChange.to_context !== nextContext) {

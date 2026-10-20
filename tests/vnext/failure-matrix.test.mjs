@@ -100,10 +100,12 @@ const passReceipt = (workUnitId) => buildVerificationReceipt({ work_unit_id: wor
 
 async function runMatrix(worldOverrides = {}, engineOverrides = {}) {
   const world = { ...baseWorld(), ...worldOverrides };
+  const runId = `run_fm_${Math.random().toString(36).slice(2, 8)}`;
   return executeWorkRun({
     root,
-    harnessContext: developmentProbeHarnessContext({ runRef: 'failure_matrix' }),
-    runId: `run_fm_${Math.random().toString(36).slice(2, 8)}`,
+    // The harness context record is bound to THIS run (S11 run binding).
+    harnessContext: developmentProbeHarnessContext({ runRef: runId }),
+    runId,
     interactionSession: { session_id: 'sess_fm', interaction_host: 'zcode', session_model: 'glm-5.3', orchestration_owner: 'maws', submitted_at: '2026-09-25T00:00:00Z' },
     workRequest: {
       objective: 'Audit and repair repository',

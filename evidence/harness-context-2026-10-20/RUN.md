@@ -69,9 +69,19 @@ Regression tests for all five repairs are in `tests/vnext/harness-context.test.m
 
 Regression tests for all three repairs are in `tests/vnext/harness-context.test.mjs` (64 tests total; the round-1 evidenced-switch test was rewritten to the store-level activation gate it actually exercises).
 
+## Pre-merge independent review (codex, round 3 on `aaf9ef4`)
+
+1×P1 + 2×P2, all assessed as real and repaired on this head:
+
+1. **P1 pair-level activation gate:** `bindingContexts` reduced bindings to the enum value, so a reference-only change (same context, different `harness_context_ref`) could activate unevidenced. Repaired: the store now compares full `context|ref` PAIRS (`bindingContextPairs`), and `assertSupersessionContextChange` moved to pair level — any transition (context value change OR reference re-anchoring) requires an evidenced `context_change` record; identical pairs reject a declared change.
+2. **P2 run binding:** the engine now refuses a schema-valid record whose `run_ref` names a different run, or whose `plan_graph_ref` does not name this run's graph (`CONTEXT_BINDING_CONFLICT`); no cross-run record reuse.
+3. **P2 map resolution exactness:** `resolveHarnessContext`'s map branch now returns an entry only when `entry.context_id` matches the requested ref, matching the array branch's exact-ID lookup.
+
+New regression tests: reference-only re-anchoring requires evidence; cross-run record refusal; all spec-mutating tests re-bind the context record to the re-keyed run. 382/382 PASS.
+
 ## Verification
 
-- `node --test tests/vnext/*.test.mjs` — 380/380 PASS (includes the S11 tests with both repair rounds and all coordinated amendments).
+- `node --test tests/vnext/*.test.mjs` — 382/382 PASS (includes the S11 tests across all three repair rounds and all coordinated amendments).
 - `npm run eval:maws-vnext` — ok:true (now includes `harness-context.contracts.json`).
 - `npm run validate-harness-context` — CLI smoke: valid record exit 0, unknown-vocabulary record exit 1.
 - Full engine path: `runtime/cli/runtime-run.mjs --spec runtime/cli/specs/reference-audit-v1.json` completes COMPLETED with the bound dev context (CLI test asserts this continuously).

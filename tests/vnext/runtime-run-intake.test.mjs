@@ -68,6 +68,7 @@ test('reference spec binds the effect stage through the execution-control fixtur
 test('a live intake transport cannot even validate (fixture-only contract, fail closed)', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_live_transport_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.intake_bindings.exec_unitera_execution_control_fixture.target.transport = 'live_http';
   });
   await assert.rejects(
@@ -79,6 +80,7 @@ test('a live intake transport cannot even validate (fixture-only contract, fail 
 test('intake bindings may only target the execution-control fixture executor', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_wrong_executor_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.intake_bindings.exec_local_tests = spec.intake_bindings.exec_unitera_execution_control_fixture;
     delete spec.intake_bindings.exec_unitera_execution_control_fixture;
   });
@@ -91,6 +93,7 @@ test('intake bindings may only target the execution-control fixture executor', a
 test('an intake binding without a matching executor binding fails closed', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_no_binding_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     delete spec.executor_bindings.exec_unitera_execution_control_fixture;
   });
   await assert.rejects(
@@ -102,6 +105,7 @@ test('an intake binding without a matching executor binding fails closed', async
 test('the runtime rights transition is deny-by-default on scope mismatch', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_scope_mismatch_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.intake_bindings.exec_unitera_execution_control_fixture.work_unit_id = 'wu_run_intake_scope_mismatch_0001_root';
     spec.intake_bindings.exec_unitera_execution_control_fixture.rights_transition.authority_ceiling_ref = 'scope/not_granted';
   });
@@ -114,6 +118,7 @@ test('the runtime rights transition is deny-by-default on scope mismatch', async
 test('the runtime rights transition is deny-by-default on missing effects', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_effect_mismatch_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.intake_bindings.exec_unitera_execution_control_fixture.work_unit_id = 'wu_run_intake_effect_mismatch_0001_root';
     spec.intake_bindings.exec_unitera_execution_control_fixture.rights_transition.allowed_effects = ['external'];
   });
@@ -126,6 +131,7 @@ test('the runtime rights transition is deny-by-default on missing effects', asyn
 test('the binding only attests its own work unit', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_wu_mismatch_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.intake_bindings.exec_unitera_execution_control_fixture.work_unit_id = 'wu_some_other_root';
   });
   await assert.rejects(
@@ -137,6 +143,7 @@ test('the binding only attests its own work unit', async () => {
 test('the execution-control executor may never run unbound', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_unbound_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     delete spec.intake_bindings;
   });
   await assert.rejects(
@@ -148,6 +155,7 @@ test('the execution-control executor may never run unbound', async () => {
 test('the recorded capability mapping must be the routed capability', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_cap_mismatch_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.intake_bindings.exec_unitera_execution_control_fixture.capability_mapping.maws_capability_id = 'cap_repository_analysis';
   });
   await assert.rejects(
@@ -159,6 +167,7 @@ test('the recorded capability mapping must be the routed capability', async () =
 test('a FAILED fixture outcome yields honest failure evidence', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_failed_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     spec.executor_bindings.exec_unitera_execution_control_fixture.result.outcome = 'FAILED';
   });
   const outDir = path.join(dir, 'run');
@@ -176,6 +185,7 @@ test('a FAILED fixture outcome yields honest failure evidence', async () => {
 test('qualified snapshots are keyed per qualification scope, not per executor', async () => {
   const { specPath, dir } = writeSpec((spec) => {
     spec.run_id = 'run_intake_fp_rekey_0001';
+    spec.harness_context.run_ref = spec.run_id;  // S11: the context record is bound to this run
     const qualification = spec.qualifications.find((entry) => entry.executor_id === 'exec_unitera_execution_control_fixture');
     qualification.fingerprint_ref = 'fp_renamed_scope_probe';
     spec.qualified_fingerprints.fp_renamed_scope_probe = {

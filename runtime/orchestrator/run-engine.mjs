@@ -76,6 +76,14 @@ export async function executeWorkRun(options) {
   // without a valid context record never creates a WorkUnit and never binds
   // an executor (R6; CONTEXT_BINDING_MISSING, no fallback).
   const boundContext = validateHarnessContextRecord(harnessContext, root);
+  // The record must be bound to THIS run: a valid record naming another
+  // run (or another plan graph) is a contradictory binding, not a fallback.
+  if (boundContext.run_ref !== runId) {
+    throw new FailClosedError('CONTEXT_BINDING_CONFLICT', `harness context record ${boundContext.context_id} is bound to run "${boundContext.run_ref}", not this run "${runId}"`);
+  }
+  if (boundContext.plan_graph_ref !== undefined && boundContext.plan_graph_ref !== `graph_${runId}`) {
+    throw new FailClosedError('CONTEXT_BINDING_CONFLICT', `harness context record ${boundContext.context_id} references plan graph "${boundContext.plan_graph_ref}", not this run's "graph_${runId}"`);
+  }
   event('harness_context', 'bound', { details: { context: boundContext.context, context_id: boundContext.context_id } });
 
   const workUnitStore = createWorkUnitStore({ root });

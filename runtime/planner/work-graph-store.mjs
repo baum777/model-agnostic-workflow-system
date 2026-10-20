@@ -28,18 +28,19 @@ function requireVersion(entry, version) {
   return graph;
 }
 
-// The set of harness contexts declared by a graph version's executor
-// bindings. A single graph version binds a single context; mixed sets fail
-// closed at activation.
-function bindingContexts(graph) {
-  const contexts = new Set();
+// The set of full "context|ref" pairs declared by a graph version's
+// executor bindings. One graph version binds one pair; mixed sets fail
+// closed at activation, and a reference-only change is a transition like a
+// context value change.
+function bindingContextPairs(graph) {
+  const pairs = new Set();
   for (const node of graph.nodes || []) {
-    const context = node?.executor_binding?.harness_context;
-    if (context !== undefined) {
-      contexts.add(context);
+    const binding = node?.executor_binding;
+    if (binding?.harness_context !== undefined) {
+      pairs.add(`${binding.harness_context}|${binding.harness_context_ref ?? ''}`);
     }
   }
-  return contexts;
+  return pairs;
 }
 
   return {
@@ -72,19 +73,22 @@ function bindingContexts(graph) {
       if (previousActive !== null && version <= previousActive) {
         throw new FailClosedError('GRAPH_VERSION_NOT_MONOTONIC', `cannot activate v${version} over v${previousActive}`);
       }
-      // S11 R3: a context change across graph versions is legal only as an
+      // S11 R3: any transition across graph versions -- a context value
+      // change OR a reference-only re-anchoring -- is legal only as an
       // explicit, evidence-backed transition asserted against the ACTUAL
-      // binding delta between the superseded and the activating graph.
+      // binding-pair delta between the superseded and the activating graph.
       let contextChangeRecord = null;
       if (previousActive !== null) {
-        const previousContexts = bindingContexts(requireVersion(entry, previousActive));
-        const nextContexts = bindingContexts(activating);
-        if (previousContexts.size > 1 || nextContexts.size > 1) {
-          throw new FailClosedError('CONTEXT_BINDING_CONFLICT', 'a graph version with mixed node harness contexts cannot activate; one graph version binds one context');
+        const previousPairs = bindingContextPairs(requireVersion(entry, previousActive));
+        const nextPairs = bindingContextPairs(activating);
+        if (previousPairs.size > 1 || nextPairs.size > 1) {
+          throw new FailClosedError('CONTEXT_BINDING_CONFLICT', 'a graph version with mixed node harness context pairs cannot activate; one graph version binds one context pair');
         }
-        const previousContext = [...previousContexts][0];
-        const nextContext = [...nextContexts][0];
-        assertSupersessionContextChange({ previousContext, nextContext, contextChange });
+        assertSupersessionContextChange({
+          previousPair: [...previousPairs][0],
+          nextPair: [...nextPairs][0],
+          contextChange
+        });
         if (contextChange) {
           contextChangeRecord = { ...contextChange };
         }

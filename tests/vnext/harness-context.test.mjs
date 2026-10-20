@@ -219,7 +219,7 @@ test('R2 headline: dev-harness record carrying a product authority surface fails
 test('R2 headline: dev-harness run claiming a product authority surface reference fails closed at the engine gate', async () => {
   await assert.rejects(
     () => runS11({
-      harnessContext: devContext(),
+      harnessContext: devContext({ run_ref: 'run_s11_engine' }),
       templateOverride: {
         authority_ceiling_default: {
           scope_ref: 'scope/run_s11',
@@ -245,27 +245,38 @@ test('R2 binding-level: assertNoProductAuthorityFromDevContext rejects unitera-o
 
 test('R3 context switch with supersession evidence is accepted', () => {
   assertSupersessionContextChange({
-    previousContext: 'development_harness',
-    nextContext: 'unitera_product',
+    previousPair: 'development_harness|hctx_old',
+    nextPair: 'unitera_product|hctx_new',
     contextChange: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/context-switches/x.json' }
   });
 });
 
+test('R3 a reference-only re-anchoring is a transition too and requires evidence', () => {
+  assertSupersessionContextChange({
+    previousPair: 'development_harness|hctx_old',
+    nextPair: 'development_harness|hctx_new',
+    contextChange: { from_context: 'development_harness', to_context: 'development_harness', evidence_ref: 'evidence/context-switches/reanchor.json' }
+  });
+  expectFailClosed('CONTEXT_SWITCH_UNEVIDENCED', () =>
+    assertSupersessionContextChange({ previousPair: 'development_harness|hctx_old', nextPair: 'development_harness|hctx_new', contextChange: null })
+  );
+});
+
 test('R3 unevidenced context switch fails closed as CONTEXT_SWITCH_UNEVIDENCED', () => {
   expectFailClosed('CONTEXT_SWITCH_UNEVIDENCED', () =>
-    assertSupersessionContextChange({ previousContext: 'development_harness', nextContext: 'unitera_product', contextChange: null })
+    assertSupersessionContextChange({ previousPair: 'development_harness|hctx_a', nextPair: 'unitera_product|hctx_b', contextChange: null })
   );
   expectFailClosed('CONTEXT_SWITCH_UNEVIDENCED', () =>
-    assertSupersessionContextChange({ previousContext: 'unitera_product', nextContext: 'development_harness', contextChange: { from_context: 'unitera_product', to_context: 'development_harness', evidence_ref: '' } })
+    assertSupersessionContextChange({ previousPair: 'unitera_product|hctx_a', nextPair: 'development_harness|hctx_b', contextChange: { from_context: 'unitera_product', to_context: 'development_harness', evidence_ref: '' } })
   );
 });
 
 test('R3 declared change without an actual transition (and vice versa) conflicts', () => {
   expectFailClosed('CONTEXT_BINDING_CONFLICT', () =>
-    assertSupersessionContextChange({ previousContext: 'development_harness', nextContext: 'development_harness', contextChange: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/x.json' } })
+    assertSupersessionContextChange({ previousPair: 'development_harness|hctx_a', nextPair: 'development_harness|hctx_a', contextChange: { from_context: 'development_harness', to_context: 'unitera_product', evidence_ref: 'evidence/x.json' } })
   );
   expectFailClosed('CONTEXT_BINDING_CONFLICT', () =>
-    assertSupersessionContextChange({ previousContext: 'development_harness', nextContext: 'unitera_product', contextChange: { from_context: 'unitera_product', to_context: 'unitera_product', evidence_ref: 'evidence/x.json' } })
+    assertSupersessionContextChange({ previousPair: 'development_harness|hctx_a', nextPair: 'unitera_product|hctx_b', contextChange: { from_context: 'unitera_product', to_context: 'unitera_product', evidence_ref: 'evidence/x.json' } })
   );
 });
 
@@ -339,6 +350,13 @@ test('R6 engine refuses a run without a harness context record entirely', async 
   );
 });
 
+test('R6 engine refuses a valid record bound to a DIFFERENT run (no cross-run reuse)', async () => {
+  await assert.rejects(
+    () => runS11({ harnessContext: devContext({ run_ref: 'run_someone_elses_run' }) }),
+    (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
+  );
+});
+
 // --- engine-level positive path + validator surface.
 
 test('engine binds the context end-to-end: WorkUnit ref, node bindings, invocation record', async () => {
@@ -381,7 +399,7 @@ test('R4 engine-level: qualification without a context-declaring runtime_harness
   }
   await assert.rejects(
     () => runS11({
-      harnessContext: devContext(),
+      harnessContext: devContext({ run_ref: 'run_s11_engine' }),
       worldOverrides: { qualifiedFingerprints: world.qualifiedFingerprints, currentFingerprints: world.currentFingerprints }
     }),
     (error) => error instanceof FailClosedError && error.code === 'CONTEXT_BINDING_CONFLICT'
