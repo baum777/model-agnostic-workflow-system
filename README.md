@@ -247,6 +247,9 @@ Primary commands:
 - `npm run memory:validate`
   Validates the local memory skeleton and policies.
 
+- `npm run promote-skill-candidate -- --input <adoption-input.json>`
+  Executes the S8 governance promotion chain (frontdoor admission, digest-bound behavioral evidence, owner approval, versioned canonical adoption, adoption ledger, post-adoption readback) against the canonical root the input names. It changes canonical skill content and nothing else: it grants no permission, no qualification and no runtime authority. A promotion on the live canonical tree is an owner act.
+
 - `npm run baum:ci-gate`
   Runs the bounded repo-loop adapter, evidence validation, and quality gate.
 
