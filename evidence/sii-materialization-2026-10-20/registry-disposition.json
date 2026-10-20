@@ -3,7 +3,7 @@
     "status": "NO_CHANGE",
     "material_change": true,
     "registry_relevant_change": false,
-    "reason": "Scope is proposal staging only: the owner-provided MAWS-SII-TARGET-SPEC-001 v0.1.0 (PROPOSED) is materialized verbatim under docs/proposals/ together with the S0 current-state map and this run record. docs/proposals/README.md classes these files as non-canonical review material, and Section 21 of the specification itself states that it creates no authority, qualification, permission or runtime activation. No CONTRACT_RECORD, PROVENANCE or SUPERSESSION surface was created, altered or superseded: the staged specification proposes future contracts but is not one, and no canonical surface changed meaning. No Registry write is required under the closed relevance taxonomy; implementation slices S1+ will each carry their own disposition (REQUIRED_BUT_BLOCKED for new canonical contracts, per the execution-intake-binding precedent).",
+    "reason": "Scope is proposal staging only: the owner-provided MAWS-SII-TARGET-SPEC-001 v0.1.0 (PROPOSED) is materialized verbatim under docs/proposals/ together with the S0 current-state map and this run record. docs/proposals/README.md classes these files as non-canonical review material, and Section 21 of the specification itself states that it creates no authority, qualification, permission or runtime activation. No CONTRACT_RECORD, PROVENANCE or SUPERSESSION surface was created, altered or superseded: the staged specification proposes future contracts but is not one, and no canonical surface changed meaning. No Registry write is required under the closed relevance taxonomy; implementation slices S1+ will each carry their own disposition (REQUIRED_BUT_BLOCKED for new canonical contracts, per the execution-intake-binding precedent). The change registration for this change is published in the Registry repository (baum777/unitera-registry) as registry/MAWS_SII_MATERIALIZATION_2026_10_20_001.yaml and merged as 15ef3f3315d927150e05b4349ef4d2e59c29a88a (pull request 220); it is a representation of the change, not an object mutation caused by it. The contract field registry_commit_sha stays null: registry-disposition.v1 invariant 4 forbids a non-null value unless the status is UPDATED, and invariant 2 requires UPDATED to carry a non-empty affected_records list, which this change does not have because no registry-relevant class changed. The published registration SHA is therefore carried as publication evidence only, and only after the publication succeeded.",
     "registry_baseline_sha": "UNVERIFIED_NO_REGISTRY_WRITE",
     "affected_records": [],
     "authority_refs": [
@@ -22,7 +22,8 @@
     "evidence_refs": [
       "evidence/sii-materialization-2026-10-20/RUN.md",
       "docs/proposals/skill-intelligence-current-state-map-2026-10-20.md",
-      "docs/proposals/skill-intelligence-target-spec.md"
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "registry/MAWS_SII_MATERIALIZATION_2026_10_20_001.yaml in baum777/unitera-registry, published as merge 15ef3f3315d927150e05b4349ef4d2e59c29a88a (pull request 220) - the change registration for this change, published after this disposition's classification and therefore cited here as publication evidence only"
     ],
     "implementation_commit_sha": "e17f01cf4916c34c4d39069452ab0434c94c4d9a",
     "registry_commit_sha": null,
