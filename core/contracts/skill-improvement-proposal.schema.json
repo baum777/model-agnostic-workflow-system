@@ -1,0 +1,339 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/skill-improvement-proposal.schema.json",
+  "title": "SkillImprovementProposal Contract",
+  "description": "S4 of MAWS-SII-TARGET-SPEC-001 (PROPOSED): canonical, versioned proposal record for the Skill Intelligence feedback-to-improvement lifecycle (spec sections 8.3, 8.4, 9 Stage 2 Diagnose and Stage 3 Proposal). A proposal is analysis output, never authority: it grants no permission, promotes no skill, activates no runtime path and changes no qualification state. `authority_granted` is `false` by construction. The §8.3 error class determines the responsible improvement area and is carried forward unchanged from the bound S1 feedback record; the §8.4 decision vocabulary is closed and contains only the reuse/extend/create gate outcomes, so promotion stays a separate governance decision (spec 13.4). Fail-closed rules: a cause that lies exclusively in the tool contract or in the runtime can never produce a skill-changing decision (the skill is not the improvement area); an unattributed cause never names an improvement area, never names a change target and always requires owner review; CREATE_SKILL and EXTEND_SKILL always require owner review; `target_skill_ref` exists only for REUSE and EXTEND_SKILL; `change_scope.surface` is `none` for every decision that requests no change.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "created_at",
+    "feedback_ref",
+    "diagnosis_ref",
+    "error_class",
+    "responsible_area",
+    "decision",
+    "inferred_cause",
+    "change_scope",
+    "evidence_refs",
+    "candidate_evaluation",
+    "requires_owner_review",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "proposal_id": {
+      "type": "string",
+      "pattern": "^sip_[a-z0-9_]+$",
+      "description": "Identifier of the proposal; deterministic function of the bound feedback id, the bound diagnosis id, the decision and the change scope, so re-running the classifier on unchanged inputs reproduces the id."
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+    },
+    "feedback_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feedback_id", "feedback_schema_version", "source_ref"],
+      "description": "Binding to the S1 feedback record (core/contracts/skill-feedback.schema.json) this proposal was derived from. A proposal without a feedback binding cannot be reconstructed.",
+      "properties": {
+        "feedback_id": { "type": "string", "pattern": "^fb_[a-z0-9_]+$" },
+        "feedback_schema_version": { "const": "1.0.0" },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(artifact|edge|eval|file|graph|operator|path|review|run|sandbox|session|ticket|url):\\S.*$",
+          "description": "Locator of the bound feedback record; the closed source-kind scheme is the same one the S1 contract enforces, so model self-report can never appear here either."
+        }
+      }
+    },
+    "diagnosis_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["diagnosis_id", "diagnosis_schema_version"],
+      "description": "Binding to the Stage-2 diagnosis record this proposal was derived from.",
+      "properties": {
+        "diagnosis_id": { "type": "string", "pattern": "^dg_[a-z0-9_]+$" },
+        "diagnosis_schema_version": { "const": "1.0.0" }
+      }
+    },
+    "error_class": {
+      "$ref": "skill-feedback.schema.json#/properties/error_class",
+      "description": "Primary error class carried forward unchanged from the bound feedback record (spec 8.3). The vocabulary is referenced from the S1 contract so the two taxonomies cannot drift apart."
+    },
+    "responsible_area": {
+      "type": ["string", "null"],
+      "enum": ["skill", "instruction", "routing", "validator", "runtime", "tool_contract", null],
+      "description": "The improvement area that owns the proposed change (spec 8.3: the error class determines the responsible improvement area). `null` means no area is attributed because the cause is unattributed (UNKNOWN_ROOT_CAUSE); a proposal never names a guessed owner."
+    },
+    "decision": {
+      "enum": ["REUSE", "EXTEND_SKILL", "CREATE_SKILL", "NO_CHANGE", "NEEDS_MORE_EVIDENCE"],
+      "description": "Stage-3 disposition per the spec 8.4 reuse/extend/create gate. The vocabulary is closed: promotion, application and repair dispositions are not proposals and stay outside this record (the S1 feedback record carries the wider Stage-3 disposition vocabulary)."
+    },
+    "target_skill_ref": {
+      "type": "string",
+      "pattern": "^(core/skills|skills|\\.agents/skills)/[A-Za-z0-9._-]+/(SKILL\\.md|[A-Za-z0-9._-]+\\.skill\\.yaml)$",
+      "description": "The existing skill instruction file this proposal reuses (REUSE) or extends (EXTEND_SKILL). Present for those two decisions only; every other decision forbids it, so a proposal can never carry a skill target it does not act on."
+    },
+    "inferred_cause": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "Evidence-anchored cause statement carried forward from the Stage-2 diagnosis, or `null` when no cause is attributed. Never a guess."
+    },
+    "change_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["surface", "summary"],
+      "description": "Bounded scope of the change this proposal requests. `surface: none` with an empty path list means the proposal requests no change at all.",
+      "properties": {
+        "surface": {
+          "enum": ["none", "skill_instruction_file"],
+          "description": "The only surface a skill-improvement proposal may change is a skill instruction file; every other improvement area is owned by another surface and is reported here as `none`."
+        },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._][A-Za-z0-9._/-]*$",
+            "description": "Repo-relative posix path inside the bounded scope."
+          }
+        }
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^(artifact|edge|eval|file|graph|operator|path|review|run|sandbox|session|ticket|url):\\S.*$"
+      },
+      "uniqueItems": true,
+      "minItems": 1,
+      "description": "Closed set of evidence anchors behind the proposal, each carrying a source-kind scheme. The scheme set is closed exactly as in the S1 contract, so model self-report cannot appear as evidence, and at least one anchor is required: a proposal without evidence cannot be reconstructed later."
+    },
+    "candidate_evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["universe_ref", "universe_digest", "candidates_considered", "rejected_candidates"],
+      "description": "Record of which skill candidates the §8.4 gate consulted and which candidates it rejected, with the reason. Rejections are recorded, never silently dropped, so an unregistered candidate is visible instead of invisible.",
+      "properties": {
+        "universe_ref": { "type": "string", "minLength": 1 },
+        "universe_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Digest over the consulted skill universe, so the consulted universe is reconstructable."
+        },
+        "candidates_considered": {
+          "type": "array",
+          "uniqueItems": true,
+          "maxItems": 32,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "rejected_candidates": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["candidate_ref", "reason"],
+            "properties": {
+              "candidate_ref": { "type": "string", "minLength": 1 },
+              "reason": {
+                "enum": ["NOT_IN_SKILL_UNIVERSE", "NOT_IN_PORTABLE_SKILL_MANIFEST", "NO_COVERAGE_EVIDENCE"],
+                "description": "NOT_IN_PORTABLE_SKILL_MANIFEST names the manifest gap explicitly: the candidate is a known skill instruction file but is not registered in core/contracts/portable-skill-manifest.json, so it is not eligible as a proposal target until that owner decision is made."
+              }
+            }
+          }
+        }
+      }
+    },
+    "requires_owner_review": { "type": "boolean" },
+    "authority_granted": { "const": false }
+  },
+  "allOf": [
+    {
+      "description": "Spec 8.3: the error class determines the responsible improvement area. The mapping is closed and total: every spec 8.3 class resolves to exactly one area, and UNKNOWN_ROOT_CAUSE resolves to none (null) so an unattributed cause can never name a guessed owner.",
+      "anyOf": [
+        {
+          "properties": {
+            "error_class": { "const": "SKILL_SELECTION_ERROR" },
+            "responsible_area": { "const": "routing" }
+          }
+        },
+        {
+          "properties": {
+            "error_class": { "const": "SKILL_INSTRUCTION_ERROR" },
+            "responsible_area": { "const": "skill" }
+          }
+        },
+        {
+          "properties": {
+            "error_class": { "const": "INSTRUCTION_CONFLICT" },
+            "responsible_area": { "const": "instruction" }
+          }
+        },
+        {
+          "properties": {
+            "error_class": { "const": "CONTEXT_SELECTION_ERROR" },
+            "responsible_area": { "const": "instruction" }
+          }
+        },
+        {
+          "properties": {
+            "error_class": { "const": "TOOL_CONTRACT_ERROR" },
+            "responsible_area": { "const": "tool_contract" }
+          }
+        },
+        {
+          "properties": {
+            "error_class": { "const": "EXECUTOR_BEHAVIOR_ERROR" },
+            "responsible_area": { "const": "runtime" }
+          }
+        },
+        {
+          "properties": {
+            "error_class": { "const": "VERIFICATION_GAP" },
+            "responsible_area": { "const": "validator" }
+          }
+        },
+        {
+          "properties": {
+            "error_class": { "const": "POLICY_ENFORCEMENT_ERROR" },
+            "responsible_area": { "const": "validator" }
+          }
+        },
+        {
+          "properties": {
+            "error_class": { "const": "EVIDENCE_GAP" },
+            "responsible_area": { "const": "validator" }
+          }
+        },
+        {
+          "properties": {
+            "error_class": { "const": "UNKNOWN_ROOT_CAUSE" },
+            "responsible_area": { "const": null }
+          }
+        }
+      ]
+    },
+    {
+      "description": "A target skill exists only for the two decisions that act on a skill.",
+      "if": {
+        "required": ["decision"],
+        "properties": { "decision": { "enum": ["REUSE", "EXTEND_SKILL"] } }
+      },
+      "then": { "required": ["target_skill_ref"] }
+    },
+    {
+      "description": "Every other decision forbids a skill target.",
+      "if": {
+        "required": ["decision"],
+        "properties": { "decision": { "enum": ["NO_CHANGE", "CREATE_SKILL", "NEEDS_MORE_EVIDENCE"] } }
+      },
+      "then": { "properties": { "target_skill_ref": false } }
+    },
+    {
+      "description": "A skill-changing decision is owned by the skill surface and is scoped to the skill instruction file it names.",
+      "if": {
+        "required": ["decision"],
+        "properties": { "decision": { "enum": ["EXTEND_SKILL", "CREATE_SKILL"] } }
+      },
+      "then": {
+        "properties": {
+          "responsible_area": { "const": "skill" },
+          "change_scope": {
+            "properties": {
+              "surface": { "const": "skill_instruction_file" },
+              "paths": { "minItems": 1 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "A decision that requests no change carries an empty scope.",
+      "if": {
+        "required": ["decision"],
+        "properties": { "decision": { "enum": ["REUSE", "NO_CHANGE", "NEEDS_MORE_EVIDENCE"] } }
+      },
+      "then": {
+        "properties": {
+          "change_scope": {
+            "properties": {
+              "surface": { "const": "none" },
+              "paths": { "maxItems": 0 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "A skill change is always an owner decision.",
+      "if": {
+        "required": ["decision"],
+        "properties": { "decision": { "enum": ["EXTEND_SKILL", "CREATE_SKILL"] } }
+      },
+      "then": { "properties": { "requires_owner_review": { "const": true } } }
+    },
+    {
+      "description": "An unattributed cause is always an owner decision (mirrors the S1 contract rule).",
+      "if": {
+        "required": ["error_class"],
+        "properties": { "error_class": { "const": "UNKNOWN_ROOT_CAUSE" } }
+      },
+      "then": { "properties": { "requires_owner_review": { "const": true } } }
+    },
+    {
+      "description": "An unresolved proposal needs a human to decide what evidence is missing.",
+      "if": {
+        "required": ["decision"],
+        "properties": { "decision": { "const": "NEEDS_MORE_EVIDENCE" } }
+      },
+      "then": { "properties": { "requires_owner_review": { "const": true } } }
+    },
+    {
+      "description": "Spec 8.3/8.4 repair precedent: a demonstrated cause that lies exclusively in the tool contract can never carry a skill-changing decision. Owner review does not legitimize the mismatch. REUSE remains admissible because it changes no skill, exactly as in the S1 contract.",
+      "if": {
+        "required": ["error_class"],
+        "properties": { "error_class": { "const": "TOOL_CONTRACT_ERROR" } }
+      },
+      "then": {
+        "properties": {
+          "decision": { "enum": ["REUSE", "NO_CHANGE", "NEEDS_MORE_EVIDENCE"] }
+        }
+      }
+    },
+    {
+      "description": "Spec 8.3: a skill is not changed when the demonstrated cause lies exclusively in the tool contract, the runtime, the instruction layer, the routing surface or the validator. Only the skill surface may carry a skill-changing decision; REUSE changes nothing and stays admissible.",
+      "if": {
+        "required": ["responsible_area"],
+        "properties": {
+          "responsible_area": { "enum": ["instruction", "routing", "validator", "runtime", "tool_contract"] }
+        }
+      },
+      "then": {
+        "properties": {
+          "decision": { "enum": ["REUSE", "NO_CHANGE", "NEEDS_MORE_EVIDENCE"] }
+        }
+      }
+    },
+    {
+      "description": "An unattributed cause can never name a skill change; it may only report the proven reference case, no change, or missing evidence.",
+      "if": {
+        "required": ["error_class"],
+        "properties": { "error_class": { "const": "UNKNOWN_ROOT_CAUSE" } }
+      },
+      "then": {
+        "properties": {
+          "decision": { "enum": ["NO_CHANGE", "REUSE", "NEEDS_MORE_EVIDENCE"] }
+        }
+      }
+    }
+  ]
+}

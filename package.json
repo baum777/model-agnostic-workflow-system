@@ -34,6 +34,7 @@
     "test:skill-frontdoor": "node --test tests/vnext/skill-frontdoor.test.mjs",
     "validate-maws-vnext": "node scripts/tools/validate-maws-vnext-contracts.mjs",
     "validate-skill-feedback": "node scripts/tools/validate-skill-feedback.mjs",
+    "validate-skill-improvement-proposal": "node scripts/tools/validate-skill-improvement-proposal.mjs",
     "validate-behavioral-eval": "node scripts/tools/validate-behavioral-eval.mjs",
     "validate-harness-context": "node scripts/tools/validate-harness-context.mjs",
     "validate-instruction-bundle": "node scripts/tools/validate-instruction-bundle.mjs",
