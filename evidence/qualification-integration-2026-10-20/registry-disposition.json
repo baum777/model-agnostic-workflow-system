@@ -1,0 +1,63 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S7 qualification integration, slice S7 of the PROPOSED MAWS-SII-TARGET-SPEC-001 v0.2.0, executed under the bounded owner run directive of 2026-10-20 (run S11 implementierung und closure S7, S13 und S8). The slice amends two canonical contract surfaces: core/contracts/qualification-fingerprint.schema.json (the required effective_instruction_digest component, the sha256:-prefixed 64-hex instruction-bundle digest form of S6) and core/contracts/materiality-decision.schema.json (the MATERIALITY_DELTA_CLASSIFICATION enum extension). Both are CONTRACT_RECORD relevance under this repository's adopted taxonomy. The runtime amends runtime/qualification/fingerprint.mjs (the closed component key set gains the digest, with fail-closed value validation) and runtime/qualification/materiality.mjs (the digest becomes a tracked component; a digest delta is MATERIAL and unroutable, and a missing or malformed digest on either side - including the case where BOTH sides lack it - is UNKNOWN and fail-closed). The coordinated data amendments are the catalog-registered fixture evals/fixtures/maws-vnext/qualification.contracts.json, the reference run spec runtime/cli/specs/reference-audit-v1.json, and the fingerprint helpers in the four affected test files. The scope boundary is explicit and is NOT claimed as implemented: the digest is a REQUIRED, TRACKED, SPEC-DECLARED fingerprint component - a qualification that was earned under a different instruction bundle can no longer be reused (the run is blocked with MATERIAL_FINGERPRINT_DRIFT or UNKNOWN_FINGERPRINT_DRIFT), and a fingerprint without the digest is rejected - but the automatic derivation of the digest from the assembled instruction bundle at runtime is NOT part of this slice and remains an OPEN obligation (the run spec still carries the digest as spec-declared data). The slice qualifies no model and no executor, grants no permission, activates no runtime and replaces no authority or approval decision. The Registry write has not happened yet: the run change registration and the CONTRACT_RECORD projections of the two amended contracts are still to be published in unitera-registry, so this disposition is REQUIRED_BUT_BLOCKED with registry_commit_sha null and rebinds to UPDATED with the registry commit sha after that publication.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/qualification-fingerprint.schema.json",
+      "CONTRACT_RECORD:core/contracts/materiality-decision.schema.json"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "core/contracts/qualification-fingerprint.schema.json",
+      "core/contracts/materiality-decision.schema.json",
+      "runtime/qualification/fingerprint.mjs",
+      "runtime/qualification/materiality.mjs",
+      "runtime/qualification/eligibility.mjs",
+      "runtime/cli/specs/reference-audit-v1.json",
+      "evals/fixtures/maws-vnext/qualification.contracts.json",
+      "evals/skill-effectiveness/negative-cases/cases.json",
+      "tests/vnext/qualification.test.mjs",
+      "tests/vnext/e2e-reference-run.test.mjs",
+      "tests/vnext/failure-matrix.test.mjs",
+      "tests/vnext/harness-context.test.mjs",
+      "evidence/qualification-integration-2026-10-20/RUN.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/qualification-integration-2026-10-20/RUN.md",
+      "evidence/qualification-integration-2026-10-20/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "node --test tests/vnext/*.test.mjs (all pass; the S7 group contributes 7 tests, the suite total is recorded in evidence/qualification-integration-2026-10-20/RUN.md)",
+      "npm run eval:maws-vnext (ok:true, the fingerprint fixture incl. the new S7 negative case is catalog-registered)",
+      "npm run eval:skill-effectiveness (exit 0, verdict IMPROVEMENT_PROVEN, security gate PASS; the recorded transcript now names the seven-key fingerprint set and asserts it)",
+      "npm run validate-maws-vnext (issues: [])",
+      "npm run validate (ok:true)",
+      "independent review (local audit agent, tool-driven with mutation probes): VERDICT PASS_WITH_FINDINGS, 393/393 at the reviewed head; every probe of the fingerprint component key set, the tracked components, the materiality fail-closed path and the CLI product path was BOUND, and the digest form of the real S6 producer matches the schema pattern",
+      "review finding 1 (repaired): the recorded disposition artifact used a non-canonical field set and failed the repository's own registry-disposition.v1 validator with 22 issues; it is rewritten here in the canonical grammar",
+      "review finding 2 (repaired): materiality was not fail-closed when the instruction digest was missing on BOTH sides - the deep-equal shortcut reported no delta, so a pre-S7 qualification could be inherited silently; the digest is now an UNKNOWN delta in that case and the reuse is blocked",
+      "review finding 3 (repaired in part, see the reason): the digest is a required, tracked, spec-declared component, but the automatic bundle-to-fingerprint derivation at runtime is not implemented and is recorded as an OPEN obligation instead of being claimed",
+      "review finding 4 (repaired): the stale-qualification test used a non-canonical bare-hex digest and therefore passed for the wrong reason; it now uses the canonical sha256: form",
+      "review finding 5 (repaired): the recorded skill-effectiveness transcript still named the six-key fingerprint set; it now names the seven-key set and asserts it, so future key-set drift fails the case",
+      "validator: node scripts/tools/validate-registry-disposition.mjs evidence/qualification-integration-2026-10-20/registry-disposition.json (PASS)"
+    ],
+    "implementation_commit_sha": "4d99c27b1bcb6708ce84bbb4a375fb5932defbe6",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/qualification-integration-2026-10-20/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (closed relevance taxonomy: an amended canonical contract surface is CONTRACT_RECORD relevance)"
+    ],
+    "registry_baseline_sha": "75bdabe"
+  }
+}

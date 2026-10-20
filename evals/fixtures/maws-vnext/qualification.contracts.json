@@ -84,7 +84,8 @@
           "runtime_harness": "codex-exec/1.0",
           "tool_contract_refs": ["docs/tool-contracts/catalog.json"],
           "api_surface_version": "2026-09",
-          "qualification_profile_ref": "qualprofile_impl_v1"
+          "qualification_profile_ref": "qualprofile_impl_v1",
+          "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
         },
         "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
       }
@@ -105,9 +106,32 @@
           "runtime_harness": "codex-exec/1.0",
           "tool_contract_refs": ["docs/tool-contracts/catalog.json"],
           "api_surface_version": "2026-09",
-          "qualification_profile_ref": "qualprofile_impl_v1"
+          "qualification_profile_ref": "qualprofile_impl_v1",
+          "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
         },
         "digest": "sha256:not-a-digest"
+      }
+    },
+    {
+      "case_id": "qualification-fingerprint-rejects-malformed-instruction-digest",
+      "schema": "core/contracts/qualification-fingerprint.schema.json",
+      "valid": false,
+      "guards": ["S7"],
+      "instance": {
+        "fingerprint_id": "fp_codex_impl_0001",
+        "executor_id": "exec_codex_chatgpt",
+        "capability_id": "cap_code_implementation",
+        "execution_profile_ref": "profile_workspace_write_v1",
+        "components": {
+          "model_id": "codex-main",
+          "provider_id": "openai",
+          "runtime_harness": "codex-exec/1.0",
+          "tool_contract_refs": ["docs/tool-contracts/catalog.json"],
+          "api_surface_version": "2026-09",
+          "qualification_profile_ref": "qualprofile_impl_v1",
+          "effective_instruction_digest": "sha256:not-hex"
+        },
+        "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
       }
     },
     {

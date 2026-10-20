@@ -11,14 +11,15 @@
         "outcome": "COMPLETED",
         "assertions": [
           { "assert_id": "a1", "type": "contains", "value": "model_id" },
-          { "assert_id": "a2", "type": "not_contains", "value": "routed to skill" }
+          { "assert_id": "a2", "type": "not_contains", "value": "routed to skill" },
+          { "assert_id": "a3", "type": "contains", "value": "effective_instruction_digest" }
         ]
       },
       "security_class": "none",
       "recorded_transcript": {
         "routing": { "skill_id": null },
         "outcome": "COMPLETED",
-        "output_text": "Direct answer: the key set is model_id, provider_id, runtime_harness, tool_contract_refs, api_surface_version, qualification_profile_ref.",
+        "output_text": "Direct answer: the key set is model_id, provider_id, runtime_harness, tool_contract_refs, api_surface_version, qualification_profile_ref, effective_instruction_digest.",
         "signals": { "tokens_in": 610, "tokens_out": 88, "cost_units": 0.0013, "latency_ms": 410 }
       }
     },

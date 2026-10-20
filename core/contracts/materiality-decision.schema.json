@@ -22,7 +22,7 @@
         "required": ["component", "from", "to", "classification"],
         "properties": {
           "component": {
-            "enum": ["model_id", "provider_id", "runtime_harness", "tool_contract_refs", "api_surface_version", "qualification_profile_ref", "execution_profile_ref"]
+            "enum": ["model_id", "provider_id", "runtime_harness", "tool_contract_refs", "api_surface_version", "qualification_profile_ref", "execution_profile_ref", "effective_instruction_digest"]
           },
           "from": true,
           "to": true,

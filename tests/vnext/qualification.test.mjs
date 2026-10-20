@@ -20,6 +20,7 @@ import {
 import { isQualificationApplicable } from '../../runtime/qualification/applicability.mjs';
 import { computeFingerprint } from '../../runtime/qualification/fingerprint.mjs';
 import { classifyMateriality, isRoutable } from '../../runtime/qualification/materiality.mjs';
+import { computeEffectiveInstructionDigest } from '../../runtime/context/instruction-bundle-assembler.mjs';
 import * as eligibilityModule from '../../runtime/qualification/eligibility.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -67,7 +68,8 @@ const BASE_COMPONENTS = {
   runtime_harness: 'maws-runtime/1',
   tool_contract_refs: ['docs/tool-contracts/catalog.json'],
   api_surface_version: '2026-09',
-  qualification_profile_ref: 'qualprofile_analysis_v1'
+  qualification_profile_ref: 'qualprofile_analysis_v1',
+  effective_instruction_digest: 'sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6'
 };
 
 function fingerprint(overrides = {}, componentOverrides = {}) {
@@ -242,6 +244,7 @@ test('computeFingerprint produces a schema-valid fingerprint with a reproducible
     capabilityId: CAPABILITY_ID,
     executionProfileRef: 'profile_readonly_v1',
     components: {
+      effective_instruction_digest: BASE_COMPONENTS.effective_instruction_digest,
       qualification_profile_ref: BASE_COMPONENTS.qualification_profile_ref,
       api_surface_version: BASE_COMPONENTS.api_surface_version,
       tool_contract_refs: BASE_COMPONENTS.tool_contract_refs,
@@ -680,4 +683,194 @@ test('runtime success produces only a QualificationReviewCandidate, never a qual
       return true;
     }
   );
+});
+
+// ---------------------------------------------------------------------------
+// S7 — qualification integration (spec MAWS-SII-TARGET-SPEC-001 v0.2.0,
+// section 11.2/11.3, PROPOSED): the effective instruction bundle digest is a
+// qualification fingerprint component; any material instruction change
+// invalidates reuse of an existing qualification.
+// ---------------------------------------------------------------------------
+
+const INSTRUCTION_DIGEST_A = 'sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6';
+const INSTRUCTION_DIGEST_B = 'sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0';
+
+function eligibilityWorld() {
+  const { currentFingerprints, qualifiedFingerprints, ...base } = eligibilityInput();
+  return {
+    base,
+    fingerprintsWith(digest, componentOverrides = {}) {
+      const qualified = structuredClone(qualifiedFingerprints);
+      const current = structuredClone(currentFingerprints);
+      for (const fingerprints of [qualified, current]) {
+        for (const fingerprint of Object.values(fingerprints)) {
+          fingerprint.components.effective_instruction_digest = digest;
+          fingerprint.digest = sha256Hex(canonicalJson(fingerprint.components));
+          for (const [key, value] of Object.entries(componentOverrides)) {
+            fingerprint.components[key] = value;
+          }
+        }
+      }
+      return { qualified, current };
+    }
+  };
+}
+
+test('S7 computeFingerprint binds the effective instruction digest and fails closed on malformed values', () => {
+  assert.throws(
+    () => fingerprint(null, { effective_instruction_digest: 'sha256:not-hex' }),
+    /effective_instruction_digest/
+  );
+  assert.throws(
+    () => fingerprint(null, { effective_instruction_digest: null }),
+    /may not be null/
+  );
+  assert.throws(
+    () => computeFingerprint({
+      executorId: EXECUTOR_ID,
+      capabilityId: CAPABILITY_ID,
+      executionProfileRef: 'profile_readonly_v1',
+      components: Object.fromEntries(Object.entries(BASE_COMPONENTS).filter(([key]) => key !== 'effective_instruction_digest'))
+    }),
+    /missing component key/
+  );
+  const printed = fingerprint();
+  assert.equal(
+    printed.digest,
+    sha256Hex(canonicalJson({ ...BASE_COMPONENTS }))
+  );
+});
+
+test('S7 the component digest is the S6 effective instruction digest and is sensitivity-bound', () => {
+  // Two bundle-shaped objects differing in one selected source produce
+  // different digests; the fingerprint tracks the exact value it was
+  // qualified under.
+  const bundleA = {
+    task_ref: 'task_s7',
+    workflow_class: 'implementation',
+    selected_sources: [{ ref: 'core/AGENTS.md', binding_class: 'canonical', assembly_slot: 'core', source_digest: `sha256:${'a'.repeat(64)}` }],
+    context_binding_refs: [],
+    executor_profile_ref: 'profile_readonly_v1',
+    assembly_policy_ref: 'policy_s7'
+  };
+  const bundleB = {
+    ...bundleA,
+    selected_sources: [
+      { ref: 'core/AGENTS.md', binding_class: 'canonical', assembly_slot: 'core', source_digest: `sha256:${'a'.repeat(64)}` },
+      { ref: 'core/WORKFLOW.md', binding_class: 'canonical', assembly_slot: 'workflow_contract', source_digest: `sha256:${'b'.repeat(64)}` }
+    ]
+  };
+  const digestA = computeEffectiveInstructionDigest(bundleA);
+  const digestB = computeEffectiveInstructionDigest(bundleB);
+  assert.notEqual(digestA, digestB);
+  assert.match(digestA, /^sha256:[a-f0-9]{64}$/);
+
+  const qualified = fingerprint(null, { effective_instruction_digest: digestA });
+  const current = fingerprint(null, { effective_instruction_digest: digestB });
+  const decision = classifyMateriality(qualified, current, NOW);
+  assert.equal(decision.overall_class, 'MATERIAL');
+  assert.deepEqual(decision.deltas.map((delta) => delta.component), ['effective_instruction_digest']);
+  assert.equal(isRoutable(decision), false);
+  // The materiality decision the runtime produces must itself satisfy the
+  // materiality contract: the component enum is closed, so a component the
+  // runtime can emit has to be declared there.
+  assert.deepEqual(
+    validateAgainstContract(decision, 'core/contracts/materiality-decision.schema.json'),
+    []
+  );
+});
+
+test('S7 stale qualification: an instruction change blocks reuse via MATERIAL_FINGERPRINT_DRIFT', () => {
+  const world = eligibilityWorld();
+  const a = world.fingerprintsWith(INSTRUCTION_DIGEST_A);
+  const b = world.fingerprintsWith(INSTRUCTION_DIGEST_B);
+  const decisions = eligibilityModule.computeEligibility({
+    ...world.base,
+    currentFingerprints: b.current,
+    qualifiedFingerprints: a.qualified,
+    now: NOW
+  });
+  assert.ok(decisions.length > 0);
+  for (const decision of decisions) {
+    assert.equal(decision.eligible, false);
+    assert.ok(decision.exclusion_reasons.includes('MATERIAL_FINGERPRINT_DRIFT'), JSON.stringify(decision.exclusion_reasons));
+  }
+});
+
+test('S7 model-switch regression: a stronger model version never silently reuses the qualification', () => {
+  const world = eligibilityWorld();
+  const qualified = world.fingerprintsWith(INSTRUCTION_DIGEST_A);
+  const upgraded = world.fingerprintsWith(INSTRUCTION_DIGEST_A, { model_id: 'zai/glm-5.3' });
+  const decisions = eligibilityModule.computeEligibility({
+    ...world.base,
+    currentFingerprints: upgraded.current,
+    qualifiedFingerprints: qualified.qualified,
+    now: NOW
+  });
+  for (const decision of decisions) {
+    assert.equal(decision.eligible, false);
+    assert.ok(decision.exclusion_reasons.includes('MATERIAL_FINGERPRINT_DRIFT'), JSON.stringify(decision.exclusion_reasons));
+  }
+});
+
+test('S7 existing routing is secured: identical instruction state stays eligible with unchanged exclusion surface', () => {
+  const world = eligibilityWorld();
+  const same = world.fingerprintsWith(INSTRUCTION_DIGEST_A);
+  const decisions = eligibilityModule.computeEligibility({
+    ...world.base,
+    currentFingerprints: same.current,
+    qualifiedFingerprints: same.qualified,
+    now: NOW
+  });
+  assert.ok(decisions.length > 0);
+  for (const decision of decisions) {
+    assert.equal(decision.eligible, true, JSON.stringify(decision.exclusion_reasons));
+    assert.deepEqual(decision.exclusion_reasons, []);
+  }
+});
+
+test('S7 fail-closed: a fingerprint pair that omits the instruction digest on BOTH sides is UNKNOWN and blocks reuse', () => {
+  // A qualification earned before S7 carries no instruction digest. The
+  // deep-equal shortcut would report "no delta, no effect" and let it be
+  // inherited silently; the materiality rule must classify the absence as
+  // UNKNOWN on both sides.
+  const world = eligibilityWorld();
+  const legacy = world.fingerprintsWith(INSTRUCTION_DIGEST_A);
+  for (const fingerprints of [legacy.qualified, legacy.current]) {
+    for (const fingerprint of Object.values(fingerprints)) {
+      delete fingerprint.components.effective_instruction_digest;
+      fingerprint.digest = sha256Hex(canonicalJson(fingerprint.components));
+    }
+  }
+  const decision = classifyMateriality(
+    Object.values(legacy.qualified)[0],
+    Object.values(legacy.current)[0],
+    NOW
+  );
+  assert.equal(decision.overall_class, 'UNKNOWN');
+  assert.ok(decision.deltas.some((delta) => delta.component === 'effective_instruction_digest' && delta.classification === 'UNKNOWN'));
+  assert.equal(isRoutable(decision), false);
+
+  const decisions = eligibilityModule.computeEligibility({
+    ...world.base,
+    currentFingerprints: legacy.current,
+    qualifiedFingerprints: legacy.qualified,
+    now: NOW
+  });
+  assert.ok(decisions.length > 0);
+  for (const eligibilityDecision of decisions) {
+    assert.equal(eligibilityDecision.eligible, false);
+    assert.ok(eligibilityDecision.exclusion_reasons.includes('UNKNOWN_FINGERPRINT_DRIFT'), JSON.stringify(eligibilityDecision.exclusion_reasons));
+  }
+});
+
+test('S7 fail-closed: a malformed instruction digest on either side is UNKNOWN', () => {
+  const world = eligibilityWorld();
+  const pair = world.fingerprintsWith(INSTRUCTION_DIGEST_A);
+  const qualified = Object.values(pair.qualified)[0];
+  const current = Object.values(pair.current)[0];
+  current.components.effective_instruction_digest = 'sha256:not-a-digest';
+  const decision = classifyMateriality(qualified, current, NOW);
+  assert.equal(decision.overall_class, 'UNKNOWN');
+  assert.equal(isRoutable(decision), false);
 });

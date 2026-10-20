@@ -6,8 +6,9 @@
 // unroutable without requalification. Pure, injectable clock.
 import { FailClosedError, newId, nowIso, canonicalJson } from '../vnext/util.mjs';
 
-// All qualification-relevant components: the six fingerprint components plus
-// the top-level execution_profile_ref (materiality-decision contract enum).
+// All qualification-relevant components: the seven fingerprint components
+// (S7 added the effective instruction bundle digest) plus the top-level
+// execution_profile_ref (materiality-decision contract enum).
 export const TRACKED_COMPONENTS = [
   'model_id',
   'provider_id',
@@ -15,7 +16,8 @@ export const TRACKED_COMPONENTS = [
   'tool_contract_refs',
   'api_surface_version',
   'qualification_profile_ref',
-  'execution_profile_ref'
+  'execution_profile_ref',
+  'effective_instruction_digest'
 ];
 
 function resolveStamp(now) {
@@ -49,6 +51,11 @@ function componentShapeOk(component, value) {
   if (component === 'tool_contract_refs') {
     return Array.isArray(value) && value.every((item) => typeof item === 'string' && item.length >= 1);
   }
+  if (component === 'effective_instruction_digest') {
+    // The canonical form is the one the fingerprint contract and the S6
+    // assembler produce: "sha256:" + 64 lowercase hex characters.
+    return typeof value === 'string' && /^sha256:[a-f0-9]{64}$/.test(value);
+  }
   return typeof value === 'string' && value.length >= 1;
 }
 
@@ -56,6 +63,14 @@ function componentShapeOk(component, value) {
 //   -> MaterialityDecision-shaped object. overall_class is UNKNOWN if any
 //      delta is UNKNOWN, else MATERIAL if any delta is MATERIAL, else
 //      NON_MATERIAL (identical qualification-relevant state).
+//
+// The effective instruction digest is the one component whose ABSENCE is a
+// finding of its own: a fingerprint that carries no (or a malformed) digest
+// cannot state which instruction bundle the qualification was earned under.
+// A digest that is missing or malformed on either side is therefore UNKNOWN
+// and unroutable -- including the case where BOTH sides lack the digest, which
+// the deep-equal shortcut would otherwise report as "no delta, no effect" and
+// let a pre-S7 qualification be inherited silently.
 export function classifyMateriality(qualifiedFingerprint, currentFingerprint, now) {
   requireFingerprint(qualifiedFingerprint, 'qualified');
   requireFingerprint(currentFingerprint, 'current');
@@ -64,12 +79,32 @@ export function classifyMateriality(qualifiedFingerprint, currentFingerprint, no
   for (const component of TRACKED_COMPONENTS) {
     const from = readComponent(qualifiedFingerprint, component);
     const to = readComponent(currentFingerprint, component);
+    const shapeOk = componentShapeOk(component, from) && componentShapeOk(component, to);
+    if (component === 'effective_instruction_digest') {
+      if (!shapeOk) {
+        deltas.push({
+          component,
+          from: from === undefined ? null : from,
+          to: to === undefined ? null : to,
+          classification: 'UNKNOWN'
+        });
+        continue;
+      }
+      if (canonicalJson(from) === canonicalJson(to)) {
+        continue; // identical, well-formed digest -> omitted from deltas
+      }
+      deltas.push({
+        component,
+        from: from === undefined ? null : from,
+        to: to === undefined ? null : to,
+        classification: 'MATERIAL'
+      });
+      continue;
+    }
     if (canonicalJson(from) === canonicalJson(to)) {
       continue; // deep-equal -> omitted from deltas
     }
-    const classification = componentShapeOk(component, from) && componentShapeOk(component, to)
-      ? 'MATERIAL'
-      : 'UNKNOWN';
+    const classification = shapeOk ? 'MATERIAL' : 'UNKNOWN';
     deltas.push({
       component,
       from: from === undefined ? null : from,
