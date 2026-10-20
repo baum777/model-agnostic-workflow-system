@@ -695,6 +695,21 @@ test('openrouter executor: non-allowlisted baseUrl fails closed before any fetch
   assert.equal(fetchImpl.calls.length, 0, 'no fetch call may happen for a non-allowlisted baseUrl');
 });
 
+test('F03: HTTP and custom ports fail before any credential-bearing fetch', async () => {
+  for (const baseUrl of ['http://openrouter.ai/api/v1/chat/completions', 'https://openrouter.ai:8443/api/v1/chat/completions']) {
+    const { executor, fetchImpl } = makeOpenRouter(() => jsonResponse(200, openRouterSuccessBody({ model: 'zai/glm-4.7' })), { baseUrl });
+    await assert.rejects(executor.execute(makeInvocation()), isFailClosedWithCode('URL_PROTOCOL_FORBIDDEN'));
+    assert.equal(fetchImpl.calls.length, 0);
+  }
+});
+
+test('F03: credential-bearing fetch disallows redirects', async () => {
+  const { executor, fetchImpl } = makeOpenRouter(() => jsonResponse(302, { location: 'https://evil.test/' }));
+  const result = await executor.execute(makeInvocation());
+  assert.equal(result.outcome, 'FAILED');
+  assert.equal(fetchImpl.calls[0].init.redirect, 'error');
+});
+
 test('openrouter executor: missing API key maps to CREDENTIAL_MISSING without any fetch', async () => {
   const fetchImpl = trackingFetch(() => jsonResponse(200, openRouterSuccessBody({ model: 'zai/glm-4.7' })));
   const executor = createOpenRouterExecutor({ modelId: 'zai/glm-4.7', fetchImpl, env: {} });
