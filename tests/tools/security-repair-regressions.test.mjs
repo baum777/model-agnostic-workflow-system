@@ -126,7 +126,7 @@ test('F04 run CLI rejects malicious spec run_id before writing', async () => {
     fs.writeFileSync(specPath, JSON.stringify(spec));
     await assert.rejects(runRuntimeRun({ repoRoot: root, specPath }), (e) => e.code === 'RUN_ID_INVALID');
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
-}
+});
 
 test('F05 MiniMax adapter works as a pure transformation after import repair', async () => {
   const { minimaxAdapter } = await import('../../providers/minimax/adapter.mjs');
