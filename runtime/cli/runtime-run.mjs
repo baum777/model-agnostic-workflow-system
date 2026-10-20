@@ -28,6 +28,7 @@ import { buildVerificationReceipt } from '../completion/verification.mjs';
 import { loadExecutorRegistry } from '../executors/manifest-loader.mjs';
 import { executionControlFixtureExecutor, INTAKE_FX_EXECUTOR_ID } from '../intake/execution-control-fixture.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
+import { assertRunId, resolveRuntimeRunDir } from '../observability/run-paths.mjs';
 
 const SUPPORTED_TRANSPORTS = ['fixture'];
 
@@ -93,9 +94,14 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
   } catch (error) {
     throw new SpecError('SPEC_INVALID_JSON', `spec is not valid JSON: ${error.message}`);
   }
-  if (!spec.run_id || typeof spec.run_id !== 'string') {
-    throw new SpecError('SPEC_INVALID', 'missing run_id');
+  try {
+    assertRunId(spec.run_id);
+  } catch {
+    throw new SpecError('RUN_ID_INVALID', 'invalid run_id: expected one run_-prefixed safe path segment');
   }
+  // Resolve the default artifact boundary before processing any requested effects.
+  // Explicit --out is a trusted operator override, not an untrusted run_id.
+  resolveRuntimeRunDir(root, spec.run_id);
 
   // --- validate spec parts against the canonical contracts they claim to be.
   const interactionSession = requireObject(spec, 'interaction_session');
@@ -269,7 +275,7 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
   }
 
   // --- artifacts + spine events
-  const runDir = outDir || path.join(root, 'artifacts/runtime-runs', spec.run_id);
+  const runDir = outDir || resolveRuntimeRunDir(root, spec.run_id);
   // Evidence integrity: the run directory is claimed EXCLUSIVELY via atomic
   // creation. A pre-existing directory — empty, non-empty, or one a
   // concurrent process just claimed — fails closed, so two runs of the same

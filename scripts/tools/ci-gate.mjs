@@ -2,13 +2,13 @@
 // Baum-OS CI Gate — adapter run + structural + quality gate in one call
 // Usage: node scripts/tools/ci-gate.mjs [--repo <path>]
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'node:child_process';
 import { readdirSync, statSync, existsSync } from 'fs';
 import { resolve, join } from 'path';
 
 function findCoreRoot() {
   try {
-    return execSync('git rev-parse --show-toplevel', { encoding: 'utf8', timeout: 5000 }).trim();
+    return execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8', timeout: 5000, shell: false }).trim();
   } catch {
     return process.cwd();
   }
@@ -24,9 +24,9 @@ function latestRunDir(coreRoot) {
   return entries.length > 0 ? join(base, entries[0].name) : null;
 }
 
-function run(cmd, cwd) {
-  console.log(`\n$ ${cmd}`);
-  execSync(cmd, { cwd, stdio: 'inherit' });
+function run(commandArgs, cwd) {
+  console.log('\n$ node ' + commandArgs.join(' '));
+  execFileSync(process.execPath, commandArgs, { cwd, stdio: 'inherit', shell: false });
 }
 
 const args = process.argv.slice(2);
@@ -44,7 +44,7 @@ console.log(`Target:    ${targetPath}`);
 
 // Step 1: adapter run
 try {
-  run(`node scripts/tools/baum-loop-repo.mjs "command/ loop repo ${targetPath}"`, coreRoot);
+  run(['scripts/tools/baum-loop-repo.mjs', 'command/ loop repo ' + targetPath], coreRoot);
 } catch {
   console.error('\nFAIL CI Gate — adapter run failed');
   process.exit(1);
@@ -61,14 +61,14 @@ console.log(`\nEvidence run: ${runDir}`);
 // Step 3: standard validation
 let failed = false;
 try {
-  run(`node scripts/tools/validate-loop-run.mjs "${runDir}"`, coreRoot);
+  run(['scripts/tools/validate-loop-run.mjs', runDir], coreRoot);
 } catch {
   failed = true;
 }
 
 // Step 4: quality gate
 try {
-  run(`node scripts/tools/validate-loop-run.mjs --quality "${runDir}"`, coreRoot);
+  run(['scripts/tools/validate-loop-run.mjs', '--quality', runDir], coreRoot);
 } catch {
   failed = true;
 }

@@ -45,8 +45,11 @@ test('runPreinstallSkillRiskCheck passes a low-severity static report and writes
       fs.writeFileSync(
         reportPath,
         `${JSON.stringify({
-          status: 'pass',
-          findings: [{ severity: 'low', title: 'Informational note' }]
+          execution_successful: true,
+          metadata: { skillspector_version: '2.12.0' },
+          analysis_completeness: { is_complete: true, status: 'complete', execution_successful: true },
+          risk_assessment: { score: 10, severity: 'LOW', max_issue_severity: 'LOW', recommendation: 'SAFE' },
+          issues: [{ severity: 'low', title: 'Informational note' }]
         }, null, 2)}\n`,
         'utf8'
       );
@@ -79,8 +82,11 @@ test('runPreinstallSkillRiskCheck blocks a critical finding even when the scan e
       fs.writeFileSync(
         reportPath,
         `${JSON.stringify({
-          status: 'pass',
-          findings: [
+          execution_successful: true,
+          metadata: { skillspector_version: '2.12.0' },
+          analysis_completeness: { is_complete: true, status: 'complete', execution_successful: true },
+          risk_assessment: { score: 90, severity: 'CRITICAL', max_issue_severity: 'CRITICAL', recommendation: 'DO_NOT_INSTALL' },
+          issues: [
             {
               severity: 'critical',
               title: 'Prompt injection payload',

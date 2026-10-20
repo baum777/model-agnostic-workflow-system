@@ -347,7 +347,8 @@ export function runSkillFrontdoor({
     securityClassification?.ok === true
   ) {
     securityStatus = 'PASS';
-  } else if (securityRun.report && securityClassification?.ok === false) {
+  } else if (securityRun.report && securityClassification?.ok === false &&
+             securityClassification.incomplete !== true) {
     securityStatus = 'BLOCKED';
   }
 

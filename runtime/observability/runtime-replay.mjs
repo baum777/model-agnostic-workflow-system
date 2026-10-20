@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { findLatestRunDir, readJson, readJsonLines } from './validation-receipt.mjs';
+import { resolveRuntimeRunDir } from './run-paths.mjs';
 
 function resolveRunDir({ repoRoot = process.cwd(), runId, latest = false } = {}) {
   const root = path.resolve(repoRoot);
@@ -8,13 +9,18 @@ function resolveRunDir({ repoRoot = process.cwd(), runId, latest = false } = {})
     return findLatestRunDir(root);
   }
   if (runId) {
-    return path.join(root, 'artifacts', 'runtime-runs', runId);
+    return resolveRuntimeRunDir(root, runId);
   }
   return null;
 }
 
 function replayRuntimeRun({ repoRoot = process.cwd(), runId, latest = false } = {}) {
-  const runDir = resolveRunDir({ repoRoot, runId, latest });
+  let runDir;
+  try {
+    runDir = resolveRunDir({ repoRoot, runId, latest });
+  } catch (error) {
+    return { ok: false, issues: [error.message], runDir: null };
+  }
   if (!runDir || !fs.existsSync(runDir)) {
     return {
       ok: false,
