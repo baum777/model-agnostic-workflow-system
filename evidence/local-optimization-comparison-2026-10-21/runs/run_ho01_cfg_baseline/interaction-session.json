@@ -1,0 +1,9 @@
+{
+  "session_id": "sess_ho01_cfg_baseline",
+  "interaction_host": "zcode",
+  "session_model": "glm-5.3",
+  "orchestration_owner": "maws",
+  "transport": "local_stdio",
+  "identity": "local-user",
+  "submitted_at": "2026-10-19T00:00:00Z"
+}

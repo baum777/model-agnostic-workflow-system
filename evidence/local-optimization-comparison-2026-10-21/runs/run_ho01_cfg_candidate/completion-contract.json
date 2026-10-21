@@ -1,0 +1,35 @@
+{
+  "contract_id": "cc_run_ho01_cfg_candidate_root",
+  "work_unit_id": "wu_run_ho01_cfg_candidate_root",
+  "clauses": {
+    "execution_success": {
+      "required": true
+    },
+    "required_outputs": [
+      {
+        "output_id": "audit_report",
+        "artifact_ref": "artifacts/runtime-runs/run_ho01_cfg_candidate/outputs/audit-report.json"
+      }
+    ],
+    "required_evidence": [
+      "evidence/runtime-run-cli/analysis-receipt.json"
+    ],
+    "verification": {
+      "required": true,
+      "independent": true
+    },
+    "dependency_closure": {
+      "required": true
+    },
+    "child_closure": {
+      "required": true
+    },
+    "disagreement_closure": [],
+    "graph_conditions": [
+      {
+        "condition": "all_nodes_completed",
+        "expected": true
+      }
+    ]
+  }
+}

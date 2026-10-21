@@ -1,0 +1,73 @@
+[
+  {
+    "execution_attempt_id": "att_71f21da5ed94",
+    "executor_id": "exec_openrouter_glm",
+    "work_unit_id": "wu_run_ho01_cfg_baseline_root",
+    "started_at": "2026-10-21T01:11:39.362Z",
+    "finished_at": "2026-10-21T01:11:39.362Z",
+    "outcome": "SUCCESS",
+    "outputs": [
+      {
+        "output_id": "audit_report",
+        "inline_payload": {
+          "task_id": "task_ho01_repo_analysis",
+          "modules_analyzed": [
+            "module_alpha",
+            "module_beta",
+            "module_gamma"
+          ],
+          "findings": [
+            "finding_alpha_1",
+            "finding_alpha_2",
+            "finding_beta_1",
+            "finding_gamma_1",
+            "finding_gamma_2"
+          ],
+          "summary": "Analyzed 3 modules; 5 findings; all modules covered."
+        }
+      }
+    ],
+    "metrics": {
+      "latency_ms": 1000,
+      "cost_units": 1,
+      "tokens_in": 10,
+      "tokens_out": 10
+    },
+    "error_class": null,
+    "exit_code": null
+  },
+  {
+    "execution_attempt_id": "att_e7608df0162e",
+    "executor_id": "exec_unitera_execution_control_fixture",
+    "work_unit_id": "wu_run_ho01_cfg_baseline_root",
+    "started_at": "2026-10-21T01:11:39.362Z",
+    "finished_at": "2026-10-21T01:11:39.362Z",
+    "outcome": "SUCCESS",
+    "outputs": [],
+    "metrics": {
+      "latency_ms": 60,
+      "cost_units": 0,
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    "error_class": null,
+    "exit_code": null
+  },
+  {
+    "execution_attempt_id": "att_adcbecc5afba",
+    "executor_id": "exec_local_tests",
+    "work_unit_id": "wu_run_ho01_cfg_baseline_root",
+    "started_at": "2026-10-21T01:11:39.362Z",
+    "finished_at": "2026-10-21T01:11:39.362Z",
+    "outcome": "SUCCESS",
+    "outputs": [],
+    "metrics": {
+      "latency_ms": 500,
+      "cost_units": 0,
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    "error_class": null,
+    "exit_code": null
+  }
+]

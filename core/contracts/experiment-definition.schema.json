@@ -1,0 +1,323 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ExperimentDefinition Contract",
+  "description": "Versioned, frozen experiment definition for a bounded local optimization comparison (HO-01). The definition declares the hypothesis, the success bounds, exactly one changed dimension, the two compared configurations, the frozen input digests and the execution lane. It is an analysis input: it grants no permission, promotes no skill, activates no runtime, replaces no approval decision, and never selects a winning configuration. FIXTURE_COMPARISON_ONLY is a comparison posture, not an activation state. The comparison between a single-executor and a multi-executor orchestration is owned by slice S13; this contract carries no such comparison.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "definition_version",
+    "created_at",
+    "hypothesis",
+    "success_bounds",
+    "declared_change",
+    "task",
+    "configurations",
+    "frozen_inputs",
+    "execution",
+    "status",
+    "authority_granted",
+    "promotion_effect"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "experiment_id": {
+      "type": "string",
+      "pattern": "^exp_[a-z0-9_]+$"
+    },
+    "definition_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Version of the experiment definition itself. A changed hypothesis, success bound, task, dimension or configuration requires a new version; the id alone never carries the version."
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statement", "predicted_outcome", "rationale"],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The falsifiable claim the experiment tests. It must name the changed dimension and the observable that decides the outcome."
+        },
+        "predicted_outcome": {
+          "enum": ["IMPROVEMENT_DETECTED", "NO_CHANGE_DETECTED", "REGRESSION_DETECTED"]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "success_bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_metric",
+        "minimum_improvement",
+        "maximum_regression",
+        "security_regressions_allowed",
+        "decision_rule"
+      ],
+      "properties": {
+        "primary_metric": {
+          "type": "string",
+          "minLength": 1
+        },
+        "minimum_improvement": {
+          "type": "number",
+          "description": "Lower bound on the primary metric delta for an IMPROVEMENT outcome."
+        },
+        "maximum_regression": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Largest tolerated negative primary-metric delta before the outcome is REGRESSION."
+        },
+        "security_regressions_allowed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "decision_rule": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "declared_change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dimension_id",
+        "description",
+        "allowed_values",
+        "baseline_value",
+        "candidate_value"
+      ],
+      "properties": {
+        "dimension_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The single dimension that differs between the two compared configurations. Exactly one dimension may be declared; a comparison that varies two dimensions is not a single-variable experiment and must not be reported as one."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "allowed_values": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "baseline_value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidate_value": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "objective",
+        "bounded_payload",
+        "modules",
+        "depth_profiles"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "pattern": "^task_[a-z0-9_]+$"
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bounded_payload": {
+          "type": "object",
+          "minLength": 1
+        },
+        "modules": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["module_id", "findings"],
+            "properties": {
+              "module_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "findings": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "depth_profiles": {
+          "type": "object",
+          "minLength": 1,
+          "description": "Mapping from a declared dimension value to the materialization rule that derives the observable output for that value. The rule is part of the frozen definition, so the derived output is reproducible from the definition alone.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["modules_analyzed", "findings_per_module", "summary_scope"],
+            "properties": {
+              "modules_analyzed": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 64
+              },
+              "findings_per_module": {
+                "enum": ["all", "first"]
+              },
+              "summary_scope": {
+                "enum": ["all_modules", "first_module"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "configurations": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "Exactly two configurations: one baseline, one candidate. The two dimension maps must differ in exactly one key, and that key must be the declared dimension.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["configuration_id", "role", "dimensions"],
+        "properties": {
+          "configuration_id": {
+            "type": "string",
+            "pattern": "^cfg_[a-z0-9_]+$"
+          },
+          "role": {
+            "enum": ["BASELINE", "CANDIDATE"]
+          },
+          "dimensions": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "frozen_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["corpus_ref", "corpus_path", "run_spec_template_ref", "files"],
+      "properties": {
+        "corpus_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "corpus_path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Repository-relative path of the frozen behavioral-eval corpus. The path is confined to the repository — an absolute path, a '..' climb or a symlink out of the repository is refused — and every file the corpus manifest references must itself be one of the digest-bound frozen inputs and must lie inside this directory."
+        },
+        "run_spec_template_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Repository-relative path of the run-spec template the two run specs are derived from."
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "description": "The frozen input files with their byte digests. The runner refuses to compare when a digest does not match the file on disk.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "digest"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "digest": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runner",
+        "transport",
+        "harness_context",
+        "authority_grant",
+        "behavioral_eval_contract_ref",
+        "behavioral_eval_runner_ref",
+        "behavioral_eval_mode"
+      ],
+      "properties": {
+        "runner": {
+          "const": "runtime:run",
+          "description": "The only admitted execution path for this experiment family: the local governed run pipeline with fixture transport."
+        },
+        "transport": {
+          "const": "fixture"
+        },
+        "harness_context": {
+          "const": "development_harness"
+        },
+        "authority_grant": {
+          "const": "none"
+        },
+        "behavioral_eval_contract_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "behavioral_eval_runner_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "behavioral_eval_mode": {
+          "const": "recorded_replay"
+        }
+      }
+    },
+    "status": {
+      "const": "FIXTURE_COMPARISON_ONLY"
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "promotion_effect": {
+      "const": "NONE"
+    }
+  }
+}

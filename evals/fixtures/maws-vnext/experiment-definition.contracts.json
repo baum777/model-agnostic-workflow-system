@@ -1,0 +1,345 @@
+{
+  "id": "maws-vnext-experiment-definition-contracts",
+  "kind": "maws-vnext",
+  "target": { "name": "experiment-definition" },
+  "blocking": true,
+  "description": "Schema-decidable cases for the experiment-definition contract (HO-01). The semantic invariants the minimal JSON schema engine cannot express — exactly one changed dimension, the declared change matching the configurations, the frozen input digests matching the files on disk — are enforced by assertSingleDeclaredDimension and assertFrozenInputsIntact in scripts/tools/run-local-optimization-comparison.mjs and covered in tests/vnext/experiment-comparison.test.mjs, following the S5 behavioral-eval precedent.",
+  "cases": [
+    {
+      "case_id": "expdef_pos_single_dimension",
+      "schema": "core/contracts/experiment-definition.schema.json",
+      "valid": true,
+      "guards": ["HO01-R1", "HO01-R2"],
+      "instance": {
+        "schema_version": "1.0.0",
+        "experiment_id": "exp_fixture_local_optimization",
+        "definition_version": "1.0.0",
+        "created_at": "2026-10-21T00:00:00Z",
+        "hypothesis": {
+          "statement": "A reduced analysis context depth degrades the audit report and the comparison detects the regression.",
+          "predicted_outcome": "REGRESSION_DETECTED",
+          "rationale": "The chain is proven when it detects a degradation reliably."
+        },
+        "success_bounds": {
+          "primary_metric": "output_assertion_pass_delta",
+          "minimum_improvement": 0.0,
+          "maximum_regression": 0.0,
+          "security_regressions_allowed": 0,
+          "decision_rule": "A negative primary metric below the regression floor is a REGRESSION."
+        },
+        "declared_change": {
+          "dimension_id": "analysis_context_depth",
+          "description": "How much of the frozen repository fixture the analysis stage reports on.",
+          "allowed_values": ["full", "reduced"],
+          "baseline_value": "full",
+          "candidate_value": "reduced"
+        },
+        "task": {
+          "task_id": "task_fixture_repo_analysis",
+          "objective": "Analyse the frozen repository fixture and report the findings per module.",
+          "bounded_payload": { "repository": "synthetic_fixture", "module_count": 1 },
+          "modules": [
+            { "module_id": "module_alpha", "findings": ["finding_alpha_1"] }
+          ],
+          "depth_profiles": {
+            "full": { "modules_analyzed": 1, "findings_per_module": "all", "summary_scope": "all_modules" },
+            "reduced": { "modules_analyzed": 1, "findings_per_module": "first", "summary_scope": "first_module" }
+          }
+        },
+        "configurations": [
+          { "configuration_id": "cfg_baseline", "role": "BASELINE", "dimensions": { "analysis_context_depth": "full" } },
+          { "configuration_id": "cfg_candidate", "role": "CANDIDATE", "dimensions": { "analysis_context_depth": "reduced" } }
+        ],
+        "frozen_inputs": {
+          "corpus_ref": "fixture",
+          "corpus_path": "evals/experiments/ho01-local-optimization",
+          "run_spec_template_ref": "runtime/cli/specs/reference-audit-v1.json",
+          "files": [
+            { "path": "runtime/cli/specs/reference-audit-v1.json", "digest": "sha256:9b2aad286826c9e2f10768078f4f809d0fd4e3ca93535679dbc667eaaeb0bc57" }
+          ]
+        },
+        "execution": {
+          "runner": "runtime:run",
+          "transport": "fixture",
+          "harness_context": "development_harness",
+          "authority_grant": "none",
+          "behavioral_eval_contract_ref": "core/contracts/behavioral-eval.schema.json",
+          "behavioral_eval_runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
+          "behavioral_eval_mode": "recorded_replay"
+        },
+        "status": "FIXTURE_COMPARISON_ONLY",
+        "authority_granted": false,
+        "promotion_effect": "NONE"
+      }
+    },
+    {
+      "case_id": "expdef_neg_active_status",
+      "schema": "core/contracts/experiment-definition.schema.json",
+      "valid": false,
+      "guards": ["HO01-R3"],
+      "instance": {
+        "schema_version": "1.0.0",
+        "experiment_id": "exp_fixture_local_optimization",
+        "definition_version": "1.0.0",
+        "created_at": "2026-10-21T00:00:00Z",
+        "hypothesis": {
+          "statement": "A reduced analysis context depth degrades the audit report and the comparison detects the regression.",
+          "predicted_outcome": "REGRESSION_DETECTED",
+          "rationale": "The chain is proven when it detects a degradation reliably."
+        },
+        "success_bounds": {
+          "primary_metric": "output_assertion_pass_delta",
+          "minimum_improvement": 0.0,
+          "maximum_regression": 0.0,
+          "security_regressions_allowed": 0,
+          "decision_rule": "A negative primary metric below the regression floor is a REGRESSION."
+        },
+        "declared_change": {
+          "dimension_id": "analysis_context_depth",
+          "description": "How much of the frozen repository fixture the analysis stage reports on.",
+          "allowed_values": ["full", "reduced"],
+          "baseline_value": "full",
+          "candidate_value": "reduced"
+        },
+        "task": {
+          "task_id": "task_fixture_repo_analysis",
+          "objective": "Analyse the frozen repository fixture and report the findings per module.",
+          "bounded_payload": { "repository": "synthetic_fixture", "module_count": 1 },
+          "modules": [
+            { "module_id": "module_alpha", "findings": ["finding_alpha_1"] }
+          ],
+          "depth_profiles": {
+            "full": { "modules_analyzed": 1, "findings_per_module": "all", "summary_scope": "all_modules" },
+            "reduced": { "modules_analyzed": 1, "findings_per_module": "first", "summary_scope": "first_module" }
+          }
+        },
+        "configurations": [
+          { "configuration_id": "cfg_baseline", "role": "BASELINE", "dimensions": { "analysis_context_depth": "full" } },
+          { "configuration_id": "cfg_candidate", "role": "CANDIDATE", "dimensions": { "analysis_context_depth": "reduced" } }
+        ],
+        "frozen_inputs": {
+          "corpus_ref": "fixture",
+          "corpus_path": "evals/experiments/ho01-local-optimization",
+          "run_spec_template_ref": "runtime/cli/specs/reference-audit-v1.json",
+          "files": [
+            { "path": "runtime/cli/specs/reference-audit-v1.json", "digest": "sha256:9b2aad286826c9e2f10768078f4f809d0fd4e3ca93535679dbc667eaaeb0bc57" }
+          ]
+        },
+        "execution": {
+          "runner": "runtime:run",
+          "transport": "fixture",
+          "harness_context": "development_harness",
+          "authority_grant": "none",
+          "behavioral_eval_contract_ref": "core/contracts/behavioral-eval.schema.json",
+          "behavioral_eval_runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
+          "behavioral_eval_mode": "recorded_replay"
+        },
+        "status": "ACTIVE",
+        "authority_granted": false,
+        "promotion_effect": "NONE"
+      }
+    },
+    {
+      "case_id": "expdef_neg_authority_granted",
+      "schema": "core/contracts/experiment-definition.schema.json",
+      "valid": false,
+      "guards": ["HO01-R3"],
+      "instance": {
+        "schema_version": "1.0.0",
+        "experiment_id": "exp_fixture_local_optimization",
+        "definition_version": "1.0.0",
+        "created_at": "2026-10-21T00:00:00Z",
+        "hypothesis": {
+          "statement": "A reduced analysis context depth degrades the audit report and the comparison detects the regression.",
+          "predicted_outcome": "REGRESSION_DETECTED",
+          "rationale": "The chain is proven when it detects a degradation reliably."
+        },
+        "success_bounds": {
+          "primary_metric": "output_assertion_pass_delta",
+          "minimum_improvement": 0.0,
+          "maximum_regression": 0.0,
+          "security_regressions_allowed": 0,
+          "decision_rule": "A negative primary metric below the regression floor is a REGRESSION."
+        },
+        "declared_change": {
+          "dimension_id": "analysis_context_depth",
+          "description": "How much of the frozen repository fixture the analysis stage reports on.",
+          "allowed_values": ["full", "reduced"],
+          "baseline_value": "full",
+          "candidate_value": "reduced"
+        },
+        "task": {
+          "task_id": "task_fixture_repo_analysis",
+          "objective": "Analyse the frozen repository fixture and report the findings per module.",
+          "bounded_payload": { "repository": "synthetic_fixture", "module_count": 1 },
+          "modules": [
+            { "module_id": "module_alpha", "findings": ["finding_alpha_1"] }
+          ],
+          "depth_profiles": {
+            "full": { "modules_analyzed": 1, "findings_per_module": "all", "summary_scope": "all_modules" },
+            "reduced": { "modules_analyzed": 1, "findings_per_module": "first", "summary_scope": "first_module" }
+          }
+        },
+        "configurations": [
+          { "configuration_id": "cfg_baseline", "role": "BASELINE", "dimensions": { "analysis_context_depth": "full" } },
+          { "configuration_id": "cfg_candidate", "role": "CANDIDATE", "dimensions": { "analysis_context_depth": "reduced" } }
+        ],
+        "frozen_inputs": {
+          "corpus_ref": "fixture",
+          "corpus_path": "evals/experiments/ho01-local-optimization",
+          "run_spec_template_ref": "runtime/cli/specs/reference-audit-v1.json",
+          "files": [
+            { "path": "runtime/cli/specs/reference-audit-v1.json", "digest": "sha256:9b2aad286826c9e2f10768078f4f809d0fd4e3ca93535679dbc667eaaeb0bc57" }
+          ]
+        },
+        "execution": {
+          "runner": "runtime:run",
+          "transport": "fixture",
+          "harness_context": "development_harness",
+          "authority_grant": "none",
+          "behavioral_eval_contract_ref": "core/contracts/behavioral-eval.schema.json",
+          "behavioral_eval_runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
+          "behavioral_eval_mode": "recorded_replay"
+        },
+        "status": "FIXTURE_COMPARISON_ONLY",
+        "authority_granted": true,
+        "promotion_effect": "NONE"
+      }
+    },
+    {
+      "case_id": "expdef_neg_promotion_effect",
+      "schema": "core/contracts/experiment-definition.schema.json",
+      "valid": false,
+      "guards": ["HO01-R3"],
+      "instance": {
+        "schema_version": "1.0.0",
+        "experiment_id": "exp_fixture_local_optimization",
+        "definition_version": "1.0.0",
+        "created_at": "2026-10-21T00:00:00Z",
+        "hypothesis": {
+          "statement": "A reduced analysis context depth degrades the audit report and the comparison detects the regression.",
+          "predicted_outcome": "REGRESSION_DETECTED",
+          "rationale": "The chain is proven when it detects a degradation reliably."
+        },
+        "success_bounds": {
+          "primary_metric": "output_assertion_pass_delta",
+          "minimum_improvement": 0.0,
+          "maximum_regression": 0.0,
+          "security_regressions_allowed": 0,
+          "decision_rule": "A negative primary metric below the regression floor is a REGRESSION."
+        },
+        "declared_change": {
+          "dimension_id": "analysis_context_depth",
+          "description": "How much of the frozen repository fixture the analysis stage reports on.",
+          "allowed_values": ["full", "reduced"],
+          "baseline_value": "full",
+          "candidate_value": "reduced"
+        },
+        "task": {
+          "task_id": "task_fixture_repo_analysis",
+          "objective": "Analyse the frozen repository fixture and report the findings per module.",
+          "bounded_payload": { "repository": "synthetic_fixture", "module_count": 1 },
+          "modules": [
+            { "module_id": "module_alpha", "findings": ["finding_alpha_1"] }
+          ],
+          "depth_profiles": {
+            "full": { "modules_analyzed": 1, "findings_per_module": "all", "summary_scope": "all_modules" },
+            "reduced": { "modules_analyzed": 1, "findings_per_module": "first", "summary_scope": "first_module" }
+          }
+        },
+        "configurations": [
+          { "configuration_id": "cfg_baseline", "role": "BASELINE", "dimensions": { "analysis_context_depth": "full" } },
+          { "configuration_id": "cfg_candidate", "role": "CANDIDATE", "dimensions": { "analysis_context_depth": "reduced" } }
+        ],
+        "frozen_inputs": {
+          "corpus_ref": "fixture",
+          "corpus_path": "evals/experiments/ho01-local-optimization",
+          "run_spec_template_ref": "runtime/cli/specs/reference-audit-v1.json",
+          "files": [
+            { "path": "runtime/cli/specs/reference-audit-v1.json", "digest": "sha256:9b2aad286826c9e2f10768078f4f809d0fd4e3ca93535679dbc667eaaeb0bc57" }
+          ]
+        },
+        "execution": {
+          "runner": "runtime:run",
+          "transport": "fixture",
+          "harness_context": "development_harness",
+          "authority_grant": "none",
+          "behavioral_eval_contract_ref": "core/contracts/behavioral-eval.schema.json",
+          "behavioral_eval_runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
+          "behavioral_eval_mode": "recorded_replay"
+        },
+        "status": "FIXTURE_COMPARISON_ONLY",
+        "authority_granted": false,
+        "promotion_effect": "ADOPTED"
+      }
+    },
+    {
+      "case_id": "expdef_neg_three_configurations",
+      "schema": "core/contracts/experiment-definition.schema.json",
+      "valid": false,
+      "guards": ["HO01-R1"],
+      "instance": {
+        "schema_version": "1.0.0",
+        "experiment_id": "exp_fixture_local_optimization",
+        "definition_version": "1.0.0",
+        "created_at": "2026-10-21T00:00:00Z",
+        "hypothesis": {
+          "statement": "A reduced analysis context depth degrades the audit report and the comparison detects the regression.",
+          "predicted_outcome": "REGRESSION_DETECTED",
+          "rationale": "The chain is proven when it detects a degradation reliably."
+        },
+        "success_bounds": {
+          "primary_metric": "output_assertion_pass_delta",
+          "minimum_improvement": 0.0,
+          "maximum_regression": 0.0,
+          "security_regressions_allowed": 0,
+          "decision_rule": "A negative primary metric below the regression floor is a REGRESSION."
+        },
+        "declared_change": {
+          "dimension_id": "analysis_context_depth",
+          "description": "How much of the frozen repository fixture the analysis stage reports on.",
+          "allowed_values": ["full", "reduced"],
+          "baseline_value": "full",
+          "candidate_value": "reduced"
+        },
+        "task": {
+          "task_id": "task_fixture_repo_analysis",
+          "objective": "Analyse the frozen repository fixture and report the findings per module.",
+          "bounded_payload": { "repository": "synthetic_fixture", "module_count": 1 },
+          "modules": [
+            { "module_id": "module_alpha", "findings": ["finding_alpha_1"] }
+          ],
+          "depth_profiles": {
+            "full": { "modules_analyzed": 1, "findings_per_module": "all", "summary_scope": "all_modules" },
+            "reduced": { "modules_analyzed": 1, "findings_per_module": "first", "summary_scope": "first_module" }
+          }
+        },
+        "configurations": [
+          { "configuration_id": "cfg_baseline", "role": "BASELINE", "dimensions": { "analysis_context_depth": "full" } },
+          { "configuration_id": "cfg_candidate", "role": "CANDIDATE", "dimensions": { "analysis_context_depth": "reduced" } },
+          { "configuration_id": "cfg_third", "role": "CANDIDATE", "dimensions": { "analysis_context_depth": "full" } }
+        ],
+        "frozen_inputs": {
+          "corpus_ref": "fixture",
+          "corpus_path": "evals/experiments/ho01-local-optimization",
+          "run_spec_template_ref": "runtime/cli/specs/reference-audit-v1.json",
+          "files": [
+            { "path": "runtime/cli/specs/reference-audit-v1.json", "digest": "sha256:9b2aad286826c9e2f10768078f4f809d0fd4e3ca93535679dbc667eaaeb0bc57" }
+          ]
+        },
+        "execution": {
+          "runner": "runtime:run",
+          "transport": "fixture",
+          "harness_context": "development_harness",
+          "authority_grant": "none",
+          "behavioral_eval_contract_ref": "core/contracts/behavioral-eval.schema.json",
+          "behavioral_eval_runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
+          "behavioral_eval_mode": "recorded_replay"
+        },
+        "status": "FIXTURE_COMPARISON_ONLY",
+        "authority_granted": false,
+        "promotion_effect": "NONE"
+      }
+    }
+  ]
+}

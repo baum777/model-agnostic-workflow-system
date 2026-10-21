@@ -39,6 +39,8 @@
     "validate-behavioral-eval": "node scripts/tools/validate-behavioral-eval.mjs",
     "validate-harness-context": "node scripts/tools/validate-harness-context.mjs",
     "validate-executor-model-profile": "node scripts/tools/validate-executor-model-profile.mjs",
+    "eval:experiment-comparison": "node scripts/tools/run-local-optimization-comparison.mjs --experiment evals/experiments/ho01-local-optimization/experiment.json",
+    "validate-experiment-comparison": "node scripts/tools/validate-experiment-comparison.mjs --artifacts-base evidence/local-optimization-comparison-2026-10-21 --definition evals/experiments/ho01-local-optimization/experiment.json evidence/local-optimization-comparison-2026-10-21/comparison-record.json",
     "validate-instruction-bundle": "node scripts/tools/validate-instruction-bundle.mjs",
     "validate-instruction-integrity": "node scripts/tools/validate-instruction-integrity.mjs",
     "eval:secret-boundary": "node scripts/tools/run-certification-evals.mjs --kind secret-boundary",

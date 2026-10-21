@@ -1,0 +1,67 @@
+[
+  {
+    "execution_attempt_id": "att_daa5dd8d49a4",
+    "executor_id": "exec_openrouter_glm",
+    "work_unit_id": "wu_run_ho01_cfg_candidate_root",
+    "started_at": "2026-10-21T01:11:39.370Z",
+    "finished_at": "2026-10-21T01:11:39.370Z",
+    "outcome": "SUCCESS",
+    "outputs": [
+      {
+        "output_id": "audit_report",
+        "inline_payload": {
+          "task_id": "task_ho01_repo_analysis",
+          "modules_analyzed": [
+            "module_alpha"
+          ],
+          "findings": [
+            "finding_alpha_1"
+          ],
+          "summary": "Analyzed 1 modules; 1 findings; reduced context depth."
+        }
+      }
+    ],
+    "metrics": {
+      "latency_ms": 1000,
+      "cost_units": 1,
+      "tokens_in": 10,
+      "tokens_out": 10
+    },
+    "error_class": null,
+    "exit_code": null
+  },
+  {
+    "execution_attempt_id": "att_7d2254ca9d85",
+    "executor_id": "exec_unitera_execution_control_fixture",
+    "work_unit_id": "wu_run_ho01_cfg_candidate_root",
+    "started_at": "2026-10-21T01:11:39.370Z",
+    "finished_at": "2026-10-21T01:11:39.370Z",
+    "outcome": "SUCCESS",
+    "outputs": [],
+    "metrics": {
+      "latency_ms": 60,
+      "cost_units": 0,
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    "error_class": null,
+    "exit_code": null
+  },
+  {
+    "execution_attempt_id": "att_e4fb757b47ef",
+    "executor_id": "exec_local_tests",
+    "work_unit_id": "wu_run_ho01_cfg_candidate_root",
+    "started_at": "2026-10-21T01:11:39.370Z",
+    "finished_at": "2026-10-21T01:11:39.370Z",
+    "outcome": "SUCCESS",
+    "outputs": [],
+    "metrics": {
+      "latency_ms": 500,
+      "cost_units": 0,
+      "tokens_in": 0,
+      "tokens_out": 0
+    },
+    "error_class": null,
+    "exit_code": null
+  }
+]
