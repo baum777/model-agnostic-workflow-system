@@ -1,0 +1,50 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "This change works the TOCTOU residual classes of the shared path-confinement primitive as far as the runtime's public API allows: where procfs is available, the confined read is resolved through the pinned, identity-verified base directory descriptor with O_NOFOLLOW on every component (the procfs rooted binding, recorded on the confinement record together with the base directory's own device and inode identity), so a swap anywhere in the traversal can no longer point the read outside the base subtree; the residual R2 is narrowed accordingly and the module header states the narrowed boundary precisely. All existing guards (the regular-file check, the descriptor identity binding, the parent-directory identity re-check and the descriptor-level link-count comparison) are unchanged and still run. On a platform without the binding the previous real-path open and its guards apply unchanged. The residuals R1, R3 and R4 are not claimed as narrowed. The change adds an additive field to a tool surface's record and one shared helper; it alters no contract, no corpus, no record format, no digest, no error-code semantics of the existing vocabulary (one new refusal site reuses PATH_ESCAPES_BASE_THROUGH_SYMLINK for a link introduced in the traversal), no ownership, no lifecycle state, no authority and no dependency. The registration of the change is the new run change registration in the Registry (MAWS_PATH_CONFINEMENT_TOCTOU_2026_10_21_001); the Atlas representation trails it.",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "evidence/path-confinement-toctou-2026-10-21/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/path-confinement.mjs",
+      "tests/vnext/s5-path-confinement.test.mjs",
+      "CHANGELOG.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/path-confinement-toctou-2026-10-21/RUN.md"
+    ],
+    "evidence_refs": [
+      "implementation commit 29703c4694ae5ad43afd9243bc846d44288353a9 (fix s5: root the confined read at the verified base descriptor on Linux)",
+      "node --test tests/vnext/s5-path-confinement.test.mjs 30 pass / 0 fail (27 prior + 3 new mechanism tests, Linux-gated where the mechanism is asserted)",
+      "probe B1: the procfs decision neutered -> the nested rooted read test and the intermediate-symlink escape test both fail (28/2); the fallback follows the introduced link and refuses with the identity code instead of the escape code",
+      "probe B2: the intermediate O_NOFOLLOW|O_DIRECTORY neutered -> exactly the intermediate-symlink escape test fails (29/1); the link is followed to the replacement, which the identity checks catch as a change, not an escape",
+      "both probes reverted; suite 30/0 after restoration; tracked tree pristine",
+      "consumers green on the same tree: tests/vnext/evidence-provenance.test.mjs 25/0, tests/vnext/evidence-admission.test.mjs 24/0, npm run eval:skill-effectiveness final verdict IMPROVEMENT_PROVEN",
+      "the kernel answers O_NOFOLLOW|O_DIRECTORY on a symbolic link component with ELOOP or ENOTDIR depending on shape; both are disambiguated by lstat of the component, so a file replacement stays a PATH_CHANGED_DURING_RESOLUTION and only a link is a PATH_ESCAPES_BASE_THROUGH_SYMLINK",
+      "hosted GitHub Actions remains blocked account-wide (billing lock); every gate is a local run under Node v24.19.0 and no hosted result is claimed",
+      "the Mimosa deep scan's analysed set contains no .mjs material (measured 2026-10-21); no security-scan claim is derived"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/path-confinement-toctou-2026-10-21/registry-disposition.json (PASS)",
+      "node --check scripts/tools/path-confinement.mjs (PASS)",
+      "node --test tests/vnext/s5-path-confinement.test.mjs 30/0 after the probes were reverted"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "no contract changes: core/contracts is untouched",
+      "the exported vocabulary PATH_CONFINEMENT_CODES is unchanged; the change reuses PATH_ESCAPES_BASE_THROUGH_SYMLINK for a link introduced in the traversal",
+      "the confinement record gains additive fields (descriptor_binding, baseDev, baseIno) and loses none; the S5, S8 and S9 consumers are exercised green on the same tree",
+      "the closures of the S5, S8 and S9 slices are pinned to their published commits and are not re-opened; their records stay factually true for their events",
+      "nothing is superseded"
+    ],
+    "registry_baseline_sha": "4e5d66b4a8db52426cc2cfd5d0d1a68d4350a514",
+    "implementation_commit_sha": "29703c4694ae5ad43afd9243bc846d44288353a9",
+    "registry_commit_sha": null
+  }
+}
