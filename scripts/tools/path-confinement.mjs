@@ -53,9 +53,17 @@
 //       and inode identity. The parent directory's own identity is
 //       re-verified, so that case is DETECTED as long as the new parent has
 //       a fresh inode; escaping it needs the parent's inode number to be
-//       reused as well. Closing that would require openat(2) with O_NOFOLLOW
-//       relative to a trusted directory descriptor, which Node's public API
-//       does not expose.
+//       reused as well. WHERE THE PROCFS ROOTED BINDING IS ACTIVE (see
+//       descriptor_binding below), the read is in addition CONFINED BY
+//       CONSTRUCTION: it is resolved through the pinned base descriptor
+//       with O_NOFOLLOW on every component, so no swap anywhere in the
+//       traversal can point the read outside the base subtree — a swapped
+//       component resolves either to the name's current occupant INSIDE the
+//       base (which the identity checks then refuse) or to a symbolic link
+//       (which O_NOFOLLOW refuses outright). What remains of R2 there is a
+//       same-name race inside ONE component resolution, which nothing this
+//       runtime exposes can close; on a platform without the rooted
+//       binding, the full R2 race remains as before.
 //   R3  A filesystem that has itself stopped responding can still block in
 //       the kernel. O_NONBLOCK keeps a FIFO from blocking the OPEN, and the
 //       regular-file guard then refuses it, but no user-space flag prevents
@@ -103,6 +111,36 @@ function fail(code, message) {
 // instead of being assumed.
 export const O_NOFOLLOW_SUPPORTED = Number.isInteger(fs.constants.O_NOFOLLOW);
 const NOFOLLOW = O_NOFOLLOW_SUPPORTED ? fs.constants.O_NOFOLLOW : 0;
+
+// O_DIRECTORY makes the kernel refuse a non-directory for an intermediate
+// component open outright, instead of letting the later component open fail
+// with a confusing error. It is a POSIX flag and is treated like the others:
+// absent means 0, and the capability is not assumed.
+const O_DIRECTORY = Number.isInteger(fs.constants.O_DIRECTORY) ? fs.constants.O_DIRECTORY : 0;
+
+// The procfs magic-link root. /proc/self/fd/<fd> is a symbolic link the
+// kernel maintains to the OPEN FILE the descriptor refers to: resolving a
+// name THROUGH it starts at the inode the descriptor holds, not at whatever
+// now sits at the path the file was opened from. A directory descriptor
+// opened once and verified against the containment check's observed identity
+// is therefore a trusted anchor for the whole traversal — the closest thing
+// to openat(2) relative to a directory descriptor that this runtime exposes.
+const PROCFS_FD_ROOT = '/proc/self/fd';
+export const DESCRIPTOR_BINDING_PROC_ROOTED = 'proc_fd_rooted';
+export const DESCRIPTOR_BINDING_REAL_PATH = 'real_path_fallback';
+
+// True where the rooted binding can work at all: procfs exists and this is
+// the platform whose /proc semantics the traversal relies on. Probed at
+// CONFINE time and recorded on the confinement record, so the resolution
+// strategy can never silently change between the check and the open.
+function procFdBindingAvailable() {
+  if (process.platform !== 'linux') return false;
+  try {
+    return fs.statSync(PROCFS_FD_ROOT).isDirectory();
+  } catch {
+    return false;
+  }
+}
 
 // O_NONBLOCK keeps the OPEN from waiting for a writer: a FIFO that was
 // swapped in after the containment check would otherwise block the open
@@ -207,6 +245,7 @@ export function confineFileToBase(baseDir, relativePath) {
   } catch (error) {
     fail(PATH_CONFINEMENT_CODES.NOT_FOUND, `the parent directory of ${relativePath} could not be inspected: ${error.message}`);
   }
+  const baseStat = fs.statSync(realBase, { bigint: true });
   return {
     base,
     resolved,
@@ -218,34 +257,140 @@ export function confineFileToBase(baseDir, relativePath) {
     nlink: stat.nlink,
     parentPath,
     parentDev: parentStat.dev,
-    parentIno: parentStat.ino
+    parentIno: parentStat.ino,
+    baseDev: baseStat.dev,
+    baseIno: baseStat.ino,
+    descriptor_binding: procFdBindingAvailable()
+      ? DESCRIPTOR_BINDING_PROC_ROOTED
+      : DESCRIPTOR_BINDING_REAL_PATH
   };
+}
+
+/**
+ * Open the target through the pinned base descriptor (the procfs rooted
+ * binding).
+ *
+ * The base directory is opened ONCE and verified against the identity the
+ * containment check observed; a mismatch means the base itself moved and is
+ * refused. Every intermediate component is then opened with
+ * O_NOFOLLOW|O_DIRECTORY relative to the previous descriptor's magic link,
+ * and the final component with O_NOFOLLOW|O_NONBLOCK, so the traversal is
+ * rooted at the verified base inode: no swap anywhere along the way can
+ * point the read outside the base subtree. A symbolic link introduced at any
+ * component is refused outright, a component replaced by a non-directory is
+ * refused, and a directory that vanished is refused — never silently
+ * re-resolved from a path string.
+ */
+function openProcRooted(confined) {
+  let baseFd = null;
+  try {
+    baseFd = fs.openSync(confined.realBase, fs.constants.O_RDONLY | O_DIRECTORY | NOFOLLOW);
+    const probed = fs.fstatSync(baseFd, { bigint: true });
+    if (!probed.isDirectory() || probed.dev !== confined.baseDev || probed.ino !== confined.baseIno) {
+      fail(
+        PATH_CONFINEMENT_CODES.CHANGED_DURING_RESOLUTION,
+        `the verified base directory of ${confined.relativePath} does not hold the identity the containment check observed`
+      );
+    }
+    const parts = path.relative(confined.realBase, confined.realPath).split(path.sep);
+    const finalPart = parts.pop();
+    let current = baseFd;
+    for (const part of parts) {
+      let next;
+      try {
+        next = fs.openSync(`${PROCFS_FD_ROOT}/${current}/${part}`, fs.constants.O_RDONLY | O_DIRECTORY | NOFOLLOW);
+      } catch (error) {
+        // ELOOP is the textbook O_NOFOLLOW refusal; with O_DIRECTORY set the
+        // kernel can also answer a final-component symbolic link with
+        // ENOTDIR, so both codes are disambiguated by lstat: a symbolic link
+        // at the component is the escape refusal, anything else is a
+        // replacement between the check and the open.
+        if (error && (error.code === 'ELOOP' || error.code === 'ENOTDIR')) {
+          let linkStat = null;
+          try {
+            linkStat = fs.lstatSync(`${PROCFS_FD_ROOT}/${current}/${part}`);
+          } catch {
+            // the component vanished entirely; fall through to the
+            // replacement refusal below
+          }
+          if (linkStat && linkStat.isSymbolicLink()) {
+            fail(
+              PATH_CONFINEMENT_CODES.ESCAPES_BASE_THROUGH_SYMLINK,
+              `a component of ${confined.relativePath} is a symbolic link at the moment of the open`
+            );
+          }
+          fail(
+            PATH_CONFINEMENT_CODES.CHANGED_DURING_RESOLUTION,
+            `a directory component of ${confined.relativePath} was replaced between the containment check and the open`
+          );
+        }
+        fail(
+          PATH_CONFINEMENT_CODES.CHANGED_DURING_RESOLUTION,
+          `${confined.relativePath} could not be resolved through the pinned base descriptor: ${error.message}`
+        );
+      }
+      if (current !== baseFd) fs.closeSync(current);
+      current = next;
+    }
+    try {
+      return fs.openSync(`${PROCFS_FD_ROOT}/${current}/${finalPart}`, fs.constants.O_RDONLY | NOFOLLOW | NONBLOCK);
+    } catch (error) {
+      if (error && error.code === 'ELOOP') {
+        fail(PATH_CONFINEMENT_CODES.IS_A_SYMLINK, `${confined.relativePath} is a symbolic link at the verified path`);
+      }
+      if (error && error.code === 'ENOENT') {
+        fail(PATH_CONFINEMENT_CODES.NOT_FOUND, `${confined.relativePath} disappeared before it could be read`);
+      }
+      fail(
+        PATH_CONFINEMENT_CODES.NOT_READABLE,
+        `${confined.relativePath} could not be opened through the pinned base descriptor: ${error.message}`
+      );
+    } finally {
+      if (current !== baseFd) fs.closeSync(current);
+    }
+  } finally {
+    if (baseFd !== null) {
+      try {
+        fs.closeSync(baseFd);
+      } catch {
+        // the base descriptor is closed best-effort; the caller's fd, if it
+        // was produced, is owned by the caller and is not touched here
+      }
+    }
+  }
 }
 
 /**
  * Read a confined file through a verified descriptor.
  *
- * The descriptor is opened on the REAL path with O_NOFOLLOW, so the final
- * component cannot be a link at the moment of the open. The descriptor's
- * identity and the parent directory's identity are compared with the
- * identities observed during the confinement: a target or a parent
- * directory replaced in between is refused instead of being read.
+ * Where the confinement recorded the procfs rooted binding, the descriptor
+ * is produced by openProcRooted: the traversal is pinned to the verified
+ * base descriptor. Otherwise the descriptor is opened on the REAL path with
+ * O_NOFOLLOW, so the final component cannot be a link at the moment of the
+ * open. In both bindings the descriptor's identity and the parent
+ * directory's identity are compared with the identities observed during the
+ * confinement: a target or a parent directory replaced in between is
+ * refused instead of being read.
  */
 export function readConfinedFile(confined) {
   let fd;
-  try {
-    // O_NONBLOCK: a FIFO swapped in after the containment check must not
-    // block the open. The descriptor is produced at once, and the
-    // regular-file guard below refuses it.
-    fd = fs.openSync(confined.realPath, fs.constants.O_RDONLY | NOFOLLOW | NONBLOCK);
-  } catch (error) {
-    if (error && error.code === 'ELOOP') {
-      fail(PATH_CONFINEMENT_CODES.IS_A_SYMLINK, `${confined.relativePath} is a symbolic link at the verified path`);
+  if (confined.descriptor_binding === DESCRIPTOR_BINDING_PROC_ROOTED) {
+    fd = openProcRooted(confined);
+  } else {
+    try {
+      // O_NONBLOCK: a FIFO swapped in after the containment check must not
+      // block the open. The descriptor is produced at once, and the
+      // regular-file guard below refuses it.
+      fd = fs.openSync(confined.realPath, fs.constants.O_RDONLY | NOFOLLOW | NONBLOCK);
+    } catch (error) {
+      if (error && error.code === 'ELOOP') {
+        fail(PATH_CONFINEMENT_CODES.IS_A_SYMLINK, `${confined.relativePath} is a symbolic link at the verified path`);
+      }
+      if (error && error.code === 'ENOENT') {
+        fail(PATH_CONFINEMENT_CODES.NOT_FOUND, `${confined.relativePath} disappeared before it could be read`);
+      }
+      fail(PATH_CONFINEMENT_CODES.NOT_READABLE, `${confined.relativePath} could not be opened: ${error.message}`);
     }
-    if (error && error.code === 'ENOENT') {
-      fail(PATH_CONFINEMENT_CODES.NOT_FOUND, `${confined.relativePath} disappeared before it could be read`);
-    }
-    fail(PATH_CONFINEMENT_CODES.NOT_READABLE, `${confined.relativePath} could not be opened: ${error.message}`);
   }
   try {
     // C4 (again, on the opened descriptor itself): the material must be a

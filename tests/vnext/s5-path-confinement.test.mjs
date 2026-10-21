@@ -47,6 +47,7 @@ import {
   runVariant
 } from '../../scripts/tools/run-skill-effectiveness-evals.mjs';
 import {
+  DESCRIPTOR_BINDING_PROC_ROOTED,
   PATH_CONFINEMENT_CODES,
   PathConfinementError,
   confineFileToBase,
@@ -636,5 +637,64 @@ test('the current S5 eval records still validate against the current runner', ()
   for (const name of ['baseline', 'candidate']) {
     const record = JSON.parse(fs.readFileSync(path.join(evidenceDir, `eval-record-bev-skill-effectiveness-${name}.json`), 'utf8'));
     assert.deepEqual(validateBehavioralEvalRecord(record, ROOT), [], `${name} record still validates`);
+  }
+});
+
+test('the confinement records which descriptor binding the read will use', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 's5-binding-'));
+  try {
+    fs.writeFileSync(path.join(dir, 'cases.json'), '{"cases":[]}\n');
+    const confined = confineFileToBase(dir, 'cases.json');
+    assert.ok(
+      [DESCRIPTOR_BINDING_PROC_ROOTED, 'real_path_fallback'].includes(confined.descriptor_binding),
+      `the binding is recorded, got ${confined.descriptor_binding}`
+    );
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a nested target is read through the pinned base descriptor', { skip: process.platform !== 'linux' }, () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 's5-rooted-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'sub'));
+    fs.writeFileSync(path.join(dir, 'sub', 'case.json'), '{"cases":[]}\n');
+    const confined = confineFileToBase(dir, 'sub/case.json');
+    assert.equal(confined.descriptor_binding, DESCRIPTOR_BINDING_PROC_ROOTED);
+    assert.equal(readConfinedFile(confined).toString('utf8'), '{"cases":[]}\n');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('an intermediate directory swapped to a symbolic link after the check is refused as an escape', { skip: process.platform !== 'linux' }, () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 's5-rooted-'));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 's5-rooted-outside-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'sub'));
+    fs.writeFileSync(path.join(dir, 'sub', 'case.json'), '{"cases":[]}\n');
+    fs.writeFileSync(path.join(outside, 'case.json'), '{"cases":[{"case_id":"escaped"}]}\n');
+    const confined = confineFileToBase(dir, 'sub/case.json');
+    assert.equal(confined.descriptor_binding, DESCRIPTOR_BINDING_PROC_ROOTED);
+    // The swap happens AFTER the containment check: the confinement proved
+    // base/sub/case.json while it was still a real path inside the base.
+    fs.renameSync(path.join(dir, 'sub'), path.join(dir, 'sub.original'));
+    fs.symlinkSync(outside, path.join(dir, 'sub'));
+    // The rooted binding must refuse the link in the traversal, not follow
+    // it: the error is the escape code, not the identity code, because the
+    // refusal happens at the component open, before any descriptor exists.
+    assert.throws(
+      () => readConfinedFile(confined),
+      (error) => error instanceof PathConfinementError
+        && error.code === PATH_CONFINEMENT_CODES.ESCAPES_BASE_THROUGH_SYMLINK,
+      'a symbolic link introduced in the traversal is refused, not followed'
+    );
+    // Restoring the layout reads back the confined content again.
+    fs.rmSync(path.join(dir, 'sub'));
+    fs.renameSync(path.join(dir, 'sub.original'), path.join(dir, 'sub'));
+    assert.equal(readConfinedFile(confined).toString('utf8'), '{"cases":[]}\n');
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+    fs.rmSync(outside, { recursive: true, force: true });
   }
 });
