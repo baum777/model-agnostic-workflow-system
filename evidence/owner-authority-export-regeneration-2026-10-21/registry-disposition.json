@@ -52,7 +52,7 @@
       "hosted CI disclosure: the loop-repo-ci check on the published head reports 'The job was not started because your account is locked due to a billing issue'; every step of the workflow was replicated locally instead, and no hosted green gate is claimed",
       "security scan disclosure: the Mimosa pre-commit scan did not complete for the commits of this change (scanner_enobufs); no security claim is derived from it"
     ],
-    "implementation_commit_sha": "76cb13284d6171009b852c536d652740eda669d1",
+    "implementation_commit_sha": "9030e83335440fc7e82666e6111404534fd0cbe4",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/owner-authority-export-regeneration-2026-10-21/registry-disposition.json"

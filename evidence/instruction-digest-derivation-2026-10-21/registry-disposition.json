@@ -27,7 +27,8 @@
       "docs/authority-matrix.md",
       "tests/vnext/instruction-binding.test.mjs",
       "tests/vnext/executor-model-profile.test.mjs",
-      "evidence/instruction-digest-derivation-2026-10-21/RUN.md"
+      "evidence/instruction-digest-derivation-2026-10-21/RUN.md",
+      "runtime/skills/canonical-path.mjs"
     ],
     "supersession_refs": [],
     "provenance_refs": [
@@ -49,7 +50,7 @@
       "validator: node scripts/tools/validate-registry-disposition.mjs evidence/instruction-digest-derivation-2026-10-21/registry-disposition.json (PASS)",
       "hosted CI disclosure: the loop-repo-ci check on the published head reports 'The job was not started because your account is locked due to a billing issue'; every step of the workflow was replicated locally instead, and no hosted green gate is claimed"
     ],
-    "implementation_commit_sha": "76cb13284d6171009b852c536d652740eda669d1",
+    "implementation_commit_sha": "9030e83335440fc7e82666e6111404534fd0cbe4",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-digest-derivation-2026-10-21/registry-disposition.json"
