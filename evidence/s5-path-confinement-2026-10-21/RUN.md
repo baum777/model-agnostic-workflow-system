@@ -255,4 +255,18 @@ The change itself is still registered, as the Unitera project routing layer requ
 
 ## 10. Closure addendum
 
-*Filled after the source merge, the Registry publication and the Atlas publication.*
+The slice is published on all three surfaces. The chain is:
+
+| Surface | Pull request | Merge commit | Merged at |
+| --- | --- | --- | --- |
+| MAWS (source) | 59 | `d44002cf5f7d6997c3c75fc4b8a0ecc478157f8f` | 2026-10-21T05:26:29Z |
+| Unitera Registry | 248 | `c14a9990fd22f9ac1a6155628a459450c137bae7` | 2026-10-21T05:29:54Z |
+| Unitera Atlas | 190 | `29c0edf1c5f2c2984a2f497820927e244b2d47b6` | 2026-10-21T05:31:45Z |
+
+- **MAWS pull request 59** merged with the GraphQL `mergePullRequest` mutation, `expectedHeadOid 1dbac8ce52d3c6ffac49ca005e239c6d61131c11`, `mergeMethod MERGE` (the REST merge endpoint answers 404 on that repository). Main before the merge: `808bfb09175084a90f1eb264fb18e72e9bda0f82`. No admin bypass, no force merge, no squash, no direct main push. The head, the merge commit and the base were each verified to be an ancestor of `origin/main` afterwards.
+- **Registry pull request 248** publishes `registry/MAWS_S5_PATH_CONFINEMENT_2026_10_21_001.yaml`, the run change registration. `python3 scripts/validate_registry.py` answers `registry validation: PASS`. The reachability gate answers **600 verified current claims, 31 historical, 31 separate current observations, 8 diagnostics, 1 mismatch** — against 565 verified claims and the *same single* mismatch before this record, so the registration adds 35 verified claims and no mismatch of its own. The one mismatch is the pre-existing drift in another lane's `PERSONAL_PILOT_LAUNCH_ACCEPTANCE_2026_10_21_001.yaml`, whose baum-os source publication merged after that record was written; it is reproduced on registry main without this record and is left to the lane that owns it.
+- **Atlas pull request 190** publishes `data/claims-post-maws-s5-path-confinement-2026-10-21.yaml`, the claim `C-MAWS-S5-PATH-CONFINEMENT-2026-10-21`, pinned as an **event pin** on the merge commit `d44002cf`. `python3 scripts/validate_atlas.py` answers `PASS` (327 claims, 0 errors), and the pin reachability gate answers **REACHABLE** for it. The single unreachable pin in that lane is the same pre-existing `C-PERSONAL-PILOT-LAUNCH-ACCEPTANCE-2026-10-21` defect, not this claim. The recorded MAWS materialization revision in `data/repos.yaml` is deliberately **not** advanced: advancing a repository's materialization pin is a separate, dedicated operation in this Atlas, and no `repos.yaml` or `file-relations.yaml` change is performed by this supplement.
+
+**The disposition stays `NO_CHANGE`.** Under `registry-disposition.v1` a non-null `registry_commit_sha` is valid only for `UPDATED`, and this change altered no `CONTRACT_RECORD`, `PROVENANCE` or `SUPERSESSION` class — the behavioral-eval contract, its validator, the corpus content, the record format and every digest are untouched. The Registry write that this run *did* need — the change registration every change requires — is published as pull request 248 and named in the disposition's `evidence_refs`.
+
+**What this closure does not claim:** no hosted CI result (the account's Actions jobs are locked for billing and fail with zero steps; every gate was replicated locally); no security claim (the Mimosa scan's own coverage artifact is `partial` / `inconclusive`, and the commit hook produced no complete result); no independent human approval (the review was tool-based over three rounds, and a GitHub reviewer could not be requested for the pull request — the API answers HTTP 422); and no `data/repos.yaml` advance.
