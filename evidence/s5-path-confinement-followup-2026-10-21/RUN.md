@@ -214,7 +214,9 @@ CI-faithful method.
 
 * **Unitera Registry**, `registry_reachability.py --require-verifiable`: 613 verified current
   claims, 31 historical, 31 separate current observations, 8 record-gap diagnostics, **1
-  mismatch**.
+  mismatch**. (Measured on the Registry main at the start of this run; this run's own
+  registration adds verified claims and no mismatch of its own — 617 verified on the branch
+  that carries it.)
 * **Unitera Atlas**, `validate_atlas.py`: PASS, 0 errors. `validate_pin_reachability.py`: **1
   failure**.
 
@@ -244,9 +246,19 @@ Running the same gates against a **stale local mirror** produces two further fin
 
 Both disappear after the mirror is refreshed, and both are reproduced on the fresh farm. **The
 gate verdict depends on the freshness of the local mirror**: a stale mirror produces false
-mismatches, which are indistinguishable in the output from a real drift. The CI-faithful
-invocation — a freshly provisioned mirror farm — is the method whose result can be relied on,
-and it is the method used above.
+mismatches, which are indistinguishable in the output from a real drift.
+
+The class is larger than the observed instance. A **controlled reproduction** — a `baum-os`
+mirror deliberately left behind the pull request 70 merge, fetched shallow, with
+`refs/remotes/origin/main` at `2f4bd587` — answers **547** verified current claims, 28
+historical, 28 separate current observations, **82 diagnostics (74 of them unverifiable)** and
+**3 mismatches**, against **617** verified, 8 diagnostics and 1 mismatch on the fresh farm. Every
+`baum-os` commit newer than the mirror's head becomes unverifiable, and each of the false
+mismatches is indistinguishable in the output from a real drift. The gate must therefore be run
+against a refreshed or freshly provisioned mirror before its output is read as a drift.
+
+The CI-faithful invocation — a freshly provisioned mirror farm — is the method whose result can
+be relied on, and it is the method used above.
 
 ---
 
