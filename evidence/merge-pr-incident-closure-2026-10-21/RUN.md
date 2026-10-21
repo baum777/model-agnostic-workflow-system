@@ -131,6 +131,13 @@ observation, the local gate's head binding, the default-branch cross-check,
 the cross-repository check, the iteration over the required checks, the
 head-branch cross-check, the lane id pattern and the head repository.
 
+**The live merge path was exercised for real, and it refused before it
+merged.** The first live attempt failed closed on a GitHub read: the `gh pr
+list` field set the executor requested did not exist, the receipt answered
+`"ok": false`, `"merged": false` and no merge was issued. The field was
+corrected, a typed `MERGE_GITHUB_ACCESS_FAILED` was added for a GitHub read
+that fails, and the live merge was repeated.
+
 **The negative test that binds the incident class**: a foreign pull request
 that exists, is open, is mergeable and carries a valid head sha is refused
 with `MERGE_PR_IDENTITY_MISMATCH` — in the pure decision, in the CLI and in
