@@ -118,6 +118,7 @@ That is the S7 semantics working end to end: the S12 profile pins became stale a
 
 ## Open obligations (not closed by this run)
 
-- **Registry registration and Atlas representation: part of this closure, published after the source merge.** The Registry write (run change registration plus the CONTRACT_RECORD projection) is published first, the Atlas representation follows it, and the disposition in this folder is then rebound from `REQUIRED_BUT_BLOCKED` to `UPDATED` with the registry commit sha. Until that rebind is merged, the recorded status of this run is `REQUIRED_BUT_BLOCKED` — not closed.
+- **Registry registration: CLOSED.** The run change registration and the CONTRACT_RECORD projection(s) were published in `baum777/unitera-registry` pull request 242 and merged as `0e322a193009712264b72a5c0380a97e427aaf98`; the local disposition is rebound to `UPDATED` with that registry commit sha.
+- **Atlas representation: CLOSED.** The Atlas claim(s) were published in `baum777/unitera_atlas` pull request 187, merged as `5e3521d430bd83a0b1d8c62fb66f4b255c8a6753`.
 - **Independent review limitation.** The review was performed by a local audit agent (a different model, tool-driven, with mutation probes). The codex review connector was quota-exhausted. No human approval is claimed and the slice is not presented as codex-reviewed.
 - **Hosted CI state.** The GitHub Actions job could not execute (the account is locked for a billing issue). Every step of the workflow was replicated locally on the published head; the absence of a hosted run is disclosed rather than presented as a green gate.
