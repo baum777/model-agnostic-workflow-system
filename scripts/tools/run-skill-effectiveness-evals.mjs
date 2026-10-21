@@ -31,6 +31,12 @@ import { fileURLToPath } from 'node:url';
 import { defineExecutor } from '../../runtime/executors/executor-base.mjs';
 import { developmentProbeHarnessContext } from '../../runtime/harness-context/context-binding.mjs';
 import { validateBehavioralEvalRecord } from './validate-behavioral-eval.mjs';
+import {
+  PATH_CONFINEMENT_CODES,
+  PathConfinementError,
+  confineFileToBase,
+  readConfinedFile
+} from './path-confinement.mjs';
 
 const RUNNER_ID = 'run-skill-effectiveness-evals.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -66,30 +72,64 @@ function round6(value) {
   return Math.round(value * 1e6) / 1e6;
 }
 
-function readJsonFile(filePath) {
-  let parsed;
-  try {
-    parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch (error) {
-    throw new EvalConfigError('CORPUS_FILE_INVALID', `${filePath}: ${error.message}`);
+// The corpus loader reads material that must stay inside the corpus
+// directory. A purely lexical check is not enough: a symlink inside the
+// corpus that points outside it would carry the read out of the corpus, and
+// the loader would then measure material it does not own. The loader
+// therefore confines every declared path to the corpus directory in real
+// terms and binds the read to a verified file descriptor. The shared
+// primitive owns the containment rule; this module owns the corpus error
+// vocabulary.
+//
+//   CORPUS_PATH_ESCAPES_ROOT   the declared path leaves the corpus
+//   CORPUS_PATH_SYMLINK_ESCAPE the path resolves outside the corpus through
+//                              a symbolic link (file or parent directory)
+//   CORPUS_PATH_NOT_A_FILE     the target is not a regular file
+//   CORPUS_PATH_CHANGED        the target was replaced between the
+//                              containment check and the read
+export const CORPUS_PATH_CODES = {
+  [PATH_CONFINEMENT_CODES.INVALID_PATH]: 'CORPUS_PATH_ESCAPES_ROOT',
+  [PATH_CONFINEMENT_CODES.ABSOLUTE_PATH]: 'CORPUS_PATH_ESCAPES_ROOT',
+  [PATH_CONFINEMENT_CODES.ESCAPES_BASE]: 'CORPUS_PATH_ESCAPES_ROOT',
+  [PATH_CONFINEMENT_CODES.BASE_UNRESOLVABLE]: 'CORPUS_DIR_INVALID',
+  [PATH_CONFINEMENT_CODES.ESCAPES_BASE_THROUGH_SYMLINK]: 'CORPUS_PATH_SYMLINK_ESCAPE',
+  [PATH_CONFINEMENT_CODES.NOT_FOUND]: 'CORPUS_FILE_INVALID',
+  [PATH_CONFINEMENT_CODES.NOT_A_FILE]: 'CORPUS_PATH_NOT_A_FILE',
+  [PATH_CONFINEMENT_CODES.IS_A_SYMLINK]: 'CORPUS_PATH_SYMLINK_ESCAPE',
+  [PATH_CONFINEMENT_CODES.CHANGED_DURING_RESOLUTION]: 'CORPUS_PATH_CHANGED',
+  [PATH_CONFINEMENT_CODES.NOT_READABLE]: 'CORPUS_FILE_INVALID'
+};
+
+function asCorpusError(error, fallbackCode) {
+  if (error instanceof PathConfinementError) {
+    return new EvalConfigError(CORPUS_PATH_CODES[error.code] || fallbackCode, error.message);
   }
-  return parsed;
+  return null;
 }
 
-function resolveInside(rootDir, relativePath) {
-  const resolved = path.resolve(rootDir, relativePath);
-  if (!resolved.startsWith(path.resolve(rootDir) + path.sep)) {
-    throw new EvalConfigError('CORPUS_PATH_ESCAPES_ROOT', relativePath);
+function confineCorpusFile(corpusDir, relativePath) {
+  try {
+    return confineFileToBase(corpusDir, relativePath);
+  } catch (error) {
+    throw asCorpusError(error, 'CORPUS_PATH_ESCAPES_ROOT') || error;
   }
-  return resolved;
+}
+
+function readJsonFile(confined) {
+  let parsed;
+  try {
+    parsed = JSON.parse(readConfinedFile(confined).toString('utf8'));
+  } catch (error) {
+    throw asCorpusError(error, 'CORPUS_FILE_INVALID') || new EvalConfigError('CORPUS_FILE_INVALID', `${confined.resolved}: ${error.message}`);
+  }
+  return parsed;
 }
 
 /**
  * Load and validate the corpus manifest plus every referenced family file.
  */
 export function loadCorpus(corpusDir) {
-  const manifestPath = path.join(corpusDir, 'corpus.json');
-  const manifest = readJsonFile(manifestPath);
+  const manifest = readJsonFile(confineCorpusFile(corpusDir, 'corpus.json'));
   if (manifest.schema_version !== CORPUS_SCHEMA_VERSION) {
     throw new EvalConfigError('CORPUS_SCHEMA_UNKNOWN', `unsupported corpus schema_version ${manifest.schema_version}`);
   }
@@ -104,21 +144,24 @@ export function loadCorpus(corpusDir) {
     if (typeof family.family !== 'string' || typeof family.file !== 'string' || typeof family.blocking !== 'boolean') {
       throw new EvalConfigError('CORPUS_FAMILY_INVALID', 'family entries need family/file/blocking');
     }
-    const familyPath = family.via === 'variant' ? null : resolveInside(corpusDir, family.file);
-    const cases = familyPath ? loadCases(familyPath) : [];
+    // Every declared family file is confined to the corpus directory before
+    // it is read: the file must resolve inside the corpus even when it is
+    // reached through a symbolic link.
+    const confined = family.via === 'variant' ? null : confineCorpusFile(corpusDir, family.file);
+    const cases = confined ? loadCases(confined) : [];
     // Digests bind the manifest-declared logical path, never the resolved
     // absolute path, so identical corpus content hashes identically in any
     // checkout directory.
-    families.set(family.family, { ...family, cases, file: familyPath, logical_file: family.file });
+    families.set(family.family, { ...family, cases, file: confined ? confined.resolved : null, logical_file: family.file });
   }
   const variants = new Map();
   for (const [variantName, variantSpec] of Object.entries(manifest.variants)) {
     const positiveFamily = families.get('positive');
-    const positivePath = resolveInside(corpusDir, variantSpec.positive_cases_file);
-    positiveFamily.cases = loadCases(positivePath);
-    positiveFamily.file = positivePath;
+    const positiveConfined = confineCorpusFile(corpusDir, variantSpec.positive_cases_file);
+    positiveFamily.cases = loadCases(positiveConfined);
+    positiveFamily.file = positiveConfined.resolved;
     variants.set(variantName, {
-      positive_cases_file: positivePath,
+      positive_cases_file: positiveConfined.resolved,
       positive_cases_logical_file: variantSpec.positive_cases_file,
       positive_cases: positiveFamily.cases
     });
@@ -126,13 +169,13 @@ export function loadCorpus(corpusDir) {
   return { corpusDir, manifest, families, variants, subject: manifest.subject };
 }
 
-function loadCases(filePath) {
-  const parsed = readJsonFile(filePath);
+function loadCases(confined) {
+  const parsed = readJsonFile(confined);
   if (!Array.isArray(parsed.cases) || parsed.cases.length === 0) {
-    throw new EvalConfigError('CORPUS_CASES_EMPTY', `${filePath}: cases must be a non-empty array`);
+    throw new EvalConfigError('CORPUS_CASES_EMPTY', `${confined.resolved}: cases must be a non-empty array`);
   }
   for (const entry of parsed.cases) {
-    validateCaseShape(entry, filePath);
+    validateCaseShape(entry, confined.resolved);
   }
   return parsed.cases;
 }
@@ -530,6 +573,35 @@ function parseArgs(argv) {
   return args;
 }
 
+/**
+ * Prove that a corpus directory stays inside the repository in REAL terms.
+ *
+ * The lexical comparison alone is defeated by a corpus directory that is
+ * itself a symbolic link: the path reads as "inside the repository" while
+ * the material lives outside the tree. A corpus reached through such a link
+ * is not a corpus of this repository, and evaluating it would measure
+ * material the run does not own. Returns the resolved corpus directory.
+ */
+export function assertCorpusInsideRepository(repoRoot, corpusDir) {
+  const root = path.resolve(repoRoot);
+  const corpus = path.resolve(root, corpusDir);
+  if (!corpus.startsWith(root + path.sep)) {
+    throw new EvalConfigError('CORPUS_DIR_ESCAPES_REPO', '--corpus must stay inside the repository');
+  }
+  let repoReal;
+  let corpusReal;
+  try {
+    repoReal = fs.realpathSync(root);
+    corpusReal = fs.realpathSync(corpus);
+  } catch (error) {
+    throw new EvalConfigError('CORPUS_DIR_INVALID', `the corpus directory could not be resolved: ${error.message}`);
+  }
+  if (!corpusReal.startsWith(repoReal + path.sep)) {
+    throw new EvalConfigError('CORPUS_DIR_ESCAPES_REPO', `--corpus must stay inside the repository (it resolves to ${corpusReal})`);
+  }
+  return corpusReal;
+}
+
 async function main() {
   let args;
   try {
@@ -539,9 +611,11 @@ async function main() {
     process.exit(3);
   }
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-  const corpusDir = path.resolve(root, args.corpus || 'evals/skill-effectiveness');
-  if (!corpusDir.startsWith(root + path.sep)) {
-    console.error('config error: --corpus must stay inside the repository');
+  let corpusDir;
+  try {
+    corpusDir = assertCorpusInsideRepository(root, args.corpus || 'evals/skill-effectiveness');
+  } catch (error) {
+    console.error(`config error: ${error.message}`);
     process.exit(3);
   }
 
