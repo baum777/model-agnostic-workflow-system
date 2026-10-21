@@ -1,0 +1,52 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "This change establishes the repository-owned static security gate for the .mjs material, because the external deep scanner's language packs do not register the .mjs extension and its analysed set for this repository contains none of it (measured 2026-10-21). The new scripts/tools/scan-source-security.mjs enumerates, reads and parses every .mjs and .js file under the governed roots (runtime, scripts, providers, tests), applies four deterministic rules each naming a concrete defect class (dynamic code execution, shell interpolation through exec/execSync, unpinned network egress, non-literal dynamic import), treats an unreadable or unparseable file as a failure rather than a skip, pins the material whose absence made the external scan vacuous as REQUIRED COVERAGE whose absence fails the gate, and manages disclosures through a baseline whose stale entries fail the gate so it cannot become an amnesty list. The gate is wired into the hosted workflow's step list as npm run scan:source-security. The change adds a tool and its test suite, one npm script, one CI step and one baseline file; it adds no npm dependency and changes no contract, no corpus, no record format, no digest, no ownership, no lifecycle state, no authority and no existing behavior of any other surface. The registration of the change is the new run change registration in the Registry (MAWS_SOURCE_SECURITY_SCAN_2026_10_21_001); the Atlas representation trails it.",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "evidence/source-security-scan-2026-10-21/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/scan-source-security.mjs",
+      "tests/tools/source-security-scan.test.mjs",
+      "security/source-security-baseline.json",
+      ".github/workflows/loop-repo-ci.yml",
+      "package.json",
+      "CHANGELOG.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/source-security-scan-2026-10-21/RUN.md"
+    ],
+    "evidence_refs": [
+      "implementation commit 2d608508b1636dfd840e3ddbebebab77e4df4e35 (feat security: add the repository-owned .mjs-capable source security gate)",
+      "first measurement: 233 .mjs files analysed (the scanner counts itself), required coverage 4/4 (path-confinement.mjs, run-skill-effectiveness-evals.mjs, evidence-provenance.mjs, evidence-admission.mjs), PASS with 3 baselined findings (baum-loop-repo.mjs execSync x2 with constant git command strings; run-skill-effectiveness-evals.mjs non-literal import over a confinement-guarded corpus URL) and zero unbaselined findings",
+      "no eval, no new Function, no node:vm, no fetch/request/connect in the governed source outside the baselined entries",
+      "tests/tools/source-security-scan.test.mjs 10 of 10 pass: rule firing with exact code and line, benign shapes not firing (a literal import and RegExp.exec are no findings), baseline round-trip, stale baseline detection, parse failure as failure, required-coverage bite, determinism, the repository self-scan, and the CLI exit codes",
+      "probe C1: an unbaselined eval(userInput) planted in the governed tree fails the gate (exit 1) with the exact file:line finding; restored to PASS",
+      "probe C2: required coverage naming a file that does not exist fails the gate with MISSING REQUIRED COVERAGE; restored to PASS",
+      "parse enforcement uses the engine's own node --check per analysed file; the full gate runs in about eight seconds over 233 files under Node v24.19.0",
+      "hosted GitHub Actions remains blocked account-wide (billing lock); the CI step is published but has not run there, and every measurement is a local run",
+      "the external Mimosa deep scan remains unclaimed for .mjs material; this gate, not that scan, is the coverage the ticket asked for"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/source-security-scan-2026-10-21/registry-disposition.json (PASS)",
+      "node scripts/tools/scan-source-security.mjs answers PASS, exit 0, 233 analysed, required coverage 4/4",
+      "node --test tests/tools/source-security-scan.test.mjs 10 of 10 pass"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "no contract changes: core/contracts is untouched",
+      "no npm dependency added: the scanner uses node:fs, node:path, node:url and node:child_process only",
+      "the governed roots, rule codes, required coverage and baseline path are exported constants a consumer can pin",
+      "nothing is superseded: the external scan was never a claim of this repository; the repository's own secret scanners keep their scope"
+    ],
+    "registry_baseline_sha": "4e5d66b4a8db52426cc2cfd5d0d1a68d4350a514",
+    "implementation_commit_sha": "2d608508b1636dfd840e3ddbebebab77e4df4e35",
+    "registry_commit_sha": null
+  }
+}
