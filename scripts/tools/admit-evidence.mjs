@@ -31,7 +31,12 @@ import { fileURLToPath } from 'node:url';
 
 import { canonicalJson, nowIso } from '../../runtime/vnext/util.mjs';
 import { readEvidenceRecord, corpusTreeDigest } from './evidence-provenance.mjs';
-import { materialDigest, gitContext, EVIDENCE_ADMISSION_DIRECTORY } from './evidence-admission.mjs';
+import {
+  materialDigest,
+  gitContext,
+  EVIDENCE_ADMISSION_DIRECTORY,
+  EVIDENCE_ADMISSION_REF_PATTERN
+} from './evidence-admission.mjs';
 import { loadCorpus } from './run-skill-effectiveness-evals.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -149,7 +154,14 @@ export function computeAdmission({
 
   return {
     schema_version: '1.0.0',
-    admission_id: `admit_evidence_${material.material_digest.slice(7, 19)}`,
+    // The identity of the admission covers the material AND the content AND
+    // the skill: the same evidence admitted for a different content is a
+    // DIFFERENT admission, and must not overwrite the first one.
+    admission_id: `admit_evidence_${sha256Prefixed(canonicalJson({
+      material: material.material_digest,
+      content: contentDigest,
+      skill: skillId
+    })).slice(7, 19)}`,
     skill_id: skillId,
     subject_ref: record.record.subject?.ref,
     content_digest: contentDigest,
@@ -193,7 +205,20 @@ export function runCli(args) {
     return { ok: false, written: false, issues: [error.message] };
   }
   const outRef = readFlag(args, '--out') || `${EVIDENCE_ADMISSION_DIRECTORY}/${admission.admission_id}.json`;
-  const outPath = path.join(evidenceRoot, outRef);
+  // The write target is confined to the canonical admission surface of the
+  // evidence tree: the calculator may not emit an artifact the chain would
+  // always refuse, and it may not write outside the governed tree.
+  if (!EVIDENCE_ADMISSION_REF_PATTERN.test(outRef)) {
+    return {
+      ok: false,
+      written: false,
+      issues: [`the output reference "${outRef}" does not name an artifact of the canonical admission surface ${EVIDENCE_ADMISSION_DIRECTORY}/`]
+    };
+  }
+  const outPath = path.resolve(evidenceRoot, outRef);
+  if (!outPath.startsWith(`${path.resolve(evidenceRoot)}${path.sep}`)) {
+    return { ok: false, written: false, issues: [`the output reference "${outRef}" escapes the evidence tree`] };
+  }
   if (!write) {
     return { ok: true, written: false, admission, out_ref: outRef, out_path: outPath };
   }

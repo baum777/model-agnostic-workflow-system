@@ -493,12 +493,23 @@ export async function promoteSkillCandidate({
     now,
     maxEvidenceAgeDays
   });
-  // The S8 gate proved that the bound evaluation REPRODUCES. The admission
-  // gate proves the two bindings that stand above it: the evidence is
+  // The S8 gate proved that the bound evaluation REPRODUCES. The owner
+  // approval is the DECISION that the content may be adopted. The admission
+  // gate then proves the two bindings that stand above both: the evidence is
   // admitted FOR the content that is being adopted, and it comes from a
   // source whose committed identity is proved. The admission is verified
   // against the attestation the S8 gate just produced, so a substituted path
   // or a manipulated digest cannot be admitted.
+  const approval = validateOwnerApproval({
+    ownerApprovalRef,
+    ownerAuthorityPath,
+    canonicalRoot,
+    candidateDigest,
+    skillId,
+    root,
+    now,
+    maxApprovalAgeDays
+  });
   let evidenceAdmission;
   try {
     evidenceAdmission = verifyEvidenceAdmission({
@@ -512,16 +523,6 @@ export async function promoteSkillCandidate({
   } catch (error) {
     promotionError(error?.code || 'EVIDENCE_ADMISSION_FAILED', error.message);
   }
-  const approval = validateOwnerApproval({
-    ownerApprovalRef,
-    ownerAuthorityPath,
-    canonicalRoot,
-    candidateDigest,
-    skillId,
-    root,
-    now,
-    maxApprovalAgeDays
-  });
 
   // Replay protection comes FIRST: the ledger records every applied
   // adoption, so a replayed adoption id or an adoption that does not move
@@ -871,6 +872,11 @@ export async function postAdoptionReadback({ record, canonicalRoot, evidenceRoot
     // A silent skip would turn the readback into a weaker check than the
     // claim says it is. The gap is reported instead.
     issues.push('post_adoption_readback: the bound evidence was not re-verified: no evidence tree was given');
+  } else if (boundEvidence.length > 0 && !record.evidence_admission) {
+    // A record with bound evidence and no admission is a record whose
+    // evidence was never admitted for the adopted content. The gap is
+    // reported, not skipped.
+    issues.push('post_adoption_readback: the bound evidence has no admission: the evidence was not admitted for the adopted content');
   } else if (evidenceRoot) {
     for (const entry of boundEvidence) {
       try {

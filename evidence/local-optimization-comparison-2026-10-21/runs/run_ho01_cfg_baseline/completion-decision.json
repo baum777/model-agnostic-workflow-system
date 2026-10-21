@@ -1,5 +1,5 @@
 {
-  "decision_id": "cdec_54c213567cd6",
+  "decision_id": "cdec_57d1aa130c76",
   "work_unit_id": "wu_run_ho01_cfg_baseline_root",
   "contract_ref": "cc_run_ho01_cfg_baseline_root",
   "result": "COMPLETED",
@@ -17,11 +17,11 @@
   "unsatisfied_clauses": [],
   "blocking_reasons": [],
   "evidence_refs": [
-    "att_7ff582a875fd",
-    "att_14b170c8d0f6",
-    "att_e6adc44215d2",
-    "vr_8a71a44eb383",
+    "att_6de671744566",
+    "att_8c303b3a3d19",
+    "att_11f731f6b48c",
+    "vr_aeb0e4f5184e",
     "evidence/runtime-run-cli/analysis-receipt.json"
   ],
-  "decided_at": "2026-10-21T07:54:14.502Z"
+  "decided_at": "2026-10-21T08:17:58.801Z"
 }

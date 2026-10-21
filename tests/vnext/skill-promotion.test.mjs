@@ -1819,16 +1819,14 @@ test('S8 the CLI accepts the SHIPPED behavioral evidence and then refuses the un
   // installation: the input file cannot point it at another anchor, and
   // the anchor it does read publishes no key, so the approval is refused.
   //
-  // The chain stops one gate earlier than it used to: the SHIPPED evidence
-  // measures the subject "maws-workflow-core-router-profile", for which this
-  // repository holds no canonical artifact, so no content has been admitted
-  // for it. The refusal is therefore the ADMISSION refusal - which is what
-  // proves that the shipped evidence still passes the provenance gate: a
-  // provenance failure would carry a different code.
+  // The chain stops at the owner approval: the shipped evidence passes the
+  // provenance gate, the approval gate is reached, and the anchor this
+  // installation publishes no key, so the approval is refused. The refusal
+  // is the APPROVAL refusal, which also proves that the CLI read its own
+  // anchor and not the one the input named.
   const result = await runCli(['--input', inputPath]);
   assert.equal(result.ok, false);
   assert.ok(result.issues.length > 0);
-  assert.match(result.issues[0], /EVIDENCE_ADMISSION_/);
-  assert.doesNotMatch(result.issues[0], /EVIDENCE_(RECORD|CORPUS|EXECUTION|COMPARISON|BASELINE|MODE|SUBJECT|STALE|DIGEST|REF)/);
+  assert.match(result.issues[0], /OWNER_AUTHORITY_NOT_PUBLISHED/);
   assert.equal(fs.existsSync(path.join(world.tree, `skills/${SHIPPED_SKILL_ID}/SKILL.md`)), false);
 });

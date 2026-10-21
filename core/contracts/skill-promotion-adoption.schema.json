@@ -79,12 +79,32 @@
         "subject_ref": { "type": "string", "minLength": 1 },
         "content_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$", "description": "The content the admitted evidence is admitted FOR. It must be the adopted content." },
         "material_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "source_kind": { "enum": ["git_commit", "content"], "description": "The identity that was proved for the admitted source. git_commit: the material is committed, unmodified repository content. content: the material is identified by its content only, because the tree is not versioned. The kind is recorded, so the weaker guarantee is never mistaken for the stronger one." },
+        "source_kind": { "enum": ["git_commit", "content"], "description": "The identity that was proved for the admitted source. git_commit: the material is committed, unmodified repository content. content: the material is identified by its content only, and only where the tree is not versioned. The kind is recorded, so the weaker guarantee is never mistaken for the stronger one." },
         "source_commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$", "description": "The commit that published the admitted material. It is present for the git_commit kind and null for the content kind." },
         "source_admission_commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$", "description": "The commit that published the admission artifact itself. It is present for the git_commit kind and null for the content kind." },
         "admitted_at": { "type": "string", "minLength": 1 },
         "authority_granted": { "const": false, "description": "An admission is a binding, never an authority." }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "source_kind": { "const": "git_commit" } }, "required": ["source_kind"] },
+          "then": {
+            "properties": {
+              "source_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+              "source_admission_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "source_kind": { "const": "content" } }, "required": ["source_kind"] },
+          "then": {
+            "properties": {
+              "source_commit": { "type": "null" },
+              "source_admission_commit": { "type": "null" }
+            }
+          }
+        }
+      ]
     },
     "owner_approval": {
       "type": "object",

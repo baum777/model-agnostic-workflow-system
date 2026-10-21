@@ -21,7 +21,7 @@ import {
   materialDigest,
   EvidenceAdmissionError
 } from '../../scripts/tools/evidence-admission.mjs';
-import { computeAdmission } from '../../scripts/tools/admit-evidence.mjs';
+import { computeAdmission, runCli as admitCli } from '../../scripts/tools/admit-evidence.mjs';
 import {
   loadCorpus,
   runSkillEffectivenessEval,
@@ -486,16 +486,7 @@ test('S9 the content source kind is admitted and recorded as the weaker form', a
   assert.equal(result.material_digest, world.admission.material.material_digest);
 });
 
-test('S9 an admission never grants authority', async () => {
-  const world = await buildWorld();
-  const claiming = structuredClone(world.admission);
-  claiming.authority_granted = true;
-  fs.writeFileSync(world.admissionPath, `${JSON.stringify(claiming, null, 2)}\n`);
-  const attestation = await attest(world);
-  // The contract refuses it before the runtime rule does.
-  const issues = validateAdmission(claiming);
-  assert.ok(issues.length > 0, 'an admission that claims authority is contract-invalid');
-});
+
 
 test('S9 the material digest is the identity of the admitted set', async () => {
   const world = await buildWorld();
@@ -505,7 +496,7 @@ test('S9 the material digest is the identity of the admitted set', async () => {
   assert.equal(materialDigest(world.admission.material), world.admission.material.material_digest);
 });
 
-test('S9 the calculator is a dry run by default and writes only on --write', async () => {
+test('S9 the admission names the content it was computed from, and never the subject only', async () => {
   const world = await buildWorld();
   assert.equal(world.admission.authority_granted, false);
   assert.equal(world.admission.source.kind, 'git_commit');
@@ -643,6 +634,153 @@ test('S9 the full promotion chain accepts an admitted evaluation and refuses an 
     evidenceRoot: otherWorld.tree,
     root
   }));
+});
+
+test('S9 a forged content source identity is refused: the weaker kind must name the admitted material', async () => {
+  const world = await buildWorld({ versioned: false, sourceKind: 'content' });
+  const attestation = await attest(world);
+  const forged = structuredClone(world.admission);
+  forged.source.content_digest = `sha256:${'0'.repeat(64)}`;
+  fs.writeFileSync(world.admissionPath, `${JSON.stringify(forged, null, 2)}\n`);
+
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /not the identity of the admitted material/);
+});
+
+test('S9 the weaker content kind is not admitted in a versioned tree: the source trust cannot be downgraded', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // The tree IS versioned, so the committed identity must be used. A caller
+  // that may write into the working copy must not be able to downgrade the
+  // source trust by declaring the weaker kind.
+  const downgraded = structuredClone(world.admission);
+  downgraded.source = { kind: 'content', content_digest: downgraded.material.material_digest, surface: 'evidence' };
+  fs.writeFileSync(world.admissionPath, `${JSON.stringify(downgraded, null, 2)}\n`);
+
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /is versioned/);
+});
+
+test('S9 an admission that does not carry the digest of its own material set is refused', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // The material fields are the bound ones, but the admission does not carry
+  // their identity: the set could have been assembled from somewhere else.
+  const forged = structuredClone(world.admission);
+  forged.material.material_digest = `sha256:${'0'.repeat(64)}`;
+  fs.writeFileSync(world.admissionPath, `${JSON.stringify(forged, null, 2)}\n`);
+
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_MATERIAL_MISMATCH', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /does not carry the digest of its own admitted material set/);
+});
+
+test('S9 an admission that claims authority is refused by the runtime, not only by the contract', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  const claiming = structuredClone(world.admission);
+  claiming.authority_granted = true;
+  fs.writeFileSync(world.admissionPath, `${JSON.stringify(claiming, null, 2)}\n`);
+
+  // The contract refuses it ...
+  assert.ok(validateAdmission(claiming).length > 0, 'the contract must refuse an admission that claims authority');
+  // ... and so does the runtime, which does not depend on the contract.
+  await expectAdmissionError('EVIDENCE_ADMISSION_INVALID', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: null
+  }));
+});
+
+test('S9 the admission identity covers the material, the content and the skill', async () => {
+  // The same evidence admitted for another content, or for another skill,
+  // is a DIFFERENT admission: it must not overwrite the first one.
+  const world = await buildWorld();
+  const same = computeAdmission({
+    skillId: SKILL_ID,
+    recordRef: RECORD_REF,
+    baselineRef: BASELINE_REF,
+    corpusRef: CORPUS_REF,
+    evidenceRoot: world.tree,
+    contentPath: world.candidatePath,
+    sourceKind: 'git_commit',
+    admittedAt: '2026-10-21T00:00:00Z'
+  });
+  assert.equal(same.admission_id, world.admission.admission_id);
+
+  const otherSkill = computeAdmission({
+    skillId: 'another-skill',
+    recordRef: RECORD_REF,
+    baselineRef: BASELINE_REF,
+    corpusRef: CORPUS_REF,
+    evidenceRoot: world.tree,
+    contentPath: world.candidatePath,
+    sourceKind: 'git_commit',
+    admittedAt: '2026-10-21T00:00:00Z'
+  });
+  assert.notEqual(otherSkill.admission_id, world.admission.admission_id);
+});
+
+test('S9 the calculator is a dry run by default and writes only on --write', async () => {
+  const world = await buildWorld();
+  const args = [
+    '--skill', SKILL_ID,
+    '--record', RECORD_REF,
+    '--baseline', BASELINE_REF,
+    '--corpus', CORPUS_REF,
+    '--evidence-root', world.tree,
+    '--content', world.candidatePath,
+    '--source-kind', 'content'
+  ];
+  const outRef = 'evidence/admissions/admit_evidence_dry_run_probe.json';
+
+  // The dry run computes the admission and writes NOTHING.
+  const dry = admitCli([...args, '--out', outRef]);
+  assert.equal(dry.ok, true);
+  assert.equal(dry.written, false);
+  assert.ok(dry.admission);
+  assert.equal(fs.existsSync(path.join(world.tree, outRef)), false);
+
+  // The write applies it and reads it back.
+  const applied = admitCli([...args, '--out', outRef, '--write']);
+  assert.equal(applied.ok, true);
+  assert.equal(applied.written, true);
+  const written = JSON.parse(fs.readFileSync(path.join(world.tree, outRef), 'utf8'));
+  assert.deepEqual(written, applied.admission);
+
+  // A write target outside the canonical admission surface is refused, and
+  // nothing is written outside the tree. The state before the call is
+  // captured, so the assertion does not depend on what else lives there.
+  const escapedPath = path.join(world.tree, '..', 'escaped-admission.json');
+  const before = fs.existsSync(escapedPath);
+  const escaped = admitCli([...args, '--out', '../escaped-admission.json', '--write']);
+  assert.equal(escaped.ok, false);
+  assert.equal(escaped.written, false);
+  assert.match(escaped.issues[0], /canonical admission surface/);
+  assert.equal(fs.existsSync(escapedPath), before);
 });
 
 test('S9 the S8 gate is unchanged: the provenance attestation still holds for the admitted material', async () => {

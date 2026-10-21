@@ -47,6 +47,36 @@
 //       admission is a reviewed repository change and not a working-tree
 //       fabrication.
 //
+// The two source kinds state DIFFERENT trust levels, and the level that was
+// proved is recorded. `git_commit` establishes a reviewable source: the
+// material is committed, unmodified content, and the admission is a committed
+// change. `content` identifies the material by its content alone and
+// establishes NO committed source; it is admitted ONLY where the tree is not
+// versioned at all, so the source trust can never be downgraded by whoever
+// may write into a versioned working copy.
+//
+// RESIDUALS carried forward from the shared confinement primitive
+// (scripts/tools/path-confinement.mjs, R1-R4), which this module uses for
+// every file it reads:
+//   R1  the replacement of a target is detected, not an IN-PLACE rewrite of
+//       the same inode: a writer that truncates and rewrites a file between
+//       the check and the read keeps its identity. Such a writer holds write
+//       access to the material and could equally have written the corpus
+//       before the run; the change is visible in the digests the admission
+//       binds.
+//   R2  a concurrent writer that replaces the PARENT DIRECTORY of a target
+//       between the check and the open is detected as long as the new parent
+//       has a fresh inode.
+//   R3  a filesystem that has stopped responding can block in the kernel.
+//   R4  a bind mount inside the tree is not detected: its real path is its
+//       own path inside the tree.
+//
+// TEST SEAMS: `root` is the tree the evidence and the admitted material are
+// read from. The production path pins it to the installation's own
+// canonical tree, so a caller can never point the chain at a tree it
+// controls; the promotion library exposes it so the mechanism can be
+// exercised against an isolated tree.
+//
 // Admission != Authority: an admission is a BINDING, not a decision. It names
 // what may support an adoption; the owner approval remains the decision, and
 // this module grants no permission, no qualification and no authority.
@@ -256,6 +286,31 @@ function committedTreeFiles({ topLevel, commit, repoRelativeDirectory }) {
   return files.sort();
 }
 
+// readConfinedMaterial(root, ref, label) -> the bytes of a material file,
+// read through the SHARED confinement primitive. The plain read is not used:
+// the confinement primitive refuses a file that shares its inode with a name
+// outside the tree (the hardlink rule) and a file that is replaced between
+// the containment check and the read.
+function readConfinedMaterial(root, ref, label) {
+  let confined;
+  try {
+    confined = confineFileToBase(path.resolve(root), ref);
+  } catch (error) {
+    if (error instanceof PathConfinementError) {
+      admissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', `${label} ${ref} is not a contained file of the evidence tree: ${error.message}`);
+    }
+    throw error;
+  }
+  try {
+    return readConfinedFile(confined);
+  } catch (error) {
+    if (error instanceof PathConfinementError) {
+      admissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', `${label} ${ref} could not be read: ${error.message}`);
+    }
+    throw error;
+  }
+}
+
 // verifyGitSource({ root, material, source, admissionRef }) -> the identity
 // of the source that was proved. Every check fails closed.
 function verifyGitSource({ root, material, source, admissionRef }) {
@@ -271,7 +326,10 @@ function verifyGitSource({ root, material, source, admissionRef }) {
     admissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', `the commit ${source.commit} named by the evidence admission does not exist in ${context.topLevel}`);
   }
   const head = gitText(context.topLevel, ['rev-parse', 'HEAD']);
-  if (head) {
+  if (!head) {
+    admissionError('EVIDENCE_ADMISSION_SOURCE_NOT_PUBLISHED', `the evidence tree ${context.topLevel} has no published history, so no commit can be part of it`);
+  }
+  {
     const ancestor = gitBytes(context.topLevel, ['merge-base', '--is-ancestor', resolved, head]);
     if (typeof ancestor === 'object' && ancestor.failed) {
       admissionError('EVIDENCE_ADMISSION_SOURCE_NOT_PUBLISHED', `the commit ${resolved} named by the evidence admission is not part of the published history of ${context.topLevel}`);
@@ -279,18 +337,17 @@ function verifyGitSource({ root, material, source, admissionRef }) {
   }
 
   // A1: the single-file material must be the committed content, byte for byte.
+  // The material is read through the SHARED confinement primitive, so the
+  // hardlink rule and the replacement guard apply to it as well: a file that
+  // shares its inode with a name outside the tree is refused rather than
+  // compared.
   for (const [ref, label] of [[material.record_ref, 'the behavioral eval record'], [material.baseline_record_ref, 'the baseline record']]) {
     const repoPath = `${context.prefix}${ref}`;
     const committed = committedFileBytes({ topLevel: context.topLevel, commit: resolved, repoRelativePath: repoPath });
     if (committed === null) {
       admissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', `${label} ${ref} is not carried by commit ${resolved}`);
     }
-    let onDisk;
-    try {
-      onDisk = fs.readFileSync(path.join(root, ref));
-    } catch (error) {
-      admissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', `${label} ${ref} could not be read: ${error.message}`);
-    }
+    const onDisk = readConfinedMaterial(root, ref, label);
     if (!committed.equals(onDisk)) {
       admissionError('EVIDENCE_ADMISSION_SOURCE_MODIFIED', `${label} ${ref} differs from the content commit ${resolved} published; the admitted material is not the committed material`);
     }
@@ -412,7 +469,7 @@ export function verifyEvidenceAdmission({
     admissionError('EVIDENCE_ADMISSION_MATERIAL_MISMATCH', `the evidence admission ${admission.relative} admits the material ${material.record_ref} / ${material.baseline_record_ref} / ${material.corpus_ref}, which is not the material the promotion bound`);
   }
   if (matches.length > 1) {
-    admissionError('EVIDENCE_ADMISSION_MATERIAL_MISMATCH', `the evidence admission ${admission.relative} admits a material that the promotion bound ${matches.length} times; the admission must name exactly one evaluation`);
+    admissionError('EVIDENCE_ADMISSION_MATERIAL_MISMATCH', `the evidence admission ${admission.relative} admits a material that the promotion bound ${matches.length} times; the same evaluation is bound more than once, and an admission must name exactly one of them`);
   }
   const attestation = matches[0];
   if (record.subject_ref !== attestation.subject_ref) {
@@ -434,11 +491,20 @@ export function verifyEvidenceAdmission({
       source: record.source,
       admissionRef: admission.relative
     });
-  } else if (record.source.content_digest !== material.material_digest) {
-    // The weaker form: the material is identified by its content and no
-    // committed source is established. The identity must still be the
-    // admitted material's own.
-    admissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', `the evidence admission ${admission.relative} names the content identity ${String(record.source.content_digest)}, which is not the identity of the admitted material ${material.material_digest}`);
+  } else {
+    // The weaker form is admitted ONLY where the stronger one is not
+    // available: a tree that is not versioned. In a VERSIONED tree the
+    // committed identity must be used, or the source trust could be
+    // downgraded at will by anyone who can write into the working copy.
+    if (gitContext({ root })) {
+      admissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', `the evidence tree ${root} is versioned, so the committed source identity must be used; the weaker "${EVIDENCE_ADMISSION_SOURCE_KIND_CONTENT}" kind is not admitted in a versioned tree`);
+    }
+    if (record.source.content_digest !== material.material_digest) {
+      // The weaker form: the material is identified by its content and no
+      // committed source is established. The identity must still be the
+      // admitted material's own.
+      admissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', `the evidence admission ${admission.relative} names the content identity ${String(record.source.content_digest)}, which is not the identity of the admitted material ${material.material_digest}`);
+    }
   }
 
   return {

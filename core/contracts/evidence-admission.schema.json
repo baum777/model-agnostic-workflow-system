@@ -82,7 +82,7 @@
       "properties": {
         "kind": {
           "enum": ["git_commit", "content"],
-          "description": "git_commit: the material is the COMMITTED content of the evidence tree, published by the named commit and unmodified since - a reviewable source. content: the material is identified by its CONTENT only, because the tree is not versioned; this establishes no committed source and is the weaker form."
+          "description": "git_commit: the material is the COMMITTED content of the evidence tree, published by the named commit and unmodified since - a reviewable source. content: the material is identified by its CONTENT only and establishes no committed source; it is admitted ONLY where the tree is not versioned at all, so the source trust can never be downgraded in a versioned tree. The weaker form is the weaker form, and the kind is recorded."
         },
         "commit": {
           "type": "string",
