@@ -56,8 +56,18 @@
 // may write into a versioned working copy.
 //
 // RESIDUALS carried forward from the shared confinement primitive
-// (scripts/tools/path-confinement.mjs, R1-R4), which this module uses for
-// every file it reads:
+// (scripts/tools/path-confinement.mjs, R1-R4). The admission artifact, the
+// eval record and the baseline record are read THROUGH that primitive, so
+// the symlink, hardlink and replacement guards apply to them. The corpus
+// files and the on-disk admission copy are read plainly, on purpose: their
+// integrity guard is the byte-for-byte comparison against the named content
+// commit (and, for the corpus, the file-set comparison), which refuses any
+// bytes that differ from the committed content however the file on disk is
+// named or linked; a file the tree does not carry at all is refused by the
+// file-set and not-carried checks before any read. A confinement proof for
+// these reads would add no refusal the committed-content comparison does not
+// already make. The residuals below attach to the primitive-guarded reads;
+// a hung filesystem (R3) can still block a plain read in the kernel.
 //   R1  the replacement of a target is detected, not an IN-PLACE rewrite of
 //       the same inode: a writer that truncates and rewrites a file between
 //       the check and the read keeps its identity. Such a writer holds write
