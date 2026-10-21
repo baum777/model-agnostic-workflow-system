@@ -459,11 +459,10 @@ test('S8 a failing export write rolls every export surface and the skill file ba
   const registryPath = path.join(world.tree, 'core/contracts/core-registry.json');
   const legacyRegistryPath = path.join(world.tree, 'contracts/core-registry.json');
   const providerExportPath = path.join(world.tree, 'providers/test-provider/export.json');
-  // The provider export surface cannot be written (it points into a
-  // directory that does not exist), but the registry surfaces are written
-  // before it: the failure happens AFTER the tree was partly changed.
-  fs.mkdirSync(path.join(world.tree, 'providers/test-provider'), { recursive: true });
-  fs.symlinkSync('/nonexistent-maws-export-target/export.json', providerExportPath);
+  // The provider export surface cannot be written (it is a directory), but
+  // the registry surfaces are written before it: the failure happens AFTER
+  // the tree was partly changed.
+  fs.mkdirSync(providerExportPath, { recursive: true });
 
   const error = expectPromotionError('EXPORT_REGENERATION_FAILED', () =>
     promoteSkillCandidate({
@@ -488,7 +487,7 @@ test('S8 a failing export write rolls every export surface and the skill file ba
   assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
   assert.equal(fs.existsSync(registryPath), false);
   assert.equal(fs.existsSync(legacyRegistryPath), false);
-  assert.equal(fs.lstatSync(providerExportPath).isSymbolicLink(), true);
+  assert.equal(fs.lstatSync(providerExportPath).isDirectory(), true);
 });
 
 test('S8 a self-declared approval without a verified signature authorizes nothing', () => {
@@ -895,6 +894,193 @@ test('S8 the post-adoption readback detects a tampered regenerated export', () =
   fs.appendFileSync(path.join(world.tree, exportRef), '<!-- tampered -->');
   const issues = postAdoptionReadback({ record, canonicalRoot: world.tree });
   assert.ok(issues.some((issue) => issue.includes(exportRef)));
+});
+
+test('S8 a symlinked export surface is refused and nothing outside the tree is written', () => {
+  const world = setup();
+  const outside = path.join(world.dir, 'outside-registry.json');
+  fs.writeFileSync(outside, 'ORIGINAL\n');
+  // The canonical export surface is a symlink to a file OUTSIDE the
+  // canonical tree: writing through it would mutate a file the promotion
+  // does not own.
+  fs.mkdirSync(path.join(world.tree, 'core/contracts'), { recursive: true });
+  fs.symlinkSync(outside, path.join(world.tree, 'core/contracts/core-registry.json'));
+
+  expectPromotionError('EXPORT_SURFACE_NOT_A_FILE', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_symlink_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+  assert.equal(fs.readFileSync(outside, 'utf8'), 'ORIGINAL\n');
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+});
+
+test('S8 a symlinked canonical skill path is refused', () => {
+  const world = setup();
+  const outside = path.join(world.dir, 'outside-skill.md');
+  fs.writeFileSync(outside, 'ORIGINAL\n');
+  fs.mkdirSync(path.join(world.tree, 'skills/promoted-skill'), { recursive: true });
+  fs.symlinkSync(outside, path.join(world.tree, 'skills/promoted-skill/SKILL.md'));
+
+  expectPromotionError('PROMOTION_CANONICAL_PATH_NOT_A_FILE', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_symlink_skill_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+  assert.equal(fs.readFileSync(outside, 'utf8'), 'ORIGINAL\n');
+});
+
+test('S8 an unwritable adoption ledger rolls the whole promotion back', () => {
+  const world = setup();
+  // The ledger cannot be written (it points into a directory that does not
+  // exist): the applied change cannot be recorded, so the promotion must
+  // roll back instead of applying an unrecorded change.
+  fs.mkdirSync(path.join(world.tree, 'skills/promoted-skill'), { recursive: true });
+  fs.symlinkSync('/nonexistent-maws-ledger-target/ADOPTIONS.jsonl', path.join(world.tree, 'skills/promoted-skill/ADOPTIONS.jsonl'));
+
+  expectPromotionError('PROMOTION_LEDGER_UNWRITABLE', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_ledger_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+  assert.equal(fs.existsSync(path.join(world.tree, 'core/contracts/core-registry.json')), false);
+});
+
+test('S8 the post-adoption readback re-verifies the owner approval artifact', () => {
+  const world = setup();
+  const { record } = promoteSkillCandidate({
+    adoptionId: 'adopt_s8_approval_readback_0001',
+    skillId: 'promoted-skill',
+    adoptedVersion: '1.0.0',
+    supersededVersion: '0.9.0',
+    candidateContent: CANDIDATE_CONTENT,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    admissionPath: world.admissionPath,
+    evalRecords: world.evalEntries,
+    ownerApprovalRef: world.ownerApprovalRef,
+    ownerAuthorityPath: world.ownerAuthorityPath,
+    canonicalRoot: world.tree,
+    root
+  });
+  assert.deepEqual(postAdoptionReadback({ record, canonicalRoot: world.tree }), []);
+
+  const approvalPath = path.join(world.tree, record.owner_approval.approval_record_ref);
+  const approval = JSON.parse(fs.readFileSync(approvalPath, 'utf8'));
+  approval.decision_ref = 'owner_decision_swapped_0001';
+  fs.writeFileSync(approvalPath, `${JSON.stringify(approval, null, 2)}\n`);
+
+  const issues = postAdoptionReadback({ record, canonicalRoot: world.tree });
+  assert.ok(issues.some((issue) => issue.includes('owner approval')), issues.join(' | '));
+});
+
+test('S8 the CLI refuses a broken canonical target with a structured refusal, never a stack trace', () => {
+  const world = setup();
+  const notADirectory = path.join(world.dir, 'canonical-root-file');
+  fs.writeFileSync(notADirectory, 'not a directory\n');
+  const input = {
+    adoption_id: 'adopt_s8_cli_broken_0001',
+    skill_id: 'promoted-skill',
+    adopted_version: '1.0.0',
+    superseded_version: '0.9.0',
+    candidate_content: CANDIDATE_CONTENT,
+    candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
+    admission_path: world.admissionPath,
+    eval_records: world.evalEntries,
+    owner_approval_ref: world.ownerApprovalRef,
+    canonical_root: notADirectory
+  };
+  const inputPath = path.join(world.dir, 'input-broken.json');
+  fs.writeFileSync(inputPath, JSON.stringify(input, null, 2));
+
+  const result = runCli(['--input', inputPath]);
+  assert.equal(result.ok, false);
+  assert.ok(result.issues.length > 0);
+  // A structured refusal, never an unhandled stack trace.
+  assert.match(result.issues[0], /^[A-Z_]+: /);
+});
+
+test('S8 the CLI turns an unexpected failure into a structured refusal, never a stack trace', () => {
+  const world = setup();
+  const input = {
+    adoption_id: 'adopt_s8_cli_unexpected_0001',
+    skill_id: 'promoted-skill',
+    adopted_version: '1.0.0',
+    superseded_version: '0.9.0',
+    candidate_content: CANDIDATE_CONTENT,
+    candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
+    admission_path: world.admissionPath,
+    eval_records: world.evalEntries,
+    owner_approval_ref: world.ownerApprovalRef,
+    // A malformed canonical target: the promotion fails with an unexpected
+    // error, and the CLI must still answer with a structured refusal.
+    canonical_root: 12345
+  };
+  const inputPath = path.join(world.dir, 'input-unexpected.json');
+  fs.writeFileSync(inputPath, JSON.stringify(input, null, 2));
+
+  const result = runCli(['--input', inputPath]);
+  assert.equal(result.ok, false);
+  assert.ok(result.issues.length > 0);
+  assert.match(result.issues[0], /^PROMOTION_FAILED: /);
+});
+
+test('S8 the CLI pins the evidence age bound: a widened bound in the input is ignored', () => {
+  const world = setup({ evals: [evalRecord({ createdAt: '2020-01-01T00:00:00Z' })] });
+  const input = {
+    adoption_id: 'adopt_s8_cli_age_0001',
+    skill_id: 'promoted-skill',
+    adopted_version: '1.0.0',
+    superseded_version: '0.9.0',
+    candidate_content: CANDIDATE_CONTENT,
+    candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
+    admission_path: world.admissionPath,
+    eval_records: world.evalEntries,
+    owner_approval_ref: world.ownerApprovalRef,
+    canonical_root: world.tree,
+    // The input tries to widen the freshness bound of the behavioral
+    // evidence: the CLI pins the bound from the contract.
+    max_evidence_age_days: 36500
+  };
+  const inputPath = path.join(world.dir, 'input-age.json');
+  fs.writeFileSync(inputPath, JSON.stringify(input, null, 2));
+
+  const result = runCli(['--input', inputPath]);
+  assert.equal(result.ok, false);
+  assert.match(result.issues[0], /EVAL_EVIDENCE_STALE/);
 });
 
 test('S8 adoption never grants authority (const false at the schema level)', () => {

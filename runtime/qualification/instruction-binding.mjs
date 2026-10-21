@@ -26,6 +26,12 @@
 // permission, no authority and no approval. It only decides whether a
 // qualification earned under one instruction state may be reused under
 // another one.
+//
+// TEST SEAM: the `assemble` parameter of deriveInstructionBinding is an
+// injection point for the tests (a bundle that declares a digest it cannot
+// prove, or a source that no longer matches the tree, must be refused).
+// The production path never passes it: the runtime always assembles the
+// bundle from the live tree.
 import fs from 'node:fs';
 import path from 'node:path';
 

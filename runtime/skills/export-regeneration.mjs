@@ -98,9 +98,13 @@ export function snapshotExports({ canonicalRoot, plan }) {
     let state = null;
     try {
       const stats = fs.lstatSync(absolute);
-      state = stats.isSymbolicLink()
-        ? { kind: 'symlink', target: fs.readlinkSync(absolute) }
-        : { kind: 'file', content: fs.readFileSync(absolute, 'utf8') };
+      if (stats.isSymbolicLink()) {
+        state = { kind: 'symlink', target: fs.readlinkSync(absolute) };
+      } else if (stats.isDirectory()) {
+        state = { kind: 'directory' };
+      } else {
+        state = { kind: 'file', content: fs.readFileSync(absolute, 'utf8') };
+      }
     } catch {
       state = null;
     }
@@ -120,6 +124,11 @@ export function restoreExports({ canonicalRoot, snapshot }) {
     try {
       if (state === null) {
         fs.rmSync(absolute, { force: true });
+        continue;
+      }
+      if (state.kind === 'directory') {
+        // The surface was a directory before the promotion: the
+        // regeneration never wrote it, so the rollback leaves it alone.
         continue;
       }
       fs.mkdirSync(path.dirname(absolute), { recursive: true });
@@ -162,6 +171,19 @@ export function regenerateCanonicalExports({ canonicalRoot, adoptedSkillId = nul
   const written = [];
   for (const entry of plan) {
     const absolute = path.join(canonicalRoot, entry.ref);
+    // An export surface is a regular file INSIDE the canonical tree. A
+    // symlinked surface is refused: writing through it would mutate a file
+    // outside the canonical root, and the rollback could not restore it.
+    let isSymlink = false;
+    try {
+      isSymlink = fs.lstatSync(absolute).isSymbolicLink();
+    } catch {
+      // The surface does not exist yet: it is created by the regeneration.
+      isSymlink = false;
+    }
+    if (isSymlink) {
+      exportError('EXPORT_SURFACE_NOT_A_FILE', `the export surface ${entry.ref} is a symlink; the canonical export regeneration never writes through a link`);
+    }
     try {
       fs.mkdirSync(path.dirname(absolute), { recursive: true });
       fs.writeFileSync(absolute, entry.content);

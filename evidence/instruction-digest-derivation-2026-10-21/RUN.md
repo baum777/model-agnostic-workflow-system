@@ -55,12 +55,12 @@ This run closes that obligation. The effective instruction digest is now **deriv
 | P1 | the binding keeps the caller-declared digest | 3 failing tests — BOUND |
 | P2 | the derivation returns the bundle's declared digest | 1 failing test — BOUND |
 | P2b | the D2 consistency check is removed | 1 failing test — BOUND |
-| P3 | the live source re-read is skipped at the call site | 1 failing test — BOUND |
+| P3 | the live source re-read is skipped at the call site | 3 failing tests — BOUND |
 | P4 | the CLI passes the spec-declared fingerprints to the gate | 2 failing tests — BOUND |
 
 ## Verification (measured on the reviewed head)
 
-- `node --test tests/vnext/*.test.mjs` — **559 pass / 0 fail** (the S7 group contributes 16 tests; the S8 group 26).
+- `node --test tests/vnext/*.test.mjs` — **566 pass / 0 fail** (the S7 group contributes 16 tests; the S8 group 33).
 - `node --test tests/tools/*.test.mjs` — 21 pass / 0 fail.
 - `npm run validate`, `npm run validate-maws-vnext`, `npm run eval:maws-vnext` — issues `[]` / `ok:true`.
 - `node scripts/tools/ci-gate.mjs` — PASS CI Gate.
@@ -72,6 +72,17 @@ This run closes that obligation. The effective instruction digest is now **deriv
 - The derivation binds the **canonical instruction sources** (the binding core of the S6 bundle) plus whatever the run spec's assembly policy selects. A source that is neither canonical nor selected is not part of the effective instruction bundle and therefore does not move the digest — that is the S6 assembly rule, not a limitation of this run.
 - The reference run spec's qualification is re-earned against the instruction state of the commit that carries it. A later change to a canonical instruction source invalidates it again; the repository gate fails until it is re-earned (`node scripts/tools/requalify-run-spec.mjs --spec runtime/cli/specs/reference-audit-v1.json --write`).
 - The declared digest in a run spec is **not** a gate: it is recorded and ignored. The gate is the comparison of the *qualified snapshot* (historical) with the *derived* digest (now).
+
+## Second review round (exact head `0023184`)
+
+The repaired head was reviewed again by the same kind of reviewer (local audit agent, tool-driven, with mutation probes). Verdict: **PASS_WITH_FINDINGS** — every claimed repair was confirmed bound by a failing test, and the round produced new findings, which are recorded in the S8 run record (the symlink escape, the seam window, the discarded rollback failures, the unbound sub-behaviours of the F4 repair and the unbound readback half of F8) and repaired in the same change.
+
+The two S7-specific observations of that round are closed here:
+
+| Observation | Repair |
+| --- | --- |
+| the probe wording for P2 was imprecise: returning the bundle's declared digest at the *return* site is vacuous (D2 makes both values provably equal); the meaningful mutation point is the recomputation itself | The probe table names the recomputation site; the D2 consistency check and the recomputation are both bound (1 failing test each) |
+| the `assemble` seam and the library-level gate parameters are public parameters of production modules | The seams are now **documented in the code** (module header, `deriveInstructionBinding`, `promoteSkillCandidate`, `validateOwnerApproval`) as test seams that the production path never uses: the CLI assembles the bundle itself, pins the anchor and pins the age bounds. |
 
 ## Consequence for the S12 lane (recorded, not hidden)
 

@@ -210,13 +210,21 @@ export function validateEvalEvidence({
 }
 
 // validateOwnerApproval({ ownerApprovalRef, ownerAuthorityPath, canonicalRoot,
-// candidateDigest, skillId, root, now }) -> the verified approval.
+// candidateDigest, skillId, root, now, maxApprovalAgeDays }) -> the verified
+// approval.
 //
 // The approval is NOT a self-declared object: it is an artifact in the
 // canonical decision surface of the target tree, verified against the
 // canonical owner authority anchor (a published public key). An approver
 // name and a decision reference without a valid signature are caller input
 // and authorize nothing.
+//
+// TEST SEAM: `ownerAuthorityPath` and `maxApprovalAgeDays` exist so the
+// verification can be exercised against a generated key in a test. The
+// production entry point (runCli) pins BOTH: the anchor is read from the
+// canonical location of this installation and the age bound is the contract
+// bound. A caller that can pass these parameters can widen the gate, so no
+// production path may expose them.
 export function validateOwnerApproval({
   ownerApprovalRef,
   ownerAuthorityPath = path.join(REPO_ROOT, CANONICAL_OWNER_AUTHORITY_PATH),
@@ -304,9 +312,17 @@ export function resolveCanonicalPaths({ canonicalRoot, skillId }) {
 // ledger makes the applied change reconstructable and the promotion
 // replay-protected.
 export function readAdoptionLedger({ ledgerPath }) {
-  if (!fs.existsSync(ledgerPath)) return [];
+  let content;
+  try {
+    content = fs.readFileSync(ledgerPath, 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return [];
+    }
+    promotionError('ADOPTION_LEDGER_CORRUPT', `the adoption ledger ${ledgerPath} is not readable: ${error.message}`);
+  }
   const entries = [];
-  for (const line of fs.readFileSync(ledgerPath, 'utf8').split(/\r?\n/)) {
+  for (const line of content.split(/\r?\n/)) {
     if (!line.trim()) continue;
     try {
       entries.push(JSON.parse(line));
@@ -384,8 +400,17 @@ export function semanticPromotionIssues(record) {
 
 // promoteSkillCandidate({ adoptionId, skillId, adoptedVersion,
 // supersededVersion, candidateContent, candidateDigest, admissionPath,
-// evalRecords, ownerApprovalRef, ownerAuthorityPath, canonicalRoot, now }) ->
+// evalRecords, ownerApprovalRef, ownerAuthorityPath, canonicalRoot, now,
+// maxEvidenceAgeDays, maxApprovalAgeDays, onExportsWritten }) ->
 // { record, issues, canonicalPath }.
+//
+// TEST SEAMS: `ownerAuthorityPath`, `maxEvidenceAgeDays`,
+// `maxApprovalAgeDays` and `onExportsWritten` are injection points for the
+// tests. The production entry point (runCli) pins the first three and never
+// passes the fourth. `onExportsWritten` runs between the export write and
+// the export readback; the adopted content is verified AGAIN after the
+// export step, so a hook cannot make the promotion report success over a
+// tree state that violates its own invariant.
 //
 // Executes the full chain against the caller-provided canonicalRoot (a real
 // promotion on the live tree is an owner act), regenerates the canonical
@@ -447,6 +472,19 @@ export function promoteSkillCandidate({
   // The superseded version is READ FROM THE CANONICAL TREE, never asserted
   // by the caller: a self-declared prior version would allow a silent
   // downgrade of a live skill.
+  // The canonical skill file is a regular file inside the canonical tree.
+  // A symlinked path is refused: the adoption would write through a link to
+  // a file outside the tree, and the rollback could not restore it.
+  let canonicalPathIsSymlink = false;
+  try {
+    canonicalPathIsSymlink = fs.lstatSync(paths.canonicalPath).isSymbolicLink();
+  } catch {
+    // The canonical skill file does not exist yet: the adoption creates it.
+    canonicalPathIsSymlink = false;
+  }
+  if (canonicalPathIsSymlink) {
+    promotionError('PROMOTION_CANONICAL_PATH_NOT_A_FILE', `the canonical skill path ${paths.canonicalPathRelative} is a symlink; a promotion never writes through a link`);
+  }
   const priorContent = fs.existsSync(paths.canonicalPath) ? fs.readFileSync(paths.canonicalPath, 'utf8') : null;
   let effectiveSupersededVersion = supersededVersion;
   let supersededVersionSource = 'no_prior_canonical_version';
@@ -492,7 +530,10 @@ export function promoteSkillCandidate({
   const readbackDigest = sha256Prefixed(fs.readFileSync(paths.canonicalPath, 'utf8'));
   const readbackDigestMatch = readbackDigest === candidateDigest;
   if (!readbackDigestMatch) {
-    restoreCanonicalFile({ canonicalPath: paths.canonicalPath, priorContent });
+    const failures = rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot: null });
+    if (failures.length > 0) {
+      promotionError('PROMOTION_ROLLBACK_FAILED', `the post-adoption readback failed and the rollback did not restore every surface: ${failures.join('; ')}`);
+    }
     promotionError('READBACK_DIGEST_MISMATCH', `post-adoption readback failed: canonical file digests to ${readbackDigest}, expected ${candidateDigest}`);
   }
 
@@ -504,14 +545,20 @@ export function promoteSkillCandidate({
   try {
     planned = exportPlan({ canonicalRoot });
   } catch (error) {
-    rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot: null });
+    const failures = rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot: null });
+    if (failures.length > 0) {
+      promotionError('PROMOTION_ROLLBACK_FAILED', `the export plan failed (${error.message}) and the rollback did not restore every surface: ${failures.join('; ')}`);
+    }
     promotionError(error?.code || 'EXPORT_REGENERATION_FAILED', error.message);
   }
   let exportSnapshot;
   try {
     exportSnapshot = snapshotExports({ canonicalRoot, plan: planned.plan });
   } catch (error) {
-    rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot: null });
+    const failures = rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot: null });
+    if (failures.length > 0) {
+      promotionError('PROMOTION_ROLLBACK_FAILED', `the export surfaces could not be snapshotted (${error.message}) and the rollback did not restore every surface: ${failures.join('; ')}`);
+    }
     promotionError('EXPORT_REGENERATION_FAILED', `the export surfaces could not be snapshotted before the regeneration: ${error.message}`);
   }
   let exportState;
@@ -530,6 +577,18 @@ export function promoteSkillCandidate({
       promotionError('PROMOTION_ROLLBACK_FAILED', `the export regeneration failed (${error.message}) and the rollback did not restore every surface: ${failures.join('; ')}`);
     }
     promotionError(error?.code || 'EXPORT_REGENERATION_FAILED', error.message);
+  }
+
+  // The canonical file is verified AGAIN after the export regeneration: the
+  // adoption is only valid if the adopted content is still the content that
+  // was adopted.
+  const finalCanonicalDigest = sha256Prefixed(fs.readFileSync(paths.canonicalPath, 'utf8'));
+  if (finalCanonicalDigest !== candidateDigest) {
+    const failures = rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot, canonicalRoot });
+    if (failures.length > 0) {
+      promotionError('PROMOTION_ROLLBACK_FAILED', `the adopted content changed during the export regeneration and the rollback did not restore every surface: ${failures.join('; ')}`);
+    }
+    promotionError('READBACK_DIGEST_MISMATCH', `the adopted file digests to ${finalCanonicalDigest} after the export regeneration, expected ${candidateDigest}`);
   }
 
   const record = {
@@ -577,6 +636,19 @@ export function promoteSkillCandidate({
       issues.push(`rollback: the promotion left surfaces behind: ${failures.join('; ')}`);
     }
     return { record, issues, canonicalPath: paths.canonicalPath, admissionDigest: admission.digest };
+  }
+
+  // The readback runs BEFORE the ledger entry is written: the adopted file,
+  // the regenerated exports and the owner approval must still be the ones
+  // the record describes. (The ledger entry itself is checked by the
+  // standalone readback after the append.)
+  const readbackIssues = postAdoptionReadback({ record, canonicalRoot, expectLedgerEntry: false });
+  if (readbackIssues.length > 0) {
+    const failures = rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot, canonicalRoot });
+    if (failures.length > 0) {
+      promotionError('PROMOTION_ROLLBACK_FAILED', `the post-adoption readback failed (${readbackIssues.join('; ')}) and the rollback did not restore every surface: ${failures.join('; ')}`);
+    }
+    promotionError('READBACK_MISMATCH', `the post-adoption readback failed: ${readbackIssues.join('; ')}`);
   }
 
   // The applied change is recorded: the ledger makes it reconstructable. A
@@ -646,7 +718,7 @@ function restoreCanonicalFile({ canonicalPath, priorContent }) {
 // Re-reads the adopted canonical file and the bound inputs; the adoption
 // digest must still match the record. Exported for tests and for the
 // standalone readback after the fact.
-export function postAdoptionReadback({ record, canonicalRoot }) {
+export function postAdoptionReadback({ record, canonicalRoot, expectLedgerEntry = true }) {
   const issues = [];
   const canonicalPath = path.join(canonicalRoot, record.canonical_adoption.canonical_path);
   let content = null;
@@ -663,9 +735,11 @@ export function postAdoptionReadback({ record, canonicalRoot }) {
   if (record.post_adoption_readback.readback_digest_match !== true) {
     issues.push('post_adoption_readback: the recorded readback did not match');
   }
-  const ledger = readAdoptionLedger({ ledgerPath: path.join(canonicalRoot, record.canonical_adoption.adoption_ledger_ref) });
-  if (!ledger.some((entry) => entry.adoption_digest === record.canonical_adoption.adoption_digest)) {
-    issues.push('post_adoption_readback: the adoption ledger holds no entry for this adoption');
+  if (expectLedgerEntry) {
+    const ledger = readAdoptionLedger({ ledgerPath: path.join(canonicalRoot, record.canonical_adoption.adoption_ledger_ref) });
+    if (!ledger.some((entry) => entry.adoption_digest === record.canonical_adoption.adoption_digest)) {
+      issues.push('post_adoption_readback: the adoption ledger holds no entry for this adoption');
+    }
   }
   // The owner approval artifact is re-read as well: the recorded approval
   // digest must still describe the artifact that vouched for the adoption.

@@ -65,6 +65,19 @@ Two obligations of the predecessor:
 | **P3 (F7)** — the library API still allowed a caller to redirect the trust anchor. | The parameter is documented as a test seam, the CLI pins the anchor, and the adoption record now names the anchor that vouched (`authority_digest`). |
 | **P3 (F8)** — owner approvals had no expiry, and the recorded approval digest was never re-verified. | An approval age bound was added (`OWNER_APPROVAL_STALE`) and `postAdoptionReadback` re-reads the approval artifact and compares its digest with the record. |
 
+### Second review round (exact head `0023184`) and its findings
+
+The repaired head was reviewed again (local audit agent, tool-driven, with mutation probes). Verdict: **PASS_WITH_FINDINGS** — every claimed repair of the first round was confirmed, and the round produced new findings. All of them are repaired in the same change:
+
+| Finding | Repair |
+| --- | --- |
+| **P2** — a symlinked export surface was written through: the write escaped the canonical root and the rollback could not restore the file it had actually mutated. | The export regeneration refuses a symlinked surface (`EXPORT_SURFACE_NOT_A_FILE`) and the canonical skill path refuses one too (`PROMOTION_CANONICAL_PATH_NOT_A_FILE`). The export snapshot/restore is symlink- and directory-aware, so the pre-promotion state is restored exactly. |
+| **P3** — the `onExportsWritten` test seam sits between the write and the verification and could make the promotion report success over a tree state that violates its own invariant. | The adopted content is verified **again** after the export step (a second digest comparison before the record is built), the export readback already runs after the seam, and the seam is documented in the function header as a test seam the production path never uses. |
+| **P3** — three rollback call sites discarded the failure list, so the "reported as `PROMOTION_ROLLBACK_FAILED`" promise did not hold there. | Every call site captures the failure list and raises the named failure. |
+| **P3** — the structured CLI refusal, the guarded ledger append, the readback's approval re-verification and the CLI's pinned evidence age bound were implemented but not test-bound. | Four tests were added: an unexpected failure becomes a structured refusal (`PROMOTION_FAILED: …`), an unwritable adoption ledger rolls the whole promotion back (`PROMOTION_LEDGER_UNWRITABLE`), a tampered approval artifact is reported by the readback, and a widened `max_evidence_age_days` in the CLI input is ignored (`EVAL_EVIDENCE_STALE`). |
+| **P3** — the "documented test seam" claim did not exist in the code. | The seams are now documented in the module headers and in the function doc comments of `validateOwnerApproval`, `promoteSkillCandidate` and `deriveInstructionBinding`. |
+| **P3** — the run record claimed a disposition record that the folder did not contain. | The disposition is part of this change; the wording of the registration row now matches the open-obligations list. |
+
 ### Mutation probes (after the repair)
 
 | Probe | Mutation | Bound by |
@@ -75,10 +88,18 @@ Two obligations of the predecessor:
 | P8 | the export readback comparison is skipped | 1 failing test — BOUND |
 | P9 | the "the registry contains the adopted skill" check is skipped | 1 failing test — BOUND |
 | P10 | the rollback restores the skill file but not the exports | 1 failing test — BOUND |
+| R1 | the CLI rethrows a non-`PromotionError` instead of refusing structurally | bound by the "unexpected failure" test — BOUND |
+| R2 | the ledger append is not guarded | bound by the "unwritable adoption ledger" test — BOUND |
+| R3 | the readback does not re-verify the approval artifact | bound by the "readback re-verifies the approval" test — BOUND |
+| R4 | the CLI honours the evidence age bound from the input | bound by the "pins the evidence age bound" test — BOUND |
+| R5 | a symlinked export surface is written through | bound by the "symlinked export surface" test — BOUND |
+| R6 | a symlinked canonical skill path is written through | bound by the "symlinked canonical skill path" test — BOUND |
+| R7 | the adopted content is not verified after the export step | bound by the export-hook test and the readback — BOUND |
+| R8 | the readback before the ledger append is skipped | bound by the readback tests — BOUND |
 
 ## Verification (measured on the reviewed head)
 
-- `node --test tests/vnext/*.test.mjs` — **559 pass / 0 fail** (the S8 group contributes 26 tests; the S7 group 16).
+- `node --test tests/vnext/*.test.mjs` — **566 pass / 0 fail** (the S8 group contributes 33 tests; the S7 group 16).
 - `node --test tests/tools/*.test.mjs` — 21 pass / 0 fail.
 - `npm run validate`, `npm run validate-maws-vnext`, `npm run eval:maws-vnext` — issues `[]` / `ok:true`.
 - `node scripts/tools/ci-gate.mjs` — PASS CI Gate.
