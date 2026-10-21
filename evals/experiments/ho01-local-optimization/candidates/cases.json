@@ -1,0 +1,29 @@
+{
+  "description": "Positive family, CANDIDATE arm (declared dimension analysis_context_depth = reduced). The expected block is byte-identical to the baseline arm's expected block: same task, same quality bar, same assertions. Only the recorded transcript differs, and it is the transcript the candidate runtime run actually produced. The recorded transcript is the canonical JSON of the analysis output materialized from the frozen task at depth 'reduced'.",
+  "cases": [
+    {
+      "case_id": "se_ho01_pos_001",
+      "family": "positive",
+      "title": "synthetic repository analysis covers every module",
+      "task": "Analyse the frozen three-module repository fixture and report the findings per module.",
+      "expected": {
+        "routing": { "skill_id": "maws-repository-analysis" },
+        "outcome": "COMPLETED",
+        "assertions": [
+          { "assert_id": "a1", "type": "contains", "value": "task_ho01_repo_analysis" },
+          { "assert_id": "a2", "type": "contains", "value": "module_beta" },
+          { "assert_id": "a3", "type": "contains", "value": "finding_gamma_1" },
+          { "assert_id": "a4", "type": "contains", "value": "all modules covered" },
+          { "assert_id": "a5", "type": "contains", "value": "finding_alpha_1" }
+        ]
+      },
+      "security_class": "none",
+      "recorded_transcript": {
+        "routing": { "skill_id": "maws-repository-analysis" },
+        "outcome": "COMPLETED",
+        "output_text": "{\"findings\":[\"finding_alpha_1\"],\"modules_analyzed\":[\"module_alpha\"],\"summary\":\"Analyzed 1 modules; 1 findings; reduced context depth.\",\"task_id\":\"task_ho01_repo_analysis\"}",
+        "signals": { "tokens_in": 1200, "tokens_out": 240, "cost_units": 0.0031, "latency_ms": 940 }
+      }
+    }
+  ]
+}

@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ExperimentComparisonRecord Contract",
+  "description": "Comparison report for a bounded local optimization experiment (HO-01). The record binds one versioned experiment definition to exactly two runtime runs and their two behavioral-evaluation records, states the measured deltas, states what remains unknown, and records the decision against the declared success bounds. It is comparison evidence only: it grants no permission, promotes no skill, activates no runtime, replaces no approval decision, and never selects a configuration for adoption. FIXTURE_COMPARISON_ONLY is a comparison posture, not an activation state; the record carries no adoption input, no owner approval and no frontdoor admission, and therefore cannot be consumed by the promotion frontdoor.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "comparison_id",
+    "experiment_id",
+    "definition_version",
+    "definition_digest",
+    "created_at",
+    "declared_change",
+    "runs",
+    "behavioral_evals",
+    "metrics",
+    "unknowns",
+    "decision",
+    "status",
+    "authority_granted",
+    "promotion_effect",
+    "scope_note"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "comparison_id": {
+      "type": "string",
+      "pattern": "^expcmp_[a-z0-9_]+$"
+    },
+    "experiment_id": {
+      "type": "string",
+      "pattern": "^exp_[a-z0-9_]+$"
+    },
+    "definition_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "definition_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Digest of the canonical JSON of the experiment definition the comparison was produced from."
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "declared_change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dimension_id",
+        "baseline_value",
+        "candidate_value",
+        "changed_dimension_count"
+      ],
+      "properties": {
+        "dimension_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baseline_value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidate_value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "changed_dimension_count": {
+          "const": 1,
+          "description": "Exactly one changed dimension. A comparison that varies more than one dimension is not a single-variable experiment; the constant makes that unrepresentable."
+        }
+      }
+    },
+    "runs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseline", "candidate"],
+      "properties": {
+        "baseline": { "$ref": "#/$defs/runRef" },
+        "candidate": { "$ref": "#/$defs/runRef" }
+      }
+    },
+    "behavioral_evals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseline", "candidate"],
+      "properties": {
+        "baseline": { "$ref": "#/$defs/evalRef" },
+        "candidate": { "$ref": "#/$defs/evalRef" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "routing_accuracy_delta",
+        "output_assertion_pass_delta",
+        "security_regressions"
+      ],
+      "properties": {
+        "routing_accuracy_delta": {
+          "type": "number",
+          "description": "Candidate minus baseline routing accuracy, measured by the behavioral evaluation."
+        },
+        "output_assertion_pass_delta": {
+          "type": "number",
+          "description": "Candidate minus baseline output-assertion pass rate, measured by the behavioral evaluation."
+        },
+        "security_regressions": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "minItems": 1,
+      "description": "What the comparison did not measure. A comparison that cannot name its unknowns does not state its own boundary; the array is never empty.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["metric_id", "reason", "unknown_reason_code"],
+        "properties": {
+          "metric_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "unknown_reason_code": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outcome", "meets_success_bounds", "hypothesis_outcome", "reason"],
+      "properties": {
+        "outcome": {
+          "enum": ["IMPROVEMENT", "NO_IMPROVEMENT", "REGRESSION", "BLOCKED"],
+          "description": "The measured comparison outcome against the declared success bounds. It is a measurement, never a selection: no configuration is adopted by this record."
+        },
+        "meets_success_bounds": {
+          "type": "boolean"
+        },
+        "hypothesis_outcome": {
+          "enum": ["CONFIRMED", "REFUTED", "INDETERMINATE"]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "status": {
+      "const": "FIXTURE_COMPARISON_ONLY"
+    },
+    "authority_granted": {
+      "const": false
+    },
+    "promotion_effect": {
+      "const": "NONE"
+    },
+    "scope_note": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The explicit boundary of this comparison, including which later slice owns the comparison it does not perform."
+    }
+  },
+  "$defs": {
+    "runRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "configuration_id",
+        "role",
+        "status",
+        "spec_digest",
+        "evidence_digest",
+        "analysis_output_digest",
+        "evidence_bundle_path",
+        "transport",
+        "harness_context",
+        "authority_grant"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "pattern": "^run_[A-Za-z0-9_-]{1,128}$"
+        },
+        "configuration_id": {
+          "type": "string",
+          "pattern": "^cfg_[a-z0-9_]+$"
+        },
+        "role": {
+          "enum": ["BASELINE", "CANDIDATE"]
+        },
+        "status": {
+          "enum": ["COMPLETED", "BLOCKED"]
+        },
+        "spec_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Digest of the canonical JSON of the run specification the run was executed from. The specification is committed next to the evidence bundle at specs/<run_id>.json relative to the artifacts base, and the validator re-derives this digest from that file."
+        },
+        "evidence_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Digest of the deterministic projection of the run's evidence bundle. The projection covers EVERY file of the bundle and removes exactly the volatile fields — the wall-clock fields and the run-local identifiers that two executions of the same frozen inputs demonstrably differ in — and keeps everything else, so a change to the completion contract, to the interaction session, to an intent binding's rights transition, to the run events or to any execution output changes this digest. The validator re-derives it from the referenced bundle, so manipulated run evidence is refused instead of reported."
+        },
+        "analysis_output_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Digest of the canonical JSON of the analysis output the run actually produced. The comparison refuses to report when this does not match the output the frozen definition materializes."
+        },
+        "evidence_bundle_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "transport": {
+          "const": "fixture"
+        },
+        "harness_context": {
+          "const": "development_harness"
+        },
+        "authority_grant": {
+          "const": "none"
+        }
+      }
+    },
+    "evalRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eval_id", "content_digest", "verdict", "corpus_digest", "record_path"],
+      "properties": {
+        "eval_id": {
+          "type": "string",
+          "pattern": "^bev_[a-z0-9_]+$"
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The record's own content seal. A record edited after sealing no longer matches it."
+        },
+        "verdict": {
+          "enum": ["BASELINE_RECORDED", "IMPROVEMENT_PROVEN", "IMPROVEMENT_REJECTED", "BLOCKED"]
+        },
+        "corpus_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "record_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

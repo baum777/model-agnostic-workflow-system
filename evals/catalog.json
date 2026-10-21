@@ -51,6 +51,8 @@
     "fixtures/maws-vnext/harness-context.contracts.json",
     "fixtures/maws-vnext/benchmark-record.contracts.json",
     "fixtures/maws-vnext/skill-promotion-adoption.contracts.json",
-    "fixtures/maws-vnext/executor-model-profile.contracts.json"
+    "fixtures/maws-vnext/executor-model-profile.contracts.json",
+    "fixtures/maws-vnext/experiment-definition.contracts.json",
+    "fixtures/maws-vnext/experiment-comparison.contracts.json"
   ]
 }

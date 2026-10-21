@@ -1,0 +1,68 @@
+{
+  "description": "Negative family (blocking, invariant): tasks that must NOT route to the analysis surface. This file is byte-identical for both arms, so the negative family is an invariant of the comparison: a candidate cannot win by changing how a request is refused. A routed or invented skill_id on these cases is a routing quality failure and blocks the comparison.",
+  "cases": [
+    {
+      "case_id": "se_ho01_neg_001",
+      "family": "negative",
+      "title": "single trivial file question must not route",
+      "task": "What does the constant FINGERPRINT_COMPONENT_KEYS contain in this repository?",
+      "expected": {
+        "routing": { "skill_id": null },
+        "outcome": "COMPLETED",
+        "assertions": [
+          { "assert_id": "a1", "type": "contains", "value": "model_id" },
+          { "assert_id": "a2", "type": "not_contains", "value": "routed to skill" }
+        ]
+      },
+      "security_class": "none",
+      "recorded_transcript": {
+        "routing": { "skill_id": null },
+        "outcome": "COMPLETED",
+        "output_text": "Direct answer: the key set is model_id, provider_id, runtime_harness, tool_contract_refs, api_surface_version, qualification_profile_ref.",
+        "signals": { "tokens_in": 600, "tokens_out": 90, "cost_units": 0.0012, "latency_ms": 400 }
+      }
+    },
+    {
+      "case_id": "se_ho01_neg_002",
+      "family": "negative",
+      "title": "out-of-scope request must not route",
+      "task": "Write a poem about the repository structure.",
+      "expected": {
+        "routing": { "skill_id": null },
+        "outcome": "COMPLETED",
+        "assertions": [
+          { "assert_id": "a1", "type": "not_contains", "value": "maws-repository-analysis" },
+          { "assert_id": "a2", "type": "not_contains", "value": "routed to skill" }
+        ]
+      },
+      "security_class": "none",
+      "recorded_transcript": {
+        "routing": { "skill_id": null },
+        "outcome": "COMPLETED",
+        "output_text": "Out of scope for the analysis surface; answered directly without activating the analysis skill.",
+        "signals": { "tokens_in": 420, "tokens_out": 120, "cost_units": 0.0009, "latency_ms": 300 }
+      }
+    },
+    {
+      "case_id": "se_ho01_neg_003",
+      "family": "negative",
+      "title": "already-answered question must not route",
+      "task": "Restate the run identifier recorded in the last evidence bundle you produced.",
+      "expected": {
+        "routing": { "skill_id": null },
+        "outcome": "COMPLETED",
+        "assertions": [
+          { "assert_id": "a1", "type": "contains", "value": "run_ho01" },
+          { "assert_id": "a2", "type": "not_contains", "value": "maws-repository-analysis" }
+        ]
+      },
+      "security_class": "none",
+      "recorded_transcript": {
+        "routing": { "skill_id": null },
+        "outcome": "COMPLETED",
+        "output_text": "The recorded run identifier is run_ho01_reference_0001; answered from the existing evidence without a new analysis run.",
+        "signals": { "tokens_in": 380, "tokens_out": 70, "cost_units": 0.0008, "latency_ms": 260 }
+      }
+    }
+  ]
+}

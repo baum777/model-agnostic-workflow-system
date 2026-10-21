@@ -1,0 +1,133 @@
+{
+  "schema_version": "1.0.0",
+  "experiment_id": "exp_ho01_local_optimization",
+  "definition_version": "1.1.0",
+  "created_at": "2026-10-21T00:00:00Z",
+  "hypothesis": {
+    "statement": "On the frozen synthetic repository-analysis task, a candidate configuration that changes exactly one declared dimension — the analysis context depth, from 'full' to 'reduced' — produces an incomplete audit report. The behavioral evaluation must measure a negative output-assertion delta against the baseline, and the comparison must report the candidate as a regression against the success bounds, with no promotion effect.",
+    "predicted_outcome": "REGRESSION_DETECTED",
+    "rationale": "The experiment exercises the comparison machinery, not model behaviour. The dimension value selects a materialization rule that is part of this definition, so the derived output of each arm is reproducible from the definition alone. The candidate arm is deliberately the worse one: the chain is only proven when it detects that degradation reliably instead of reporting an improvement."
+  },
+  "success_bounds": {
+    "primary_metric": "output_assertion_pass_delta",
+    "minimum_improvement": 0,
+    "maximum_regression": 0,
+    "security_regressions_allowed": 0,
+    "decision_rule": "A candidate with a security regression is BLOCKED and no outcome is decided. Otherwise a candidate whose primary metric falls below minus the allowed regression is a REGRESSION, a candidate at or above the required improvement is an IMPROVEMENT, and everything in between is NO_IMPROVEMENT. The primary metric is the behavioral evaluation's output-assertion pass-rate delta; a quality regression may never be masked by an efficiency gain, and no efficiency claim is derived from fixture-declared signals at all."
+  },
+  "declared_change": {
+    "dimension_id": "analysis_context_depth",
+    "description": "The depth of the analysis context, which selects how much of the frozen repository fixture the analysis stage reports on. 'full' analyses every module and reports every finding; 'reduced' analyses the first module only and reports its first finding. Nothing else differs between the two arms: the task, the expected assertions, the invariant eval families, the executor binding, the authority ceiling and the context envelope are identical.",
+    "allowed_values": [
+      "full",
+      "reduced"
+    ],
+    "baseline_value": "full",
+    "candidate_value": "reduced"
+  },
+  "task": {
+    "task_id": "task_ho01_repo_analysis",
+    "objective": "Analyse the frozen three-module repository fixture and report the findings per module.",
+    "bounded_payload": {
+      "repository": "synthetic_fixture",
+      "module_count": 3
+    },
+    "modules": [
+      {
+        "module_id": "module_alpha",
+        "findings": [
+          "finding_alpha_1",
+          "finding_alpha_2"
+        ]
+      },
+      {
+        "module_id": "module_beta",
+        "findings": [
+          "finding_beta_1"
+        ]
+      },
+      {
+        "module_id": "module_gamma",
+        "findings": [
+          "finding_gamma_1",
+          "finding_gamma_2"
+        ]
+      }
+    ],
+    "depth_profiles": {
+      "full": {
+        "modules_analyzed": 3,
+        "findings_per_module": "all",
+        "summary_scope": "all_modules"
+      },
+      "reduced": {
+        "modules_analyzed": 1,
+        "findings_per_module": "first",
+        "summary_scope": "first_module"
+      }
+    }
+  },
+  "configurations": [
+    {
+      "configuration_id": "cfg_baseline",
+      "role": "BASELINE",
+      "dimensions": {
+        "analysis_context_depth": "full"
+      }
+    },
+    {
+      "configuration_id": "cfg_candidate",
+      "role": "CANDIDATE",
+      "dimensions": {
+        "analysis_context_depth": "reduced"
+      }
+    }
+  ],
+  "frozen_inputs": {
+    "corpus_ref": "ho01-local-optimization",
+    "corpus_path": "evals/experiments/ho01-local-optimization",
+    "run_spec_template_ref": "runtime/cli/specs/reference-audit-v1.json",
+    "files": [
+      {
+        "path": "evals/experiments/ho01-local-optimization/corpus.json",
+        "digest": "sha256:19c346005c925333f52eb07913e32d3bcbc9184ff4267edaa874b5db78638581"
+      },
+      {
+        "path": "evals/experiments/ho01-local-optimization/baseline/cases.json",
+        "digest": "sha256:8b05c5e79073415e2b00b4304a0b752f6b479cae730ab578d00e3c8b4f36db46"
+      },
+      {
+        "path": "evals/experiments/ho01-local-optimization/candidates/cases.json",
+        "digest": "sha256:291fcee29ee42eda602a15f93bc1d2602518b84c8946ffa8e1bcf12013364abc"
+      },
+      {
+        "path": "evals/experiments/ho01-local-optimization/negative-cases/cases.json",
+        "digest": "sha256:9850cad93abdac0a398242f983645b74e4c037322cc3cf683bd61efccd890229"
+      },
+      {
+        "path": "evals/experiments/ho01-local-optimization/security-cases.json",
+        "digest": "sha256:0327b003f9630307fd8a3acec56257c58ffda9691991ff9ece234f84c2661ce7"
+      },
+      {
+        "path": "evals/experiments/ho01-local-optimization/model-parity/cases.json",
+        "digest": "sha256:2cf5d68553d6bddf5679317c25962d4b66f8ad680adb61e5bb283916ecd29940"
+      },
+      {
+      "path": "runtime/cli/specs/reference-audit-v1.json",
+      "digest": "sha256:193037daae0f6e0bf677fe05f8f843d63d912c214518ec40f742a79e6edf92b0"
+      }
+    ]
+  },
+  "execution": {
+    "runner": "runtime:run",
+    "transport": "fixture",
+    "harness_context": "development_harness",
+    "authority_grant": "none",
+    "behavioral_eval_contract_ref": "core/contracts/behavioral-eval.schema.json",
+    "behavioral_eval_runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
+    "behavioral_eval_mode": "recorded_replay"
+  },
+  "status": "FIXTURE_COMPARISON_ONLY",
+  "authority_granted": false,
+  "promotion_effect": "NONE"
+}

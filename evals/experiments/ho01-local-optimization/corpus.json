@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_id": "ho01-local-optimization-v1",
+  "description": "HO-01 local optimization comparison corpus. A synthetic repository-analysis task over a three-module frozen fixture. The positive family is the variable family: it carries the single declared dimension (analysis_context_depth) and is deliberately non-blocking, because this experiment measures the behavioural delta of that dimension instead of gating on it. The negative, security_regression and model_parity families are the invariant families: they are byte-identical for both arms and stay blocking, so a candidate can never win by degrading them. Identical expected blocks in both positive files make the test inputs identical; only the recorded transcript differs.",
+  "subject": {
+    "kind": "harness",
+    "ref": "maws-local-optimization-experiment"
+  },
+  "families": [
+    {
+      "family": "positive",
+      "file": "shared",
+      "via": "variant",
+      "blocking": false
+    },
+    {
+      "family": "negative",
+      "file": "negative-cases/cases.json",
+      "blocking": true
+    },
+    {
+      "family": "security_regression",
+      "file": "security-cases.json",
+      "blocking": true
+    },
+    {
+      "family": "model_parity",
+      "file": "model-parity/cases.json",
+      "blocking": false
+    }
+  ],
+  "variants": {
+    "BASELINE": {
+      "positive_cases_file": "baseline/cases.json"
+    },
+    "CANDIDATE": {
+      "positive_cases_file": "candidates/cases.json"
+    }
+  }
+}
