@@ -19,6 +19,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { executeWorkRun } from '../orchestrator/run-engine.mjs';
 import { computeEligibility } from '../qualification/eligibility.mjs';
+import { deriveInstructionBinding, bindFingerprintsToInstructionDigest } from '../qualification/instruction-binding.mjs';
 import { buildRoutingRequest, route } from '../routing/routing-engine.mjs';
 import { createJevClient } from '../decision-engine/jev/client.mjs';
 import { buildPreferredExecutorQuestion } from '../decision-engine/jev/questions/registry.mjs';
@@ -137,6 +138,44 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
       throw new SpecError('SPEC_FINGERPRINT_INVALID', `fingerprints key ${executorId} does not match executor_id ${fingerprint.executor_id}`);
     }
   }
+  // S7: the effective instruction digest is DERIVED at runtime from the
+  // effective instruction bundle the run actually gets (the S6 assembler
+  // rebuilds it from the live instruction tree). The digest the spec
+  // declares is caller input: it is recorded for traceability and never
+  // used for a decision. A run without an instruction binding has no
+  // effective instruction state and binds no executor (fail closed).
+  const instructionBindingInput = spec.instruction_binding;
+  if (instructionBindingInput === undefined || instructionBindingInput === null) {
+    throw new SpecError('INSTRUCTION_BINDING_MISSING', 'the run spec carries no instruction_binding; the effective instruction digest cannot be derived without assembly inputs');
+  }
+  let instructionBinding;
+  try {
+    instructionBinding = deriveInstructionBinding({
+      root,
+      bundleId: instructionBindingInput.bundle_id,
+      taskRef: instructionBindingInput.task_ref,
+      workflowClass: instructionBindingInput.workflow_class,
+      selection: instructionBindingInput.selection || {},
+      contextBindingRefs: instructionBindingInput.context_binding_refs || [],
+      requiredContextDigests: instructionBindingInput.required_context_digests || [],
+      executorProfileRef: instructionBindingInput.executor_profile_ref,
+      assemblyPolicyRef: instructionBindingInput.assembly_policy_ref
+    });
+  } catch (error) {
+    throw new SpecError(
+      error?.code || 'INSTRUCTION_BINDING_INVALID',
+      `the effective instruction bundle could not be derived: ${error.message}`
+    );
+  }
+  // Bind the DERIVED digest into every current fingerprint. The declared
+  // digest never legitimizes a qualification; the qualified snapshots keep
+  // their declared digest, so a qualification earned under another
+  // instruction state stays a material drift.
+  const bound = bindFingerprintsToInstructionDigest({ fingerprints, derivedDigest: instructionBinding.digest });
+  for (const [executorId, fingerprint] of Object.entries(bound.fingerprints)) {
+    validateOrThrow(fingerprint, 'core/contracts/qualification-fingerprint.schema.json', 'SPEC_FINGERPRINT_INVALID', root);
+  }
+  const boundFingerprints = bound.fingerprints;
   // The qualified fingerprint snapshots are a separate spec part, keyed by
   // the qualification's fingerprint_ref (one snapshot per qualification
   // scope — executor, capability, profile), never an alias of the current
@@ -354,7 +393,7 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
     subsumptionRecords: spec.subsumption_records || [],
     qualifications,
     manifests,
-    currentFingerprints: fingerprints,
+    currentFingerprints: boundFingerprints,
     qualifiedFingerprints: qualifiedFingerprintsByExecutor,
     availability,
     policyCompatible,
@@ -400,6 +439,26 @@ export async function runRuntimeRun({ specPath, outDir = null, repoRoot = null, 
   if (intentBindingRecords.length > 0) {
     artifactWriter.write('intent-bindings.json', intentBindingRecords);
   }
+
+  // S7 evidence: the effective instruction binding the run actually used —
+  // the DERIVED digest, the source snapshot it was derived from, and the
+  // declared per-executor digests for traceability. The declared values are
+  // recorded, never used: the run consumed the derived digest.
+  artifactWriter.write('instruction-binding.json', {
+    derived_effective_instruction_digest: instructionBinding.digest,
+    source_revision: instructionBinding.revision,
+    instruction_inventory_digest: instructionBinding.inventory_digest,
+    verified_source_count: instructionBinding.verified_source_count,
+    selected_sources: instructionBinding.bundle.selected_sources.map((source) => ({
+      ref: source.ref,
+      binding_class: source.binding_class,
+      assembly_slot: source.assembly_slot,
+      source_digest: source.source_digest
+    })),
+    fingerprints: bound.bindings,
+    declared_digests_used_for_decisions: false,
+    observed_at: clock()
+  });
 
   // S3 evidence: the declared context envelope, its pre-execution verdict and
   // the token usage the run actually reported — accounted cumulatively per

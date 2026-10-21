@@ -103,7 +103,7 @@ export const CHAIN_CONTEXT = 'chain';
 
 /**
  * The files a run evidence bundle consists of. The nine mandatory files must
- * be present; the four optional ones may be absent. A file outside this
+ * be present; the optional ones may be absent. A file outside this
  * inventory is REFUSED rather than ignored: a bundle file the projection does
  * not cover would sit outside the run-evidence digest, and a material change
  * to it would then be invisible to the validator.
@@ -124,6 +124,7 @@ export const OPTIONAL_BUNDLE_FILES = Object.freeze([
   'completion-contract.json',
   'intent-bindings.json',
   'interaction-session.json',
+  'instruction-binding.json',
   'run-events.jsonl'
 ]);
 

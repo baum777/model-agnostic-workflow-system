@@ -248,7 +248,10 @@ Primary commands:
   Validates the local memory skeleton and policies.
 
 - `npm run promote-skill-candidate -- --input <adoption-input.json>`
-  Executes the S8 governance promotion chain (frontdoor admission, digest-bound behavioral evidence, owner approval, versioned canonical adoption, adoption ledger, post-adoption readback) against the canonical root the input names. It changes canonical skill content and nothing else: it grants no permission, no qualification and no runtime authority. A promotion on the live canonical tree is an owner act.
+  Executes the S8 governance promotion chain (frontdoor admission, digest-bound behavioral evidence, owner approval VERIFIED against the canonical owner authority anchor, versioned canonical adoption, canonical registry and provider export regeneration with readback, adoption ledger, post-adoption readback) against the canonical root the input names. The owner approval must be a signed artifact in the canonical decision surface of the target tree; a self-declared approver or decision reference authorizes nothing. It changes canonical skill content and nothing else: it grants no permission, no qualification and no runtime authority. A promotion on the live canonical tree is an owner act.
+
+- `node scripts/tools/requalify-run-spec.mjs --spec <run-spec.json> [--write]`
+  Re-binds the qualification snapshots of a runtime run spec to the effective instruction state currently in effect. The effective instruction digest is derived at run time from the assembled instruction bundle, so a material instruction change invalidates a qualification until it is re-earned. The tool is a calculator: it grants no capability, qualifies no executor and changes no permission.
 
 - `npm run baum:ci-gate`
   Runs the bounded repo-loop adapter, evidence validation, and quality gate.

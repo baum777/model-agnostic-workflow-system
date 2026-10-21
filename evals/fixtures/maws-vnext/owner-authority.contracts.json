@@ -1,0 +1,150 @@
+{
+  "id": "maws-vnext-owner-authority-contracts",
+  "kind": "maws-vnext",
+  "target": {
+    "name": "maws-vnext-contracts"
+  },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "owner-authority-valid-published",
+      "schema": "core/contracts/owner-authority.schema.json",
+      "valid": true,
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "authority_id": "canonical_owner",
+        "authority_status": "PUBLISHED",
+        "keys": [
+          {
+            "key_id": "owner_key_s8_0001",
+            "algorithm": "ed25519",
+            "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAq5t1n0d3bq3Nl0d8Yq1o1v0k1b0m0l0k0j0i0h0g0f0e0d0c0b0a0\n-----END PUBLIC KEY-----\n",
+            "role": "canonical_owner",
+            "status": "active",
+            "added_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "updated_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "owner-authority-rejects-a-published-anchor-without-a-key",
+      "schema": "core/contracts/owner-authority.schema.json",
+      "valid": false,
+      "expected_error": "keys",
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "authority_id": "canonical_owner",
+        "authority_status": "PUBLISHED",
+        "keys": [],
+        "updated_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "owner-authority-rejects-a-foreign-role",
+      "schema": "core/contracts/owner-authority.schema.json",
+      "valid": false,
+      "expected_error": "role",
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "authority_id": "canonical_owner",
+        "authority_status": "PUBLISHED",
+        "keys": [
+          {
+            "key_id": "owner_key_s8_0001",
+            "algorithm": "ed25519",
+            "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAq5t1n0d3bq3Nl0d8Yq1o1v0k1b0m0l0k0j0i0h0g0f0e0d0c0b0a0\n-----END PUBLIC KEY-----\n",
+            "role": "runtime_loop",
+            "status": "active",
+            "added_at": "2026-10-20T00:00:00Z"
+          }
+        ],
+        "updated_at": "2026-10-20T00:00:00Z"
+      }
+    },
+    {
+      "case_id": "owner-approval-valid",
+      "schema": "core/contracts/owner-approval.schema.json",
+      "valid": true,
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "approver": "canonical_owner",
+        "skill_id": "example-safe-skill",
+        "decision_ref": "owner_decision_s8_0001",
+        "approved_at": "2026-10-20T00:00:00Z",
+        "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signature": {
+          "algorithm": "ed25519",
+          "key_id": "owner_key_s8_0001",
+          "value": "c2lnbmF0dXJlLXNpZ25hdHVyZS1maXh0dXJl"
+        }
+      }
+    },
+    {
+      "case_id": "owner-approval-rejects-an-unsigned-approval",
+      "schema": "core/contracts/owner-approval.schema.json",
+      "valid": false,
+      "expected_error": "signature",
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "approver": "canonical_owner",
+        "skill_id": "example-safe-skill",
+        "decision_ref": "owner_decision_s8_0001",
+        "approved_at": "2026-10-20T00:00:00Z",
+        "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "case_id": "owner-approval-rejects-a-self-declared-approver",
+      "schema": "core/contracts/owner-approval.schema.json",
+      "valid": false,
+      "expected_error": "approver",
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "approver": "runtime_loop",
+        "skill_id": "example-safe-skill",
+        "decision_ref": "owner_decision_s8_0001",
+        "approved_at": "2026-10-20T00:00:00Z",
+        "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "signature": {
+          "algorithm": "ed25519",
+          "key_id": "owner_key_s8_0001",
+          "value": "c2lnbmF0dXJlLXNpZ25hdHVyZS1maXh0dXJl"
+        }
+      }
+    },
+    {
+      "case_id": "owner-authority-valid-pending-publication",
+      "schema": "core/contracts/owner-authority.schema.json",
+      "valid": true,
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "authority_id": "canonical_owner",
+        "authority_status": "PENDING_PUBLICATION",
+        "keys": [],
+        "updated_at": "2026-10-20T00:00:00Z"
+      }
+    }
+  ]
+}

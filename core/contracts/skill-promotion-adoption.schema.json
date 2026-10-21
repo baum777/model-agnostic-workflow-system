@@ -66,12 +66,19 @@
     "owner_approval": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["approver", "decision_ref", "approved_at", "candidate_digest"],
+      "required": ["approver", "skill_id", "decision_ref", "approved_at", "candidate_digest", "authority_id", "authority_digest", "key_id", "signature_verified", "approval_record_ref", "approval_record_digest"],
       "properties": {
         "approver": { "const": "canonical_owner" },
+        "skill_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
         "decision_ref": { "type": "string", "minLength": 1 },
         "approved_at": { "type": "string", "minLength": 1 },
-        "candidate_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        "candidate_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "authority_id": { "const": "canonical_owner", "description": "The trust anchor the approval was verified against." },
+        "authority_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$", "description": "The digest of the exact trust anchor the approval was verified against, so the record names WHICH anchor vouched for it." },
+        "key_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+        "signature_verified": { "const": true, "description": "The approval signature verified against the published canonical owner key. A self-declared approver or decision reference is not representable here." },
+        "approval_record_ref": { "type": "string", "pattern": "^core/authority/approvals/[A-Za-z0-9][A-Za-z0-9._-]*\\.json$" },
+        "approval_record_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
       }
     },
     "canonical_adoption": {
@@ -90,39 +97,29 @@
     "export_regeneration": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["performed", "export_refs", "regenerated_at"],
+      "required": ["performed", "generator_version", "registry_version", "adoption_digest", "export_digests", "regenerated_at", "readback_verified"],
       "properties": {
-        "performed": { "type": "boolean" },
-        "export_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
-        "regenerated_at": { "type": ["string", "null"], "minLength": 1 },
-        "not_performed_reason": { "type": "string", "minLength": 1 },
+        "performed": { "const": true, "description": "A canonical adoption always regenerates the canonical registry and provider exports. A promotion that did not regenerate them is not representable." },
+        "generator_version": { "type": "string", "minLength": 1 },
+        "registry_version": { "type": ["string", "null"] },
+        "adoption_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$", "description": "The exports are bound to the adoption they were regenerated for." },
         "export_digests": {
           "type": "array",
           "minItems": 1,
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["export_ref", "digest"],
+            "required": ["ref", "digest", "bytes"],
             "properties": {
-              "export_ref": { "type": "string", "minLength": 1 },
-              "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+              "ref": { "type": "string", "minLength": 1 },
+              "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+              "bytes": { "type": "integer", "minimum": 0 }
             }
           }
-        }
-      },
-      "allOf": [
-        {
-          "if": { "properties": { "performed": { "const": true } }, "required": ["performed"] },
-          "then": {
-            "required": ["export_digests"],
-            "properties": { "regenerated_at": { "type": "string", "minLength": 1 } }
-          },
-          "else": {
-            "required": ["not_performed_reason"],
-            "properties": { "regenerated_at": { "const": null } }
-          }
-        }
-      ]
+        },
+        "regenerated_at": { "type": "string", "minLength": 1 },
+        "readback_verified": { "const": true }
+      }
     },
     "post_adoption_readback": {
       "type": "object",

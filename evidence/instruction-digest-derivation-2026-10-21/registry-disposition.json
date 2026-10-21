@@ -1,0 +1,66 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S7 runtime instruction digest derivation, executed under the scoped residual closure run directive of 2026-10-21 (S7/S8 residual obligations). It closes the OPEN obligation recorded by the predecessor S7 run (evidence/qualification-integration-2026-10-20/RUN.md): the effective instruction digest is now DERIVED at run time from the effective instruction bundle the run actually gets, instead of being spec-declared data. The new runtime module runtime/qualification/instruction-binding.mjs assembles the bundle with the S6 assembler over the live instruction tree (runtime/context/instruction-bundle-assembler.mjs), recomputes the digest from the bundle's own content and order, re-reads every selected source against the tree, and binds the DERIVED digest into every current qualification fingerprint (the fingerprint digest is recomputed with it). A caller-asserted digest is recorded in the new instruction-binding.json run artifact for traceability and never used for a decision, so it can no longer legitimize a qualification. runtime/cli/runtime-run.mjs wires the derivation in: the run spec carries instruction_binding (the assembly inputs), the CLI derives the binding and passes the BOUND fingerprints to the eligibility gate, and the qualified snapshots keep the digest they were earned under, so a material instruction change is a MATERIAL_FINGERPRINT_DRIFT and the run is blocked until the qualification is re-earned. The source snapshot label is content-addressed (content:<sha256>), so a caller cannot name a revision and pin a stale state. The coordinated data amendments are the reference run spec runtime/cli/specs/reference-audit-v1.json (re-earned binding), the six committed model-adaptive profiles and their contract fixture and test constant (re-earned: docs/authority-matrix.md is a canonical instruction source, and registering the new surface family in it moved the effective instruction state, which the S7 semantics correctly invalidated), the vNext maturity baseline evals/fixtures/maws-vnext-baseline.json and the authority matrix row in docs/authority-matrix.md. The new tool scripts/tools/requalify-run-spec.mjs re-binds the qualification snapshots of a run spec to the instruction state in effect; it is a calculator, it grants no capability, qualifies no executor and changes no permission. The new test file tests/vnext/instruction-binding.test.mjs carries 16 tests, including the repository gate that fails when the instruction state moved without a re-qualification. SCOPE, explicitly not claimed: the specification stays PROPOSED, this run qualifies no model and no executor, grants no permission, activates no runtime and replaces no authority or approval decision; the derived digest binds the canonical instruction sources of the effective bundle plus whatever the assembly policy selects, and a source that is neither canonical nor selected is not part of the effective instruction bundle (that is the S6 assembly rule). The canonical owner authority publishes no key and no skill was promoted on a live canonical tree (the S8 side of this run). The independent review was performed by a local audit agent (the codex review connector was quota-exhausted) over three rounds with mutation probes; every finding was real and every claimed gate is now bound by at least one failing test; no human approval is claimed. The hosted GitHub Actions job could not execute (the account is locked for a billing issue); every CI step was replicated locally on the published head and the absence of a hosted run is disclosed rather than presented as a green gate. The Registry write is required and pending: the run change registration registry/MAWS_INSTRUCTION_DIGEST_DERIVATION_2026_10_21_001.yaml and the CONTRACT_RECORD projection registry/MAWS_INSTRUCTION_DIGEST_DERIVATION_CONTRACT_2026_10_21_001.yaml are published after the source merge, and the Atlas representation follows the Registry. The owner-side classification is rebound from REQUIRED_BUT_BLOCKED to UPDATED with the registry commit sha after that publication; the recorded facts of the source change are unchanged.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/qualification-fingerprint.schema.json"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "runtime/qualification/instruction-binding.mjs",
+      "runtime/qualification/fingerprint.mjs",
+      "runtime/qualification/materiality.mjs",
+      "runtime/qualification/eligibility.mjs",
+      "runtime/context/instruction-bundle-assembler.mjs",
+      "runtime/cli/runtime-run.mjs",
+      "runtime/cli/specs/reference-audit-v1.json",
+      "scripts/tools/requalify-run-spec.mjs",
+      "runtime/harness-context/profiles/model-adaptive/profiles/",
+      "evals/fixtures/maws-vnext-baseline.json",
+      "evals/fixtures/maws-vnext/executor-model-profile.contracts.json",
+      "docs/authority-matrix.md",
+      "tests/vnext/instruction-binding.test.mjs",
+      "tests/vnext/executor-model-profile.test.mjs",
+      "evidence/instruction-digest-derivation-2026-10-21/RUN.md",
+      "runtime/skills/canonical-path.mjs"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/instruction-digest-derivation-2026-10-21/RUN.md",
+      "evidence/instruction-digest-derivation-2026-10-21/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "node --test tests/vnext/*.test.mjs (all pass at the published head; the S7 group contributes 16 tests, the S8 group 33, the suite total is recorded in evidence/instruction-digest-derivation-2026-10-21/RUN.md)",
+      "node --test tests/tools/*.test.mjs (all pass)",
+      "npm run validate (ok:true, issues empty)",
+      "npm run validate-maws-vnext (ok:true, issues empty)",
+      "npm run eval:maws-vnext (ok:true)",
+      "node scripts/tools/ci-gate.mjs (PASS CI Gate)",
+      "independent review round 1 (local audit agent, tool-driven with mutation probes) on head bd95952: VERDICT PASS_WITH_FINDINGS; the S7 runtime wiring was not test-bound, and the digest recomputation and the live source re-read were only bound at the function level",
+      "independent review round 2 on head 0023184: the claimed repairs were CONFIRMED bound by failing tests, and the round produced new findings (recorded in the S8 run record)",
+      "independent review round 3 on head 76cb132: the repairs of both rounds were verified on the rebased head; no human approval is claimed for any round",
+      "mutation probes bound by the published suite: the binding keeps the caller-declared digest (3 failing tests), the derivation returns the bundle's declared digest (1), the digest consistency check is removed (1), the live source re-read is skipped at the call site (3), the CLI passes the spec-declared fingerprints to the eligibility gate (2)",
+      "re-qualification round trip: node scripts/tools/requalify-run-spec.mjs --spec runtime/cli/specs/reference-audit-v1.json --write re-binds the snapshots and the reference run completes again",
+      "validator: node scripts/tools/validate-registry-disposition.mjs evidence/instruction-digest-derivation-2026-10-21/registry-disposition.json (PASS)",
+      "hosted CI disclosure: the loop-repo-ci check on the published head reports 'The job was not started because your account is locked due to a billing issue'; every step of the workflow was replicated locally instead, and no hosted green gate is claimed"
+    ],
+    "implementation_commit_sha": "a55c8a12bf217fcf8395b19ed069d0db5328f08d",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-digest-derivation-2026-10-21/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (an amended canonical contract surface is CONTRACT_RECORD relevance; the qualification fingerprint contract's effective_instruction_digest component changes its provenance from spec-declared data to a runtime-derived value, so the registered contract object is affected)"
+    ],
+    "registry_baseline_sha": "f8913ef"
+  }
+}
