@@ -157,8 +157,17 @@ meaning of the "0 findings":
    **0 functions** and reports `complete`/`completed`. Such a verdict is **vacuous** and is
    deliberately **not** presented as better coverage.
 
+The repository's own secret-boundary tooling was executed as well, and its scope is worth
+stating next to the scanner's: `npm run validate-secrets` answers `ok: true` with 0 issues and
+`npm run scan-secrets` answers `ok: true` with 0 findings — and both are scoped by
+`FILE_PATTERNS` to `.env`, `docs/`, `examples/`, `evals/`, `templates/`, `policies/` and
+`providers/*/export.json`, which likewise excludes `scripts/` and `tests/`. That is the
+repository's deliberate policy for where secret material may live, not a gap in the tooling
+surface: the files this run changed carry no credential by construction.
+
 **Consequence.** The "0 findings" of every Mimosa scan of this repository carries **no information
-about the S5 path-confinement material**. The requirement "sufficient security-scan coverage" is
+about the S5 path-confinement material**, and the repository's own secret scanners do not reach
+it either, by policy. The requirement "sufficient security-scan coverage" is
 therefore **not satisfiable with this scanner on this repository**, and no security claim is made
 anywhere in this run. The assurance for this slice rests on the 26 negative and regression tests
 (including the link-count race test), on the independent review of section 5, and on the
