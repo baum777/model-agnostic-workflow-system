@@ -1,0 +1,42 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "Scope is the S3 wave 2 implementation of the advisory signal layer for the eight semantic classes of the MAWS-SII section 6.2 taxonomy, together with the owner act OD-20 that adopts MAWS-SII-TARGET-SPEC-001 v0.2.0 as the Shared-Core development target. material_change is true because durable repository artifacts changed (runtime/instructions/instruction-semantic-signals.mjs, runtime/instructions/instruction-auditor.mjs, tests/vnext/instruction-semantic-signals.test.mjs, the specification document, the owner decision register and the changelog). registry_relevant_change is false: no file under core/contracts/ was created, altered or removed - the finding contract core/contracts/instruction-audit-finding.schema.json already carried the semantic_advisory determinism, the requires_owner_review rule for AUTHORITY_LEAK and the rule that a semantic advisory finding may never carry blocker risk, so this run needed no contract change; no canonical claim, authority-matrix entry, lifecycle or dependency binding changed; no supersession relationship over a registered object was created; and no registered provenance binding was affected. The specification is a proposal document under docs/proposals/ and its status block is not a registered binding; the document surface promotion into the canonical docs surface stays a separate slice. The change registration that the project-layer registration invariant requires for every change is published separately as its own record in the Registry repository (baum777/unitera-registry); that registration is a representation of this change, not an object mutation caused by it. The contract field registry_commit_sha remains null: registry-disposition.v1 invariant 4 forbids a non-null value unless the status is UPDATED, and invariant 2 requires UPDATED to carry a non-empty affected_records list, which this change does not have because no registry-relevant class changed. The published registration SHA is therefore carried as publication evidence in the run record and in the Atlas representation, not here.",
+    "registry_baseline_sha": "UNVERIFIED_NO_REGISTRY_WRITE",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/README.md",
+      "docs/maws-vnext-owner-decisions.md"
+    ],
+    "source_refs": [
+      "runtime/instructions/instruction-semantic-signals.mjs",
+      "runtime/instructions/instruction-auditor.mjs",
+      "tests/vnext/instruction-semantic-signals.test.mjs",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/instruction-audit-wave2-2026-10-21/RUN.md"
+    ],
+    "evidence_refs": [
+      "evidence/instruction-audit-wave2-2026-10-21/RUN.md",
+      "node --test tests/vnext/instruction-semantic-signals.test.mjs",
+      "node --test tests/vnext/instruction-auditor.test.mjs",
+      "npm run test:vnext",
+      "npm run validate",
+      "npm run validate-maws-vnext",
+      "npm run validate-instruction-integrity"
+    ],
+    "implementation_commit_sha": "7c5b25b8a622aa177d484659ff0819f8b7671a22",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/instruction-audit-wave2-2026-10-21/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}
