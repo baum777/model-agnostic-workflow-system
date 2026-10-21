@@ -24,6 +24,9 @@
 //     instead of being read;
 //   - a target replaced between the containment check and the read is
 //     detected;
+//   - a hardlink created between the containment check and the read is
+//     detected on the opened descriptor, because no path-based check can
+//     see a second name for the same inode;
 //   - a corpus directory that resolves out of the repository is refused, at
 //     the function boundary and through the CLI.
 import test from 'node:test';
@@ -329,6 +332,34 @@ test('a case file that is a hardlink to a file outside the corpus is refused', (
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
     fs.rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+test('a hardlink created between the containment check and the read is refused', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 's5-hardlink-race-'));
+  try {
+    const target = path.join(dir, 'cases.json');
+    fs.writeFileSync(target, '{"cases":[]}\n');
+    const confined = confineFileToBase(dir, 'cases.json');
+    // The second name for the inode appears in the window between the
+    // containment check and the read. No path-based check can see it: the
+    // real path of a hardlink IS its own path, and the file's device and
+    // inode identity do not change when a second name for it appears. Only
+    // the link count read on the opened descriptor reveals it.
+    const secondName = path.join(dir, 'second-name.json');
+    fs.linkSync(target, secondName);
+    assert.equal(
+      fs.statSync(target, { bigint: true }).nlink,
+      2n,
+      'the inode now carries two names'
+    );
+    assert.throws(
+      () => readConfinedFile(confined),
+      (error) => error instanceof PathConfinementError
+        && error.code === PATH_CONFINEMENT_CODES.MULTIPLE_LINKS
+    );
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 });
 

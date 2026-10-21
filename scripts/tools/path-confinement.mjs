@@ -24,7 +24,9 @@
 //   C5  the target must have exactly ONE link, so a hardlink — which shares
 //       its inode with another name and whose real path is its own path, so
 //       that C2 cannot see the material also existing outside the base — is
-//       refused rather than read.
+//       refused rather than read. The count is read TWICE: once on the path
+//       during the check, and once on the opened descriptor, so that a
+//       hardlink created in the window between the two is caught as well.
 //
 // RESIDUAL (documented, not eliminated):
 //   R1  C3 detects the REPLACEMENT of a target, not an in-place rewrite of
@@ -33,7 +35,11 @@
 //       so the mutation is not detected here. Such a writer holds write
 //       access to the material and could equally have written the corpus
 //       before the run; the mutation is visible in the corpus digest that
-//       the record carries.
+//       the record carries. The same holds for a link that is created
+//       AFTER the descriptor was opened: the descriptor already refers to
+//       the inode, and the writer reaches the content through the new name
+//       exactly as R1 describes. C5 closes the window between the check
+//       and the open, not the window after the open.
 //   R2  C1-C5 do not close a race in which a concurrent writer replaces the
 //       PARENT DIRECTORY of the target between the containment check and
 //       the open, and the replacement carries a file with the same device
@@ -202,6 +208,7 @@ export function confineFileToBase(baseDir, relativePath) {
     relativePath,
     dev: stat.dev,
     ino: stat.ino,
+    nlink: stat.nlink,
     parentPath,
     parentDev: parentStat.dev,
     parentIno: parentStat.ino
@@ -261,6 +268,32 @@ export function readConfinedFile(confined) {
       fail(
         PATH_CONFINEMENT_CODES.CHANGED_DURING_RESOLUTION,
         `the parent directory of ${confined.relativePath} was replaced between the containment check and the read`
+      );
+    }
+    // C5 (again, on the opened descriptor): the link count is re-read on
+    // the descriptor itself, because a hardlink can be created in the
+    // window between the containment check and the open. No path-based
+    // check can see that link: the real path of a hardlink IS its own
+    // path, and the file's identity does not change when a second name
+    // for it appears. The count observed during the check is therefore
+    // compared with the count observed on the descriptor, and any
+    // difference is refused. (A count that cannot be compared at all is
+    // refused as well: the check must not depend on a measurement it
+    // could not take.)
+    //
+    // The parent directory is re-checked BEFORE this, because a parent
+    // that was replaced is the more fundamental defect, and because a
+    // replaced parent that carries the same file over as a hardlink would
+    // otherwise be reported here — hiding the parent check behind the link
+    // count.
+    if (
+      typeof fdStat.nlink !== 'bigint'
+      || typeof confined.nlink !== 'bigint'
+      || fdStat.nlink !== confined.nlink
+    ) {
+      fail(
+        PATH_CONFINEMENT_CODES.MULTIPLE_LINKS,
+        `${confined.relativePath} carries ${fdStat.nlink} links on the opened descriptor and ${confined.nlink} during the containment check; a material that shares its inode with another name may carry content from outside the base`
       );
     }
     return fs.readFileSync(fd);
