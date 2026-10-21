@@ -35,7 +35,7 @@
       "evidence/dsi-skill-selection-2026-10-20/RUN.md (incl. owner decisions, the rebind record and the mutation evidence)",
       "npm run validate-skill-selection (fixture: 26 cases checked, 0 unexpected results)",
       "npm run eval:maws-vnext (exit 0, 19/19 fixtures passed including maws-vnext-skill-selection-contracts)",
-      "npm run test:vnext (512/512 pass, 0 fail, re-verified on the rebased base origin/main bfa56ec17306ab709be3d492f02ac27150b4661a; the DSI file itself is 35/35; the same tree without the DSI test file is 477/477; on the previous base origin/main 27b17b62800d5d37e14bfe48ecd210603c4e1cb6 it was 461/461; before the first rebind, on the S4-based branch, 450/450)",
+      "npm run test:vnext (574/574 pass, 0 fail, re-verified on the rebased base origin/main 30ebb7dd974049842ecac158c7d255aa32f6b12f, which carries the merged S12 model-adaptive profiles slice; the DSI file itself is 35/35; on the previous base origin/main bfa56ec17306ab709be3d492f02ac27150b4661a the total was 512/512; on the previous base origin/main 27b17b62800d5d37e14bfe48ecd210603c4e1cb6 it was 461/461; before the first rebind, on the S4-based branch, 450/450)",
       "npm run validate-maws-vnext (ok: true, 20 fixture files, 222 cases, 0 issues)",
       "npm run validate / validate-neutral (issueCount: 0 each)",
       "npm run test:skill-frontdoor (6/6 pass)",
@@ -44,7 +44,7 @@
       "node --check on runtime/skills/skill-registry-loader.mjs, runtime/skills/skill-selector.mjs, scripts/tools/validate-skill-selection.mjs, tests/vnext/skill-selection.test.mjs (PASS)",
       "re-verification after the second rebase onto origin/main bfa56ec17306ab709be3d492f02ac27150b4661a: all nine mutations were re-applied and re-observed on that tree with the same symptoms as the recorded run (M1 2/35 fail, M2 4/35, M3 2/35, M4 1/35, M5 1/35, M6 2/35, M7 1/35, M8 12 fixture results flip and 5/35 fail, M9 2/35) and the three mutated files restored byte-identical afterwards; the hosted GitHub Actions job could not run for this branch because the account is locked for a billing issue, so the local evidence above is the verification of record"
     ],
-    "implementation_commit_sha": "62bbb16c013d419076158ff5c060f41da3d1a69c",
+    "implementation_commit_sha": "0339916c316235d4519b3bcd000124d9b92abbce",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/dsi-skill-selection-2026-10-20/registry-disposition.json"
@@ -56,6 +56,6 @@
       "evals/fixtures/maws-vnext/skill-selection.contracts.json (contract-backed fixture registered in evals/catalog.json, covered by eval:maws-vnext and validate-maws-vnext)",
       "package.json (new validate-skill-selection script binds the contract to an executable validator)"
     ],
-    "registry_baseline_sha": "bfa56ec17306ab709be3d492f02ac27150b4661a"
+    "registry_baseline_sha": "30ebb7dd974049842ecac158c7d255aa32f6b12f"
   }
 }

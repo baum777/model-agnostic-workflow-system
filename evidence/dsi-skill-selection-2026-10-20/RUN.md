@@ -2,7 +2,7 @@
 
 **Run ID:** dsi-skill-selection-2026-10-20
 **Date:** 2026-10-20 (the second rebase and the full local re-verification were recorded 2026-10-21, UTC instants in the mutation records below)
-**Baseline:** `origin/main` = `bfa56ec17306ab709be3d492f02ac27150b4661a` ("Merge pull request #53 from baum777/chore/sii-rebind-20261021"). The slice was executed in the dedicated worktree `.worktrees/dsi-skill-selection-20261020` on branch `feat/dsi-skill-selection-20261020`, rebased onto that commit. The previous baseline was `27b17b62800d5d37e14bfe48ecd210603c4e1cb6` ("Merge pull request #47 from baum777/s7/qualification-integration-20261020b").
+**Baseline:** `origin/main` = `30ebb7dd974049842ecac158c7d255aa32f6b12f` ("Merge pull request #54 from baum777/s12/model-adaptive-profiles-20261020"), which carries the merged S12 model-adaptive executor profiles slice on top of `bfa56ec17306ab709be3d492f02ac27150b4661a` (merge #53). The slice was executed in the dedicated worktree `.worktrees/dsi-skill-selection-20261020` on branch `feat/dsi-skill-selection-20261020`, rebased onto that commit. The previous baseline was `27b17b62800d5d37e14bfe48ecd210603c4e1cb6` ("Merge pull request #47 from baum777/s7/qualification-integration-20261020b").
 **History of the baseline.** The slice was originally authored on top of the S4 branch `feat/s4-skill-improvement-analyzer-20261020` (`c66cad6e8eedee982cf5d83d84e082aef51e3dbb`), was then rebased onto `origin/main` (`27b17b6…`), and is now rebased onto the current `origin/main` (`bfa56ec…`, which carries the S8 governance-promotion slice, the S4 skill-improvement-analyzer slice and the SII rebind). The rebase makes the branch independently mergeable: the DSI slice is the only change it carries, and **no S4 change comes along** — S4 is now merged in `origin/main` (pull request #50, `bc1d3e2`), so it is part of the BASE of this branch and of no other slice's diff. The rebinds are documented in §11; the conflict resolutions are listed there file by file.
 **Predecessor slice:** none in this branch. S4 (`evidence/skill-improvement-analyzer-2026-10-20/`) is merged in `origin/main` and is therefore part of the BASE, not of this branch's diff: `git diff --name-only bfa56ec….HEAD` lists only DSI files, and no S4 file (`runtime/skills/feedback-analyzer.mjs`, `runtime/skills/improvement-classifier.mjs`, `core/contracts/skill-improvement-proposal.schema.json`, `scripts/tools/validate-skill-improvement-proposal.mjs`, `evals/fixtures/maws-vnext/skill-improvement-proposal.contracts.json`, `tests/vnext/skill-improvement.test.mjs`, `evidence/skill-improvement-analyzer-2026-10-20/`) appears in the diff. DSI extends the same `runtime/skills/` surface and the same contract conventions; it changes no S4 file.
 **Authority posture:** a selection decision is a decision record, never authority. `authority_granted` is `false` by construction: a selection grants no permission, promotes no skill, activates no runtime path and changes no qualification state. The activation decision stays with the caller and its own governance, and the skill frontdoor admission gate stays the precondition for a skill to be usable at all.
@@ -133,7 +133,7 @@ All commands were run from the worktree root (`.worktrees/dsi-skill-selection-20
 
 | Command | Result |
 |---|---|
-| `npm run test:vnext` | **512 tests, 512 pass, 0 fail** (the DSI file alone: 35 tests, 35 pass, 0 fail; the same tree without the DSI test file: 477 tests, 477 pass, 0 fail; on the previous `27b17b6…` base: 461 tests, 461 pass, 0 fail; before the first rebind, on the S4-based branch: 450 tests, 450 pass, 0 fail) |
+| `npm run test:vnext` | **574 tests, 574 pass, 0 fail** (the DSI file alone: 35 tests, 35 pass, 0 fail; on the `bfa56ec…` base: 512 tests, 512 pass, 0 fail; on the previous `27b17b6…` base: 461 tests, 461 pass, 0 fail; before the first rebind, on the S4-based branch: 450 tests, 450 pass, 0 fail) |
 | `npm run validate-skill-selection` | PASS — `skill-selection fixture: 26 cases checked, 0 unexpected results` |
 | `npm run eval:maws-vnext` | PASS — `ok: true`, `total: 19`, `passed: 19`, `failed: 0`, `blockingFailures: 0` (the DSI fixture is registered and passes as `maws-vnext-skill-selection-contracts`) |
 | `npm run validate-maws-vnext` | PASS — `ok: true`, 20 fixture files, 222 cases, 0 issues |
@@ -455,3 +455,39 @@ Each resolution was checked mechanically: every line of the base's file and ever
 **Resulting diff.** `git diff --name-only bfa56ec17306ab709be3d492f02ac27150b4661a..HEAD` lists exactly: `CHANGELOG.md`, `core/contracts/README.md`, `core/contracts/skill-selection.schema.json`, `evals/README.md`, `evals/catalog.json`, `evals/fixtures/maws-vnext/skill-selection.contracts.json`, `evidence/dsi-skill-selection-2026-10-20/RUN.md`, `evidence/dsi-skill-selection-2026-10-20/registry-disposition.json`, `package.json`, `runtime/skills/skill-registry-loader.mjs`, `runtime/skills/skill-selector.mjs`, `scripts/tools/validate-skill-selection.mjs`, `tests/vnext/skill-selection.test.mjs`. No S4 file, no S8 file and no S12 file is in it — those slices are part of the base, not of this branch's diff.
 
 **Verification after the second rebind.** The full local verification was re-run on the rebased tree (§8): `npm run test:vnext` 512/512, `npm run validate`, `validate-neutral`, `validate-maws-vnext` (20 fixture files, 222 cases) and `eval:maws-vnext` (19/19) exit 0, `npm run validate-skill-selection` 26 cases checked / 0 unexpected results, `npm run test:skill-frontdoor` 6/6, `node scripts/tools/ci-gate.mjs` → `PASS CI Gate`, and the direct disposition validation → `{"passed": true, "issues": []}`. The nine mutations were re-applied and re-observed on this tree with identical symptoms (§9). The hosted GitHub Actions job could not run for this branch — the account is locked for a billing issue — so the local reproduction of the workflow is the verification of record and the absence of a hosted run is disclosed rather than presented as a green gate.
+
+## 11.2 The Third Rebind Onto `30ebb7dd…`
+
+**Why.** `origin/main` advanced once more while this branch was open: pull request 54
+("S12 model-adaptive executor profiles") merged as
+`30ebb7dd974049842ecac158c7d255aa32f6b12f`. The branch had to move onto the same
+base so that it stays independently mergeable against the current canonical tree; the
+S12 slice is now part of the BASE of this branch and of no other slice's diff.
+
+**What was done.** `git rebase origin/main` on `feat/dsi-skill-selection-20261020`
+in `.worktrees/dsi-skill-selection-20261020`, from the previous landing commit
+`2e83a46b2b1fbe64dc47fa01772b904c7b25848c`. The three DSI commits were replayed
+onto `30ebb7dd…` and produced `0339916c316235d4519b3bcd000124d9b92abbce`
+(implementation), `708763c7aa080b48bf6f9ee12a03cfde7e2b97cc` (disposition rebind)
+and `2e83a46…` (re-verification).
+
+**Conflicts.** One file conflicted: `evals/README.md`, where both sides had appended
+their own bullet — the base's S12 model-adaptive executor profile checks and DSI's
+skill-selection contract checks. It was resolved by **keeping both sides**; no base
+line was dropped and no DSI line was lost. `CHANGELOG.md`, `core/contracts/README.md`,
+`evals/catalog.json` and `package.json` merged without conflict.
+
+**Re-verification on this base (2026-10-21T00:40Z).** `npm run test:vnext` →
+**574 tests, 574 pass, 0 fail** (the DSI file alone: 35/35). `npm run validate`,
+`npm run validate-neutral`, `npm run validate-maws-vnext`, `npm run eval:maws-vnext`,
+`npm run validate-skill-selection` (26 cases, 0 unexpected) and
+`npm run test:skill-frontdoor` → all exit 0. The disposition validator
+(`node scripts/tools/validate-registry-disposition.mjs`) → `{"passed": true, "issues": []}`.
+The mutation re-run of §9.1 was performed on the `bfa56ec…` base and is not repeated
+here: the three mutated files and the four registry-snapshot inputs they are computed
+over are byte-identical between `bfa56ec…` and `30ebb7dd…` — the S12 slice touches
+neither — so the recorded symptoms remain the symptoms on this base as well.
+
+**Hosted CI.** Still not executed: the account is locked for a billing issue, so no
+`loop-repo-ci` job starts for any branch. The local evidence above is the
+verification of record, and that is disclosed rather than presented as a green gate.
