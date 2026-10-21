@@ -1,0 +1,7 @@
+{
+  "context_id": "hctx_ho01_cfg_candidate_dev",
+  "context": "development_harness",
+  "run_ref": "run_ho01_cfg_candidate",
+  "authority_grant": "none",
+  "created_at": "2026-09-25T00:00:00Z"
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "decision_id": "rd_59da4759587f",
+    "request_ref": "route_4651abb5b4c8",
+    "selected_executor_id": "exec_openrouter_glm",
+    "selection_mode": "NORMAL_SELECTION",
+    "qualification_ref": "qual_openrouter_glm_repository_analysis",
+    "workload_safety_class": "safe",
+    "scoring_evidence": [],
+    "jev_receipt_ref": "jevr_0857ba410de6",
+    "exploration": null,
+    "fallback_of": null,
+    "decided_at": "2026-10-21T01:11:39.360Z"
+  },
+  {
+    "decision_id": "rd_a515492ad704",
+    "request_ref": "route_6762a9e35ada",
+    "selected_executor_id": "exec_unitera_execution_control_fixture",
+    "selection_mode": "NORMAL_SELECTION",
+    "qualification_ref": "qual_unitera_execution_control_fixture_s2b",
+    "workload_safety_class": "safe",
+    "scoring_evidence": [],
+    "jev_receipt_ref": null,
+    "exploration": null,
+    "fallback_of": null,
+    "decided_at": "2026-10-21T01:11:39.361Z"
+  },
+  {
+    "decision_id": "rd_84b58d949bf8",
+    "request_ref": "route_fd955234438e",
+    "selected_executor_id": "exec_local_tests",
+    "selection_mode": "NORMAL_SELECTION",
+    "qualification_ref": "qual_local_tests_deterministic_verification",
+    "workload_safety_class": "safe",
+    "scoring_evidence": [],
+    "jev_receipt_ref": null,
+    "exploration": null,
+    "fallback_of": null,
+    "decided_at": "2026-10-21T01:11:39.361Z"
+  }
+]

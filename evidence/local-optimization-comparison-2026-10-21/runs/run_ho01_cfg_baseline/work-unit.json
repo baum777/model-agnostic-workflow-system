@@ -1,0 +1,35 @@
+{
+  "work_unit_id": "wu_run_ho01_cfg_baseline_root",
+  "objective": "Analyse the frozen three-module repository fixture and report the findings per module.",
+  "required_capabilities": [
+    {
+      "capability_id": "cap_repository_analysis",
+      "min_profile_ref": "profile_readonly_v1"
+    },
+    {
+      "capability_id": "cap_deterministic_verification",
+      "min_profile_ref": "profile_readonly_v1"
+    },
+    {
+      "capability_id": "cap_external_execution_control",
+      "min_profile_ref": "profile_readonly_v1"
+    }
+  ],
+  "context_envelope_ref": "ctx_ho01_cfg_baseline",
+  "authority_ceiling": {
+    "scope_ref": "scope/runtime_run_reference",
+    "allowed_effects": [
+      "ephemeral",
+      "workspace"
+    ],
+    "delegation_depth_max": 1,
+    "authority_source_refs": [
+      "policies/maws-vnext-defaults.yaml"
+    ]
+  },
+  "decomposition_policy_ref": "tpl_audit_repair_v1",
+  "completion_contract_ref": "cc_run_ho01_cfg_baseline_root",
+  "created_by": "interaction_session",
+  "run_ref": "run_ho01_cfg_baseline",
+  "harness_context_ref": "hctx_ho01_cfg_baseline_dev"
+}

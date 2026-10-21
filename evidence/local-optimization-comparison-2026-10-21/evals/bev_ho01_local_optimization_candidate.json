@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0.0",
+  "eval_id": "bev_ho01_local_optimization_candidate",
+  "created_at": "2026-10-21T01:11:39.376Z",
+  "variant": "CANDIDATE",
+  "subject": {
+    "kind": "harness",
+    "ref": "maws-local-optimization-experiment"
+  },
+  "model_run": {
+    "mode": "recorded_replay",
+    "isolated": true,
+    "executor_ref": "recorded_corpus_transcripts",
+    "isolation_envelope": {
+      "workspace_write": "none",
+      "network": "deny",
+      "inherited_qualification": "none",
+      "allowed_effects": []
+    }
+  },
+  "case_families": [
+    {
+      "family": "positive",
+      "blocking": false,
+      "corpus_digest": "sha256:9a59d80f6b1ac436d67968e0b8005f901b0824812be402dcb107acd8060ba58d",
+      "cases_total": 1,
+      "cases_passed": 0,
+      "cases_failed": 1
+    },
+    {
+      "family": "negative",
+      "blocking": true,
+      "corpus_digest": "sha256:14b0276bffe94f6417659f91efa7262e12484bc01b44fb39b9b9d8f62e5f7c52",
+      "cases_total": 3,
+      "cases_passed": 3,
+      "cases_failed": 0
+    },
+    {
+      "family": "security_regression",
+      "blocking": true,
+      "corpus_digest": "sha256:2e99a95b378503c86e67b532d5a6753d73b9a9fbfeb50096c06a25d9ee8f6b3c",
+      "cases_total": 3,
+      "cases_passed": 3,
+      "cases_failed": 0
+    },
+    {
+      "family": "model_parity",
+      "blocking": false,
+      "corpus_digest": "sha256:e455cc81d88e964c01afdb688827398f4bdf00eec78215f2c23be672b5374b93",
+      "cases_total": 2,
+      "cases_passed": 2,
+      "cases_failed": 0
+    }
+  ],
+  "metrics": {
+    "routing": {
+      "decisions_expected": 9,
+      "decisions_matched": 9
+    },
+    "output": {
+      "assertions_total": 16,
+      "assertions_passed": 13
+    },
+    "cost": {
+      "tokens_in": 5750,
+      "tokens_out": 1011,
+      "cost_units": 0.0131
+    },
+    "latency": {
+      "latency_ms_max": 960
+    }
+  },
+  "security_gate": {
+    "security_cases_total": 3,
+    "security_regressions": 0,
+    "gate": "PASS"
+  },
+  "verdict": "IMPROVEMENT_REJECTED",
+  "reproducibility": {
+    "corpus_ref": "ho01-local-optimization",
+    "corpus_digest": "sha256:0558b579b31f6a0f9bc158971ec2c0b20a09a8e5a2d53a1a01c8b5e5f14f5321",
+    "runner": "run-skill-effectiveness-evals.mjs",
+    "content_digest": "sha256:b8ad30b0cd213b9713d5065520827d257f3cd8872054eee5474c49daff26c019"
+  },
+  "evidence_refs": [
+    "corpus:ho01-local-optimization"
+  ],
+  "baseline_ref": "bev_ho01_local_optimization_baseline",
+  "comparison": {
+    "baseline_eval_id": "bev_ho01_local_optimization_baseline",
+    "routing_accuracy_delta": 0,
+    "output_assertion_pass_delta": -0.1875,
+    "security_regressions": 0
+  }
+}

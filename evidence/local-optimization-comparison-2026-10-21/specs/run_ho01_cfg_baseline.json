@@ -1,0 +1,397 @@
+{
+  "run_id": "run_ho01_cfg_baseline",
+  "context_envelope": {
+    "envelope_id": "ctx_ho01_cfg_baseline",
+    "token_budget": 4096,
+    "description": "Reference run context envelope: objective, bounded payload and declared executor tokens fit well within budget"
+  },
+  "interaction_session": {
+    "session_id": "sess_ho01_cfg_baseline",
+    "interaction_host": "zcode",
+    "session_model": "glm-5.3",
+    "orchestration_owner": "maws",
+    "transport": "local_stdio",
+    "identity": "local-user",
+    "submitted_at": "2026-10-19T00:00:00Z"
+  },
+  "work_request": {
+    "objective": "Analyse the frozen three-module repository fixture and report the findings per module.",
+    "requiredCapabilities": [
+      {
+        "capability_id": "cap_repository_analysis",
+        "min_profile_ref": "profile_readonly_v1"
+      },
+      {
+        "capability_id": "cap_deterministic_verification",
+        "min_profile_ref": "profile_readonly_v1"
+      },
+      {
+        "capability_id": "cap_external_execution_control",
+        "min_profile_ref": "profile_readonly_v1"
+      }
+    ],
+    "stageCapabilities": {
+      "analysis": [
+        "cap_repository_analysis"
+      ],
+      "effect": [
+        "cap_external_execution_control"
+      ],
+      "verification": [
+        "cap_deterministic_verification"
+      ]
+    },
+    "requiredOutputs": [
+      {
+        "output_id": "audit_report",
+        "artifact_ref": "artifacts/runtime-runs/run_ho01_cfg_baseline/outputs/audit-report.json"
+      }
+    ],
+    "requiredEvidence": [
+      "evidence/runtime-run-cli/analysis-receipt.json"
+    ],
+    "policyContextRef": "policies/maws-vnext-defaults.yaml",
+    "workloadSafetyClass": "safe",
+    "boundedPayload": {
+      "repository": "self"
+    },
+    "bounded_payload": {
+      "repository": "synthetic_fixture",
+      "module_count": 3
+    }
+  },
+  "template": {
+    "template_id": "tpl_audit_repair_v1",
+    "workflow_class": "implementation",
+    "mandatory_stages": [
+      "analysis",
+      "effect",
+      "verification"
+    ],
+    "decomposition_limits": {
+      "max_depth": 2,
+      "max_children_per_node": 4,
+      "max_total_work_units": 12
+    },
+    "composition_policy_ref": "comp_default_v1",
+    "authority_ceiling_default": {
+      "scope_ref": "scope/runtime_run_reference",
+      "allowed_effects": [
+        "ephemeral",
+        "workspace"
+      ],
+      "delegation_depth_max": 1,
+      "authority_source_refs": [
+        "policies/maws-vnext-defaults.yaml"
+      ]
+    },
+    "verification_requirements": {
+      "required": true,
+      "independent": true
+    }
+  },
+  "profiles": {
+    "profile_readonly_v1": {
+      "profile_id": "profile_readonly_v1",
+      "description": "Read-only analysis profile",
+      "dimensions": {
+        "tools": "read",
+        "effects": "ephemeral",
+        "context": "bounded",
+        "network": "none",
+        "delegation": 0,
+        "verification": "self_reported"
+      }
+    }
+  },
+  "qualifications": [
+    {
+      "qualification_id": "qual_openrouter_glm_repository_analysis",
+      "executor_id": "exec_openrouter_glm",
+      "capability_id": "cap_repository_analysis",
+      "execution_profile_ref": "profile_readonly_v1",
+      "state": "QUALIFIED",
+      "evidence_refs": [
+        "evidence/qualification/exec_openrouter_glm-cap_repository_analysis.json"
+      ],
+      "fingerprint_ref": "fp_openrouter_glm_repository_analysis",
+      "decided_at": "2026-09-25T00:00:00Z",
+      "expires_at": "2026-12-25T00:00:00Z"
+    },
+    {
+      "qualification_id": "qual_local_tests_deterministic_verification",
+      "executor_id": "exec_local_tests",
+      "capability_id": "cap_deterministic_verification",
+      "execution_profile_ref": "profile_readonly_v1",
+      "state": "QUALIFIED",
+      "evidence_refs": [
+        "evidence/qualification/exec_local_tests-cap_deterministic_verification.json"
+      ],
+      "fingerprint_ref": "fp_local_tests_deterministic_verification",
+      "decided_at": "2026-09-25T00:00:00Z",
+      "expires_at": "2026-12-25T00:00:00Z"
+    },
+    {
+      "qualification_id": "qual_unitera_execution_control_fixture_s2b",
+      "executor_id": "exec_unitera_execution_control_fixture",
+      "capability_id": "cap_external_execution_control",
+      "execution_profile_ref": "profile_readonly_v1",
+      "state": "QUALIFIED",
+      "evidence_refs": [
+        "evidence/execution-intake-binding-2026-10-20/RUN.md"
+      ],
+      "fingerprint_ref": "fp_unitera_execution_control_fixture",
+      "decided_at": "2026-10-20T00:00:00Z",
+      "expires_at": "2027-01-20T00:00:00Z"
+    }
+  ],
+  "fingerprints": {
+    "exec_openrouter_glm": {
+      "fingerprint_id": "fp_openrouter_glm_repository_analysis",
+      "executor_id": "exec_openrouter_glm",
+      "capability_id": "cap_repository_analysis",
+      "execution_profile_ref": "profile_readonly_v1",
+      "components": {
+        "model_id": "zai/glm-4.7",
+        "provider_id": "openrouter",
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "runtime/cli/specs/reference-audit-v1.json"
+        ],
+        "api_surface_version": "2026-09",
+        "qualification_profile_ref": "qualprofile_e2e_v1",
+        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+      },
+      "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c3d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+    },
+    "exec_local_tests": {
+      "fingerprint_id": "fp_local_tests_deterministic_verification",
+      "executor_id": "exec_local_tests",
+      "capability_id": "cap_deterministic_verification",
+      "execution_profile_ref": "profile_readonly_v1",
+      "components": {
+        "model_id": null,
+        "provider_id": null,
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "runtime/cli/specs/reference-audit-v1.json"
+        ],
+        "api_surface_version": "2026-09",
+        "qualification_profile_ref": "qualprofile_e2e_v1",
+        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+      },
+      "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c3d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+    },
+    "exec_unitera_execution_control_fixture": {
+      "fingerprint_id": "fp_unitera_execution_control_fixture",
+      "executor_id": "exec_unitera_execution_control_fixture",
+      "capability_id": "cap_external_execution_control",
+      "execution_profile_ref": "profile_readonly_v1",
+      "components": {
+        "model_id": null,
+        "provider_id": null,
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "core/contracts/execution-intake-binding.schema.json"
+        ],
+        "api_surface_version": "2026-10",
+        "qualification_profile_ref": "qualprofile_e2e_v1",
+        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+      },
+      "digest": "b7f3a1c0ffee11dd22cc33bb44aa55996677889900aabbccddeeff0011223344"
+    }
+  },
+  "subsumption_records": [],
+  "qualified_fingerprints": {
+    "fp_openrouter_glm_repository_analysis": {
+      "fingerprint_id": "fp_openrouter_glm_repository_analysis",
+      "executor_id": "exec_openrouter_glm",
+      "capability_id": "cap_repository_analysis",
+      "execution_profile_ref": "profile_readonly_v1",
+      "components": {
+        "model_id": "zai/glm-4.7",
+        "provider_id": "openrouter",
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "runtime/cli/specs/reference-audit-v1.json"
+        ],
+        "api_surface_version": "2026-09",
+        "qualification_profile_ref": "qualprofile_e2e_v1",
+        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+      },
+      "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c3d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+    },
+    "fp_local_tests_deterministic_verification": {
+      "fingerprint_id": "fp_local_tests_deterministic_verification",
+      "executor_id": "exec_local_tests",
+      "capability_id": "cap_deterministic_verification",
+      "execution_profile_ref": "profile_readonly_v1",
+      "components": {
+        "model_id": null,
+        "provider_id": null,
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "runtime/cli/specs/reference-audit-v1.json"
+        ],
+        "api_surface_version": "2026-09",
+        "qualification_profile_ref": "qualprofile_e2e_v1",
+        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+      },
+      "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c3d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+    },
+    "fp_unitera_execution_control_fixture": {
+      "fingerprint_id": "fp_unitera_execution_control_fixture",
+      "executor_id": "exec_unitera_execution_control_fixture",
+      "capability_id": "cap_external_execution_control",
+      "execution_profile_ref": "profile_readonly_v1",
+      "components": {
+        "model_id": null,
+        "provider_id": null,
+        "runtime_harness": "development_harness/in_process_fixture/1",
+        "tool_contract_refs": [
+          "core/contracts/execution-intake-binding.schema.json"
+        ],
+        "api_surface_version": "2026-10",
+        "qualification_profile_ref": "qualprofile_e2e_v1",
+        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+      },
+      "digest": "b7f3a1c0ffee11dd22cc33bb44aa55996677889900aabbccddeeff0011223344"
+    }
+  },
+  "availability": {
+    "exec_openrouter_glm": true,
+    "exec_local_tests": true,
+    "exec_unitera_execution_control_fixture": true
+  },
+  "policy_compatible": {
+    "exec_openrouter_glm": true,
+    "exec_local_tests": true,
+    "exec_unitera_execution_control_fixture": true
+  },
+  "budget_compatible": {
+    "exec_openrouter_glm": true,
+    "exec_local_tests": true,
+    "exec_unitera_execution_control_fixture": true
+  },
+  "executor_bindings": {
+    "exec_openrouter_glm": {
+      "transport": "fixture",
+      "result": {
+        "outcome": "SUCCESS",
+        "outputs": [
+          {
+            "output_id": "audit_report",
+            "inline_payload": {
+              "task_id": "task_ho01_repo_analysis",
+              "modules_analyzed": [
+                "module_alpha",
+                "module_beta",
+                "module_gamma"
+              ],
+              "findings": [
+                "finding_alpha_1",
+                "finding_alpha_2",
+                "finding_beta_1",
+                "finding_gamma_1",
+                "finding_gamma_2"
+              ],
+              "summary": "Analyzed 3 modules; 5 findings; all modules covered."
+            }
+          }
+        ],
+        "metrics": {
+          "latency_ms": 1000,
+          "cost_units": 1,
+          "tokens_in": 10,
+          "tokens_out": 10
+        }
+      }
+    },
+    "exec_local_tests": {
+      "transport": "fixture",
+      "result": {
+        "outcome": "SUCCESS",
+        "outputs": [],
+        "metrics": {
+          "latency_ms": 500,
+          "cost_units": 0,
+          "tokens_in": 0,
+          "tokens_out": 0
+        }
+      }
+    },
+    "exec_unitera_execution_control_fixture": {
+      "transport": "fixture",
+      "result": {
+        "outcome": "SUCCESS",
+        "outputs": [],
+        "metrics": {
+          "latency_ms": 60,
+          "cost_units": 0,
+          "tokens_in": 0,
+          "tokens_out": 0
+        }
+      }
+    }
+  },
+  "intake_bindings": {
+    "exec_unitera_execution_control_fixture": {
+      "binding_id": "eib_reference_email_send_0001",
+      "work_unit_id": "wu_run_ho01_cfg_baseline_root",
+      "target": {
+        "system": "unitera_systems_execution_control",
+        "transport": "fixture"
+      },
+      "capability_mapping": {
+        "maws_capability_id": "cap_external_execution_control",
+        "systems_capability_id": "email.send",
+        "systems_operation": "send",
+        "target_system": "email",
+        "target_object_type": "email_recipient"
+      },
+      "rights_transition": {
+        "authority_ceiling_ref": "scope/runtime_run_reference",
+        "allowed_effects": [
+          "workspace"
+        ],
+        "expected_side_effect_class": "external_commit",
+        "credential_model": "none_wave1_fixture"
+      },
+      "evidence_transition": {
+        "systems_evidence_class": "persisted_execution_control_read_model",
+        "receipt_mapping": "systems_execution_receipt_to_maws_verification_receipt"
+      },
+      "outcome_semantics": {
+        "business_outcome": "not_asserted"
+      },
+      "commitment_context": {
+        "commitment_run_id": "cr_fixture_reference_0001",
+        "commitment_approval_decision_id": "cad_fixture_reference_0001",
+        "commit_token_ref": "fixture://reference-audit-v1"
+      }
+    }
+  },
+  "jev": {
+    "mode": "fixture",
+    "case_id": "valid-preference"
+  },
+  "verifier": {
+    "verifier_executor_id": "exec_local_tests",
+    "independent": true,
+    "outcome": "PASS",
+    "evidence_refs": [
+      "evidence/runtime-run-cli/analysis-receipt.json"
+    ],
+    "checks": [
+      "outputs_present",
+      "analysis_evidence_linked"
+    ]
+  },
+  "harness_context": {
+    "context_id": "hctx_ho01_cfg_baseline_dev",
+    "context": "development_harness",
+    "run_ref": "run_ho01_cfg_baseline",
+    "authority_grant": "none",
+    "created_at": "2026-09-25T00:00:00Z"
+  }
+}

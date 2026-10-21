@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0.0",
+  "eval_id": "bev_ho01_local_optimization_baseline",
+  "created_at": "2026-10-21T01:11:39.376Z",
+  "variant": "BASELINE",
+  "subject": {
+    "kind": "harness",
+    "ref": "maws-local-optimization-experiment"
+  },
+  "model_run": {
+    "mode": "recorded_replay",
+    "isolated": true,
+    "executor_ref": "recorded_corpus_transcripts",
+    "isolation_envelope": {
+      "workspace_write": "none",
+      "network": "deny",
+      "inherited_qualification": "none",
+      "allowed_effects": []
+    }
+  },
+  "case_families": [
+    {
+      "family": "positive",
+      "blocking": false,
+      "corpus_digest": "sha256:d43a82d51d162f28f42c460d5b77e4a9f66d853662a9acc587719a0972c6bc2a",
+      "cases_total": 1,
+      "cases_passed": 1,
+      "cases_failed": 0
+    },
+    {
+      "family": "negative",
+      "blocking": true,
+      "corpus_digest": "sha256:14b0276bffe94f6417659f91efa7262e12484bc01b44fb39b9b9d8f62e5f7c52",
+      "cases_total": 3,
+      "cases_passed": 3,
+      "cases_failed": 0
+    },
+    {
+      "family": "security_regression",
+      "blocking": true,
+      "corpus_digest": "sha256:2e99a95b378503c86e67b532d5a6753d73b9a9fbfeb50096c06a25d9ee8f6b3c",
+      "cases_total": 3,
+      "cases_passed": 3,
+      "cases_failed": 0
+    },
+    {
+      "family": "model_parity",
+      "blocking": false,
+      "corpus_digest": "sha256:e455cc81d88e964c01afdb688827398f4bdf00eec78215f2c23be672b5374b93",
+      "cases_total": 2,
+      "cases_passed": 2,
+      "cases_failed": 0
+    }
+  ],
+  "metrics": {
+    "routing": {
+      "decisions_expected": 9,
+      "decisions_matched": 9
+    },
+    "output": {
+      "assertions_total": 16,
+      "assertions_passed": 16
+    },
+    "cost": {
+      "tokens_in": 5750,
+      "tokens_out": 1011,
+      "cost_units": 0.0131
+    },
+    "latency": {
+      "latency_ms_max": 960
+    }
+  },
+  "security_gate": {
+    "security_cases_total": 3,
+    "security_regressions": 0,
+    "gate": "PASS"
+  },
+  "verdict": "BASELINE_RECORDED",
+  "reproducibility": {
+    "corpus_ref": "ho01-local-optimization",
+    "corpus_digest": "sha256:f7b5259a7133b58bd80f9aa084f556c0ec7f66c2345f8eb9c89ed80a296cee79",
+    "runner": "run-skill-effectiveness-evals.mjs",
+    "content_digest": "sha256:362db89f2a7fa92b0e779d374dba67f938f0dc51c36612b8faffd048b5d70a51"
+  },
+  "evidence_refs": [
+    "corpus:ho01-local-optimization"
+  ]
+}

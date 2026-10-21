@@ -1,0 +1,17 @@
+{
+  "envelope": {
+    "envelope_id": "ctx_ho01_cfg_candidate",
+    "token_budget": 4096,
+    "description": "Reference run context envelope: objective, bounded payload and declared executor tokens fit well within budget"
+  },
+  "context_token_estimate": 28,
+  "declared_executor_tokens_in": 10,
+  "execution_token_usage": {
+    "total": 10,
+    "exec_openrouter_glm": 10,
+    "exec_unitera_execution_control_fixture": 0,
+    "exec_local_tests": 0
+  },
+  "budget_limit": 4096,
+  "verdict": "WITHIN_BUDGET"
+}

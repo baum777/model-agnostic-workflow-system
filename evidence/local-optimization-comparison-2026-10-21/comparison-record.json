@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0.0",
+  "comparison_id": "expcmp_ho01_local_optimization_1_1_0",
+  "experiment_id": "exp_ho01_local_optimization",
+  "definition_version": "1.1.0",
+  "definition_digest": "sha256:a17bd3f2851ada113ca4bbe8cb2a0d12e4d497ccc1e2009a0bdf91863b9ac9dc",
+  "created_at": "2026-10-21T01:11:39.377Z",
+  "declared_change": {
+    "dimension_id": "analysis_context_depth",
+    "baseline_value": "full",
+    "candidate_value": "reduced",
+    "changed_dimension_count": 1
+  },
+  "runs": {
+    "baseline": {
+      "run_id": "run_ho01_cfg_baseline",
+      "configuration_id": "cfg_baseline",
+      "role": "BASELINE",
+      "status": "COMPLETED",
+      "spec_digest": "sha256:9c18ce92198fa911e3233886cb72e7fa83834f37c51e2b52438bc05b253d027d",
+      "evidence_digest": "sha256:89fcc687e1189abe1b361f6b5a66834522ef09cee7d099d783d736071954dc93",
+      "analysis_output_digest": "sha256:67995a2d0a63f781da94b77bf19d5da27c3cc8d68bd878e86da70b206e658ee3",
+      "evidence_bundle_path": "runs/run_ho01_cfg_baseline",
+      "transport": "fixture",
+      "harness_context": "development_harness",
+      "authority_grant": "none"
+    },
+    "candidate": {
+      "run_id": "run_ho01_cfg_candidate",
+      "configuration_id": "cfg_candidate",
+      "role": "CANDIDATE",
+      "status": "COMPLETED",
+      "spec_digest": "sha256:bfd134070b63d5ad8d5690d1ad9155fcb15c05aed2516d3472f39338ef75f050",
+      "evidence_digest": "sha256:aefc78898924c9e39f89fa1edcb02e99ebdda5deea78601b69e1b6a987fe93fc",
+      "analysis_output_digest": "sha256:8ecff99dea806e7210339d78ac7319a91bd278707817f114765dba709e134bef",
+      "evidence_bundle_path": "runs/run_ho01_cfg_candidate",
+      "transport": "fixture",
+      "harness_context": "development_harness",
+      "authority_grant": "none"
+    }
+  },
+  "behavioral_evals": {
+    "baseline": {
+      "eval_id": "bev_ho01_local_optimization_baseline",
+      "content_digest": "sha256:362db89f2a7fa92b0e779d374dba67f938f0dc51c36612b8faffd048b5d70a51",
+      "verdict": "BASELINE_RECORDED",
+      "corpus_digest": "sha256:f7b5259a7133b58bd80f9aa084f556c0ec7f66c2345f8eb9c89ed80a296cee79",
+      "record_path": "evals/bev_ho01_local_optimization_baseline.json"
+    },
+    "candidate": {
+      "eval_id": "bev_ho01_local_optimization_candidate",
+      "content_digest": "sha256:b8ad30b0cd213b9713d5065520827d257f3cd8872054eee5474c49daff26c019",
+      "verdict": "IMPROVEMENT_REJECTED",
+      "corpus_digest": "sha256:0558b579b31f6a0f9bc158971ec2c0b20a09a8e5a2d53a1a01c8b5e5f14f5321",
+      "record_path": "evals/bev_ho01_local_optimization_candidate.json"
+    }
+  },
+  "metrics": {
+    "routing_accuracy_delta": 0,
+    "output_assertion_pass_delta": -0.1875,
+    "security_regressions": 0
+  },
+  "unknowns": [
+    {
+      "metric_id": "model_quality",
+      "reason": "The analysis executor ran on the fixture transport; no model was invoked, so real model quality is not measured.",
+      "unknown_reason_code": "FIXTURE_TRANSPORT_NO_MODEL"
+    },
+    {
+      "metric_id": "provider_cost",
+      "reason": "Cost and token figures are declared by the executor binding in the run specification, not measured from a provider.",
+      "unknown_reason_code": "DECLARED_NOT_MEASURED"
+    },
+    {
+      "metric_id": "production_latency",
+      "reason": "Latency figures are declared by the fixture lane; no live transport was exercised.",
+      "unknown_reason_code": "FIXTURE_LANE_NOT_LIVE"
+    },
+    {
+      "metric_id": "cross_model_parity",
+      "reason": "Only one executor lane was exercised; the cross-model comparison is out of scope for this experiment.",
+      "unknown_reason_code": "SINGLE_LANE_ONLY"
+    },
+    {
+      "metric_id": "real_repository_behavior",
+      "reason": "The task input is a frozen synthetic fixture, not a real repository; behaviour on real repositories is not measured.",
+      "unknown_reason_code": "SYNTHETIC_FIXTURE_INPUT"
+    }
+  ],
+  "decision": {
+    "outcome": "REGRESSION",
+    "meets_success_bounds": false,
+    "hypothesis_outcome": "CONFIRMED",
+    "reason": "The candidate's output_assertion_pass_delta is -0.1875, below the allowed regression floor 0; the candidate does not meet the success bounds."
+  },
+  "status": "FIXTURE_COMPARISON_ONLY",
+  "authority_granted": false,
+  "promotion_effect": "NONE",
+  "scope_note": "This comparison covers one declared dimension on a synthetic repository-analysis task over the fixture transport. It is comparison evidence only: it selects no configuration, promotes nothing and activates nothing. The comparison between a single-executor and a multi-executor orchestration is owned by slice S13 and is not performed here."
+}
