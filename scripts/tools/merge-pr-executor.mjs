@@ -382,10 +382,27 @@ export function resolveLanePullRequest({ observation, headRef, headRepository = 
       `no observed pull request carries the lane head branch "${headRef}"`
     );
   }
+  // The lane's pull request is the OPEN one. A branch that was already
+  // merged and is now continued by a new pull request would otherwise make
+  // the lane ambiguous, and an ambiguity is refused - which is correct, but
+  // it would refuse the ordinary case of a second pull request on a
+  // continued lane. The open pull request wins; a closed or merged one is
+  // returned only when no open pull request carries the branch, so the
+  // caller can report the precise reason.
+  const open = candidates.filter((entry) => entry.state === 'OPEN');
+  if (open.length === 1) {
+    return open[0];
+  }
+  if (open.length > 1) {
+    executorError(
+      MERGE_EXECUTOR_CODES.LANE_PULL_REQUEST_AMBIGUOUS,
+      `${open.length} open pull requests carry the lane head branch "${headRef}"`
+    );
+  }
   if (candidates.length > 1) {
     executorError(
       MERGE_EXECUTOR_CODES.LANE_PULL_REQUEST_AMBIGUOUS,
-      `${candidates.length} observed pull requests carry the lane head branch "${headRef}"`
+      `${candidates.length} observed pull requests carry the lane head branch "${headRef}" and none of them is open`
     );
   }
   return candidates[0];

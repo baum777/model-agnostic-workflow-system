@@ -109,6 +109,48 @@ it is the owner-committed record that authorizes the closure merge — and the
 closure pull request is merged **by the new executor**, which is the live
 proof that the mechanism works on a real pull request.
 
+## 3a. The live proof: the closure pull request was merged BY the new executor
+
+The closure pull request (75) was merged through
+`scripts/tools/merge-pr-executor.mjs` under the lane authorization
+`core/authority/merge-authorizations/merge-incident-closure-20261021.json`,
+which pull request 74 had committed on the default branch. The executor:
+
+1. read the lane authorization from the tip of the default branch
+   `3931fe772f4c077c8e232a3adb6c9f70faa90546` — the source is GitHub's own
+   record of the branch, not a ref the operator named;
+2. derived the target from the lane's head branch (pull request 75), with no
+   asserted number in play;
+3. ran the lane's three local gates (`validate`, `test:vnext`,
+   `test:merge-executor`) against the reviewed head
+   `771f0319511dec4e448eff55d252820062ef476b` — the working tree's HEAD is
+   the reviewed head, so the gates verify the content that is about to be
+   merged;
+4. issued the merge with that head sha;
+5. read the merge back: the merge commit
+   `05475009a972d48368caef2f92de0799274f365a` carries the parents
+   `3931fe772f4c077c8e232a3adb6c9f70faa90546` and
+   `771f0319511dec4e448eff55d252820062ef476b`.
+
+The receipt reported the failing hosted check as a **warning** (it is not
+required by this lane, because the hosted CI is billing-blocked and a
+required check that can never pass would block every merge), and the merge
+was issued anyway because the lane demanded — and the local gates met — three
+local verifications instead.
+
+**Three live refusals preceded that merge, and none of them merged
+anything.** The first attempt failed closed on a GitHub read: the field set
+the executor requested did not exist for the `gh` command, the receipt
+answered `"ok": false` and `"merged": false`, and no merge was issued. The
+field was corrected, a failed GitHub read was given the typed code
+`MERGE_GITHUB_ACCESS_FAILED`, and the second attempt failed closed again
+because GitHub still reported the pull request's mergeability as unknown
+right after the push. The third attempt, twenty seconds later, merged.
+
+That sequence is the mechanism working, not a story about it: three times a
+merge could have gone to the wrong place or on unverified content, and three
+times the path refused.
+
 ## 4. Verification (all LOCAL)
 
 | Gate | Result on the branch head |
@@ -174,14 +216,23 @@ corrected to what the code does.
 - Owner-side classification: `registry-disposition.v1` in
   `evidence/merge-pr-incident-closure-2026-10-21/registry-disposition.json`.
   The change is a `CONTRACT_RECORD` (one new contract) and is therefore
-  registry-relevant; the Registry write follows this merge and the
-  disposition is rebound from `REQUIRED_BUT_BLOCKED` to `UPDATED` with the
-  Registry commit sha.
+  registry-relevant. The Registry write is **COMPLETE**: unitera-registry
+  pull request 269, merged as
+  `55341468b2450a085496b3875dad5695a5ee3fe2`; the disposition is rebound
+  from `REQUIRED_BUT_BLOCKED` to `UPDATED` with that commit sha.
 - The Registry change registration is the new record
-  `MAWS_MERGE_PR_INCIDENT_CLOSURE_2026_10_21_001`; the same Registry change
-  corrects the attribution of the merge of pull request 69 in
-  `MAWS_SOURCE_SECURITY_SCAN_2026_10_21_001`, which recorded a merge
+  `MAWS_MERGE_PR_INCIDENT_CLOSURE_2026_10_21_001` and the new contract
+  record `MAWS_MERGE_LANE_AUTHORIZATION_CONTRACT_2026_10_21_001`; the same
+  Registry change corrects the attribution of the merge of pull request 69
+  in `MAWS_SOURCE_SECURITY_SCAN_2026_10_21_001`, which recorded a merge
   mechanism that the incident evidence contradicts.
+- The Registry's own gates answered on that change: `validate_registry.py`
+  **PASS** and the git-backed reachability check **PASS** against a complete
+  mirror basis (683 verified current claims, 31 historical, 0 unverifiable,
+  0 mismatch) — the commits named by the new records are derived reachable
+  exactly as they are declared. The digest inventory did not finish within
+  its runtime budget in this environment; the change introduces no `sha256:`
+  assertion, so the inventory is not affected by it.
 - The Atlas representation is the claim of the same run, pinned to the merge
   event of the closure publication.
 

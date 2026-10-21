@@ -960,3 +960,23 @@ test('a GitHub read that fails is a typed refusal, not a partial merge', () => {
   assert.equal(receipt.merged, false);
   assert.equal(receipt.code, MERGE_EXECUTOR_CODES.GITHUB_ACCESS_FAILED);
 });
+
+test('a continued lane resolves to the open pull request, not to the merged one', () => {
+  // A branch that was already merged and is continued by a new pull request
+  // must not make the lane ambiguous: the open pull request is the lane's.
+  const merged = lanePullRequest({ number: 75, state: 'MERGED' });
+  const open = lanePullRequest({ number: 76, state: 'OPEN' });
+  const resolved = resolveLanePullRequest({
+    observation: observation([merged, open]),
+    headRef: LANE_HEAD_REF
+  });
+  assert.equal(resolved.number, 76);
+  assert.equal(resolved.state, 'OPEN');
+});
+
+test('two open pull requests on the lane head branch stay ambiguous', () => {
+  const decision = decide({
+    pullRequests: [lanePullRequest(), lanePullRequest({ number: 73 })]
+  });
+  assert.equal(decision.code, MERGE_EXECUTOR_CODES.LANE_PULL_REQUEST_AMBIGUOUS);
+});
