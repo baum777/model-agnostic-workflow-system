@@ -99,6 +99,17 @@ The derived digests at the published head are `sha256:f96f62b7…` for the refer
 
 The head was reviewed a fourth time (local audit agent, tool-driven, with mutation probes, on a pristine extraction of the reviewed commit). Verdict: **PASS_WITH_FINDINGS** — the round-3 repairs were confirmed behaviourally. The round's findings were S8-side (the CWD fallback of the promotion CLI, the unbound superseded-version gate, three unbound implemented guards, the dispositions and the maturity registration); all of them were repaired in the same change and are recorded in the S8 run record. The S7 probes were re-run on that head and are still bound (declared digest kept 3, declared digest returned 1, D2 check removed 1, source re-read skipped 1, CLI passes the declared fingerprints 2).
 
+## Cross-lane consequence: the HO-01 experiment's frozen input (recorded, not hidden)
+
+The HO-01 lane (merged as `10d8577`) freezes the digest of the reference run spec `runtime/cli/specs/reference-audit-v1.json` as a digest-bound input of its experiment definition, and its run-evidence projection refuses a bundle file it does not cover.
+
+This run changes both: the reference spec carries the re-earned qualification binding, and every runtime run now writes the new `instruction-binding.json` artifact. Both consequences were resolved in this change and are recorded here rather than left for the next lane to discover:
+
+- the HO-01 experiment definition's frozen digest for the reference spec was **re-pinned** to the current content (a mechanical re-pin, exactly like the S12 profile pins);
+- the HO-01 run-evidence projection now **covers** the `instruction-binding.json` artifact, so the file is inside the run-evidence digest instead of outside it.
+
+The HO-01 lane's own measured results are not changed by this: the comparison runs on its own synthetic corpus, and the reference spec is the run-spec TEMPLATE it derives its arms from. The HO-01 registration (its Registry and Atlas records) is the HO-01 lane's own closure and is not part of this run.
+
 ## Consequence for the S12 lane (recorded, not hidden)
 
 `docs/authority-matrix.md` is one of the **canonical instruction sources** (authority class `canonical`). Registering the new surface families in it therefore moved the effective instruction state — and with it the digest the committed model-adaptive profiles pin.
