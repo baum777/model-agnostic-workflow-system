@@ -3,7 +3,7 @@
 // Usage: node scripts/baum-loop-repo.mjs "command/ loop repo <path>"
 //        node scripts/baum-loop-repo.mjs --repo <path>
 
-import { execSync } from 'child_process';
+import { execSync, execFileSync } from 'child_process';
 import {
   existsSync, statSync, mkdirSync, writeFileSync, readFileSync, readdirSync
 } from 'fs';
@@ -130,8 +130,16 @@ function scanRepo(targetPath) {
 
 function getRepoState(targetPath) {
   try {
-    const status = execSync(
-      `git -C "${targetPath}" status --short --ignore-submodules=none`,
+    // The target path arrives from the command line (and, through the CI
+    // gate, from a caller that passes a repository path). It is therefore
+    // CALLER-SUPPLIED content and is never interpolated into a shell
+    // string: a path that contains a quote or a command substitution would
+    // otherwise escape the quotes and run. The repository's policy for
+    // child_process is execFileSync with an argument array and no shell,
+    // and this call follows it.
+    const status = execFileSync(
+      'git',
+      ['-C', targetPath, 'status', '--short', '--ignore-submodules=none'],
       { encoding: 'utf8', timeout: 5000 }
     ).trim();
 

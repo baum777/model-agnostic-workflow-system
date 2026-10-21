@@ -216,3 +216,107 @@ test('the CLI answers 0 on the repository and 1 on an offending tree', () => {
   assert.equal(failed, true, 'the CLI exits nonzero on an unbaselined finding');
   fs.rmSync(root, { recursive: true, force: true });
 });
+
+// ---------------------------------------------------------------------------
+// The repairs an independent qualification of this gate produced on
+// 2026-10-21. The qualification found that the first form of every rule
+// could only see a BARE call, that the comment stripper was blind to
+// string literals, and that a baseline entry without a justification
+// silenced a finding on its own. Each case below binds one repair.
+// ---------------------------------------------------------------------------
+
+test('a disclosure without a justification does not cover its finding', () => {
+  const root = buildTree({
+    'app/bad.mjs': 'export function run(input) {\n  return eval(input);\n}\n'
+  });
+  const first = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
+  const finding = first.unbaselined[0];
+  // The entry MATCHES the finding, and says nothing. It must not cover it:
+  // otherwise anyone could silence a new finding with one silent line.
+  const silent = {
+    schema_version: '1.0.0',
+    entries: [{ file: finding.file, line: finding.line, code: finding.code, excerpt: finding.excerpt }]
+  };
+  const report = scanSourceSecurity({
+    root,
+    governedRoots: ['app'],
+    requiredCoverage: [],
+    baseline: silent
+  });
+  assert.equal(report.ok, false, 'a silent entry does not cover the finding');
+  assert.equal(report.unbaselined.length, 1);
+  assert.equal(report.baselined.length, 0);
+  assert.equal(report.baseline_entries_without_justification.length, 1);
+  // A blank justification is no justification either.
+  const blank = {
+    schema_version: '1.0.0',
+    entries: [{ ...silent.entries[0], justification: '   ' }]
+  };
+  const blankReport = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [], baseline: blank });
+  assert.equal(blankReport.ok, false);
+  assert.equal(blankReport.baseline_entries_without_justification.length, 1);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('the member form of a call is the defect class its rule names', () => {
+  const root = buildTree({
+    'app/member.mjs': [
+      'export const a = globalThis.eval(input);',
+      'export const b = globalThis.fetch(url);',
+      'export const c = childProcess.execSync(command);',
+      'export const d = https.get(url, handler);',
+      'export const e = new (Function)("return 1")();',
+      'export const f = new globalThis.Function("return 1")();',
+      'export const g = Function("return 1")();',
+      'export const h = spawn(command, { shell: true });'
+    ].join('\n')
+  });
+  const report = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
+  const codes = report.unbaselined.map((finding) => `${finding.line}:${finding.code}`);
+  assert.ok(codes.includes(`1:${SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION}`), 'globalThis.eval is dynamic code execution');
+  assert.ok(codes.includes(`2:${SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS}`), 'globalThis.fetch is network egress');
+  assert.ok(codes.includes(`3:${SOURCE_SECURITY_CODES.SHELL_INTERPOLATION}`), 'a member execSync is shell interpolation');
+  assert.ok(codes.includes(`4:${SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS}`), 'https.get is network egress');
+  assert.ok(codes.includes(`5:${SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION}`), 'new (Function) is dynamic code execution');
+  assert.ok(codes.includes(`6:${SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION}`), 'new globalThis.Function is dynamic code execution');
+  assert.ok(codes.includes(`7:${SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION}`), 'a bare Function call is dynamic code execution');
+  assert.ok(codes.includes(`8:${SOURCE_SECURITY_CODES.SHELL_INTERPOLATION}`), 'spawn with shell:true is shell interpolation');
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('an unbalanced comment marker inside a string literal cannot hide a trigger', () => {
+  // The blind stripper opened a "comment" at the first /* it saw, wherever
+  // that was. One unbalanced marker in a string literal therefore swallowed
+  // the rest of the file and hid EVERY rule at once.
+  const root = buildTree({
+    'app/marker.mjs': [
+      'const marker = "/*";',
+      'export function run(input) {',
+      '  return eval(input);',
+      '}',
+      'const other = "*/";'
+    ].join('\n')
+  });
+  const report = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
+  assert.equal(report.unbaselined.length, 1, JSON.stringify(report.unbaselined));
+  assert.equal(report.unbaselined[0].line, 3, 'the trigger is reported on its own line');
+  assert.equal(report.unbaselined[0].code, SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('the gate sees the network egress of this repository, not only the bare form', () => {
+  // Without a baseline the gate must report the repository's own egress
+  // call sites. The bare form of the rule could not see them: they bind
+  // the platform fetch as a member.
+  const report = scanSourceSecurity({ root: ROOT, requiredCoverage: [] });
+  const egress = report.unbaselined.filter((finding) => finding.code === SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS);
+  const files = new Set(egress.map((finding) => finding.file));
+  assert.ok(
+    files.has('runtime/executors/openrouter-executor.mjs'),
+    `the OpenRouter transport's fetch binding is visible to the gate: ${JSON.stringify([...files])}`
+  );
+  assert.ok(
+    files.has('runtime/decision-engine/jev/client.mjs'),
+    `the JEV client's fetch binding is visible to the gate: ${JSON.stringify([...files])}`
+  );
+});
