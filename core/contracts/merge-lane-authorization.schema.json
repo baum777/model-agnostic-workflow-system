@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://unitera.systems/contracts/merge-lane-authorization.schema.json",
+  "title": "MAWS merge lane authorization",
+  "description": "The authorization of one merge work lane. The record is committed in the canonical governance surface of the repository (core/authority/merge-authorizations/<lane_id>.json) and is read from the tip of the repository's default branch, so a pull request can never authorize itself. It names the lane's head branch, its base branch, the canonical merge authority, the hosted checks the lane requires, the local gates it requires, and optionally the commit whose lineage the lane authorized (the merged head must DESCEND from it — it is an ancestry pin, not an equality pin on the content) and the exact head the lane authorized.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "lane_id",
+    "authority",
+    "base_ref",
+    "head_ref"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "lane_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "authority": {
+      "const": "canonical_owner"
+    },
+    "base_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+    },
+    "head_ref": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+    },
+    "head_repository": {
+      "type": "string",
+      "minLength": 1
+    },
+    "required_checks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "required_local_gates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "authorized_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "authorized_head_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    }
+  },
+  "anyOf": [
+    {
+      "required": ["required_checks"],
+      "properties": {
+        "required_checks": {
+          "minItems": 1
+        }
+      }
+    },
+    {
+      "required": ["required_local_gates"],
+      "properties": {
+        "required_local_gates": {
+          "minItems": 1
+        }
+      }
+    }
+  ]
+}
