@@ -56,7 +56,7 @@
       "evidence/s5-path-confinement-2026-10-21/RUN.md (sections 3 and 5.2: the containment rule and the measured digest neutrality)"
     ],
     "registry_baseline_sha": "808bfb09175084a90f1eb264fb18e72e9bda0f82",
-    "implementation_commit_sha": "f524a6e36e8b8d822b6b4418846bbcf3ec12343d",
+    "implementation_commit_sha": "f9b1dbb3e041d87e7ff0b0d61596b33f9151e566",
     "registry_commit_sha": null
   }
 }
