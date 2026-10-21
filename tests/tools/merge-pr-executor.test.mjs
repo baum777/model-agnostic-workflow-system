@@ -940,3 +940,23 @@ test('the lane authorization contract and the implementation declare the same fi
   );
   assert.equal(schema.additionalProperties, false);
 });
+
+test('a GitHub read that fails is a typed refusal, not a partial merge', () => {
+  const { dir, baseCommit } = makeRepo();
+  const { deps } = mergePathDeps({
+    baseCommit,
+    pullRequests: [lanePullRequest({ baseRefOid: baseCommit })]
+  });
+  deps.fetchObservation = () => {
+    throw new MergeExecutorError(MERGE_EXECUTOR_CODES.GITHUB_ACCESS_FAILED, 'the GitHub read failed');
+  };
+  const { status, receipt } = runMergeExecutor({
+    args: { lane: LANE_ID, repo: 'owner/name', apply: true, 'expected-head-sha': 'a'.repeat(40) },
+    root: dir,
+    deps
+  });
+  assert.equal(status, 1);
+  assert.equal(receipt.ok, false);
+  assert.equal(receipt.merged, false);
+  assert.equal(receipt.code, MERGE_EXECUTOR_CODES.GITHUB_ACCESS_FAILED);
+});

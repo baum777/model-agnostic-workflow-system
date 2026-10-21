@@ -1,0 +1,55 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "Cross-lane merge incident closure of 2026-10-21. INCIDENT: an operator command meant to merge the pull request it had just created (pull request 70, the S5/F2 disposition rebind) addressed a different pull request number, and pull request 69 - a mergeable, freshly created pull request of a parallel lane - was merged to main under that wrong command at 2026-10-21T11:38:21Z as 563c1db46c592a604ea53b95936ec82dd09732eb, with its hosted check loop-repo-ci in state FAILURE. The merged content was coherent and the tree was not corrupted; the damage was to the process, because the merge target was a caller-asserted number that nothing compared with the work lane the command was about. DISPOSITION: the merged pull request 69 is RETAINED and no revert is performed - its content landed as its own head (the merge commit carries the lane head dd165419dac1193779bc39a9001369dbf821985b among its parents and resolved no conflict), it is a load-bearing part of the hosted workflow (npm run scan:source-security), the one defect it introduced into its lane was already repaired by the lane itself in pull request 71, and a revert would not repair the process defect that caused the incident. CHANGE: the repository's merge path is now lane-bound. scripts/tools/merge-pr-executor.mjs (npm merge:pr, CI step 'Merge executor lane binding') derives the merge target from the authorized work lane instead of from a caller-asserted pull request number: the lane authorization is a record committed in the canonical governance surface core/authority/merge-authorizations/<lane_id>.json (new contract core/contracts/merge-lane-authorization.schema.json, 1.0.0) and is read from the tip of the repository's default branch as GitHub reports it - not from a caller-named ref, not from the working tree and not from the pull request that wants to be merged, so a pull request cannot authorize itself. The target is the pull request whose head branch is the lane's head branch, and a named target of another lane is refused. The observation is never caller-authored in the merge path: a merge reads the pull request live from GitHub and a supplied observation file is refused with --apply. A lane must demand at least one hosted check or one local gate, so a merge that needs no green check - the incident's precondition - is no longer expressible. Every binding fails closed with its own code (MERGE_PR_IDENTITY_MISMATCH, MERGE_LANE_MISMATCH, MERGE_HEAD_SHA_MISMATCH, MERGE_HEAD_SHA_INVALID, MERGE_BASE_REF_MISMATCH, MERGE_LANE_AUTHORITY_MISMATCH, MERGE_LANE_AUTHORIZATION_ABSENT/_INVALID, MERGE_HEAD_NOT_AUTHORIZED, MERGE_PR_NOT_OPEN, MERGE_PR_NOT_MERGEABLE, MERGE_CHECK_FAILED/_MISSING, MERGE_LOCAL_GATE_FAILED, MERGE_OBSERVATION_INVALID, MERGE_REFUSED, MERGE_VERIFICATION_FAILED). A merge must declare the reviewed head sha, is issued with it and is read back; the merge commit must carry that head among its parents. REVIEW: an independent review of the first revision found 3 P1 findings (a self-authorizing lane through a caller-chosen base ref; a caller-authored observation that could reproduce the incident's exact shape; an untested merge and readback path) and a set of P2/P3 findings; all are repaired in the published revision - the base commit now comes from GitHub's own default-branch tip, the merge path refuses a supplied observation, the whole path is injectable and covered, the head sha must be a commit identity and is declared for a merge, every observation of a required check must succeed, the base-branch comparison is exact, the ancestry gate fails closed, the receipt no longer reports ok true after a refused merge, a local checkout of another repository cannot authorize a merge here, and the contract's field set is bound to the implementation's by a test. The CHANGELOG entry, the contract description and the module header were corrected to what the code does. The Registry write is NOT yet complete: the run change registration and the contract record for the new merge lane authorization contract are published in the Unitera Registry after this merge, and the same Registry change corrects the attribution of the merge of pull request 69 in MAWS_SOURCE_SECURITY_SCAN_2026_10_21_001, which recorded a merge mechanism ('the REST merge endpoint answers 404 on this repository, so the GraphQL mutation is the working path') that the incident evidence contradicts - a probe against the already-merged pull request 68 answered {\"sha\":\"df8c683e...\",\"merged\":true}. The correction is stated, not silently applied. SCOPE BOUNDARY: this run grants no permission, publishes no owner key, changes no authority, promotes no skill, activates no runtime and adopts no specification; the canonical owner trust anchor is unchanged and still publishes no key, so the merge authority is the base-branch-committed lane authorization and not a signature; the executor is a merge path and not an enforced gate, because this repository carries no branch protection, and the bootstrap that brought it in (pull request 74, merged as 3931fe772f4c077c8e232a3adb6c9f70faa90546) was an owner act, since the first lane authorization cannot be landed by the tool it introduces. The hosted CI job could NOT execute (account billing lock) and is NOT presented as a gate: every verification result is a LOCAL result under Node v24.19.0. The external deep scan produced no complete conclusion for these pushes (scanner_enobufs) and no security claim is derived from it. The authority matrix is deliberately not updated, because docs/authority-matrix.md is a canonical instruction source whose change would invalidate the effective instruction digest and force a re-pin of the executor profile chain, the run spec and the HO-01 comparison artifacts; the tool row is deferred to that deliberate act. F4 (the unkeyed freshness seal of the S5 lane) remains open with its owner and is not touched.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/merge-lane-authorization.schema.json"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "core/contracts/merge-lane-authorization.schema.json",
+      "evidence/merge-pr-incident-closure-2026-10-21/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/merge-pr-executor.mjs",
+      "core/contracts/merge-lane-authorization.schema.json",
+      "core/authority/merge-authorizations/merge-incident-closure-20261021.json",
+      "tests/tools/merge-pr-executor.test.mjs",
+      "tests/tools/merge_lane_authorization_schema_test.py",
+      "package.json",
+      ".github/workflows/loop-repo-ci.yml",
+      "CHANGELOG.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/merge-pr-incident-closure-2026-10-21/RUN.md",
+      "evidence/merge-pr-incident-closure-2026-10-21/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "the incident is read back from the repository and the merge API: pull request 69 merged at 2026-10-21T11:38:21Z as 563c1db46c592a604ea53b95936ec82dd09732eb, parents df8c683e557a711562bc6cc61ac8504120825161 (main before) and dd165419dac1193779bc39a9001369dbf821985b (the pull request head), the hosted check loop-repo-ci in state FAILURE, the intended pull request 70 merged afterwards as bae2b2d8fc248656a182a8b5d725fe38d9857be9 at 11:44:09Z, and the merge order #68 11:34:03Z, #69 11:38:21Z, #70 11:44:09Z, #71 11:52:46Z",
+      "the merge mechanism recorded for pull request 69 is corrected by a probe: a PUT on the REST merge endpoint of the already-merged pull request 68 answered {\"sha\":\"df8c683e...\",\"merged\":true,\"message\":\"Pull Request successfully merged\"}, so the endpoint does not answer 404 on this repository",
+      "npm run test:merge-executor 61 of 61 pass on the published head; npm run test:merge-lane-contract 9 of 9 pass; npm run test:vnext 781 of 781 pass; node scripts/tools/scan-source-security.mjs answers PASS with 240 files analysed, required coverage 4 of 4, zero unbaselined and zero stale; npm run validate, validate-neutral, validate-maws-vnext and validate:assurance-run -- --all report zero issues",
+      "24 reverted mutation probes, 24 of 24 BOUND: each neuters exactly one guard and is caught by the designed tests; the executor source was verified byte-identical after the probe run and the baseline re-run green (61 of 61)",
+      "the negative test that binds the incident class: a foreign pull request that exists, is open, is mergeable and carries a valid head sha is refused with MERGE_PR_IDENTITY_MISMATCH - in the pure decision, in the CLI and in the merge path with every external access injected",
+      "the independent review of the first revision found 3 P1, 9 P2 and 3 P3 findings; all are repaired in the published revision and the claims in the CHANGELOG entry, the contract description and the module header were corrected to what the code does",
+      "the closure pull request is merged BY the new executor under the lane authorization committed on main, which is the live proof that the mechanism binds a real merge; the bootstrap of the tool (pull request 74, merged as 3931fe772f4c077c8e232a3adb6c9f70faa90546) was an owner act because the first lane authorization cannot be landed by the tool it introduces",
+      "the hosted CI job could NOT execute: the account is locked due to a billing issue; the CI steps are published and have not run there, and no hosted result is claimed",
+      "the external deep scan produced no complete conclusion for these pushes (scanner_enobufs); that incompleteness is recorded and no security claim is derived from it"
+    ],
+    "implementation_commit_sha": "17dc32b6bfa388d0f58116086c8765b2499788a4",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/merge-pr-incident-closure-2026-10-21/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (an added canonical contract surface is CONTRACT_RECORD relevance)"
+    ],
+    "registry_baseline_sha": "f5490ea2d50de45c6c2b5c7f2d5bb5079f25e117"
+  }
+}

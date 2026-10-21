@@ -75,5 +75,8 @@ jobs:
       - name: Validate repair Registry disposition
         run: node scripts/tools/validate-registry-disposition.mjs evidence/maws-security-repair-2026-10-20/registry-disposition.json
 
+      - name: Validate the merge incident closure disposition
+        run: node scripts/tools/validate-registry-disposition.mjs evidence/merge-pr-incident-closure-2026-10-21/registry-disposition.json
+
       - name: Loop repo CI gate
         run: node scripts/tools/ci-gate.mjs

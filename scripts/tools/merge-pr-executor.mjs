@@ -76,6 +76,7 @@ export const MERGE_EXECUTOR_CODES = Object.freeze({
   CHECK_MISSING: 'MERGE_CHECK_MISSING',
   LOCAL_GATE_FAILED: 'MERGE_LOCAL_GATE_FAILED',
   OBSERVATION_INVALID: 'MERGE_OBSERVATION_INVALID',
+  GITHUB_ACCESS_FAILED: 'MERGE_GITHUB_ACCESS_FAILED',
   MERGE_REFUSED: 'MERGE_REFUSED',
   MERGE_VERIFICATION_FAILED: 'MERGE_VERIFICATION_FAILED'
 });
@@ -569,6 +570,20 @@ export function runLocalGates({ root, headSha, gates }) {
 // shell: the repository's own source security policy bans shell
 // interpolation in child_process calls.
 
+// githubRead() -> the raw answer of a gh call. A GitHub read that fails is
+// a typed refusal: the merge path must not continue on a partial view of
+// the repository.
+function githubRead(args) {
+  try {
+    return execFileSync('gh', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  } catch (error) {
+    executorError(
+      MERGE_EXECUTOR_CODES.GITHUB_ACCESS_FAILED,
+      `the GitHub read failed: ${String(error.stderr ?? error.message ?? '').trim().split('\n').slice(-3).join(' | ')}`
+    );
+  }
+}
+
 export function fetchObservation({ repo, headRef = null }) {
   if (!REPO_PATTERN.test(String(repo))) {
     executorError(
@@ -585,11 +600,14 @@ export function fetchObservation({ repo, headRef = null }) {
   if (isNonEmptyString(headRef)) {
     args.push('--head', headRef);
   }
+  // `gh pr list` does not expose baseRefOid (it exposes headRefOid only);
+  // the merge path does not need it - the base commit comes from the
+  // repository's default branch tip, which GitHub reports directly.
   args.push(
     '--json',
-    'number,state,mergeable,baseRefName,baseRefOid,headRefName,headRefOid,headRepositoryOwner,statusCheckRollup'
+    'number,state,mergeable,baseRefName,headRefName,headRefOid,headRepositoryOwner,statusCheckRollup'
   );
-  const raw = execFileSync('gh', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  const raw = githubRead(args);
   return normalizeObservation({ pull_requests: JSON.parse(raw) });
 }
 
@@ -598,10 +616,7 @@ export function fetchObservation({ repo, headRef = null }) {
 // the authority surface is the repository's own base branch and not a ref
 // the operator names.
 export function fetchRepositoryDefaultBranch({ repo }) {
-  const raw = execFileSync('gh', ['api', `repos/${repo}`], {
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
+  const raw = githubRead(['api', `repos/${repo}`]);
   const branch = JSON.parse(raw).default_branch;
   if (!isNonEmptyString(branch)) {
     executorError(
@@ -613,10 +628,7 @@ export function fetchRepositoryDefaultBranch({ repo }) {
 }
 
 export function fetchBranchTip({ repo, branch }) {
-  const raw = execFileSync('gh', ['api', `repos/${repo}/git/ref/heads/${branch}`], {
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe']
-  });
+  const raw = githubRead(['api', `repos/${repo}/git/ref/heads/${branch}`]);
   const sha = JSON.parse(raw).object?.sha;
   if (!COMMIT_PATTERN.test(String(sha))) {
     executorError(
