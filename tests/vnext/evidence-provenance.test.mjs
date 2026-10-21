@@ -287,6 +287,25 @@ test('S8 the corpus digest follows the corpus on disk', async () => {
   assert.notEqual(corpusTreeDigest(corpus), before.corpus_digest);
 });
 
+test('S8 a flipped verdict is refused: the verdict is derived, never declared', async () => {
+  const world = await buildTree();
+  // The forgery: the verdict alone is flipped to a rejection while the
+  // comparison still shows the improvement, with a correct seal.
+  const forged = structuredClone(world.candidateRecord);
+  forged.verdict = 'IMPROVEMENT_REJECTED';
+  writeRecordFile(world.tree, RECORD_REF, reseal(forged));
+
+  const error = await expectProvenanceError('EVIDENCE_COMPARISON_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /does not follow from its baseline/);
+});
+
 test('S8 a record that is not on disk is refused', async () => {
   const world = await buildTree();
   fs.rmSync(path.join(world.tree, RECORD_REF));
@@ -307,6 +326,21 @@ test('S8 a reference outside the canonical evidence surface is refused', async (
   await expectProvenanceError('EVIDENCE_REF_INVALID', () => verifyEvidenceProvenance({
     root: world.tree,
     recordRef: 'somewhere-else.json',
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+});
+
+test('S8 a reference that does not have the shape of an evidence record is refused', async () => {
+  const world = await buildTree();
+  // The reference stays INSIDE the evidence surface, but it does not name a
+  // record: only a JSON artifact of that surface can be bound.
+  fs.writeFileSync(path.join(world.tree, 'evidence', 'not-a-record.txt'), 'not a record\n');
+  await expectProvenanceError('EVIDENCE_REF_INVALID', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: 'evidence/not-a-record.txt',
     corpusRef: CORPUS_REF,
     baselineRecordRef: BASELINE_REF,
     skillId: SUBJECT,

@@ -1602,6 +1602,62 @@ test('S8 adoption never grants authority (const false at the schema level)', asy
   }
 });
 
+test('S8 a caller-supplied behavioral record is refused: the evidence is read from disk', async () => {
+  const world = setup();
+  // The caller offers its own record object next to the references. The
+  // chain must refuse the offer: the evidence is READ from the canonical
+  // evidence surface, never taken from the input.
+  world.evalEntries[0].record = { verdict: 'IMPROVEMENT_PROVEN' };
+  await expectPromotionError('EVAL_EVIDENCE_INLINE_RECORD_FORBIDDEN', async () =>
+    await promoteSkillCandidate({
+      adoptionId: 'adopt_s8_inline_record_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      evidenceRoot: world.evidenceTree,
+      root
+    })
+  );
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+});
+
+test('S8 the post-adoption readback re-verifies the bound evidence, not only its digest', async () => {
+  const world = setup();
+  const { record } = await promoteSkillCandidate({
+    adoptionId: 'adopt_s8_evidence_readback_0001',
+    skillId: 'promoted-skill',
+    adoptedVersion: '1.0.0',
+    supersededVersion: '0.9.0',
+    candidateContent: CANDIDATE_CONTENT,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    admissionPath: world.admissionPath,
+    evalRecords: world.evalEntries,
+    ownerApprovalRef: world.ownerApprovalRef,
+    ownerAuthorityPath: world.ownerAuthorityPath,
+    canonicalRoot: world.tree,
+    evidenceRoot: world.evidenceTree,
+    root
+  });
+  assert.deepEqual(await postAdoptionReadback({ record, canonicalRoot: world.tree, evidenceRoot: world.evidenceTree }), []);
+
+  // The corpus moves after the adoption: the evidence no longer reproduces
+  // and the readback must say so.
+  const casesPath = path.join(world.evidenceTree, world.fixture.corpusRef, 'candidates/cases.json');
+  const cases = JSON.parse(fs.readFileSync(casesPath, 'utf8'));
+  cases.cases[0].recorded_transcript.output_text = 'Reuse decision: extend the existing canonical surface. Moved after the adoption.';
+  fs.writeFileSync(casesPath, `${JSON.stringify(cases, null, 2)}\n`);
+
+  const issues = await postAdoptionReadback({ record, canonicalRoot: world.tree, evidenceRoot: world.evidenceTree });
+  assert.ok(issues.some((issue) => issue.includes('no longer reproduces')), issues.join(' | '));
+});
+
 test('S8 frontdoor and eval helpers bind digests canonically', async () => {
   const dir = tempDir();
   const admissionPath = path.join(dir, 'admission.json');
