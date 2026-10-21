@@ -304,3 +304,39 @@ Decisions:
 Adoption follows the promotion rule above (contract change + validator/eval +
 implementation + evidence + authority-matrix update before any capability
 claim).
+
+### OD-20 — MAWS-SII target specification adopted as the development target (approved 2026-10-21)
+
+Owner decision recorded from the owner instruction of 2026-10-21, which takes
+up the standing owner dispositions OA-04 (target specification adoption) and
+OA-05 (instruction audit capability implementation) together with the
+resumption of the MAWS-SII development. It adopts the specification as the
+Shared-Core development target; it grants no runtime activation and no new
+authority.
+
+Decisions:
+
+1. MAWS-SII-TARGET-SPEC-001 v0.2.0 (`docs/proposals/skill-intelligence-target-spec.md`)
+   is adopted as the Shared-Core development target of the MAWS-SII lane. The
+   slices S0–S13 of section 15 are the governing plan for that lane.
+2. The adoption is an owner decision with an explicit disposition on the
+   specification. It is not a promotion of the document surface: the file
+   keeps its path, because eighteen evidence records of 2026-10-20/21
+   reference that path and the evidence path contract makes those records
+   immutable. Moving the document into the canonical docs surface is a
+   separate slice and stays the next gate of the document placement.
+3. Runtime activation stays NONE. The specification creates no authority,
+   qualification, permission or runtime activation, and it replaces no
+   approval decision.
+4. The eight semantic audit classes stay not statically analyzable. The
+   advisory signal layer names candidate occurrences with evidence; the
+   classification of a candidate stays an owner decision, every such finding
+   carries `determinism: semantic_advisory`, requires owner review, and never
+   gates.
+5. OA-05 is discharged for the eight classes only to the extent that a
+   deterministic detector exists per class, with planted fixtures, and the
+   live wave is measured. The residual of OA-05 — the owner review of the
+   candidates themselves — stays open as owner work and is not discharged by
+   this decision.
+
+Evidence: `evidence/instruction-audit-wave2-2026-10-21/RUN.md`.
