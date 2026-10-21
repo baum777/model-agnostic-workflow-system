@@ -13,6 +13,25 @@
 //       createExecutor() built on runtime/executors/executor-base.mjs);
 //       without both it refuses with LIVE_MODEL_EXECUTOR_UNAVAILABLE.
 //
+// Path discipline, by surface:
+//   --corpus         the CORPUS is confined: it must resolve inside the
+//                    repository, and every file it declares must resolve
+//                    inside the corpus.
+//   --baseline-record, --out, --executor-module are OPERATOR surfaces and
+//                    are deliberately NOT confined to the repository. They
+//                    act with the invoking operator's own authority: --out
+//                    writes the record wherever the operator named (and
+//                    creates the directories above it), --baseline-record
+//                    reads the file the operator named, and
+//                    --executor-module imports the module the operator
+//                    named, which is code execution by design. The trust
+//                    boundary that actually gates a verdict is not those
+//                    paths but the supplied baseline record, which is
+//                    validated against its own content seal and bound to
+//                    this corpus, this mode and this subject before it is
+//                    compared (BASELINE_RECORD_INVALID /
+//                    BASELINE_RECORD_MISMATCH).
+//
 // Verdict semantics (fail closed):
 //   - any security regression (a security-class case not refused) => BLOCKED
 //   - any failed case in a blocking family              => BLOCKED
@@ -31,6 +50,12 @@ import { fileURLToPath } from 'node:url';
 import { defineExecutor } from '../../runtime/executors/executor-base.mjs';
 import { developmentProbeHarnessContext } from '../../runtime/harness-context/context-binding.mjs';
 import { validateBehavioralEvalRecord } from './validate-behavioral-eval.mjs';
+import {
+  PATH_CONFINEMENT_CODES,
+  PathConfinementError,
+  confineFileToBase,
+  readConfinedFile
+} from './path-confinement.mjs';
 
 const RUNNER_ID = 'run-skill-effectiveness-evals.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -38,6 +63,9 @@ const CORPUS_SCHEMA_VERSION = '1.0.0';
 const RUN_SCHEMA_VERSION = '1.0.0';
 const ASSERTION_TYPES = new Set(['contains', 'not_contains', 'equals', 'regex']);
 const SECURITY_CLASSES = new Set(['none', 'secret_exfiltration', 'permission_escalation', 'destructive_command']);
+// The family whose cases come from the variant files rather than from a
+// family file of its own. Only this family may be declared "via: variant".
+const VARIANT_FAMILY = 'positive';
 const DEFAULT_LIVE_TIMEOUT_MS = 120000;
 
 export class EvalConfigError extends Error {
@@ -66,30 +94,71 @@ function round6(value) {
   return Math.round(value * 1e6) / 1e6;
 }
 
-function readJsonFile(filePath) {
-  let parsed;
-  try {
-    parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch (error) {
-    throw new EvalConfigError('CORPUS_FILE_INVALID', `${filePath}: ${error.message}`);
+// The corpus loader reads material that must stay inside the corpus
+// directory. A purely lexical check is not enough: a symlink inside the
+// corpus that points outside it would carry the read out of the corpus, and
+// the loader would then measure material it does not own. The loader
+// therefore confines every declared path to the corpus directory in real
+// terms and binds the read to a verified file descriptor. The shared
+// primitive owns the containment rule; this module owns the corpus error
+// vocabulary.
+//
+//   CORPUS_PATH_ESCAPES_ROOT   the declared path leaves the corpus
+//   CORPUS_PATH_SYMLINK_ESCAPE the path resolves outside the corpus through
+//                              a symbolic link (file or parent directory)
+//   CORPUS_PATH_NOT_A_FILE     the target is not a regular file
+//   CORPUS_PATH_MULTIPLE_LINKS the target has more than one link, so its
+//                              material may also exist under a name outside
+//                              the corpus
+//   CORPUS_PATH_CHANGED        the target was replaced between the
+//                              containment check and the read
+export const CORPUS_PATH_CODES = {
+  [PATH_CONFINEMENT_CODES.INVALID_PATH]: 'CORPUS_PATH_ESCAPES_ROOT',
+  [PATH_CONFINEMENT_CODES.ABSOLUTE_PATH]: 'CORPUS_PATH_ESCAPES_ROOT',
+  [PATH_CONFINEMENT_CODES.ESCAPES_BASE]: 'CORPUS_PATH_ESCAPES_ROOT',
+  [PATH_CONFINEMENT_CODES.BASE_UNRESOLVABLE]: 'CORPUS_DIR_INVALID',
+  [PATH_CONFINEMENT_CODES.ESCAPES_BASE_THROUGH_SYMLINK]: 'CORPUS_PATH_SYMLINK_ESCAPE',
+  [PATH_CONFINEMENT_CODES.NOT_FOUND]: 'CORPUS_FILE_INVALID',
+  [PATH_CONFINEMENT_CODES.NOT_A_FILE]: 'CORPUS_PATH_NOT_A_FILE',
+  [PATH_CONFINEMENT_CODES.MULTIPLE_LINKS]: 'CORPUS_PATH_MULTIPLE_LINKS',
+  [PATH_CONFINEMENT_CODES.IS_A_SYMLINK]: 'CORPUS_PATH_SYMLINK_ESCAPE',
+  [PATH_CONFINEMENT_CODES.CHANGED_DURING_RESOLUTION]: 'CORPUS_PATH_CHANGED',
+  [PATH_CONFINEMENT_CODES.NOT_READABLE]: 'CORPUS_FILE_INVALID'
+};
+
+function asCorpusError(error, fallbackCode) {
+  if (error instanceof PathConfinementError) {
+    return new EvalConfigError(CORPUS_PATH_CODES[error.code] || fallbackCode, error.message);
   }
-  return parsed;
+  return null;
 }
 
-function resolveInside(rootDir, relativePath) {
-  const resolved = path.resolve(rootDir, relativePath);
-  if (!resolved.startsWith(path.resolve(rootDir) + path.sep)) {
-    throw new EvalConfigError('CORPUS_PATH_ESCAPES_ROOT', relativePath);
+function confineCorpusFile(corpusDir, relativePath) {
+  try {
+    return confineFileToBase(corpusDir, relativePath);
+  } catch (error) {
+    throw asCorpusError(error, 'CORPUS_PATH_ESCAPES_ROOT') || error;
   }
-  return resolved;
+}
+
+function readJsonFile(confined) {
+  let parsed;
+  try {
+    parsed = JSON.parse(readConfinedFile(confined).toString('utf8'));
+  } catch (error) {
+    throw asCorpusError(error, 'CORPUS_FILE_INVALID') || new EvalConfigError('CORPUS_FILE_INVALID', `${confined.resolved}: ${error.message}`);
+  }
+  return parsed;
 }
 
 /**
  * Load and validate the corpus manifest plus every referenced family file.
  */
 export function loadCorpus(corpusDir) {
-  const manifestPath = path.join(corpusDir, 'corpus.json');
-  const manifest = readJsonFile(manifestPath);
+  const manifest = readJsonFile(confineCorpusFile(corpusDir, 'corpus.json'));
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+    throw new EvalConfigError('CORPUS_MANIFEST_INVALID', 'corpus.json must contain a JSON object');
+  }
   if (manifest.schema_version !== CORPUS_SCHEMA_VERSION) {
     throw new EvalConfigError('CORPUS_SCHEMA_UNKNOWN', `unsupported corpus schema_version ${manifest.schema_version}`);
   }
@@ -101,38 +170,69 @@ export function loadCorpus(corpusDir) {
     throw new EvalConfigError('CORPUS_FAMILY_INVALID', 'corpus.json must declare a non-empty families array');
   }
   for (const family of manifest.families) {
-    if (typeof family.family !== 'string' || typeof family.file !== 'string' || typeof family.blocking !== 'boolean') {
+    if (!family || typeof family !== 'object'
+      || typeof family.family !== 'string' || typeof family.file !== 'string' || typeof family.blocking !== 'boolean') {
       throw new EvalConfigError('CORPUS_FAMILY_INVALID', 'family entries need family/file/blocking');
     }
-    const familyPath = family.via === 'variant' ? null : resolveInside(corpusDir, family.file);
-    const cases = familyPath ? loadCases(familyPath) : [];
+    if (family.via !== undefined && family.via !== 'variant') {
+      throw new EvalConfigError('CORPUS_FAMILY_INVALID', `family ${family.family} declares the unknown via ${JSON.stringify(family.via)}; only "variant" is known`);
+    }
+    // Only the family that the variant files populate may be declared
+    // "via: variant". Any other family declared that way would contribute NO
+    // case at all: its file is never read, it can never fail, and a BLOCKING
+    // family that can never fail would let the security gate pass with zero
+    // security cases measured.
+    if (family.via === 'variant' && family.family !== VARIANT_FAMILY) {
+      throw new EvalConfigError('CORPUS_FAMILY_INVALID', `family ${family.family} declares via: variant; only the ${VARIANT_FAMILY} family may be populated from the variant files`);
+    }
+    // Every declared family file is confined to the corpus directory before
+    // it is read: the file must resolve inside the corpus even when it is
+    // reached through a symbolic link.
+    const confined = family.via === 'variant' ? null : confineCorpusFile(corpusDir, family.file);
+    const cases = confined ? loadCases(confined) : [];
     // Digests bind the manifest-declared logical path, never the resolved
     // absolute path, so identical corpus content hashes identically in any
     // checkout directory.
-    families.set(family.family, { ...family, cases, file: familyPath, logical_file: family.file });
+    families.set(family.family, { ...family, cases, file: confined ? confined.resolved : null, logical_file: family.file });
+  }
+  if (!manifest.variants || typeof manifest.variants !== 'object' || Array.isArray(manifest.variants) || Object.keys(manifest.variants).length === 0) {
+    throw new EvalConfigError('CORPUS_VARIANTS_INVALID', 'corpus.json must declare a non-empty variants object');
   }
   const variants = new Map();
   for (const [variantName, variantSpec] of Object.entries(manifest.variants)) {
-    const positiveFamily = families.get('positive');
-    const positivePath = resolveInside(corpusDir, variantSpec.positive_cases_file);
-    positiveFamily.cases = loadCases(positivePath);
-    positiveFamily.file = positivePath;
+    if (!variantSpec || typeof variantSpec.positive_cases_file !== 'string') {
+      throw new EvalConfigError('CORPUS_VARIANTS_INVALID', `variant ${variantName} must declare positive_cases_file`);
+    }
+    const positiveFamily = families.get(VARIANT_FAMILY);
+    if (!positiveFamily) {
+      throw new EvalConfigError('CORPUS_FAMILY_INVALID', `corpus.json must declare the ${VARIANT_FAMILY} family; the variant files populate it`);
+    }
+    const positiveConfined = confineCorpusFile(corpusDir, variantSpec.positive_cases_file);
+    positiveFamily.cases = loadCases(positiveConfined);
+    positiveFamily.file = positiveConfined.resolved;
     variants.set(variantName, {
-      positive_cases_file: positivePath,
+      positive_cases_file: positiveConfined.resolved,
       positive_cases_logical_file: variantSpec.positive_cases_file,
       positive_cases: positiveFamily.cases
     });
   }
+  // A blocking family that contributes NO case can never fail, so it can
+  // never block. Two earlier guards already refuse every way of reaching
+  // that state: a family file with an empty case list is refused by
+  // CORPUS_CASES_EMPTY, and a family declared "via: variant" other than
+  // the positive one is refused by CORPUS_FAMILY_INVALID above. A separate
+  // code for the empty blocking family was proved unreachable by the
+  // independent review and removed rather than left as untestable code.
   return { corpusDir, manifest, families, variants, subject: manifest.subject };
 }
 
-function loadCases(filePath) {
-  const parsed = readJsonFile(filePath);
+function loadCases(confined) {
+  const parsed = readJsonFile(confined);
   if (!Array.isArray(parsed.cases) || parsed.cases.length === 0) {
-    throw new EvalConfigError('CORPUS_CASES_EMPTY', `${filePath}: cases must be a non-empty array`);
+    throw new EvalConfigError('CORPUS_CASES_EMPTY', `${confined.resolved}: cases must be a non-empty array`);
   }
   for (const entry of parsed.cases) {
-    validateCaseShape(entry, filePath);
+    validateCaseShape(entry, confined.resolved);
   }
   return parsed.cases;
 }
@@ -530,6 +630,71 @@ function parseArgs(argv) {
   return args;
 }
 
+/**
+ * Prove that a corpus directory stays inside the repository in REAL terms.
+ *
+ * The lexical comparison alone is defeated by a corpus directory that is
+ * itself a symbolic link: the path reads as "inside the repository" while
+ * the material lives outside the tree. A corpus reached through such a link
+ * is not a corpus of this repository, and evaluating it would measure
+ * material the run does not own.
+ *
+ * Returns the ANCHOR of that corpus: the resolved path and the identity of
+ * the directory behind it. The identity is what makes the anchor an anchor:
+ * a path comparison cannot see that the directory at that path was replaced
+ * by a different one.
+ */
+export function assertCorpusInsideRepository(repoRoot, corpusDir) {
+  const root = path.resolve(repoRoot);
+  const corpus = path.resolve(root, corpusDir);
+  if (!corpus.startsWith(root + path.sep)) {
+    throw new EvalConfigError('CORPUS_DIR_ESCAPES_REPO', '--corpus must stay inside the repository');
+  }
+  let repoReal;
+  let corpusReal;
+  try {
+    repoReal = fs.realpathSync(root);
+    corpusReal = fs.realpathSync(corpus);
+  } catch (error) {
+    throw new EvalConfigError('CORPUS_DIR_INVALID', `the corpus directory could not be resolved: ${error.message}`);
+  }
+  if (!corpusReal.startsWith(repoReal + path.sep)) {
+    throw new EvalConfigError('CORPUS_DIR_ESCAPES_REPO', `--corpus must stay inside the repository (it resolves to ${corpusReal})`);
+  }
+  let corpusStat;
+  try {
+    corpusStat = fs.statSync(corpusReal, { bigint: true });
+  } catch (error) {
+    throw new EvalConfigError('CORPUS_DIR_INVALID', `the corpus directory could not be inspected: ${error.message}`);
+  }
+  if (!corpusStat.isDirectory()) {
+    throw new EvalConfigError('CORPUS_DIR_INVALID', 'the corpus path is not a directory');
+  }
+  return { path: corpusReal, dev: corpusStat.dev, ino: corpusStat.ino };
+}
+
+/**
+ * Re-anchor the corpus directory and refuse a corpus root that changed
+ * identity since it was anchored.
+ *
+ * The anchor is a path and an identity, not a handle: between the anchor
+ * and the read, a writer with access to the working tree could replace the
+ * corpus directory with a symbolic link to a corpus elsewhere, or with a
+ * different directory at the same path, and the confinement would then
+ * attach to that other corpus. Re-anchoring after the load compares the
+ * IDENTITY, so both replacements are caught before any record is written.
+ * A replacement that is undone before the second anchor is not caught;
+ * closing that would need a trusted directory descriptor, which Node's
+ * public API does not expose.
+ */
+export function assertCorpusUnchanged(repoRoot, corpusDir, anchor) {
+  const current = assertCorpusInsideRepository(repoRoot, corpusDir);
+  if (current.dev !== anchor.dev || current.ino !== anchor.ino) {
+    throw new EvalConfigError('CORPUS_DIR_CHANGED', 'the corpus directory changed while it was being read');
+  }
+  return current;
+}
+
 async function main() {
   let args;
   try {
@@ -539,11 +704,14 @@ async function main() {
     process.exit(3);
   }
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-  const corpusDir = path.resolve(root, args.corpus || 'evals/skill-effectiveness');
-  if (!corpusDir.startsWith(root + path.sep)) {
-    console.error('config error: --corpus must stay inside the repository');
+  let corpusAnchor;
+  try {
+    corpusAnchor = assertCorpusInsideRepository(root, args.corpus || 'evals/skill-effectiveness');
+  } catch (error) {
+    console.error(`config error: ${error.message}`);
     process.exit(3);
   }
+  const corpusDir = corpusAnchor.path;
 
   let executor = null;
   if (args.mode === 'live_model') {
@@ -558,6 +726,15 @@ async function main() {
 
   try {
     const corpus = loadCorpus(corpusDir);
+    // The corpus root is re-anchored right after the load: a corpus
+    // directory that was replaced while it was being read is refused before
+    // any record is produced.
+    try {
+      assertCorpusUnchanged(root, args.corpus || 'evals/skill-effectiveness', corpusAnchor);
+    } catch (error) {
+      console.error(`config error: ${error.message}`);
+      process.exit(3);
+    }
     if (args.variant === 'BASELINE') {
       const baselineRecord = finalizeRecord(
         await runVariant({ corpus, variant: 'BASELINE', mode: args.mode, executor, evalId: args.evalId || 'bev_skill_effectiveness_baseline', instructionRevision: args.instructionRevision })

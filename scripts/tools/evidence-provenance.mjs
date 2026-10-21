@@ -81,6 +81,28 @@ function provenanceError(code, message) {
   throw new EvidenceProvenanceError(code, message);
 }
 
+// The S5 corpus loader refuses a corpus file that leaves the corpus
+// directory BEFORE the corpus is loaded: a symlink out of the corpus, a
+// declared path that leaves it, or a file that carries more than one link
+// and so may carry material from outside. That is the same defect this
+// module's own containment proof reports, detected one layer earlier - the
+// loader refuses it before there is a corpus object to inspect. The
+// specific code is therefore kept in both layers, so that a corpus whose
+// content leaves the tree is reported as exactly that and not as a generic
+// "could not be loaded".
+const CORPUS_CONTENT_ESCAPE_CODES = new Set([
+  'CORPUS_PATH_SYMLINK_ESCAPE',
+  'CORPUS_PATH_ESCAPES_ROOT',
+  'CORPUS_PATH_MULTIPLE_LINKS'
+]);
+
+function corpusLoadError(error, prefix) {
+  if (error && typeof error.code === 'string' && CORPUS_CONTENT_ESCAPE_CODES.has(error.code)) {
+    provenanceError('EVIDENCE_CORPUS_CONTENT_ESCAPES', `the corpus content does not stay inside the corpus directory: ${error.message}`);
+  }
+  provenanceError('EVIDENCE_CORPUS_INVALID', `${prefix}: ${error.message}`);
+}
+
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.length >= 1;
 }
@@ -300,7 +322,7 @@ async function reExecute({ corpusDir, record }) {
   try {
     corpus = loadCorpus(corpusDir);
   } catch (error) {
-    provenanceError('EVIDENCE_CORPUS_INVALID', `the behavioral eval corpus could not be loaded: ${error.message}`);
+    corpusLoadError(error, 'the behavioral eval corpus could not be loaded');
   }
   assertCorpusContentInside({ corpus, corpusDir });
   let rederived = null;
@@ -412,7 +434,7 @@ export async function verifyEvidenceProvenance({
   try {
     loadedCorpus = loadCorpus(corpus.absolute);
   } catch (error) {
-    provenanceError('EVIDENCE_CORPUS_INVALID', `the behavioral eval corpus ${corpus.relative} could not be loaded: ${error.message}`);
+    corpusLoadError(error, `the behavioral eval corpus ${corpus.relative} could not be loaded`);
   }
   if (loadedCorpus.subject?.ref !== record.subject?.ref) {
     provenanceError('EVIDENCE_SUBJECT_MISMATCH', `the corpus ${corpus.relative} measures subject "${String(loadedCorpus.subject?.ref)}", the record ${candidate.relative} claims subject "${String(record.subject?.ref)}"`);
