@@ -36,7 +36,8 @@ The same finding was reached independently by the HO-01 lane's independent revie
 | --- | --- |
 | `scripts/tools/path-confinement.mjs` | **New.** The shared path-confinement primitive. Proves containment twice, binds the read to a verified file descriptor, and refuses a material that carries more than one link. |
 | `scripts/tools/run-skill-effectiveness-evals.mjs` | The corpus loader now confines every declared path — the manifest, each family file, each variant case file — to the corpus directory in real terms, and reads each through a verified descriptor. The manifest is validated instead of crashing on a malformed one, the CLI additionally requires the corpus directory to *resolve* inside the repository, and the corpus root is re-anchored after the load. |
-| `tests/vnext/s5-path-confinement.test.mjs` | **New.** 22 negative and regression tests. |
+| `tests/vnext/s5-path-confinement.test.mjs` | **New.** 25 negative and regression tests. |
+| `scripts/tools/evidence-provenance.mjs` | The S8 evidence-provenance module, adapted to the loader's stricter vocabulary: it recognises the loader's escape codes and keeps its own specific `EVIDENCE_CORPUS_CONTENT_ESCAPES` for the same defect, because the loader now refuses a corpus file that leaves the corpus one layer before that module's own containment proof could report it (§8). |
 | `evidence/s5-path-confinement-2026-10-21/` | This run record and the registry disposition. |
 | `CHANGELOG.md` | One entry under `Unreleased`. |
 
