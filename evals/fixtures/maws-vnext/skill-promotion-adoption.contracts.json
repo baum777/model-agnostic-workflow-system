@@ -61,7 +61,8 @@
           "key_id": "owner_key_s8_0001",
           "signature_verified": true,
           "approval_record_ref": "core/authority/approvals/owner_decision_s8_0001.json",
-          "approval_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+          "approval_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "authority_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
         },
         "canonical_adoption": {
           "canonical_path": "skills/example-safe-skill/SKILL.md",
@@ -148,7 +149,8 @@
           "key_id": "owner_key_s8_0001",
           "signature_verified": true,
           "approval_record_ref": "core/authority/approvals/owner_decision_s8_0001.json",
-          "approval_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+          "approval_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "authority_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
         },
         "canonical_adoption": {
           "canonical_path": "skills/example-safe-skill/SKILL.md",
@@ -235,7 +237,8 @@
           "key_id": "owner_key_s8_0001",
           "signature_verified": false,
           "approval_record_ref": "core/authority/approvals/owner_decision_s8_0001.json",
-          "approval_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+          "approval_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "authority_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
         },
         "canonical_adoption": {
           "canonical_path": "skills/example-safe-skill/SKILL.md",
@@ -322,7 +325,8 @@
           "key_id": "owner_key_s8_0001",
           "signature_verified": true,
           "approval_record_ref": "core/authority/approvals/owner_decision_s8_0001.json",
-          "approval_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+          "approval_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "authority_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
         },
         "canonical_adoption": {
           "canonical_path": "skills/example-safe-skill/SKILL.md",

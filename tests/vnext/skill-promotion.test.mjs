@@ -398,6 +398,99 @@ test('S8 an incomplete export regeneration fails closed and leaves no mutation b
   assert.equal(fs.existsSync(providerPath), false);
 });
 
+test('S8 the export readback detects a surface that changed after the write', () => {
+  const world = setup();
+  const error = expectPromotionError('EXPORT_REGENERATION_INCOMPLETE', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_readback_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root,
+      // The surface changes between the write and the readback.
+      onExportsWritten: ({ written }) => {
+        const target = written.find((entry) => entry.ref.endsWith('core-registry.json'));
+        fs.appendFileSync(path.join(world.tree, target.ref), '<!-- changed after the write -->');
+      }
+    })
+  );
+  assert.match(error.message, /core-registry\.json/);
+  // The failed promotion leaves no mutation behind.
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+});
+
+test('S8 an export that does not reflect the adopted skill is an incomplete regeneration', () => {
+  const world = setup();
+  // The canonical tree carries a skill with the same identity in
+  // core/skills: the registry keeps the first one it finds, so the adopted
+  // skill is absent from the regenerated registry.
+  fs.mkdirSync(path.join(world.tree, 'core/skills/promoted-skill'), { recursive: true });
+  fs.writeFileSync(path.join(world.tree, 'core/skills/promoted-skill/SKILL.md'), CANDIDATE_CONTENT);
+
+  const error = expectPromotionError('EXPORT_REGENERATION_INCOMPLETE', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_not_reflected_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+  assert.match(error.message, /does not contain the adopted skill/);
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+});
+
+test('S8 a failing export write rolls every export surface and the skill file back', () => {
+  const world = setup();
+  const registryPath = path.join(world.tree, 'core/contracts/core-registry.json');
+  const legacyRegistryPath = path.join(world.tree, 'contracts/core-registry.json');
+  const providerExportPath = path.join(world.tree, 'providers/test-provider/export.json');
+  // The provider export surface cannot be written (it points into a
+  // directory that does not exist), but the registry surfaces are written
+  // before it: the failure happens AFTER the tree was partly changed.
+  fs.mkdirSync(path.join(world.tree, 'providers/test-provider'), { recursive: true });
+  fs.symlinkSync('/nonexistent-maws-export-target/export.json', providerExportPath);
+
+  const error = expectPromotionError('EXPORT_REGENERATION_FAILED', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_partial_write_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+  assert.match(error.message, /export surface/);
+
+  // The failed promotion leaves no mutation behind: the canonical skill file
+  // is gone and every export surface is back at its pre-promotion state.
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+  assert.equal(fs.existsSync(registryPath), false);
+  assert.equal(fs.existsSync(legacyRegistryPath), false);
+  assert.equal(fs.lstatSync(providerExportPath).isSymbolicLink(), true);
+});
+
 test('S8 a self-declared approval without a verified signature authorizes nothing', () => {
   const world = setup({ approve: false });
   const error = expectPromotionError('OWNER_APPROVAL_INVALID', () =>
@@ -491,6 +584,26 @@ test('S8 the committed canonical owner authority publishes no key and refuses ev
   const anchor = JSON.parse(fs.readFileSync(path.join(root, 'core/contracts/owner-authority.json'), 'utf8'));
   assert.equal(anchor.authority_status, 'PENDING_PUBLICATION');
   assert.deepEqual(anchor.keys, []);
+});
+
+test('S8 an expired approval authorizes nothing', () => {
+  const world = setup({ approval: approvalBody({ approvedAt: '2020-01-01T00:00:00Z' }) });
+  expectPromotionError('OWNER_APPROVAL_STALE', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_stale_approval_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
 });
 
 test('S8 an approval for another candidate content authorizes nothing', () => {
@@ -821,16 +934,23 @@ test('S8 the CLI refuses a promotion whose approval is not authorized and return
     admission_path: world.admissionPath,
     eval_records: world.evalEntries,
     owner_approval_ref: world.ownerApprovalRef,
-    canonical_root: world.tree
+    canonical_root: world.tree,
+    // The input tries to redirect the trust anchor (and to widen the
+    // evidence age bound). The CLI must ignore both: the anchor is read
+    // from the pinned canonical location of the installation and the age
+    // bound is fixed by the contract.
+    owner_authority_path: world.ownerAuthorityPath,
+    max_evidence_age_days: 36500
   };
   const inputPath = path.join(world.dir, 'input.json');
   fs.writeFileSync(inputPath, JSON.stringify(input, null, 2));
 
   // The CLI always reads the canonical owner authority of its own
-  // installation: the input file cannot point it at another anchor.
+  // installation: the input file cannot point it at another anchor, and
+  // the anchor it does read publishes no key, so the approval is refused.
   const result = runCli(['--input', inputPath]);
   assert.equal(result.ok, false);
   assert.ok(result.issues.length > 0);
-  assert.match(result.issues[0], /OWNER_AUTHORITY_NOT_PUBLISHED|OWNER_APPROVAL/);
+  assert.match(result.issues[0], /OWNER_AUTHORITY_NOT_PUBLISHED/);
   assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
 });

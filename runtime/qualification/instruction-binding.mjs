@@ -117,12 +117,16 @@ export function deriveInstructionBinding({
   requiredContextDigests = [],
   executorProfileRef,
   assemblyPolicyRef,
-  revision = null
+  revision = null,
+  // The assembler is injectable so the derivation seam itself is testable:
+  // a bundle that declares a digest it cannot prove is refused, and that
+  // refusal must be bound by a test, not by the assembler's honesty.
+  assemble = assembleInstructionBundle
 }) {
   requireInputs({ bundleId, taskRef, workflowClass, executorProfileRef, assemblyPolicyRef });
   const resolvedRoot = path.resolve(root);
   const resolvedRevision = isNonEmptyString(revision) ? revision : contentRevision(resolvedRoot);
-  const assembled = assembleInstructionBundle({
+  const assembled = assemble({
     root: resolvedRoot,
     revision: resolvedRevision,
     taskRef,

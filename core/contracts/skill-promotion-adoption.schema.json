@@ -66,7 +66,7 @@
     "owner_approval": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["approver", "skill_id", "decision_ref", "approved_at", "candidate_digest", "authority_id", "key_id", "signature_verified", "approval_record_ref", "approval_record_digest"],
+      "required": ["approver", "skill_id", "decision_ref", "approved_at", "candidate_digest", "authority_id", "authority_digest", "key_id", "signature_verified", "approval_record_ref", "approval_record_digest"],
       "properties": {
         "approver": { "const": "canonical_owner" },
         "skill_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
@@ -74,6 +74,7 @@
         "approved_at": { "type": "string", "minLength": 1 },
         "candidate_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
         "authority_id": { "const": "canonical_owner", "description": "The trust anchor the approval was verified against." },
+        "authority_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$", "description": "The digest of the exact trust anchor the approval was verified against, so the record names WHICH anchor vouched for it." },
         "key_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
         "signature_verified": { "const": true, "description": "The approval signature verified against the published canonical owner key. A self-declared approver or decision reference is not representable here." },
         "approval_record_ref": { "type": "string", "pattern": "^core/authority/approvals/[A-Za-z0-9][A-Za-z0-9._-]*\\.json$" },

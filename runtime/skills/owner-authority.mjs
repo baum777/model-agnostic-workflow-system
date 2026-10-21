@@ -39,6 +39,10 @@ export const CANONICAL_OWNER_AUTHORITY_PATH = 'core/contracts/owner-authority.js
 export const OWNER_APPROVAL_DIRECTORY = 'core/authority/approvals';
 // Clock skew allowance for an approval timestamp (minutes).
 export const APPROVAL_CLOCK_SKEW_MINUTES = 5;
+// An approval is a decision, not a permanent licence: an approval older
+// than this bound cannot authorize a promotion (mirrors the behavioral
+// evidence age bound).
+export const DEFAULT_MAX_APPROVAL_AGE_DAYS = 90;
 
 const KEY_ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
 const DECISION_REF_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
@@ -188,7 +192,7 @@ export function readOwnerApproval({ approvalRef, canonicalRoot }) {
 
 // verifyOwnerApproval({ approval, authority, candidateDigest, skillId, now })
 //   -> the verified approval summary. Every check fails closed (A2..A5).
-export function verifyOwnerApproval({ approval, authority, candidateDigest, skillId = null, now = new Date() }) {
+export function verifyOwnerApproval({ approval, authority, candidateDigest, skillId = null, now = new Date(), maxApprovalAgeDays = DEFAULT_MAX_APPROVAL_AGE_DAYS }) {
   const nowMs = resolveNowMs(now);
   if (authority.authority_status !== 'PUBLISHED' || authority.keys.length === 0) {
     authorityError(
@@ -220,6 +224,12 @@ export function verifyOwnerApproval({ approval, authority, candidateDigest, skil
   }
   if (approvedAt > nowMs + APPROVAL_CLOCK_SKEW_MINUTES * 60000) {
     authorityError('OWNER_APPROVAL_FUTURE', `the approval is dated in the future (${approval.approved_at})`);
+  }
+  // A decision expires: an approval that is older than the bound cannot
+  // authorize a promotion any more.
+  const ageDays = (nowMs - approvedAt) / 86400000;
+  if (ageDays > maxApprovalAgeDays) {
+    authorityError('OWNER_APPROVAL_STALE', `the approval is ${ageDays.toFixed(1)} days old, the bound is ${maxApprovalAgeDays} days`);
   }
   if (!DIGEST_PATTERN.test(String(approval.candidate_digest))) {
     authorityError('OWNER_APPROVAL_INVALID', 'the approval carries no canonical candidate digest');
@@ -271,6 +281,7 @@ export function verifyOwnerApproval({ approval, authority, candidateDigest, skil
     approved_at: approval.approved_at,
     candidate_digest: approval.candidate_digest,
     authority_id: authority.authority_id,
+    authority_digest: sha256Prefixed(canonicalJson(authority)),
     key_id: key.key_id,
     signature_verified: true
   };

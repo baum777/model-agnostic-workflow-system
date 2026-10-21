@@ -46,6 +46,8 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 const SKILL_ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
 const DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/;
 const DEFAULT_MAX_EVIDENCE_AGE_DAYS = 90;
+// An owner decision expires like every other evidence input.
+const DEFAULT_MAX_APPROVAL_AGE_DAYS = 90;
 
 export class PromotionError extends Error {
   constructor(code, message) {
@@ -222,7 +224,8 @@ export function validateOwnerApproval({
   candidateDigest,
   skillId = null,
   root = REPO_ROOT,
-  now = new Date()
+  now = new Date(),
+  maxApprovalAgeDays = DEFAULT_MAX_APPROVAL_AGE_DAYS
 }) {
   if (!isNonEmptyString(ownerApprovalRef)) {
     promotionError('OWNER_APPROVAL_MISSING', 'promotion requires a canonical owner approval artifact; approval is never implied');
@@ -254,7 +257,8 @@ export function validateOwnerApproval({
       authority,
       candidateDigest,
       skillId,
-      now
+      now,
+      maxApprovalAgeDays
     });
   } catch (error) {
     promotionError(error?.code || 'OWNER_APPROVAL_INVALID', error.message);
@@ -403,7 +407,9 @@ export function promoteSkillCandidate({
   canonicalRoot,
   now = nowIso,
   root = REPO_ROOT,
-  maxEvidenceAgeDays = DEFAULT_MAX_EVIDENCE_AGE_DAYS
+  maxEvidenceAgeDays = DEFAULT_MAX_EVIDENCE_AGE_DAYS,
+  maxApprovalAgeDays = DEFAULT_MAX_APPROVAL_AGE_DAYS,
+  onExportsWritten = null
 }) {
   const paths = resolveCanonicalPaths({ canonicalRoot, skillId });
   const admission = validateFrontdoorAdmission({ admissionPath, root });
@@ -427,7 +433,8 @@ export function promoteSkillCandidate({
     candidateDigest,
     skillId,
     root,
-    now
+    now,
+    maxApprovalAgeDays
   });
 
   // Replay protection comes FIRST: the ledger records every applied
@@ -497,10 +504,16 @@ export function promoteSkillCandidate({
   try {
     planned = exportPlan({ canonicalRoot });
   } catch (error) {
-    restoreCanonicalFile({ canonicalPath: paths.canonicalPath, priorContent });
+    rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot: null });
     promotionError(error?.code || 'EXPORT_REGENERATION_FAILED', error.message);
   }
-  const exportSnapshot = snapshotExports({ canonicalRoot, plan: planned.plan });
+  let exportSnapshot;
+  try {
+    exportSnapshot = snapshotExports({ canonicalRoot, plan: planned.plan });
+  } catch (error) {
+    rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot: null });
+    promotionError('EXPORT_REGENERATION_FAILED', `the export surfaces could not be snapshotted before the regeneration: ${error.message}`);
+  }
   let exportState;
   try {
     exportState = regenerateCanonicalExports({
@@ -508,11 +521,14 @@ export function promoteSkillCandidate({
       adoptedSkillId: skillId,
       adoptionDigest,
       now,
-      planned
+      planned,
+      onWritten: onExportsWritten
     });
   } catch (error) {
-    restoreExports({ canonicalRoot, snapshot: exportSnapshot });
-    restoreCanonicalFile({ canonicalPath: paths.canonicalPath, priorContent });
+    const failures = rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot, canonicalRoot });
+    if (failures.length > 0) {
+      promotionError('PROMOTION_ROLLBACK_FAILED', `the export regeneration failed (${error.message}) and the rollback did not restore every surface: ${failures.join('; ')}`);
+    }
     promotionError(error?.code || 'EXPORT_REGENERATION_FAILED', error.message);
   }
 
@@ -556,38 +572,74 @@ export function promoteSkillCandidate({
     ...semanticPromotionIssues(record)
   ];
   if (issues.length > 0) {
-    restoreExports({ canonicalRoot, snapshot: exportSnapshot });
-    restoreCanonicalFile({ canonicalPath: paths.canonicalPath, priorContent });
+    const failures = rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot, canonicalRoot });
+    if (failures.length > 0) {
+      issues.push(`rollback: the promotion left surfaces behind: ${failures.join('; ')}`);
+    }
     return { record, issues, canonicalPath: paths.canonicalPath, admissionDigest: admission.digest };
   }
 
-  // The applied change is recorded: the ledger makes it reconstructable.
-  fs.appendFileSync(paths.ledgerPath, `${JSON.stringify({
-    adoption_id: adoptionId,
-    skill_id: skillId,
-    adopted_version: adoptedVersion,
-    superseded_version: effectiveSupersededVersion,
-    adoption_digest: adoptionDigest,
-    candidate_digest: candidateDigest,
-    adopted_at: record.canonical_adoption.adopted_at
-  })}\n`);
+  // The applied change is recorded: the ledger makes it reconstructable. A
+  // ledger that cannot be written means the applied change is not
+  // reconstructable - the promotion is rolled back instead of applied
+  // without a record.
+  try {
+    fs.appendFileSync(paths.ledgerPath, `${JSON.stringify({
+      adoption_id: adoptionId,
+      skill_id: skillId,
+      adopted_version: adoptedVersion,
+      superseded_version: effectiveSupersededVersion,
+      adoption_digest: adoptionDigest,
+      candidate_digest: candidateDigest,
+      adopted_at: record.canonical_adoption.adopted_at
+    })}\n`);
+  } catch (error) {
+    const failures = rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot, canonicalRoot });
+    if (failures.length > 0) {
+      promotionError('PROMOTION_ROLLBACK_FAILED', `the adoption ledger could not be written (${error.message}) and the rollback did not restore every surface: ${failures.join('; ')}`);
+    }
+    promotionError('PROMOTION_LEDGER_UNWRITABLE', `the adoption ledger could not be written: ${error.message}`);
+  }
 
   return { record, issues, canonicalPath: paths.canonicalPath, admissionDigest: admission.digest };
 }
 
+// rollbackPromotion({ canonicalPath, priorContent, exportSnapshot,
+// canonicalRoot }) -> string[] of surfaces that could NOT be restored.
+//
+// The rollback is fail-safe by construction: every surface is restored
+// independently, a failing restore never aborts the remaining restores, and
+// the caller receives the list of surfaces that are still changed. A failed
+// restore is a hard, named failure - never a silently half-applied adoption.
+function rollbackPromotion({ canonicalPath, priorContent, exportSnapshot, canonicalRoot = null }) {
+  const failures = [];
+  const skillFailure = restoreCanonicalFile({ canonicalPath, priorContent });
+  if (skillFailure) {
+    failures.push(skillFailure);
+  }
+  if (exportSnapshot && canonicalRoot) {
+    const exportFailures = restoreExports({ canonicalRoot, snapshot: exportSnapshot });
+    failures.push(...exportFailures);
+  }
+  return failures;
+}
+
 // restoreCanonicalFile -> undo a canonical write when the record does not
 // satisfy the contract: the failed promotion leaves no mutation behind.
+// It NEVER throws: a failing restore is returned as a named failure so the
+// remaining surfaces can still be restored and the caller can report the
+// incomplete rollback.
 function restoreCanonicalFile({ canonicalPath, priorContent }) {
-  if (priorContent === null) {
-    try {
+  try {
+    if (priorContent === null) {
       fs.rmSync(canonicalPath, { force: true });
-    } catch (error) {
-      // The caller already receives the failing issues; the rollback failure
-      // is reported through them.
+      return null;
     }
-    return;
+    fs.writeFileSync(canonicalPath, priorContent);
+    return null;
+  } catch (error) {
+    return `the canonical skill file ${canonicalPath} could not be restored: ${error.message}`;
   }
-  fs.writeFileSync(canonicalPath, priorContent);
 }
 
 // postAdoptionReadback({ record, canonicalRoot }) -> string[] issues.
@@ -614,6 +666,20 @@ export function postAdoptionReadback({ record, canonicalRoot }) {
   const ledger = readAdoptionLedger({ ledgerPath: path.join(canonicalRoot, record.canonical_adoption.adoption_ledger_ref) });
   if (!ledger.some((entry) => entry.adoption_digest === record.canonical_adoption.adoption_digest)) {
     issues.push('post_adoption_readback: the adoption ledger holds no entry for this adoption');
+  }
+  // The owner approval artifact is re-read as well: the recorded approval
+  // digest must still describe the artifact that vouched for the adoption.
+  const approvalRef = record.owner_approval?.approval_record_ref;
+  if (approvalRef) {
+    try {
+      const approvalContent = fs.readFileSync(path.join(canonicalRoot, approvalRef), 'utf8');
+      const approvalDigest = sha256Prefixed(canonicalJson(JSON.parse(approvalContent)));
+      if (approvalDigest !== record.owner_approval.approval_record_digest) {
+        issues.push(`post_adoption_readback: the owner approval ${approvalRef} digests to ${approvalDigest}, record binds ${record.owner_approval.approval_record_digest}`);
+      }
+    } catch (error) {
+      issues.push(`post_adoption_readback: the owner approval is not readable: ${error.message}`);
+    }
   }
   // The regenerated exports are re-read as well: a projection that drifted
   // away from the adoption is a failed readback, not a detail.
@@ -645,10 +711,11 @@ export function runCli(args) {
   } catch (error) {
     return { ok: false, issues: [`PROMOTION_INPUT_UNREADABLE: ${error.message}`] };
   }
-  // The CLI accepts an ALLOWLIST of inputs. The trust anchor is not part of
-  // it: the canonical owner authority is read from the pinned canonical
-  // location of this installation, so an input file can never point the
-  // promotion at an anchor the caller controls.
+  // The CLI accepts an ALLOWLIST of inputs. Neither the trust anchor nor the
+  // evidence age bound is part of it: the canonical owner authority is read
+  // from the pinned canonical location of this installation, and the
+  // freshness bound is fixed by the contract, so an input file can never
+  // widen a gate of the promotion chain.
   const {
     adoption_id: adoptionId,
     skill_id: skillId,
@@ -659,8 +726,7 @@ export function runCli(args) {
     admission_path: admissionPath,
     eval_records: evalRecords,
     owner_approval_ref: ownerApprovalRef,
-    canonical_root: canonicalRoot,
-    max_evidence_age_days: maxEvidenceAgeDays
+    canonical_root: canonicalRoot
   } = input ?? {};
   try {
     const { record, issues } = promoteSkillCandidate({
@@ -677,14 +743,16 @@ export function runCli(args) {
       canonicalRoot: path.resolve(canonicalRoot ?? ''),
       root: REPO_ROOT,
       now: nowIso,
-      maxEvidenceAgeDays: maxEvidenceAgeDays ?? DEFAULT_MAX_EVIDENCE_AGE_DAYS
+      maxEvidenceAgeDays: DEFAULT_MAX_EVIDENCE_AGE_DAYS
     });
     return { ok: issues.length === 0, issues, record };
   } catch (error) {
     if (error instanceof PromotionError) {
       return { ok: false, issues: [`${error.code}: ${error.message}`], record: null };
     }
-    throw error;
+    // Every failure of the promotion chain is a structured refusal; the CLI
+    // never dies with an unhandled stack trace.
+    return { ok: false, issues: [`PROMOTION_FAILED: ${error?.message ?? String(error)}`], record: null };
   }
 }
 

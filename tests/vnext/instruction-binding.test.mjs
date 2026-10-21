@@ -77,6 +77,27 @@ function makeInstructionTree(overrides = {}) {
   return dir;
 }
 
+// A runtime tree the CLI can run against: the contracts, the policies, the
+// JEV fixtures, the executor registry and the declared instruction
+// surfaces. The instruction surfaces are the ones the S2 inventory declares.
+function makeRuntimeTree() {
+  const dir = tmpDir();
+  fs.cpSync(path.join(root, 'core/contracts'), path.join(dir, 'core/contracts'), { recursive: true });
+  fs.cpSync(path.join(root, 'policies'), path.join(dir, 'policies'), { recursive: true });
+  fs.cpSync(path.join(root, 'runtime/decision-engine/jev/fixtures'), path.join(dir, 'runtime/decision-engine/jev/fixtures'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'runtime/executors'), { recursive: true });
+  fs.cpSync(path.join(root, 'runtime/executors/registry.default.json'), path.join(dir, 'runtime/executors/registry.default.json'));
+  for (const relative of CANONICAL_SOURCES) {
+    const absolute = path.join(dir, relative);
+    fs.mkdirSync(path.dirname(absolute), { recursive: true });
+    fs.copyFileSync(path.join(root, relative), absolute);
+  }
+  for (const tree of ['core/skills', 'skills', '.agents/skills']) {
+    fs.mkdirSync(path.join(dir, tree), { recursive: true });
+  }
+  return dir;
+}
+
 function fingerprintWith(digest) {
   return {
     fingerprint_id: 'fp_s7_binding_0001',
@@ -113,6 +134,41 @@ test('S7 the effective instruction digest is derived from the assembled bundle a
     const digest = `sha256:${crypto.createHash('sha256').update(fs.readFileSync(absolute, 'utf8')).digest('hex')}`;
     assert.equal(digest, source.source_digest, `${source.ref} must be bound to its live content`);
   }
+});
+
+test('S7 the derivation refuses a bundle whose sources do not match the live tree', () => {
+  const tree = makeInstructionTree();
+  const real = deriveInstructionBinding({ root: tree, ...ASSEMBLY });
+  const tampered = JSON.parse(JSON.stringify(real.bundle));
+  tampered.selected_sources[0].source_digest = `sha256:${'1'.repeat(64)}`;
+  // The bundle stays self-consistent: only the SOURCE no longer matches the
+  // live tree, so the source re-read is the check that has to fire.
+  tampered.effective_instruction_digest = computeEffectiveInstructionDigest(tampered);
+  assert.throws(
+    () => deriveInstructionBinding({
+      root: tree,
+      ...ASSEMBLY,
+      assemble: () => ({ bundle: tampered, inventory: { digest: 'x' }, selected_source_count: 0, excluded_source_count: 0 })
+    }),
+    (error) => error?.code === 'INSTRUCTION_SOURCE_DIGEST_MISMATCH'
+  );
+});
+
+test('S7 a bundle that declares a digest it cannot prove is refused', () => {
+  const tree = makeInstructionTree();
+  const real = deriveInstructionBinding({ root: tree, ...ASSEMBLY });
+  const tampered = {
+    ...real.bundle,
+    effective_instruction_digest: `sha256:${'0'.repeat(64)}`
+  };
+  assert.throws(
+    () => deriveInstructionBinding({
+      root: tree,
+      ...ASSEMBLY,
+      assemble: () => ({ bundle: tampered, inventory: real.bundle ? { digest: 'x' } : null, selected_source_count: 0, excluded_source_count: 0 })
+    }),
+    (error) => error?.code === 'INSTRUCTION_BUNDLE_DIGEST_INCONSISTENT'
+  );
 });
 
 test('S7 the derivation follows the tree: a changed instruction source changes the derived digest', () => {
@@ -323,6 +379,62 @@ test('S7 the runtime records the derived instruction binding in the run evidence
   for (const binding of Object.values(evidence.fingerprints)) {
     assert.equal(binding.derived_digest, derived.digest);
   }
+});
+
+test('S7 the runtime ignores a declared current digest that does not match the derived one', async () => {
+  // The declared current digest is caller input: the runtime binds the
+  // DERIVED digest. The run therefore still completes (the qualification
+  // snapshot matches the derived state), and the evidence records that the
+  // declared value was not the one that was used.
+  const spec = JSON.parse(fs.readFileSync(referenceSpecPath, 'utf8'));
+  spec.run_id = 'run_s7_declared_digest_0001';
+  spec.harness_context.run_ref = spec.run_id;
+  for (const binding of Object.values(spec.intake_bindings || {})) {
+    binding.work_unit_id = `wu_${spec.run_id}_root`;
+  }
+  const declared = `sha256:${'f'.repeat(64)}`;
+  for (const fingerprint of Object.values(spec.fingerprints)) {
+    fingerprint.components.effective_instruction_digest = declared;
+  }
+  const dir = tmpDir();
+  const specPath = path.join(dir, 'spec.json');
+  fs.writeFileSync(specPath, JSON.stringify(spec, null, 2));
+
+  const { summary, runDir } = await runRuntimeRun({ specPath, outDir: path.join(dir, 'run') });
+  assert.equal(summary.status, 'COMPLETED');
+  const evidence = JSON.parse(fs.readFileSync(path.join(runDir, 'instruction-binding.json'), 'utf8'));
+  assert.notEqual(evidence.derived_effective_instruction_digest, declared);
+  for (const binding of Object.values(evidence.fingerprints)) {
+    assert.equal(binding.declared_digest, declared);
+    assert.equal(binding.derived_digest, evidence.derived_effective_instruction_digest);
+    assert.equal(binding.digest_matches, false);
+  }
+});
+
+test('S7 a material instruction change blocks the run at the CLI level', async () => {
+  // The runtime derives the digest from the live tree: a canonical
+  // instruction source that changed invalidates the qualification, even
+  // though the run spec still declares the old digest.
+  const tree = makeRuntimeTree();
+  const spec = JSON.parse(fs.readFileSync(referenceSpecPath, 'utf8'));
+  spec.run_id = 'run_s7_tree_drift_0001';
+  spec.harness_context.run_ref = spec.run_id;
+  for (const binding of Object.values(spec.intake_bindings || {})) {
+    binding.work_unit_id = `wu_${spec.run_id}_root`;
+  }
+  const dir = tmpDir();
+  const specPath = path.join(dir, 'spec.json');
+  fs.writeFileSync(specPath, JSON.stringify(spec, null, 2));
+
+  // Control: the untouched tree still runs the qualification.
+  const control = await runRuntimeRun({ specPath, outDir: path.join(dir, 'run-control'), repoRoot: tree });
+  assert.equal(control.summary.status, 'COMPLETED');
+
+  // A material instruction change: the canonical governance source moved.
+  fs.appendFileSync(path.join(tree, 'AGENTS.md'), '\n<!-- a material instruction change -->\n');
+  const drifted = await runRuntimeRun({ specPath, outDir: path.join(dir, 'run-drift'), repoRoot: tree });
+  assert.notEqual(drifted.summary.status, 'COMPLETED');
+  assert.match(String(drifted.summary.blocking_reason), /NO_ELIGIBLE_EXECUTOR/);
 });
 
 test('S7 the committed reference spec qualification is bound to the instruction state in effect', () => {

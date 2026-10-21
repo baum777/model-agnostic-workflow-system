@@ -1,7 +1,9 @@
 {
   "id": "maws-vnext-baseline",
   "kind": "maws-vnext-baseline",
-  "target": { "name": "maws-vnext-baseline" },
+  "target": {
+    "name": "maws-vnext-baseline"
+  },
   "blocking": true,
   "description": "MAWS-VN-001 baseline drift fixture. Anchors the design baseline and maps every vNext surface family to its maturity evidence sources. The maturity drift check in scripts/tools/validate-maws-vnext-contracts.mjs computes actual maturity (ABSENT, CONTRACT_ONLY, VALIDATOR_BACKED, RUNTIME_IMPLEMENTED) from repository state and fails closed when docs/authority-matrix.md claims more than the evidence supports.",
   "baseline_commit": "a84aa7d44ab900201233b7ee104671e6a1ff136e",
@@ -33,13 +35,22 @@
       "runtime/zcode"
     ]
   },
-  "maturity_states": ["ABSENT", "CONTRACT_ONLY", "VALIDATOR_BACKED", "RUNTIME_IMPLEMENTED"],
+  "maturity_states": [
+    "ABSENT",
+    "CONTRACT_ONLY",
+    "VALIDATOR_BACKED",
+    "RUNTIME_IMPLEMENTED"
+  ],
   "vnext_surfaces": [
     {
       "family": "work-unit",
-      "contracts": ["core/contracts/work-unit.schema.json"],
+      "contracts": [
+        "core/contracts/work-unit.schema.json"
+      ],
       "fixture_covered": true,
-      "runtime": ["runtime/planner/work-unit-store.mjs"]
+      "runtime": [
+        "runtime/planner/work-unit-store.mjs"
+      ]
     },
     {
       "family": "capability-profile",
@@ -49,7 +60,9 @@
         "core/contracts/profile-subsumption.schema.json"
       ],
       "fixture_covered": true,
-      "runtime": ["runtime/qualification/profile-subsumption.mjs"]
+      "runtime": [
+        "runtime/qualification/profile-subsumption.mjs"
+      ]
     },
     {
       "family": "executor-registry",
@@ -58,7 +71,9 @@
         "core/contracts/executor-registry.schema.json"
       ],
       "fixture_covered": true,
-      "runtime": ["runtime/executors/registry.mjs"]
+      "runtime": [
+        "runtime/executors/registry.mjs"
+      ]
     },
     {
       "family": "qualification-eligibility",
@@ -69,7 +84,10 @@
         "core/contracts/eligibility-decision.schema.json"
       ],
       "fixture_covered": true,
-      "runtime": ["runtime/qualification/eligibility.mjs"]
+      "runtime": [
+        "runtime/qualification/eligibility.mjs",
+        "runtime/qualification/instruction-binding.mjs"
+      ]
     },
     {
       "family": "planning-graph",
@@ -81,7 +99,9 @@
         "core/contracts/decomposition-decision.schema.json"
       ],
       "fixture_covered": true,
-      "runtime": ["runtime/planner/hybrid-planner.mjs"]
+      "runtime": [
+        "runtime/planner/hybrid-planner.mjs"
+      ]
     },
     {
       "family": "revision-arbitration-disagreement",
@@ -95,7 +115,10 @@
         "core/contracts/disagreement-decision.schema.json"
       ],
       "fixture_covered": true,
-      "runtime": ["runtime/planner/revision-engine.mjs", "runtime/planner/arbitration-engine.mjs"]
+      "runtime": [
+        "runtime/planner/revision-engine.mjs",
+        "runtime/planner/arbitration-engine.mjs"
+      ]
     },
     {
       "family": "routing-composition",
@@ -106,7 +129,9 @@
         "core/contracts/composition-decision.schema.json"
       ],
       "fixture_covered": true,
-      "runtime": ["runtime/routing/routing-engine.mjs"]
+      "runtime": [
+        "runtime/routing/routing-engine.mjs"
+      ]
     },
     {
       "family": "completion",
@@ -115,7 +140,9 @@
         "core/contracts/completion-decision.schema.json"
       ],
       "fixture_covered": true,
-      "runtime": ["runtime/completion/completion-engine.mjs"]
+      "runtime": [
+        "runtime/completion/completion-engine.mjs"
+      ]
     },
     {
       "family": "jev-decision-engine",
@@ -160,6 +187,20 @@
       "runtime": [
         "runtime/zcode/stdio-bridge.mjs",
         "tests/vnext/zcode.test.mjs"
+      ]
+    },
+    {
+      "family": "skill-promotion-adoption",
+      "contracts": [
+        "core/contracts/skill-promotion-adoption.schema.json",
+        "core/contracts/owner-authority.schema.json",
+        "core/contracts/owner-approval.schema.json"
+      ],
+      "fixture_covered": true,
+      "runtime": [
+        "runtime/skills/owner-authority.mjs",
+        "runtime/skills/export-regeneration.mjs",
+        "scripts/tools/promote-skill-candidate.mjs"
       ]
     }
   ]

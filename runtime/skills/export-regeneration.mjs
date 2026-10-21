@@ -88,28 +88,52 @@ export function exportPlan({ canonicalRoot }) {
 }
 
 // snapshotExports({ canonicalRoot, plan }) -> the prior state of every export
-// surface, so a failed regeneration leaves no mutation behind.
+// surface, so a failed regeneration leaves no mutation behind. The state is
+// read with lstat: a symlinked surface is restored AS the symlink it was,
+// never silently replaced by the file it pointed at.
 export function snapshotExports({ canonicalRoot, plan }) {
   const snapshot = new Map();
   for (const entry of plan) {
     const absolute = path.join(canonicalRoot, entry.ref);
-    snapshot.set(entry.ref, fs.existsSync(absolute) ? fs.readFileSync(absolute, 'utf8') : null);
+    let state = null;
+    try {
+      const stats = fs.lstatSync(absolute);
+      state = stats.isSymbolicLink()
+        ? { kind: 'symlink', target: fs.readlinkSync(absolute) }
+        : { kind: 'file', content: fs.readFileSync(absolute, 'utf8') };
+    } catch {
+      state = null;
+    }
+    snapshot.set(entry.ref, state);
   }
   return snapshot;
 }
 
-// restoreExports({ canonicalRoot, snapshot }) -> the restored export
-// surfaces. A file that did not exist before is removed again.
+// restoreExports({ canonicalRoot, snapshot }) -> string[] of the surfaces
+// that could NOT be restored. Every surface is restored independently and a
+// failing restore never aborts the remaining restores: a failed rollback is
+// reported, never silently swallowed.
 export function restoreExports({ canonicalRoot, snapshot }) {
-  for (const [ref, content] of snapshot.entries()) {
+  const failures = [];
+  for (const [ref, state] of snapshot.entries()) {
     const absolute = path.join(canonicalRoot, ref);
-    if (content === null) {
-      fs.rmSync(absolute, { force: true });
-      continue;
+    try {
+      if (state === null) {
+        fs.rmSync(absolute, { force: true });
+        continue;
+      }
+      fs.mkdirSync(path.dirname(absolute), { recursive: true });
+      if (state.kind === 'symlink') {
+        fs.rmSync(absolute, { force: true });
+        fs.symlinkSync(state.target, absolute);
+        continue;
+      }
+      fs.writeFileSync(absolute, state.content);
+    } catch (error) {
+      failures.push(`the export surface ${ref} could not be restored: ${error.message}`);
     }
-    fs.mkdirSync(path.dirname(absolute), { recursive: true });
-    fs.writeFileSync(absolute, content);
   }
+  return failures;
 }
 
 // assertRegistryReflectsAdoption({ registry, adoptedSkillId }) -> void.
@@ -130,7 +154,7 @@ export function assertRegistryReflectsAdoption({ registry, adoptedSkillId }) {
 // now }) -> the export regeneration state that goes into the adoption record.
 // Every written surface is read back and its digest compared with the digest
 // of the content that was written.
-export function regenerateCanonicalExports({ canonicalRoot, adoptedSkillId = null, adoptionDigest = null, now = () => new Date().toISOString(), planned = null }) {
+export function regenerateCanonicalExports({ canonicalRoot, adoptedSkillId = null, adoptionDigest = null, now = () => new Date().toISOString(), planned = null, onWritten = null }) {
   const { plan, registry } = planned ?? exportPlan({ canonicalRoot });
   if (adoptedSkillId) {
     assertRegistryReflectsAdoption({ registry, adoptedSkillId });
@@ -138,9 +162,20 @@ export function regenerateCanonicalExports({ canonicalRoot, adoptedSkillId = nul
   const written = [];
   for (const entry of plan) {
     const absolute = path.join(canonicalRoot, entry.ref);
-    fs.mkdirSync(path.dirname(absolute), { recursive: true });
-    fs.writeFileSync(absolute, entry.content);
+    try {
+      fs.mkdirSync(path.dirname(absolute), { recursive: true });
+      fs.writeFileSync(absolute, entry.content);
+    } catch (error) {
+      exportError('EXPORT_REGENERATION_FAILED', `the export surface ${entry.ref} could not be written: ${error.message}`);
+    }
     written.push({ ref: entry.ref, kind: entry.kind, provider: entry.provider ?? null, expected_digest: digestOf(entry.content) });
+  }
+  // The readback is the verification of the write. `onWritten` is a
+  // documented test seam invoked between the write and the readback: the
+  // readback failure path has to be bound by a test, not by the assumption
+  // that a written file stays as it was written.
+  if (typeof onWritten === 'function') {
+    onWritten({ written: written.map((entry) => ({ ...entry })) });
   }
   // E2: read back every written surface and compare the digest.
   for (const entry of written) {
