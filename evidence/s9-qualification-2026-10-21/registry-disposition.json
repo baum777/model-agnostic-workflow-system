@@ -1,0 +1,55 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "This change qualifies the PUBLISHED state of the S9 trusted-evidence-admission lane by independent verification: readback of the merged commits and of their Registry and Atlas representations, a local replication of the hosted workflow (24/24 evidence-admission tests within a 734/0 suite), four independent mutation probes, each of which is caught by its designed tests, and one precision repair of this module's own header, which claimed the shared confinement primitive is used for every file the module reads while the corpus files and the on-disk admission copy are read plainly and guarded by the committed-content byte comparison. The change alters no contract, no error code, no behavior, no ownership, no lifecycle state, no authority, no dependency and no interface of any registered object; the existing MAWS_EVIDENCE_ADMISSION records remain bound to the same published commits. The qualification itself is registered as its own new change record in the Registry (MAWS_S9_QUALIFICATION_2026_10_21_001) and represented as its own claim in the Atlas, which is where this change's registration lives; no existing record is mutated.",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "evidence/s9-qualification-2026-10-21/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/evidence-admission.mjs",
+      "tests/vnext/evidence-admission.test.mjs",
+      "evidence/evidence-admission-2026-10-21/RUN.md",
+      "CHANGELOG.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/s9-qualification-2026-10-21/RUN.md"
+    ],
+    "evidence_refs": [
+      "MAWS pull request 64 merged as e12d0f8fd1d63df1d1913fca677d6eba79a048ed (branch head 494390289dc3cb5cb33a082095f94c292e2b23c3, base d15c96565379d081800f1ca3c0646c968235fe0e, 2026-10-21T08:05:00Z)",
+      "MAWS pull request 65 merged as 5ed7216 (rebind commits 81407c3 and f074041) = origin/main at readback",
+      "registry/MAWS_EVIDENCE_ADMISSION_2026_10_21_001.yaml change_status COMPLETE binds 4943902 / e12d0f8 / d15c965 (PR 254 b1d240c, completion PR 256 def8012)",
+      "registry/MAWS_EVIDENCE_ADMISSION_CONTRACT_2026_10_21_001.yaml state MERGED binds 4943902",
+      "atlas claim C-MAWS-S9-EVIDENCE-ADMISSION-2026-10-21 pins e12d0f8 EVENT_COMMIT_PIN (PR 193 6f645c9, corrected by PR 195 70b1d87)",
+      "evidence/evidence-admission-2026-10-21/registry-disposition.json UPDATED with registry_commit_sha def8012f78b72c95583a22203452faf39aec12ad",
+      "ancestry: e12d0f8, 5ed7216, 4943902 and 41bb624 are ancestors of origin/main 5ed7216 (git merge-base --is-ancestor)",
+      "local workflow replication at 5ed7216 under Node v24.19.0: 21/21 steps exit 0, test:vnext 734 pass / 0 fail; validate-registry-disposition.mjs PASS on evidence/evidence-admission-2026-10-21/registry-disposition.json",
+      "probe P1: A3 content-binding check neutered -> 'an admission for another content is refused' and the end-to-end chain test both fail (22 pass / 2 fail)",
+      "probe P2: versioned-tree downgrade guard neutered -> 'the weaker content kind is not admitted in a versioned tree' fails (23/1)",
+      "probe P3: admission byte-compare neutered -> 'an admission that was changed after it was committed is refused' fails (23/1)",
+      "probe P4: published-history ancestry check neutered -> 'a commit outside the published history is refused' fails (23/1)",
+      "all probes reverted; tracked tree pristine at each probe",
+      "hosted GitHub Actions remains blocked account-wide (billing lock); no hosted result is claimed",
+      "Mimosa deep scan contains no .mjs material in its analysed set (measured 2026-10-21, scan-2026-10-21T09-55-56.929Z-e49c3f95e1f2); no security-scan claim is derived"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/s9-qualification-2026-10-21/registry-disposition.json (PASS)",
+      "node --test tests/vnext/evidence-admission.test.mjs after the header repair: 24 pass / 0 fail"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/evidence-admission.schema.json is untouched: this run changes no contract",
+      "the exported API of scripts/tools/evidence-admission.mjs is untouched; the repair is comment-only, and the suite re-run is green",
+      "no registered object changes: the MAWS_EVIDENCE_ADMISSION records stay bound to 4943902 / e12d0f8 / d15c965, and no lifecycle, authority, ownership or dependency field moves",
+      "nothing is superseded: the lane's own evidence set and this qualification both stand"
+    ],
+    "registry_baseline_sha": "7e7d89121b24db9f210cbe8b26d13f7185a4b31b",
+    "implementation_commit_sha": "80fe81d6231cf138d3f89121357d4984e8bc7f66",
+    "registry_commit_sha": null
+  }
+}
