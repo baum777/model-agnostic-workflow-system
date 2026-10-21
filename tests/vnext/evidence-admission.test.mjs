@@ -392,11 +392,30 @@ test('S9 material that was changed after its commit is refused', async () => {
   assert.match(error.message, /differs from the content commit/);
 });
 
-test('S9 an admission that is not committed is refused: an admission is a reviewed change', async () => {
+test('S9 an admission that was never committed is refused: an admission is a reviewed change', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // A SECOND admission file that no commit ever published: the working tree
+  // carries it, but the repository has never seen it.
+  const uncommittedRef = 'evidence/admissions/admit_evidence_never_committed.json';
+  fs.writeFileSync(path.join(world.tree, uncommittedRef), `${JSON.stringify(world.admission, null, 2)}\n`);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_NOT_COMMITTED', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: uncommittedRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /is not committed in/);
+});
+
+test('S9 an admission that was removed from the history is refused', async () => {
   const world = await buildWorld();
   const attestation = await attest(world);
   // The admission is removed from the index and from the history: the
-  // working tree still carries it, but no commit published it.
+  // working tree still carries it, but the commit that last touched the
+  // path does not carry it either.
   git(world.tree, ['rm', '--cached', '-q', world.admissionRef]);
   git(world.tree, ['commit', '-q', '--allow-empty', '-m', 'unpublish the admission']);
   const error = await expectAdmissionError('EVIDENCE_ADMISSION_NOT_COMMITTED', () => verifyEvidenceAdmission({
@@ -407,7 +426,7 @@ test('S9 an admission that is not committed is refused: an admission is a review
     candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
     validate: validateAdmission
   }));
-  assert.match(error.message, /not committed/);
+  assert.match(error.message, /is not committed content/);
 });
 
 test('S9 an admission that was changed after it was committed is refused', async () => {

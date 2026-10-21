@@ -1762,7 +1762,9 @@ test('S8 the standalone readback reports the gap when no evidence tree is given'
   // A readback without an evidence tree cannot re-verify the bound evidence.
   // The gap is REPORTED, never silently skipped.
   const issues = await postAdoptionReadback({ record, canonicalRoot: world.tree });
-  assert.ok(issues.some((issue) => issue.includes('was not re-verified')), issues.join(' | '));
+  // The two readback gaps are reported with distinct messages, so the
+  // assertion names the one it is about.
+  assert.ok(issues.some((issue) => issue.includes('the bound evidence was not re-verified')), issues.join(' | '));
 });
 
 test('S8 frontdoor and eval helpers bind digests canonically', async () => {
