@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/skill-selection.schema.json",
+  "title": "SkillSelection Contract",
+  "description": "DSI (dynamic skill integration/selection): the canonical, versioned record of one skill-selection decision. The record is the machine-readable evidence that a skill was chosen from the skill registry snapshot by a deterministic rule, and it is the only thing the runtime is allowed to consult when it activates a skill. Scope of the record: the selection inputs (the request and its intent fingerprint), the candidate set with each candidate's identity and content digest, the per-candidate eligibility verdict, the chosen selection or the typed refusal, the deterministic ordering key that produced the order, and the evidence digest that binds the decision to the registry snapshot it was made against. Fail-closed posture: a decision that cannot be satisfied by an eligible candidate is a typed refusal, never a silent fallback to 'no skill'; a selection is not authority, so `authority_granted` is `false` by construction — selecting a skill grants no permission, promotes no skill, changes no qualification state and activates no runtime path. The scope vocabulary is the closed workflow-class vocabulary of core/contracts/workflow-routing-map.json; the runtime fails closed on vocabulary drift. Cross-field invariants the minimal schema engine cannot express (the selected skill is the first id of the ordering key, one eligibility verdict per candidate, an eligible verdict exists for a selection) are produced by construction in runtime/skills/skill-selector.mjs and asserted in tests/vnext/skill-selection.test.mjs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "selection_id",
+    "created_at",
+    "request",
+    "registry_snapshot",
+    "candidates",
+    "eligibility",
+    "outcome",
+    "selection",
+    "refusal",
+    "ordering_key",
+    "evidence_digest",
+    "authority_granted"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "selection_id": {
+      "type": "string",
+      "pattern": "^sel_[0-9a-f]{16}$",
+      "description": "Identifier of the selection decision; a deterministic function of the request digest, the registry snapshot digest, the ordering key and the outcome, so re-running the selector on unchanged inputs reproduces the id. The wall-clock stamp is deliberately not part of the id: the same decision must not change identity just because it was taken later."
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+      "description": "UTC instant at which the decision was taken. It is evidence, not an input: the ordering and the selected skill never depend on it."
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request_id", "intent_fingerprint", "scope", "required_capabilities", "request_digest"],
+      "description": "The selection inputs. `intent_fingerprint` is the caller's digest of the request intent; `request_digest` is recomputed by the selector over the other four fields, so the decision binds to exactly these inputs and a caller cannot substitute a different request under the same digest.",
+      "properties": {
+        "request_id": { "type": "string", "pattern": "^req_[a-z0-9_]+$" },
+        "intent_fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Caller-supplied digest of the request intent. The selector never interprets it; it binds the decision to the intent that was asked for."
+        },
+        "scope": {
+          "enum": [
+            "intake-and-truth-mapping",
+            "spec-and-authority-mapping",
+            "implementation-planning",
+            "implementation",
+            "verification-and-review",
+            "migration-and-compatibility",
+            "readiness-and-release-review"
+          ],
+          "description": "The work class the request belongs to. It is the closed workflow-class vocabulary of core/contracts/workflow-routing-map.json; the runtime fails closed when that vocabulary and this contract drift apart. Selection is scope-aware: a skill that is not registered for the request's scope is never eligible in it."
+        },
+        "required_capabilities": {
+          "type": "array",
+          "items": { "$ref": "maws-vnext-common.schema.json#/$defs/capabilityId" },
+          "uniqueItems": true,
+          "description": "Capability identifiers the request needs. A candidate that does not provide every listed capability is ineligible; a request that lists no capability is decided by scope and by the ordering key alone."
+        },
+        "request_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "registry_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["snapshot_ref", "snapshot_digest", "skill_count"],
+      "description": "The registry snapshot the decision was made against. The digest binds the decision to one exact registry state, so a later registry change cannot silently re-interpret an old decision.",
+      "properties": {
+        "snapshot_ref": {
+          "const": "skill_registry_snapshot@1.0.0",
+          "description": "Stable reference of the snapshot shape: the neutral registry snapshot plus the portable skill manifest plus the content digest of every skill instruction file."
+        },
+        "snapshot_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "skill_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "uniqueItems": true,
+      "description": "The candidate set that was considered, in the order the selector evaluated it. Every candidate carries its identity and the content digest of its skill instruction file, so a reviewer can see exactly which bytes were on the table.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["skill_id", "skill_path", "digest"],
+        "properties": {
+          "skill_id": {
+            "type": "string",
+            "pattern": "^[a-z]+\\.[a-z0-9][a-z0-9-]*$",
+            "description": "Canonical identity of the candidate in the neutral registry snapshot (for example `core.repo-audit`)."
+          },
+          "skill_path": {
+            "type": "string",
+            "pattern": "^(core/skills|skills|\\.agents/skills)/[A-Za-z0-9._-]+/(SKILL\\.md|[A-Za-z0-9._-]+\\.skill\\.yaml)$",
+            "description": "Repository-relative path of the skill instruction file."
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "sha256 over the bytes of the skill instruction file, as recorded in the registry snapshot."
+          }
+        }
+      }
+    },
+    "eligibility": {
+      "type": "array",
+      "description": "One verdict per candidate, in the same order as the candidate set. A rejection is recorded with its reason, so an ineligible candidate is visible instead of invisible.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["skill_id", "verdict", "reason"],
+        "properties": {
+          "skill_id": { "type": "string", "pattern": "^[a-z]+\\.[a-z0-9][a-z0-9-]*$" },
+          "verdict": { "enum": ["ELIGIBLE", "INELIGIBLE"] },
+          "reason": {
+            "enum": [
+              "ELIGIBLE",
+              "SKILL_NOT_FOUND",
+              "SKILL_DIGEST_MISMATCH",
+              "SKILL_STATE_NOT_ALLOWED",
+              "SKILL_CAPABILITY_MISSING",
+              "REQUIRED_CAPABILITY_NOT_PROVIDED"
+            ],
+            "description": "Closed eligibility vocabulary. SKILL_NOT_FOUND, SKILL_DIGEST_MISMATCH, SKILL_STATE_NOT_ALLOWED and SKILL_CAPABILITY_MISSING are the loader's denial codes and fail closed; REQUIRED_CAPABILITY_NOT_PROVIDED is the selector's own rejection (the candidate does not provide a capability the request needs)."
+          }
+        },
+        "allOf": [
+          {
+            "description": "An eligible verdict carries the ELIGIBLE reason and an ineligible verdict carries a denial reason; the two can never be mixed.",
+            "if": {
+              "required": ["verdict"],
+              "properties": { "verdict": { "const": "ELIGIBLE" } }
+            },
+            "then": { "properties": { "reason": { "const": "ELIGIBLE" } } },
+            "else": {
+              "properties": {
+                "reason": {
+                  "enum": [
+                    "SKILL_NOT_FOUND",
+                    "SKILL_DIGEST_MISMATCH",
+                    "SKILL_STATE_NOT_ALLOWED",
+                    "SKILL_CAPABILITY_MISSING",
+                    "REQUIRED_CAPABILITY_NOT_PROVIDED"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "outcome": {
+      "enum": ["SELECTED", "REFUSED"],
+      "description": "The decision. SELECTED names one skill; REFUSED names a typed refusal code. There is no third state: a request that cannot be satisfied is refused, never silently answered with 'no skill'."
+    },
+    "selection": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["skill_id", "skill_path", "digest", "rank"],
+      "description": "The chosen skill. Present only for outcome SELECTED; forbidden for outcome REFUSED.",
+      "properties": {
+        "skill_id": { "type": "string", "pattern": "^[a-z]+\\.[a-z0-9][a-z0-9-]*$" },
+        "skill_path": {
+          "type": "string",
+          "pattern": "^(core/skills|skills|\\.agents/skills)/[A-Za-z0-9._-]+/(SKILL\\.md|[A-Za-z0-9._-]+\\.skill\\.yaml)$"
+        },
+        "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "rank": {
+          "const": 1,
+          "description": "The selected skill is always rank 1 of the ordering key; the rank is recorded so a reader can see that the first ordered candidate is the one that was chosen."
+        }
+      }
+    },
+    "refusal": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["code", "reason"],
+      "description": "The typed refusal. Present only for outcome REFUSED; forbidden for outcome SELECTED.",
+      "properties": {
+        "code": {
+          "enum": ["EMPTY_CANDIDATE_SET", "NO_ELIGIBLE_CANDIDATE"],
+          "description": "Closed refusal vocabulary. EMPTY_CANDIDATE_SET: the candidate set was empty, so no skill could even be considered. NO_ELIGIBLE_CANDIDATE: candidates existed but none passed the eligibility gate, so the request cannot be satisfied by the current registry snapshot."
+        },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "ordering_key": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule", "ordered_candidate_ids", "key"],
+      "description": "The deterministic ordering key. `rule` names the comparison that produced the order, `ordered_candidate_ids` is the resulting total order over the eligible candidates, and `key` is the digest over both, so two different orders can never share a key.",
+      "properties": {
+        "rule": {
+          "const": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
+          "description": "The one ordering rule of this contract. Eligible candidates are compared first by context footprint (the number of capabilities the skill itself requires from the caller, ascending — the least demanding skill that satisfies the request wins) and then by ascending skill id, which is a total order over distinct candidate identities and therefore makes the order and the selection unique. No wall clock, no randomness and no filesystem order enters the comparison."
+        },
+        "ordered_candidate_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z]+\\.[a-z0-9][a-z0-9-]*$" },
+          "uniqueItems": true,
+          "description": "The eligible candidates in the order the rule produced. Empty for a refusal."
+        },
+        "key": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "evidence_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Digest over the request digest, the registry snapshot digest, the ordering key, the outcome and the selected skill id (or the refusal code). It binds the decision to the registry snapshot it was made against: change the request, the snapshot, the order or the outcome and the evidence digest changes."
+    },
+    "authority_granted": {
+      "const": false,
+      "description": "A selection is not authority. Selecting a skill grants no permission, promotes no skill, changes no qualification state and activates no runtime path; the activation decision stays with the caller and its own governance."
+    }
+  },
+  "allOf": [
+    {
+      "description": "A selection names exactly one skill and no refusal.",
+      "if": {
+        "required": ["outcome"],
+        "properties": { "outcome": { "const": "SELECTED" } }
+      },
+      "then": {
+        "required": ["selection"],
+        "properties": {
+          "selection": { "type": "object" },
+          "refusal": { "type": "null" },
+          "ordering_key": {
+            "properties": { "ordered_candidate_ids": { "minItems": 1 } }
+          }
+        }
+      }
+    },
+    {
+      "description": "A refusal names a typed refusal code and no selection, and no candidate is eligible.",
+      "if": {
+        "required": ["outcome"],
+        "properties": { "outcome": { "const": "REFUSED" } }
+      },
+      "then": {
+        "required": ["refusal"],
+        "properties": {
+          "refusal": { "type": "object" },
+          "selection": { "type": "null" },
+          "ordering_key": {
+            "properties": { "ordered_candidate_ids": { "maxItems": 0 } }
+          },
+          "eligibility": {
+            "items": {
+              "properties": { "verdict": { "const": "INELIGIBLE" } }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "An empty candidate set is refused as EMPTY_CANDIDATE_SET and carries neither a candidate nor a verdict.",
+      "if": {
+        "required": ["refusal"],
+        "properties": {
+          "refusal": {
+            "type": "object",
+            "required": ["code"],
+            "properties": { "code": { "const": "EMPTY_CANDIDATE_SET" } }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "candidates": { "maxItems": 0 },
+          "eligibility": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "description": "A refusal that is not caused by an empty candidate set carries at least one verdict, so the record shows what was considered and rejected.",
+      "if": {
+        "required": ["refusal"],
+        "properties": {
+          "refusal": {
+            "type": "object",
+            "required": ["code"],
+            "properties": { "code": { "const": "NO_ELIGIBLE_CANDIDATE" } }
+          }
+        }
+      },
+      "then": { "properties": { "eligibility": { "minItems": 1 } } }
+    }
+  ]
+}
