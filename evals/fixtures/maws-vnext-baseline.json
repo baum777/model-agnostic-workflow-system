@@ -194,14 +194,17 @@
       "contracts": [
         "core/contracts/skill-promotion-adoption.schema.json",
         "core/contracts/owner-authority.schema.json",
-        "core/contracts/owner-approval.schema.json"
+        "core/contracts/owner-approval.schema.json",
+        "core/contracts/evidence-provenance.schema.json"
       ],
       "fixture_covered": true,
       "runtime": [
         "runtime/skills/owner-authority.mjs",
         "runtime/skills/export-regeneration.mjs",
         "scripts/tools/promote-skill-candidate.mjs",
-        "runtime/skills/canonical-path.mjs"
+        "runtime/skills/canonical-path.mjs",
+        "scripts/tools/evidence-provenance.mjs",
+        "tests/vnext/evidence-provenance.test.mjs"
       ]
     }
   ]

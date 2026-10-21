@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0.0",
+  "eval_id": "bev_skill_effectiveness_2026_10_21_candidate",
+  "created_at": "2026-10-21T03:35:46.573Z",
+  "variant": "CANDIDATE",
+  "subject": {
+    "kind": "routing_profile",
+    "ref": "maws-workflow-core-router-profile"
+  },
+  "model_run": {
+    "mode": "recorded_replay",
+    "isolated": true,
+    "executor_ref": "recorded_corpus_transcripts",
+    "isolation_envelope": {
+      "workspace_write": "none",
+      "network": "deny",
+      "inherited_qualification": "none",
+      "allowed_effects": []
+    }
+  },
+  "case_families": [
+    {
+      "family": "positive",
+      "blocking": true,
+      "corpus_digest": "sha256:cbd9488853b45d6166fb1a38607395b975fde694340b43d43cc19ba6ce3b9efe",
+      "cases_total": 3,
+      "cases_passed": 3,
+      "cases_failed": 0
+    },
+    {
+      "family": "negative",
+      "blocking": true,
+      "corpus_digest": "sha256:e87e4a58c20547de229b98218a5e636a909a1ce7bca59413b53bff012a9de48d",
+      "cases_total": 3,
+      "cases_passed": 3,
+      "cases_failed": 0
+    },
+    {
+      "family": "security_regression",
+      "blocking": true,
+      "corpus_digest": "sha256:c548d38ec5d55350d8bc1d6795b22e8ce580289f52407b9e56ed97487f744f5c",
+      "cases_total": 3,
+      "cases_passed": 3,
+      "cases_failed": 0
+    },
+    {
+      "family": "model_parity",
+      "blocking": false,
+      "corpus_digest": "sha256:315f04f682e0c9a3d10e6a2d99fa2983cd121caef99fb2e00c779f2fc431aa96",
+      "cases_total": 2,
+      "cases_passed": 1,
+      "cases_failed": 1
+    }
+  ],
+  "metrics": {
+    "routing": {
+      "decisions_expected": 11,
+      "decisions_matched": 10
+    },
+    "output": {
+      "assertions_total": 16,
+      "assertions_passed": 15
+    },
+    "cost": {
+      "tokens_in": 8230,
+      "tokens_out": 1736,
+      "cost_units": 0.02
+    },
+    "latency": {
+      "latency_ms_max": 1240
+    }
+  },
+  "security_gate": {
+    "security_cases_total": 3,
+    "security_regressions": 0,
+    "gate": "PASS"
+  },
+  "verdict": "IMPROVEMENT_PROVEN",
+  "reproducibility": {
+    "corpus_ref": "skill-effectiveness",
+    "corpus_digest": "sha256:3e5116fed728b3902002dddd790092ff10d5098d578a70076e1d5e4559dd7b54",
+    "runner": "run-skill-effectiveness-evals.mjs",
+    "content_digest": "sha256:0170c46b56b652cd6b407cbfe7e5c30fb14d3bc5c0056b0f3012c5607c5f96ed"
+  },
+  "evidence_refs": [
+    "corpus:skill-effectiveness"
+  ],
+  "baseline_ref": "bev_skill_effectiveness_2026_10_21_baseline",
+  "comparison": {
+    "baseline_eval_id": "bev_skill_effectiveness_2026_10_21_baseline",
+    "routing_accuracy_delta": 0,
+    "output_assertion_pass_delta": 0.0625,
+    "security_regressions": 0
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/evidence-provenance.schema.json",
+  "title": "EvidenceProvenanceAttestation Contract",
+  "description": "S8 (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED): the attestation that binds one behavioral evaluation to the immutable execution results it claims to come from. A behavioral eval record is a RECEIPT; a receipt is not verification. This attestation is the trace: the record is read from the canonical evidence surface (never supplied by the caller), it satisfies its own content seal, the corpus it names is re-hashed from disk, the evaluation is RE-EXECUTED over that corpus and must reproduce the record field for field, and the comparison AND the verdict are re-derived from the baseline record on disk. A record that does not reproduce carries no evidence. Receipt != Verification: the attestation proves that a receipt reproduces; it grants no permission, no qualification and no authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "record_ref", "record_digest", "content_digest",
+    "corpus_ref", "corpus_digest", "baseline_record_ref", "baseline_record_digest",
+    "verdict", "subject_ref", "created_at", "execution_mode",
+    "execution_rederived", "comparison_rederived", "runner_ref", "runner_digest",
+    "verified_at"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "record_ref": {
+      "type": "string",
+      "pattern": "^evidence/[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*\\.json$",
+      "description": "The canonical evidence-surface reference of the record that was read from disk. A reference is not a path into an arbitrary tree: it names a file of the governed evidence surface."
+    },
+    "record_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "The whole-record digest recomputed from the bytes on disk. It binds the attestation to the exact artifact that was verified, including its creation time."
+    },
+    "content_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "The record's own content seal, recomputed. It proves the record was not edited after it was sealed."
+    },
+    "corpus_ref": {
+      "type": "string",
+      "pattern": "^evals/[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*$",
+      "description": "The canonical corpus-surface reference the evaluation was re-executed over."
+    },
+    "corpus_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "The digest of the whole corpus, recomputed from its files on disk. A corpus that moved under the record changes this digest and breaks the binding."
+    },
+    "baseline_record_ref": {
+      "type": "string",
+      "pattern": "^evidence/[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*\\.json$",
+      "description": "The canonical evidence-surface reference of the baseline record the verdict was re-derived from."
+    },
+    "baseline_record_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "The whole-record digest of the baseline record on disk."
+    },
+    "verdict": {
+      "enum": ["IMPROVEMENT_PROVEN", "IMPROVEMENT_REJECTED"],
+      "description": "The re-derived verdict. A BLOCKED evaluation never reaches an attestation."
+    },
+    "subject_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The subject the evaluation measured. It is the corpus subject AND the record subject AND the promoted skill."
+    },
+    "created_at": { "type": "string", "minLength": 1 },
+    "execution_mode": {
+      "const": "recorded_replay",
+      "description": "Only a recorded_replay evaluation is deterministic enough to be re-executed. A live_model record is refused instead of being accepted unverified."
+    },
+    "execution_rederived": {
+      "const": true,
+      "description": "The evaluation was re-executed over the corpus and reproduced the record field for field."
+    },
+    "comparison_rederived": {
+      "const": true,
+      "description": "The comparison AND the verdict were re-derived from the baseline record on disk."
+    },
+    "runner_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The canonical runner that produces and re-executes the evaluation, so a receipt names the code that reproduces it."
+    },
+    "runner_digest": {
+      "type": ["string", "null"],
+      "description": "The digest of the canonical runner source, bound to the attestation."
+    },
+    "verified_at": { "type": "string", "minLength": 1 }
+  }
+}

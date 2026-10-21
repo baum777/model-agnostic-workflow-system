@@ -23,8 +23,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { canonicalJson, nowIso } from '../../runtime/vnext/util.mjs';
 import { validateInstanceAgainstContract } from './validate-maws-vnext-contracts.mjs';
-import { validateBehavioralEvalRecord, semanticEvalIssues } from './validate-behavioral-eval.mjs';
-import { computeContentDigest } from './run-skill-effectiveness-evals.mjs';
+import { validateBehavioralEvalRecord } from './validate-behavioral-eval.mjs';
+import { verifyEvidenceProvenance } from './evidence-provenance.mjs';
 import {
   loadOwnerAuthority,
   readOwnerApproval,
@@ -45,7 +45,6 @@ const ADOPTION_CONTRACT = 'core/contracts/skill-promotion-adoption.schema.json';
 const FRONTDOOR_CONTRACT = 'core/contracts/skill-frontdoor-admission.schema.json';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SKILL_ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
-const DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/;
 const DEFAULT_MAX_EVIDENCE_AGE_DAYS = 90;
 // An owner decision expires like every other evidence input.
 const DEFAULT_MAX_APPROVAL_AGE_DAYS = 90;
@@ -135,15 +134,23 @@ export function validateFrontdoorAdmission({ admissionPath, root = REPO_ROOT }) 
   return { record, digest };
 }
 
-// validateEvalEvidence({ evalRecords, root, skillId, now, maxEvidenceAgeDays })
-// -> the bound evidence list. Every referenced S5 behavioral eval record must
-// be schema-valid, carry a matching content digest, measure THE promoted
-// skill, come from ONE corpus, be within the evidence age bound, and none may
-// be BLOCKED; improvement proof requires at least one IMPROVEMENT_PROVEN
-// record.
-export function validateEvalEvidence({
+// validateEvalEvidence({ evalRecords, root, evidenceRoot, skillId, now,
+// maxEvidenceAgeDays }) -> the bound evidence with its provenance
+// attestations.
+//
+// The evidence is NOT supplied by the caller. Every entry names a record in
+// the canonical evidence surface, the corpus it was produced from and the
+// baseline it was compared against. The record is READ FROM DISK, the corpus
+// is re-hashed from disk, the evaluation is RE-EXECUTED over that corpus and
+// the verdict is re-derived from the baseline on disk. A caller-supplied
+// record object, digest or verdict legitimizes nothing: the caller's
+// expectation is only ever checked AGAINST that truth.
+//
+// A caller digest can therefore only narrow this gate, never widen it.
+export async function validateEvalEvidence({
   evalRecords,
   root = REPO_ROOT,
+  evidenceRoot = null,
   skillId,
   now = nowIso,
   maxEvidenceAgeDays = DEFAULT_MAX_EVIDENCE_AGE_DAYS
@@ -151,62 +158,50 @@ export function validateEvalEvidence({
   if (!Array.isArray(evalRecords) || evalRecords.length === 0) {
     promotionError('EVAL_EVIDENCE_MISSING', 'promotion requires at least one behavioral eval record');
   }
+  const tree = evidenceRoot ?? root;
   const bound = [];
-  const corpusDigests = new Set();
+  const corpusRefs = new Set();
   for (const entry of evalRecords) {
-    const issues = validateBehavioralEvalRecord(entry.record, root);
-    if (issues.length > 0) {
-      promotionError('EVAL_RECORD_INVALID', `${entry.record_ref}: behavioral eval record violates contract: ${issues.join('; ')}`);
+    if (!isNonEmptyString(entry?.record_ref) || !isNonEmptyString(entry?.corpus_ref) || !isNonEmptyString(entry?.baseline_record_ref)) {
+      promotionError('EVAL_EVIDENCE_SHAPE_INVALID', 'every bound evaluation names a record_ref, a corpus_ref and a baseline_record_ref');
     }
-    const semantic = semanticEvalIssues(entry.record);
-    if (semantic.length > 0) {
-      promotionError('EVAL_RECORD_INVALID', `${entry.record_ref}: ${semantic.join('; ')}`);
+    if (entry.record !== undefined) {
+      promotionError('EVAL_EVIDENCE_INLINE_RECORD_FORBIDDEN', `${entry.record_ref}: the evaluation is read from the canonical evidence surface; a caller-supplied record object legitimizes nothing`);
     }
-    // computeContentDigest already returns the sha256:-prefixed form.
-    const digest = computeContentDigest(entry.record);
-    if (digest !== entry.expected_digest) {
-      promotionError('EVAL_EVIDENCE_DIGEST_MISMATCH', `${entry.record_ref}: content digest ${digest} does not match the bound ${entry.expected_digest}`);
+    let attestation;
+    try {
+      attestation = await verifyEvidenceProvenance({
+        root: tree,
+        recordRef: entry.record_ref,
+        corpusRef: entry.corpus_ref,
+        baselineRecordRef: entry.baseline_record_ref,
+        expectedDigest: entry.expected_digest ?? null,
+        skillId,
+        now,
+        maxEvidenceAgeDays,
+        validate: (record) => validateBehavioralEvalRecord(record, root)
+      });
+    } catch (error) {
+      promotionError(error?.code || 'EVIDENCE_PROVENANCE_FAILED', error.message);
     }
-    if (entry.record.verdict === 'BLOCKED') {
-      promotionError('EVAL_EVIDENCE_BLOCKED', `${entry.record_ref}: a BLOCKED behavioral eval can never support promotion`);
-    }
-    // The evidence must measure the promoted skill itself: an eval of a
-    // different subject never authorizes this promotion.
-    if (isNonEmptyString(skillId) && entry.record.subject?.ref !== skillId) {
-      promotionError('EVAL_EVIDENCE_SUBJECT_MISMATCH', `${entry.record_ref}: the eval measured subject "${entry.record.subject?.ref}", not the promoted skill "${skillId}"`);
-    }
-    const corpusDigest = entry.record.reproducibility?.corpus_digest;
-    if (!DIGEST_PATTERN.test(String(corpusDigest))) {
-      promotionError('EVAL_EVIDENCE_CORPUS_MISMATCH', `${entry.record_ref}: the eval carries no corpus digest`);
-    }
-    corpusDigests.add(corpusDigest);
-    // Evidence freshness: a stale measurement cannot support a promotion.
-    const createdAt = Date.parse(entry.record.created_at);
-    if (Number.isNaN(createdAt)) {
-      promotionError('EVAL_EVIDENCE_STALE', `${entry.record_ref}: created_at "${entry.record.created_at}" is not a timestamp`);
-    }
-    const ageDays = (Date.parse(now()) - createdAt) / 86400000;
-    if (ageDays > maxEvidenceAgeDays) {
-      promotionError('EVAL_EVIDENCE_STALE', `${entry.record_ref}: the evidence is ${ageDays.toFixed(1)} days old, the bound is ${maxEvidenceAgeDays} days`);
-    }
-    bound.push({
-      record_ref: entry.record_ref,
-      content_digest: digest,
-      verdict: entry.record.verdict,
-      subject_ref: entry.record.subject.ref,
-      corpus_digest: corpusDigest,
-      created_at: entry.record.created_at
-    });
+    corpusRefs.add(attestation.corpus_ref);
+    bound.push(attestation);
   }
+  if (corpusRefs.size !== 1) {
+    promotionError('EVIDENCE_CORPUS_MISMATCH', `the bound evidence comes from ${corpusRefs.size} different corpora; one promotion binds one corpus`);
+  }
+  const corpusDigests = new Set(bound.map((entry) => entry.corpus_digest));
   if (corpusDigests.size !== 1) {
-    promotionError('EVAL_EVIDENCE_CORPUS_MISMATCH', `the bound evidence comes from ${corpusDigests.size} different corpora; one promotion binds one corpus`);
+    promotionError('EVIDENCE_CORPUS_MISMATCH', `the bound evidence resolves to ${corpusDigests.size} different corpus digests; one promotion binds one corpus`);
   }
   const improvementProven = bound.some((entry) => entry.verdict === 'IMPROVEMENT_PROVEN');
   return {
     behavioral_eval_records: bound,
     improvement_proven: improvementProven,
+    corpus_ref: [...corpusRefs][0],
     corpus_digest: [...corpusDigests][0],
-    max_evidence_age_days: maxEvidenceAgeDays
+    max_evidence_age_days: maxEvidenceAgeDays,
+    provenance_verified: true
   };
 }
 
@@ -373,9 +368,18 @@ export function semanticPromotionIssues(record) {
   if (record.eval_evidence?.improvement_proven === true && !records.some((entry) => entry.verdict === 'IMPROVEMENT_PROVEN')) {
     issues.push('eval_evidence: improvement_proven is asserted without an IMPROVEMENT_PROVEN record');
   }
+  if (record.eval_evidence?.provenance_verified !== true) {
+    issues.push('eval_evidence: the evidence was not traced back to its immutable execution results');
+  }
   for (const entry of records) {
     if (entry.subject_ref !== record.candidate?.skill_id) {
       issues.push(`eval_evidence: ${entry.record_ref} measured subject "${entry.subject_ref}", not the promoted skill`);
+    }
+    if (entry.execution_rederived !== true) {
+      issues.push(`eval_evidence: ${entry.record_ref} was not re-executed over its corpus`);
+    }
+    if (entry.comparison_rederived !== true) {
+      issues.push(`eval_evidence: ${entry.record_ref} was not re-derived from its baseline`);
     }
   }
   if (record.candidate?.screened_digest !== record.candidate?.candidate_digest) {
@@ -410,17 +414,20 @@ export function semanticPromotionIssues(record) {
 
 // promoteSkillCandidate({ adoptionId, skillId, adoptedVersion,
 // supersededVersion, candidateContent, candidateDigest, admissionPath,
-// evalRecords, ownerApprovalRef, ownerAuthorityPath, canonicalRoot, now,
-// maxEvidenceAgeDays, maxApprovalAgeDays, onExportsWritten }) ->
-// { record, issues, canonicalPath }.
+// evalRecords, ownerApprovalRef, ownerAuthorityPath, canonicalRoot,
+// evidenceRoot, now, maxEvidenceAgeDays, maxApprovalAgeDays,
+// onExportsWritten }) -> { record, issues, canonicalPath }.
 //
 // TEST SEAMS: `ownerAuthorityPath`, `maxEvidenceAgeDays`,
-// `maxApprovalAgeDays` and `onExportsWritten` are injection points for the
-// tests. The production entry point (runCli) pins the first three and never
-// passes the fourth. `onExportsWritten` runs between the export write and
-// the export readback; the adopted content is verified AGAIN after the
-// export step, so a hook cannot make the promotion report success over a
-// tree state that violates its own invariant.
+// `maxApprovalAgeDays`, `evidenceRoot` and `onExportsWritten` are injection
+// points for the tests. The production entry point (runCli) pins the first
+// four and never passes the fifth: the trust anchor, the age bounds and the
+// evidence tree are read from the pinned canonical location of this
+// installation, so an input file can never widen a gate of the promotion
+// chain. `onExportsWritten` runs between the export write and the export
+// readback; the adopted content is verified AGAIN after the export step, so
+// a hook cannot make the promotion report success over a tree state that
+// violates its own invariant.
 //
 // Executes the full chain against the caller-provided canonicalRoot (a real
 // promotion on the live tree is an owner act), regenerates the canonical
@@ -428,7 +435,7 @@ export function semanticPromotionIssues(record) {
 // the post-adoption readback fail-closed. A record that does not satisfy the
 // contract leaves NO mutation behind: the canonical file AND the regenerated
 // exports are restored before the issues are returned.
-export function promoteSkillCandidate({
+export async function promoteSkillCandidate({
   adoptionId,
   skillId,
   adoptedVersion,
@@ -440,6 +447,7 @@ export function promoteSkillCandidate({
   ownerApprovalRef,
   ownerAuthorityPath = path.join(REPO_ROOT, CANONICAL_OWNER_AUTHORITY_PATH),
   canonicalRoot,
+  evidenceRoot = null,
   now = nowIso,
   root = REPO_ROOT,
   maxEvidenceAgeDays = DEFAULT_MAX_EVIDENCE_AGE_DAYS,
@@ -460,7 +468,14 @@ export function promoteSkillCandidate({
     promotionError('PROMOTION_CANDIDATE_CONTENT_MISMATCH', `the frontdoor screened content ${screenedDigest}, the promoted content digests to ${candidateDigest}`);
   }
 
-  const evalEvidence = validateEvalEvidence({ evalRecords, root, skillId, now, maxEvidenceAgeDays });
+  const evalEvidence = await validateEvalEvidence({
+    evalRecords,
+    root,
+    evidenceRoot,
+    skillId,
+    now,
+    maxEvidenceAgeDays
+  });
   const approval = validateOwnerApproval({
     ownerApprovalRef,
     ownerAuthorityPath,
@@ -659,10 +674,17 @@ export function promoteSkillCandidate({
   }
 
   // The readback runs BEFORE the ledger entry is written: the adopted file,
-  // the regenerated exports and the owner approval must still be the ones
-  // the record describes. (The ledger entry itself is checked by the
-  // standalone readback after the append.)
-  const readbackIssues = postAdoptionReadback({ record, canonicalRoot, expectLedgerEntry: false });
+  // the regenerated exports, the owner approval and the bound evidence must
+  // still be the ones the record describes. (The ledger entry itself is
+  // checked by the standalone readback after the append.)
+  const readbackIssues = await postAdoptionReadback({
+    record,
+    canonicalRoot,
+    evidenceRoot,
+    validate: (candidate) => validateBehavioralEvalRecord(candidate, root),
+    now,
+    expectLedgerEntry: false
+  });
   if (readbackIssues.length > 0) {
     const failures = rollbackPromotion({ canonicalPath: paths.canonicalPath, priorContent, exportSnapshot, canonicalRoot });
     if (failures.length > 0) {
@@ -734,11 +756,17 @@ function restoreCanonicalFile({ canonicalPath, priorContent }) {
   }
 }
 
-// postAdoptionReadback({ record, canonicalRoot }) -> string[] issues.
+// postAdoptionReadback({ record, canonicalRoot, evidenceRoot, validate,
+// now }) -> string[] issues.
 // Re-reads the adopted canonical file and the bound inputs; the adoption
 // digest must still match the record. Exported for tests and for the
 // standalone readback after the fact.
-export function postAdoptionReadback({ record, canonicalRoot, expectLedgerEntry = true }) {
+//
+// The bound evidence is re-VERIFIED, not merely re-read: the evaluation is
+// executed again over the corpus and the verdict is derived again from the
+// baseline. A receipt that stopped reproducing between the gate and the
+// adoption is a failed readback.
+export async function postAdoptionReadback({ record, canonicalRoot, evidenceRoot = null, validate = null, now = nowIso, expectLedgerEntry = true }) {
   const issues = [];
   const canonicalPath = path.join(canonicalRoot, record.canonical_adoption.canonical_path);
   let content = null;
@@ -796,10 +824,40 @@ export function postAdoptionReadback({ record, canonicalRoot, expectLedgerEntry 
       issues.push(`post_adoption_readback: regenerated export ${entry.ref} digests to ${exportDigest}, record binds ${entry.digest}`);
     }
   }
+  // The bound evidence is re-VERIFIED: the evaluation is executed again over
+  // the corpus and the verdict is derived again from the baseline. The
+  // evidence that vouched for the adoption must still reproduce.
+  if (evidenceRoot) {
+    for (const entry of record.eval_evidence?.behavioral_eval_records ?? []) {
+      try {
+        const reattested = await verifyEvidenceProvenance({
+          root: evidenceRoot,
+          recordRef: entry.record_ref,
+          corpusRef: entry.corpus_ref,
+          baselineRecordRef: entry.baseline_record_ref,
+          expectedDigest: entry.content_digest,
+          skillId: record.candidate?.skill_id ?? null,
+          now,
+          validate
+        });
+        if (reattested.record_digest !== entry.record_digest) {
+          issues.push(`post_adoption_readback: the behavioral eval record ${entry.record_ref} digests to ${reattested.record_digest}, record binds ${entry.record_digest}`);
+        }
+        if (reattested.corpus_digest !== entry.corpus_digest) {
+          issues.push(`post_adoption_readback: the corpus of ${entry.record_ref} digests to ${reattested.corpus_digest}, record binds ${entry.corpus_digest}`);
+        }
+        if (reattested.verdict !== entry.verdict) {
+          issues.push(`post_adoption_readback: the verdict of ${entry.record_ref} re-derives to ${reattested.verdict}, record binds ${entry.verdict}`);
+        }
+      } catch (error) {
+        issues.push(`post_adoption_readback: the bound evidence ${entry.record_ref} no longer reproduces: ${error.message}`);
+      }
+    }
+  }
   return issues;
 }
 
-export function runCli(args) {
+export async function runCli(args) {
   const inputIndex = args.indexOf('--input');
   if (inputIndex === -1) {
     console.error('usage: promote-skill-candidate.mjs --input <adoption-input.json>');
@@ -811,11 +869,12 @@ export function runCli(args) {
   } catch (error) {
     return { ok: false, issues: [`PROMOTION_INPUT_UNREADABLE: ${error.message}`] };
   }
-  // The CLI accepts an ALLOWLIST of inputs. Neither the trust anchor nor the
-  // evidence age bound is part of it: the canonical owner authority is read
-  // from the pinned canonical location of this installation, and the
-  // freshness bound is fixed by the contract, so an input file can never
-  // widen a gate of the promotion chain.
+  // The CLI accepts an ALLOWLIST of inputs. Neither the trust anchor, nor the
+  // evidence age bound, nor the evidence tree is part of it: the canonical
+  // owner authority and the behavioral evidence are read from the pinned
+  // canonical location of this installation, and the freshness bound is
+  // fixed by the contract, so an input file can never widen a gate of the
+  // promotion chain.
   const {
     adoption_id: adoptionId,
     skill_id: skillId,
@@ -839,7 +898,7 @@ export function runCli(args) {
     return { ok: false, issues: [`PROMOTION_CANONICAL_ROOT_MISSING: the canonical root ${resolvedCanonicalRoot} is not a readable directory`], record: null };
   }
   try {
-    const { record, issues } = promoteSkillCandidate({
+    const { record, issues } = await promoteSkillCandidate({
       adoptionId,
       skillId,
       adoptedVersion,
@@ -851,6 +910,7 @@ export function runCli(args) {
       ownerApprovalRef,
       ownerAuthorityPath: path.join(REPO_ROOT, CANONICAL_OWNER_AUTHORITY_PATH),
       canonicalRoot: resolvedCanonicalRoot,
+      evidenceRoot: REPO_ROOT,
       root: REPO_ROOT,
       now: nowIso,
       maxEvidenceAgeDays: DEFAULT_MAX_EVIDENCE_AGE_DAYS
@@ -868,7 +928,7 @@ export function runCli(args) {
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
-  const result = runCli(process.argv.slice(2));
+  const result = await runCli(process.argv.slice(2));
   console.log(JSON.stringify(result, null, 2));
   process.exit(result.ok ? 0 : 2);
 }

@@ -67,7 +67,7 @@ const store = loadProfileStore({ root });
 
 const FIXTURE_PATH = 'evals/fixtures/maws-vnext/executor-model-profile.contracts.json';
 const QUALIFICATION_FINGERPRINT_CONTRACT = 'core/contracts/qualification-fingerprint.schema.json';
-const PINNED_DIGEST = 'sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff';
+const PINNED_DIGEST = 'sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c';
 const HARNESS = 'development_harness/in_process_fixture/1';
 
 function expectFailClosed(code, fn) {

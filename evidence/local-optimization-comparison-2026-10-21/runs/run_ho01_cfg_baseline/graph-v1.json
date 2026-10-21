@@ -1,7 +1,7 @@
 {
   "graph_id": "graph_run_ho01_cfg_baseline",
   "graph_version": 1,
-  "candidate_ref": "cand_79c608506d29",
+  "candidate_ref": "cand_9442bf65d1de",
   "nodes": [
     {
       "node_id": "node_00_analysis",
@@ -10,7 +10,7 @@
       "depends_on": [],
       "executor_binding": {
         "executor_id": "exec_openrouter_glm",
-        "routing_decision_ref": "rd_59da4759587f",
+        "routing_decision_ref": "rd_7ce0f73bcc3c",
         "qualification_ref": "qual_openrouter_glm_repository_analysis",
         "selection_mode": "NORMAL_SELECTION",
         "harness_context": "development_harness",
@@ -26,7 +26,7 @@
       ],
       "executor_binding": {
         "executor_id": "exec_unitera_execution_control_fixture",
-        "routing_decision_ref": "rd_a515492ad704",
+        "routing_decision_ref": "rd_27b7518e448d",
         "qualification_ref": "qual_unitera_execution_control_fixture_s2b",
         "selection_mode": "NORMAL_SELECTION",
         "harness_context": "development_harness",
@@ -42,7 +42,7 @@
       ],
       "executor_binding": {
         "executor_id": "exec_local_tests",
-        "routing_decision_ref": "rd_84b58d949bf8",
+        "routing_decision_ref": "rd_0daf42081fb5",
         "qualification_ref": "qual_local_tests_deterministic_verification",
         "selection_mode": "NORMAL_SELECTION",
         "harness_context": "development_harness",
@@ -51,5 +51,5 @@
     }
   ],
   "immutable": true,
-  "created_at": "2026-10-21T01:11:39.360Z"
+  "created_at": "2026-10-21T03:51:41.227Z"
 }

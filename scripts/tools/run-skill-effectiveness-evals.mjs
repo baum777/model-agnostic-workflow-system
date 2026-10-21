@@ -414,6 +414,13 @@ function accuracyRatio(matched, expected) {
  */
 export function compareRecords(baselineRecord, candidateRecord) {
   if (candidateRecord.verdict === 'BLOCKED') {
+    // A BLOCKED candidate names its baseline even though the comparison
+    // does not run: the record must stay traceable to the evaluation it
+    // was produced against, and the canonical contract requires the
+    // reference for every CANDIDATE record.
+    if (candidateRecord.variant === 'CANDIDATE' && baselineRecord.variant === 'BASELINE') {
+      candidateRecord.baseline_ref = baselineRecord.eval_id;
+    }
     return candidateRecord;
   }
   if (candidateRecord.variant !== 'CANDIDATE' || baselineRecord.variant !== 'BASELINE') {
