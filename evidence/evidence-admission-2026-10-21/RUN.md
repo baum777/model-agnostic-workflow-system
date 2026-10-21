@@ -57,6 +57,8 @@ Both independent review rounds returned findings; every finding was confirmed re
 
 Twenty-seven probes, each neutering one guard in an isolated copy of the committed tree. The first run reported **six unbound guards and one stale probe**; every one was a real gap in the test suite (or a stale probe definition) and was repaired: the specific readback-gap and not-committed messages, the content-source identity, the material-set self-check, the runtime authority rule, the calculator CLI, and the corpus-content probe retargeted to the layer that decides it (the S5 loader's confinement, which the S8 module's second layer now shadows).
 
+**Final result: 27 of 27 BOUND, 0 unbound, 0 broken.** Every executed run genuinely executed its suite (tests > 0, cancelled 0, skipped 0, no uncaught exceptions). The strongest mutant is the git-source proof (nine failing cases across the admission suite), which is the trust anchor of the admission contract.
+
 The S8 module's own corpus-content check is now **shadowed** by the S5 loader: the loader refuses the escape first, with the same error code. The property is enforced; the inner check is a redundant second layer. The S8 module is not touched by this run, so the redundancy is recorded here rather than repaired.
 
 ## Foreign gates — explicitly NOT closed by this run
