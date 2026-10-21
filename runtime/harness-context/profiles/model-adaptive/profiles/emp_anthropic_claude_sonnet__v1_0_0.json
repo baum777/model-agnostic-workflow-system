@@ -1,0 +1,81 @@
+{
+  "profile_id": "emp_anthropic_claude_sonnet",
+  "profile_version": "1.0.0",
+  "schema_version": "1.0.0",
+  "executor_id": "exec_anthropic_claude",
+  "provider_id": "anthropic-claude",
+  "model_id": "claude-sonnet-4-5",
+  "execution_profile_ref": "profile_readonly_v1",
+  "authority_grant": "none",
+  "runtime_requirements": ["structured_output", "tool_calls"],
+  "presentation": {
+    "instruction_density": {
+      "level": "balanced",
+      "structure": "sectioned",
+      "max_directives": 32
+    },
+    "example_selection": {
+      "mode": "representative",
+      "count": 2,
+      "include_failure_examples": true
+    },
+    "output_formatting": {
+      "mode": "schema_bound",
+      "structured_output": "adapter_schema",
+      "require_explicit_json_instruction": false
+    },
+    "context_packaging": {
+      "unit": "sectioned_blocks",
+      "ordering": [
+        "system_role",
+        "task",
+        "constraints",
+        "examples",
+        "tools",
+        "output_contract",
+        "context"
+      ],
+      "section_header_style": "markdown_heading",
+      "system_channel": "system_role"
+    },
+    "tool_call_interface_requirements": {
+      "call_style": "native_function_call",
+      "argument_encoding": "schema_bound",
+      "parallel_tool_calls": "allowed",
+      "requires_tool_result_echo": true
+    },
+    "retry_strategy": {
+      "max_attempts": 2,
+      "on_ineffective_task": "replan",
+      "backoff": "linear"
+    }
+  },
+  "semantics_preservation": {
+    "task_scope": "unchanged",
+    "authority_ceiling": "unchanged",
+    "tool_rights": "unchanged",
+    "security_controls": "unchanged",
+    "completion_criteria": "unchanged",
+    "evidence_requirements": "unchanged",
+    "pinned_dimensions": {
+      "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
+      "api_surface_version": "2026-10",
+      "qualification_profile_ref": "qualprofile_model_adaptive_v1",
+      "effective_instruction_digest": "sha256:214d31e57badd9a88b4305ebd7a71314ec3cfb259e4ef77280cdf09615a39dce"
+    }
+  },
+  "qualification": {
+    "state": "PROPOSED",
+    "evidence_refs": []
+  },
+  "provenance": {
+    "source_refs": [
+      "core/contracts/provider-capabilities.json",
+      "core/contracts/execution-profile.schema.json",
+      "core/contracts/executor-model-profile.schema.json",
+      "docs/proposals/skill-intelligence-target-spec.md",
+      "providers/anthropic-claude/export.json"
+    ],
+    "note": "Presentation layer for the Anthropic-Claude native tool-use / adapter structured-output capability state. Qualification state is PROPOSED; this profile grants no authority."
+  }
+}

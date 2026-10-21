@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "role": "reference-only-pins",
+  "note": "Reference-only pins of the qualification-side execution profiles that the committed model-adaptive profiles bind to. They are NOT a second authority for execution profiles and they are NOT a new qualification surface: the canonical contract stays core/contracts/execution-profile.schema.json and the qualification-side instances stay where the qualification lane owns them (runtime/cli/specs/reference-audit-v1.json holds the committed instance used here). The pins exist so the model-adaptive equivalence check can anchor the authority and completion semantics of a profile without reaching into runtime state. A pin that contradicts the canonical contract fails the store load closed.",
+  "execution_profiles": {
+    "profile_readonly_v1": {
+      "profile_id": "profile_readonly_v1",
+      "description": "Read-only analysis profile (reference-only pin; the committed instance is owned by the qualification lane in runtime/cli/specs/reference-audit-v1.json).",
+      "dimensions": {
+        "tools": "read",
+        "effects": "ephemeral",
+        "context": "bounded",
+        "network": "none",
+        "delegation": 0,
+        "verification": "self_reported"
+      }
+    }
+  }
+}

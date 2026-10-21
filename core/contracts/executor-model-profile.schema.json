@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/executor-model-profile.schema.json",
+  "title": "ExecutorModelProfile Contract",
+  "description": "S12 (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, section 11.5 + slice S12): a model-adaptive executor profile is a versioned PRESENTATION and INTERACTION layer bound to one executor/provider/model. It optimizes only instruction density, example selection, output formatting, context packaging, tool-call interface requirements and retry strategy. It is NOT the execution profile: core/contracts/execution-profile.schema.json keeps dimensioning the qualification (tools, effects, context, network, delegation, verification) and is unchanged; a model-adaptive profile never changes a dimension of it and only references it. It grants no authority: authority_grant is none by construction. The semantics_preservation block makes a silent widening structurally impossible: the six invariant semantics dimensions are const 'unchanged', and the qualification-side dimensions the underlying execution profile pins (tool_contract_refs, api_surface_version, qualification_profile_ref) plus the effective instruction digest must be pinned by the profile itself, so a model-adaptive profile can only be expressed when it pins exactly the same qualification-relevant state. A profile is a qualification INPUT, never a qualification: the qualification state is recorded, not conferred.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_id",
+    "profile_version",
+    "schema_version",
+    "executor_id",
+    "provider_id",
+    "model_id",
+    "execution_profile_ref",
+    "authority_grant",
+    "runtime_requirements",
+    "presentation",
+    "semantics_preservation",
+    "qualification"
+  ],
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "pattern": "^emp_[a-z0-9_]+$"
+    },
+    "profile_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "schema_version": { "const": "1.0.0" },
+    "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+    "provider_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "execution_profile_ref": {
+      "$ref": "maws-vnext-common.schema.json#/$defs/profileId"
+    },
+    "authority_grant": { "const": "none" },
+    "runtime_requirements": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "enum": ["structured_output", "tool_calls"] },
+      "description": "The runtime capabilities the model requires from the harness. The set is closed: a model-adaptive profile that requires no runtime capability is not model-adaptive and belongs to the execution-profile lane. The runtime re-derives this set from the presentation block and refuses a profile whose declaration does not match, so a missing harness capability can never be hidden by an under-declaration."
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "instruction_density",
+        "example_selection",
+        "output_formatting",
+        "context_packaging",
+        "tool_call_interface_requirements",
+        "retry_strategy"
+      ],
+      "properties": {
+        "instruction_density": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "structure"],
+          "properties": {
+            "level": { "enum": ["compact", "balanced", "verbose"] },
+            "structure": { "enum": ["flat", "sectioned", "hierarchical"] },
+            "max_directives": { "type": "integer", "minimum": 1, "maximum": 512 }
+          }
+        },
+        "example_selection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "count"],
+          "properties": {
+            "mode": { "enum": ["none", "minimal", "representative", "exhaustive"] },
+            "count": { "type": "integer", "minimum": 0, "maximum": 16 },
+            "include_failure_examples": { "type": "boolean" }
+          }
+        },
+        "output_formatting": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["mode", "structured_output"],
+          "properties": {
+            "mode": { "enum": ["plain_text", "markdown", "json_mode", "schema_bound"] },
+            "structured_output": {
+              "enum": ["none", "json_mode_prompt", "adapter_schema", "native_schema"]
+            },
+            "require_explicit_json_instruction": { "type": "boolean" }
+          }
+        },
+        "context_packaging": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["unit", "ordering"],
+          "properties": {
+            "unit": { "enum": ["single_block", "sectioned_blocks", "layered"] },
+            "ordering": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "system_role",
+                  "task",
+                  "constraints",
+                  "examples",
+                  "tools",
+                  "output_contract",
+                  "context"
+                ]
+              }
+            },
+            "section_header_style": {
+              "enum": ["none", "markdown_heading", "delimiter"]
+            },
+            "system_channel": {
+              "enum": ["system_role", "bot_setting", "provider_default", "none"]
+            }
+          }
+        },
+        "tool_call_interface_requirements": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["call_style", "argument_encoding"],
+          "properties": {
+            "call_style": {
+              "enum": [
+                "none",
+                "native_function_call",
+                "json_instruction",
+                "openai_compatible_tool_calls"
+              ]
+            },
+            "argument_encoding": {
+              "enum": ["json_object", "positional", "schema_bound"]
+            },
+            "parallel_tool_calls": {
+              "enum": ["allowed", "forbidden", "unspecified"]
+            },
+            "requires_tool_result_echo": { "type": "boolean" }
+          }
+        },
+        "retry_strategy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_attempts", "on_ineffective_task"],
+          "properties": {
+            "max_attempts": { "type": "integer", "minimum": 1, "maximum": 8 },
+            "on_ineffective_task": {
+              "enum": ["retry_same", "replan", "escalate", "stop"]
+            },
+            "backoff": { "enum": ["none", "linear", "exponential"] }
+          }
+        }
+      }
+    },
+    "semantics_preservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_scope",
+        "authority_ceiling",
+        "tool_rights",
+        "security_controls",
+        "completion_criteria",
+        "evidence_requirements",
+        "pinned_dimensions"
+      ],
+      "properties": {
+        "task_scope": { "const": "unchanged" },
+        "authority_ceiling": { "const": "unchanged" },
+        "tool_rights": { "const": "unchanged" },
+        "security_controls": { "const": "unchanged" },
+        "completion_criteria": { "const": "unchanged" },
+        "evidence_requirements": { "const": "unchanged" },
+        "pinned_dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tool_contract_refs",
+            "api_surface_version",
+            "qualification_profile_ref",
+            "effective_instruction_digest"
+          ],
+          "properties": {
+            "tool_contract_refs": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "api_surface_version": { "type": "string", "minLength": 1 },
+            "qualification_profile_ref": { "type": "string", "minLength": 1 },
+            "effective_instruction_digest": {
+              "type": "string",
+              "pattern": "^sha256:[a-f0-9]{64}$"
+            }
+          },
+          "description": "The qualification-relevant state the underlying execution profile pins. A model-adaptive profile may not silently widen it: the runtime compares every pinned dimension against the profile actually in force and denies the binding on any difference. The effective_instruction_digest uses the digest form of core/contracts/instruction-bundle.schema.json (the S6 instruction bundle)."
+        }
+      }
+    },
+    "qualification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "evidence_refs"],
+      "properties": {
+        "state": { "enum": ["PROPOSED", "QUALIFIED", "EXPIRED"] },
+        "evidence_refs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "eval_profile_ref": { "type": "string", "minLength": 1 },
+        "qualified_at": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "state": { "const": "QUALIFIED" } },
+            "required": ["state"]
+          },
+          "then": {
+            "required": ["eval_profile_ref", "qualified_at"],
+            "properties": {
+              "evidence_refs": { "minItems": 1 }
+            }
+          }
+        }
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_refs"],
+      "properties": {
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

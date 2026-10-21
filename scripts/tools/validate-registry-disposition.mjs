@@ -122,14 +122,30 @@ function validateFixture(fixture) {
   return { passed: issues.length === 0, issues, casesChecked: results.length, results };
 }
 
+// CLI argument handling:
+//   validate-registry-disposition.mjs <file>
+//       validate a single disposition artifact.
+//   validate-registry-disposition.mjs --fixture <fixture-file>
+//       validate the fixture corpus (what `npm run validate-registry-disposition`
+//       runs).
+//   validate-registry-disposition.mjs --fixture <fixture-file> <file>
+//       a file named on the command line WINS over the fixture corpus: an
+//       explicit request to validate a specific artifact is answered with
+//       that artifact. (Previously the named file was silently ignored and
+//       the fixture corpus was validated instead.)
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   try {
     const fixtureFlag = process.argv.indexOf('--fixture');
-    const inputPath = fixtureFlag >= 0 ? process.argv[fixtureFlag + 1] : process.argv[2];
+    const positional = process.argv.slice(2).filter((argument) => !argument.startsWith('--'));
+    const fixturePath = fixtureFlag >= 0 ? (positional[0] ?? null) : null;
+    const explicitPath = fixtureFlag >= 0 ? (positional[1] ?? null) : (positional[0] ?? null);
+    const inputPath = explicitPath ?? fixturePath;
     if (!inputPath) throw new Error('Usage: validate-registry-disposition.mjs [--fixture] <json-file>');
     const payload = JSON.parse(fs.readFileSync(path.resolve(inputPath), 'utf8'));
-    const result = fixtureFlag >= 0 ? validateFixture(payload) : validateRegistryDisposition(payload);
+    const result = fixturePath !== null && explicitPath === null
+      ? validateFixture(payload)
+      : validateRegistryDisposition(payload);
     console.log(JSON.stringify(result, null, 2));
     process.exit(result.passed ? 0 : 1);
   } catch (error) {
