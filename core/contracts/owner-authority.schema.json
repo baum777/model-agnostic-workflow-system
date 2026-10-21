@@ -21,7 +21,10 @@
       "description": "The single authority identity whose approvals this anchor can verify."
     },
     "authority_status": {
-      "enum": ["PENDING_PUBLICATION", "PUBLISHED"],
+      "enum": [
+        "PENDING_PUBLICATION",
+        "PUBLISHED"
+      ],
       "description": "PENDING_PUBLICATION means no key is published yet: every approval is refused fail-closed until the owner publishes one."
     },
     "keys": {
@@ -64,7 +67,10 @@
           "const": "canonical_owner"
         },
         "status": {
-          "enum": ["active", "revoked"]
+          "enum": [
+            "active",
+            "revoked"
+          ]
         },
         "added_at": {
           "type": "string",
@@ -72,5 +78,26 @@
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "authority_status": {
+            "const": "PUBLISHED"
+          }
+        },
+        "required": [
+          "authority_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "keys": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
 }

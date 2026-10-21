@@ -559,7 +559,8 @@ test('S8 a revoked key authorizes nothing', () => {
 });
 
 test('S8 an authority without a published key refuses every approval', () => {
-  const world = setup({ publishKey: false });
+  // The canonical state of the shipped anchor: not published, no key.
+  const world = setup({ publishKey: false, authorityStatus: 'PENDING_PUBLICATION' });
   const error = expectPromotionError('OWNER_AUTHORITY_NOT_PUBLISHED', () =>
     promoteSkillCandidate({
       adoptionId: 'adopt_s8_no_key_0001',
@@ -577,6 +578,26 @@ test('S8 an authority without a published key refuses every approval', () => {
     })
   );
   assert.match(error.message, /publishes no owner key/);
+
+  // A published anchor that publishes no key at all is a contract
+  // violation and is refused as such.
+  const inconsistent = setup({ publishKey: false, authorityStatus: 'PUBLISHED' });
+  expectPromotionError('OWNER_AUTHORITY_INVALID', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_empty_anchor_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: inconsistent.admissionPath,
+      evalRecords: inconsistent.evalEntries,
+      ownerApprovalRef: inconsistent.ownerApprovalRef,
+      ownerAuthorityPath: inconsistent.ownerAuthorityPath,
+      canonicalRoot: inconsistent.tree,
+      root
+    })
+  );
 });
 
 test('S8 the committed canonical owner authority publishes no key and refuses every approval', () => {
