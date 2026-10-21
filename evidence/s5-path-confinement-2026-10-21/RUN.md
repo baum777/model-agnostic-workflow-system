@@ -2,7 +2,7 @@
 
 - Run: S5-PATH-CONFINEMENT-2026-10-21
 - Scope: the S5 skill-effectiveness corpus loader (`scripts/tools/run-skill-effectiveness-evals.mjs`) and its CLI corpus-directory check. A bounded closure of the path-confinement finding that the HO-01 lane's independent review raised and deliberately did not repair.
-- Repository: `baum777/model-agnostic-workflow-system` (MAWS), branch `fix/s5-path-confinement-20261021`, base `origin/main` at `2f94f8c5eab6ae3216b9dd0551a03624a88fd55c`.
+- Repository: `baum777/model-agnostic-workflow-system` (MAWS), branch `fix/s5-path-confinement-20261021`. The slice was written against `origin/main` `2f94f8c5eab6ae3216b9dd0551a03624a88fd55c` and rebased onto `origin/main` `808bfb09175084a90f1eb264fb18e72e9bda0f82` before publication; the base adaptation is described in §8.
 - Authority: the owner ticket "S5 Path-Confinement Closure" of 2026-10-21, bounded to this slice. The target specification MAWS-SII-TARGET-SPEC-001 v0.2.0 remains PROPOSED; this run materializes no part of it and adopts nothing.
 - Inherits the S5 slice: MAWS-SII-TARGET-SPEC-001 v0.2.0 slice S5 (Behavioral Evaluation), first published in pull request 35 and repaired in pull request 37.
 
@@ -103,7 +103,7 @@ The threat behind R1, R2 and R4 requires a concurrent writer with write access t
 | --- | --- |
 | `node --test tests/vnext/run-skill-effectiveness.test.mjs` | **12/12 pass, 0 fail** — the existing suite, byte-identical to `origin/main` |
 | `node --test tests/vnext/s5-path-confinement.test.mjs` | **25/25 pass, 0 fail** (new) |
-| `npm run test:vnext` | **678/678 pass, 0 fail** (`origin/main` alone: 653/653 — the 25 new tests are the only difference) |
+| `npm run test:vnext` | **708/708 pass, 0 fail** on the rebased base (`origin/main` `808bfb0` alone: 683/683 — the 25 new tests are the only difference) |
 | `npm run eval:skill-effectiveness` | exit 0, final verdict `IMPROVEMENT_PROVEN` |
 | `npm run validate-behavioral-eval` | PASS |
 | `npm run eval:maws-vnext` | PASS |
@@ -112,7 +112,7 @@ The threat behind R1, R2 and R4 requires a concurrent writer with write access t
 
 ### 5.2 The change is digest-neutral (measured against pristine `origin/main`)
 
-A detached worktree at `origin/main` (`2f94f8c`) is the reference. The S5 evaluation output is **identical** before and after the change:
+A detached worktree at the pristine `origin/main` is the reference — `2f94f8c` for the state the slice was written against, and `808bfb0` for the base it merges onto. The S5 evaluation output is **identical** on both, before and after the change:
 
 | Digest | `origin/main` | this branch |
 | --- | --- | --- |
@@ -154,11 +154,13 @@ The full `npm run eval` certification suite fails in this environment at the ren
 | a corpus path that leaves the repository is refused at the CLI | the CLI wiring, without a write into the repository |
 | a corpus directory that resolves out of the repository is refused at the CLI | the CLI wiring, end to end; the link lives under `artifacts/`, the repository's ignored output directory |
 | the shipped corpus still loads and still proves the candidate improvement | the positive control |
-| the committed S5 eval records still validate against the current runner | the committed evidence stays contract-valid |
+| the current S5 eval records still validate against the current runner | the current evidence set (`evidence/skill-effectiveness-evals-2026-10-21/`) stays contract-valid; the 2026-10-20 set is superseded and is no longer bound here |
 
 ### 5.4 Security scan — disclosed, not claimed
 
 A Mimosa deep static scan of the changed files was run: scan `scan-2026-10-21T02-55-05.384Z-47f1c429a877`, seal `sha256:1d7576ee1de5d6fb3b3f32fb81f86ed6111c017fc8522dd70296255be4b2fde8`, **0 findings**. The scan's own coverage artifact records `completeness: partial`, `runStatus: inconclusive` and a gap ("the call graph is partly incomplete: some calls are dynamically dispatched or beyond the analysis scale, so cross-file reachability may be incomplete"), 34 files selected and parsed. The dependency figures — 198 packages scanned, 2 packages matching 2 advisories in the offline dependency snapshot (context only, not adjudicated) — are recorded in the **job record** of the same scan (`~/.mimosa/security-scan-jobs/scan-job-mvhiri4x-9c954eb6fad7087d.json`), which carries the same scan id and the same seal; they are not part of the five sealed scan artifacts. **No security claim is derived from this scan.** It is static-only and executes no runtime.
+
+The scan covered the three files of this slice. The cross-lane adaptation to `scripts/tools/evidence-provenance.mjs` (§8) was made after the scan and is **not** covered by it.
 
 The commit hook that reported on the commits of this change is a **session-level plugin hook of the authoring environment**, not a repository-level hook: the repository itself has no `core.hooksPath`, no hook directory other than the untouched `*.sample` files, and no husky or other hook configuration. The hook reported that it could not produce a complete scan conclusion, and the commit proceeded under that environment's compatibility behaviour. **No security claim is derived from the hook either** — the phrase is not a repository document and is not cited as one.
 
@@ -187,7 +189,7 @@ The slice was reviewed in **two rounds** and by a **third, independent reviewer*
 | F9 | P3 | This record quoted the candidate `corpus_digest` with the suffix `…fb54`; the digest ends `…7b54`. | **Repaired** — the citation is corrected above and the full value stands in the disposition. |
 | F10 | P3 | This record quoted the current `negative` family digest with the suffix `…8ce580`; the digest ends `…9de48d` (`8ce580` is a fragment of the unrelated `security_regression` digest). | **Repaired** — the citation is corrected above. |
 | F11 | P3 | D1 claimed the re-derived HO-01 record differs from the committed one "in exactly three fields"; it differs in four — `created_at` differs as well. | **Repaired** — the wording is corrected in §7 and in the disposition. |
-| F12 | P3 | The disposition claimed the review "is recorded in the run record", while §7 pointed at an unfilled placeholder. | **Repaired** — this section (§6) is filled in with every finding and its disposition, and the disposition no longer claims more than the record carries. §9 remains, by design, the post-merge slot; it is filled in the closure commit. |
+| F12 | P3 | The disposition claimed the review "is recorded in the run record", while §7 pointed at an unfilled placeholder. | **Repaired** — this section (§6) is filled in with every finding and its disposition, and the disposition no longer claims more than the record carries. §10 remains, by design, the post-merge slot; it is filled in the closure commit. |
 | F13 | P3 | The pre-commit-hook disclosure cited facts that are not verifiable: there is no repository-level hook, no trace of the reported error code in any scan store, and no document called a "compatibility policy". | **Repaired** — §5.4 now states what actually happened, names the hook as an environment-level plugin hook, and drops the unverifiable reference. |
 | F14 | P3 | The HO-01 quotation in §1 was claimed to be non-verbatim. | **Refuted by the confirmer**: the sentence is verbatim in the HO-01 *disposition* — which is what this record names — and the reviewer had looked in the HO-01 run record instead. The citation is now made more precise anyway. |
 
@@ -205,7 +207,7 @@ The repaired state was re-reviewed the same way: two lenses (a) *proof of the fo
 | G6 | P3 | §3 grouped `CORPUS_FAMILY_INVALID` under the codes the loader "adds", but that code already existed on `origin/main`; only the new *usages* are new. | **Repaired** — §3 now says so, and names `CORPUS_VARIANTS_INVALID` and `CORPUS_MANIFEST_INVALID` as the new codes. |
 | G7 | P3 | The §5.3 row claimed the read-time refusal's code path was bound; the test binds only the mapping table. | **Repaired** — the row now says exactly what is bound and names the live path as reachable but not test-bound. |
 | G8 | P3 | The F11 row pointed at a section "§6.2" that does not exist. | **Repaired** — the pointer names §7. |
-| G9 | P3 | The F12 row claimed "§9 are filled in" while §9 was still the post-merge placeholder. | **Repaired** — the row names §6 as filled and §9 as the post-merge slot, which the closure commit fills. |
+| G9 | P3 | The F12 row claimed "§9 are filled in" while §9 was still the post-merge placeholder. | **Repaired** — the row names §6 as filled and the closure addendum as the post-merge slot, which the closure commit fills. |
 | G10 | P3 | The §1 citation named the HO-01 disposition's `reason` field; the quoted sentence is in `evidence_refs[16]`. | **Repaired** — the field pointer is correct. |
 | G11 | P3 | The dependency figures "198 packages scanned, 2 advisories" are not in the five sealed scan artifacts. | **Repaired** — §5.4 now names the job record that carries them, alongside the same scan id and seal. |
 | **H1** | **P2** | *(codex connector)* On a filesystem whose device or inode identifiers exceed `Number.MAX_SAFE_INTEGER`, the default numeric `statSync`/`fstatSync` can round two distinct identities to the same number, so the replacement guard could pass for a replaced target. | **Repaired** — every identity-bearing stat now asks for `bigint`, and the identities are compared exactly. The `bigint` stat of the *parent* directory was the one that mattered: the mixed comparison would otherwise have refused every legitimate read. |
@@ -216,22 +218,37 @@ The repaired state was re-reviewed the same way: two lenses (a) *proof of the fo
 
 Both were measured on the pristine `origin/main` worktree and are **not** caused by this run. Both are reported rather than silently repaired, because repairing them would absorb another lane's drift into this bounded slice and would change digest-bound evidence that the Registry and the Atlas already reference.
 
-**D1 — the HO-01 committed comparison record no longer validates on `origin/main`.**
-`npm run validate-experiment-comparison` fails on the untouched `origin/main` with `E13`: the record references definition digest `sha256:a17bd3f2…9ac9dc`, the recomputed digest is `sha256:5315fa3d…0ba71f`. Cause: the S7/S8 residual lane re-pinned the HO-01 experiment's frozen run-spec digest in commit `a55c8a1` ("re-pin the cross-lane inputs this run legitimately changes") without re-deriving the HO-01 comparison record that binds it. The re-derived record differs from the committed one in **four** fields: `created_at` (the per-run wall-clock value) and the three binding digests `definition_digest`, `runs.baseline.spec_digest` and `runs.candidate.spec_digest`. The evidence digests, the analysis-output digests, the metrics and the decision are unchanged. **Owner: the HO-01 lane (or the S8 lane that caused the re-pin).** Not repaired here: the HO-01 evidence and its Registry/Atlas representations are a separate, already-closed chain, and the HO-01 ticket's own scope forbids an unannounced expansion into it.
+**D1 — the HO-01 committed comparison record no longer validated on the base this slice was written against.**
+`npm run validate-experiment-comparison` failed on the untouched `origin/main` `2f94f8c` with `E13`: the record referenced definition digest `sha256:a17bd3f2…9ac9dc`, the recomputed digest was `sha256:5315fa3d…0ba71f`. Cause: the S7/S8 residual lane re-pinned the HO-01 experiment's frozen run-spec digest in commit `a55c8a1` ("re-pin the cross-lane inputs this run legitimately changes") without re-deriving the HO-01 comparison record that binds it. The re-derived record differed from the committed one in **four** fields: `created_at` (the per-run wall-clock value) and the three binding digests `definition_digest`, `runs.baseline.spec_digest` and `runs.candidate.spec_digest`. The evidence digests, the analysis-output digests, the metrics and the decision were unchanged.
 
-**D2 — the committed S5 eval records no longer match the current corpus.**
-The committed `evidence/skill-effectiveness-evals-2026-10-20/eval-record-bev-skill-effectiveness-baseline.json` carries `corpus_digest` `sha256:7c3a7a80…5c7ad1`; the current corpus produces `sha256:937478a9…42fc9`. The difference is the `negative` family only (`sha256:d4b80eb1…0d5ac` committed vs `sha256:e87e4a58…9de48d` current); the `positive`, `security_regression` and `model_parity` families are unchanged. Cause: the S7 slice changed `evals/skill-effectiveness/negative-cases/cases.json` in commit `4d99c27` without regenerating the S5 evidence. The records remain contract-valid and their own content seals hold; they describe a corpus state that the tree has since left. **Remediation (owner decision):** re-run `npm run eval:skill-effectiveness` with `--out` into the evidence directory and refresh the two records. Not done here, because this run must not rewrite the evidence of a prior run whose record is referenced by the closed Registry and Atlas chains.
+**This drift was resolved by another lane before this slice merged.** The S8 evidence-provenance lane (pull request 60, and its rebind in pull request 61) re-froze the HO-01 comparison and re-issued its evidence; on the rebased base `808bfb0` the validator answers `valid — 1 checked, 0 invalid`. This run did not repair it and did not need to: it named it, measured it on the untouched base, and left the repair to the lane that owned it. That is the outcome the naming was for.
 
-**Neither D1 nor D2 is a consequence of this change.** §5.2 measures that directly: on the same corpora, the pristine tree and this branch produce identical digests, before and after the repair round.
+**D2 — the committed S5 eval records no longer matched the corpus on the base this slice was written against.**
+The committed `evidence/skill-effectiveness-evals-2026-10-20/eval-record-bev-skill-effectiveness-baseline.json` carried `corpus_digest` `sha256:7c3a7a80…5c7ad1`; the corpus produced `sha256:937478a9…42fc9`. The difference was the `negative` family only (`sha256:d4b80eb1…0d5ac` committed vs `sha256:e87e4a58…9de48d` current); the `positive`, `security_regression` and `model_parity` families were unchanged. Cause: the S7 slice changed `evals/skill-effectiveness/negative-cases/cases.json` in commit `4d99c27` without regenerating the S5 evidence.
 
-## 8. Registry disposition
+**This drift was also resolved by another lane before this slice merged.** The S8 evidence-provenance lane found the same defect with its own gate — the shipped evidence no longer reproduces — and re-issued it under `evidence/skill-effectiveness-evals-2026-10-21/`, annotating the 2026-10-20 set as SUPERSEDED and *provably stale*: *"the corpus was changed after they were produced … so they no longer reproduce from the corpus on disk. The S8 evidence-provenance gate refuses them with `EVIDENCE_EXECUTION_MISMATCH`."* This run did not repair it; it named it, measured it on the untouched base, and left the repair to the lane that owned it. The test in this slice therefore binds the **current** evidence set (`evidence/skill-effectiveness-evals-2026-10-21/`), not the superseded one.
+
+**Neither D1 nor D2 is a consequence of this change.** §5.2 measures that directly: on the same corpora, the pristine tree and this branch produce identical digests, before and after both repair rounds. And both drifts are gone on the base this slice merges onto — they were repaired by the lane that owned them, not by this one.
+
+## 8. The base adaptation
+
+The slice was written against `origin/main` `2f94f8c5eab6ae3216b9dd0551a03624a88fd55c` and rebased onto `origin/main` `808bfb09175084a90f1eb264fb18e72e9bda0f82` before publication, because two other lanes merged in the meantime: the S8 evidence-provenance lane (pull request 60) and its rebind (pull request 61). The rebase is a **base adaptation**, and it is disclosed as one:
+
+- **What the new base brought.** The S8 evidence-provenance lane added `scripts/tools/evidence-provenance.mjs` with its contract and tests, fixed a defect in the S5 producer's `compareRecords` (a BLOCKED candidate now names its baseline, so a blocked evaluation is recordable at all), re-issued the S5 behavioral evidence under `evidence/skill-effectiveness-evals-2026-10-21/` and annotated the 2026-10-20 set as SUPERSEDED, and re-froze the HO-01 comparison.
+- **How the conflict was resolved.** Only one file conflicted: `CHANGELOG.md`, which is prose, so both sides' entries were kept. The loader itself merged automatically, and the merged file carries **both** the S8 producer fix and this slice's confinement — the two touch different functions.
+- **One cross-lane adaptation was needed.** The S8 evidence-provenance module loads the S5 corpus through this slice's loader. With the loader now refusing a corpus file that leaves the corpus directory, that refusal happens one layer earlier than the S8 module's own containment proof, and the S8 module's generic "corpus could not be loaded" code shadowed its specific `EVIDENCE_CORPUS_CONTENT_ESCAPES`. The gate caught it: the S8 lane's own test "S8 corpus content that leaves the tree is refused" failed on the rebased branch and passed on the pristine base. The S8 module now recognises the loader's escape codes and reports its own specific code for the same defect, so both layers say the same thing. This is a compatibility adaptation of a consumer to a stricter producer, not a change to the S8 lane's semantics, and it is the only file of another lane that this slice touches.
+- **What the rebase did NOT change.** Every line of `scripts/tools/path-confinement.mjs` and `tests/vnext/s5-path-confinement.test.mjs`, and every line of this slice's changes to the loader, survived the rebase unchanged. The only content change this slice made on top of the rebase is the correction of its own drift statements (§7) and the test's pointer from the superseded evidence set to the current one.
+- **What was re-measured afterwards.** Every gate in §5.1 was re-run on the rebased base, and the digest-neutrality comparison in §5.2 was re-run against the **new** pristine `origin/main`; the digests are unchanged, so the change remains digest-neutral on the base it merges onto.
+- **What the reviews covered.** The three review rounds (§6) ran against the pre-rebase content. The rebase is the base adaptation, and the gates and the delta measurements above were re-run on the published state. The code the reviewers probed is the code that is published.
+
+## 9. Registry disposition
 
 `registry-disposition.json` in this directory: `status: NO_CHANGE`, `material_change: true`, `registry_relevant_change: false`, `affected_records: []`, `registry_commit_sha: null`.
 
 The reason is the consumer binding in this repository's `AGENTS.md`: MAWS has adopted only the relevance classes `CONTRACT_RECORD`, `PROVENANCE` and `SUPERSESSION`, and this run changes none of them. The canonical contract `core/contracts/behavioral-eval.schema.json` is untouched, the behavioral-eval validator is untouched, the corpus content is untouched, the record format is untouched, the digests are unchanged (§5.2), and nothing is superseded. The runner is a tool surface, not a registered contract.
 
-The change itself is still registered, as the Unitera project routing layer requires for **every** change: a run change registration in the Unitera Registry and a representation in the Unitera Atlas. Those are published after the source merge, and §9 names them.
+The change itself is still registered, as the Unitera project routing layer requires for **every** change: a run change registration in the Unitera Registry and a representation in the Unitera Atlas. Those are published after the source merge, and §10 names them.
 
-## 9. Closure addendum
+## 10. Closure addendum
 
 *Filled after the source merge, the Registry publication and the Atlas publication.*

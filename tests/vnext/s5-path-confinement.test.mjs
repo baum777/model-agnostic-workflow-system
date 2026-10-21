@@ -560,8 +560,11 @@ test('the shipped corpus still loads and still proves the candidate improvement'
   assert.deepEqual(validateBehavioralEvalRecord(candidateRecord, ROOT), []);
 });
 
-test('the committed S5 eval records still validate against the current runner', () => {
-  const evidenceDir = path.join(ROOT, 'evidence', 'skill-effectiveness-evals-2026-10-20');
+test('the current S5 eval records still validate against the current runner', () => {
+  // The 2026-10-21 set is the current evidence: the 2026-10-20 set was
+  // superseded when the corpus changed and is kept only as the historical
+  // record of the S5 slice.
+  const evidenceDir = path.join(ROOT, 'evidence', 'skill-effectiveness-evals-2026-10-21');
   for (const name of ['baseline', 'candidate']) {
     const record = JSON.parse(fs.readFileSync(path.join(evidenceDir, `eval-record-bev-skill-effectiveness-${name}.json`), 'utf8'));
     assert.deepEqual(validateBehavioralEvalRecord(record, ROOT), [], `${name} record still validates`);
