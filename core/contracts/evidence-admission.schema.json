@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/evidence-admission.schema.json",
+  "title": "EvidenceAdmissionRecord Contract",
+  "description": "Extension of slice S8 (Governance Promotion) of MAWS-SII-TARGET-SPEC-001 v0.2.0 (PROPOSED): the canonical admission of one behavioral evaluation to the skill content it is admitted FOR and to a trustworthy source. S8 proved that an evaluation REPRODUCES over a corpus; this contract carries the two bindings that stand above it. First, the CONTENT assignment: the admission names the content digest the evaluation is admitted for, and the promotion requires it to be the digest of the content that is being adopted (without it, an old corpus that measured an old skill version would satisfy every provenance gate while a new version is adopted). Second, the SOURCE trust: the admission names the commit that published the admitted material, and the material is proved to be that commit's content, unmodified. The admitted material is the EXACT set the provenance gate bound, so a substituted path or a manipulated digest is refused. Admission != Authority: an admission is a BINDING, not a decision; the owner approval remains the decision, and an admission grants no permission, no qualification and no authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "admission_id", "skill_id", "subject_ref",
+    "content_digest", "material", "source", "admitted_at", "authority_granted"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "admission_id": {
+      "type": "string",
+      "pattern": "^admit_evidence_[a-z0-9_]+$",
+      "description": "The identity of this admission. It names an ADMISSION, not a decision."
+    },
+    "skill_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "description": "The skill the admitted evidence may support. The promotion requires it to be the promoted skill."
+    },
+    "subject_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The subject the admitted evaluation measured. It must be the subject the bound evaluation measured."
+    },
+    "content_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "The digest of the skill content the evaluation is admitted FOR. The promotion requires it to be the digest of the content being adopted: this is the binding that connects an evaluation to the artifact it is supposed to qualify."
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_ref", "record_digest", "baseline_record_ref", "baseline_record_digest",
+        "corpus_ref", "corpus_digest", "material_digest"
+      ],
+      "properties": {
+        "record_ref": {
+          "type": "string",
+          "pattern": "^evidence/[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*\\.json$",
+          "description": "The behavioral eval record that is admitted. It must be the record the provenance gate bound."
+        },
+        "record_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The digest of the admitted record, as the provenance gate computed it."
+        },
+        "baseline_record_ref": {
+          "type": "string",
+          "pattern": "^evidence/[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*\\.json$",
+          "description": "The baseline record the admitted evaluation was compared against."
+        },
+        "baseline_record_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "corpus_ref": {
+          "type": "string",
+          "pattern": "^evals/[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*$",
+          "description": "The corpus the admitted evaluation was produced from."
+        },
+        "corpus_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "material_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The identity of the admitted material SET: the digest over the ordered (reference, digest) pairs above. A set with a substituted path or a manipulated digest has a different material digest."
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "surface"],
+      "description": "The identity of the source the admitted material comes from. The two kinds state DIFFERENT trust levels and the kind is recorded, so a reader always knows which one was established.",
+      "properties": {
+        "kind": {
+          "enum": ["git_commit", "content"],
+          "description": "git_commit: the material is the COMMITTED content of the evidence tree, published by the named commit and unmodified since - a reviewable source. content: the material is identified by its CONTENT only and establishes no committed source; it is admitted ONLY where the tree is not versioned at all, so the source trust can never be downgraded in a versioned tree. The weaker form is the weaker form, and the kind is recorded."
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$",
+          "description": "The commit that published the admitted material. Required for the git_commit kind: the material must be that commit's content, unmodified, the commit must be part of the published history, and the admission artifact itself must be committed."
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The content identity of the admitted material. Required for the content kind: it is the material digest, so the admission names the material by content and no committed source is established."
+        },
+        "surface": {
+          "const": "evidence",
+          "description": "The surface the admitted material lives in."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "git_commit" } }, "required": ["kind"] },
+          "then": { "required": ["commit"], "not": { "required": ["content_digest"] } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "content" } }, "required": ["kind"] },
+          "then": { "required": ["content_digest"], "not": { "required": ["commit"] } }
+        }
+      ]
+    },
+    "admitted_at": {
+      "type": "string",
+      "minLength": 1,
+      "description": "When the admission was made. It is a declaration of the admission record, not an authenticated timestamp: the committed identity of the material is the anchor."
+    },
+    "authority_granted": {
+      "const": false,
+      "description": "An admission is a binding, never an authority: it grants no permission, no qualification and no runtime authority, and it never promotes a skill."
+    }
+  }
+}

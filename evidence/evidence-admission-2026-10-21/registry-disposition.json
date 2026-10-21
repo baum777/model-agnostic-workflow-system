@@ -1,0 +1,63 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S9 - trusted evidence admission, executed under the owner directive of 2026-10-21 ('close the remaining trust gap at the entrance of the promotion chain, without rebuilding the already-completed S8 provenance logic'), with the standing invariants Approval != Grant, Caller Input != Authority and Receipt != Verification. It is an EXTENSION of slice S8 (Governance Promotion) of MAWS-SII-TARGET-SPEC-001 v0.2.0 (PROPOSED, section 13); the specification's own S9 slice is 'Regression and Rollback' and is NOT touched, and the naming collision is recorded so no reader mistakes this run for that slice. The investigation established what was missing: the evaluation was bound to a subject LABEL, no field carried the digest of the skill content the evaluation measured, and NOTHING bound the evidence TREE - no commit, no file set - so the same bytes were equally acceptable at any path and a record that was never published was accepted as long as it re-executed. The slice adds the two bindings with the new runtime module scripts/tools/evidence-admission.mjs and the new canonical contract core/contracts/evidence-admission.schema.json: the admission names the CONTENT digest the evaluation is admitted FOR and the promotion requires it to be the digest of the content being adopted, and it names the IDENTITY of the tree the admitted material comes from - git_commit proves the material is the committed, unmodified content of the evidence tree and that the admission artifact itself is a committed, reviewed change, content identifies the material by its content alone and is admitted ONLY where the tree is not versioned at all, so the source trust cannot be downgraded by whoever may write into a versioned working copy. The admitted material must be the EXACT set the S8 provenance gate bound, so a substituted path or a manipulated digest is refused. The S8 GATES ARE NOT REBUILT: the provenance module, its contract and its twenty error codes are byte-identical to the S8 head, the admission is an ADDITION verified AGAINST the attestation the S8 gate produced, and the post-adoption readback re-verifies both. The calculator scripts/tools/admit-evidence.mjs produces an admission (a dry run by default, --write to apply; a CALCULATOR, not an authority - the owner approval remains the decision). Two independent review rounds were executed on the exact heads; both returned findings and EVERY finding was confirmed real and repaired: the weaker content source kind was a silent downgrade in a versioned tree (proven end to end), the content binding was stated as a proof where it is a DECLARED binding (proven false by a live probe), the admission identity collided for two admissions of the same evidence, the exported readback silently skipped the admission re-verification, the material was read without the shared confinement primitive, the calculator could write outside the evidence tree, the adoption contract did not bind the source kind to the commit, and one existing S8 assertion change had dropped the CLI-level coverage of the anchor pinning (proven by a differential mutation and repaired by moving the admission gate after the owner-approval gate). Four FOREIGN GATES remain open and are explicitly NOT closed here: the behavioral-eval contract carries a subject label and not a subject-content digest, so the content binding stays a declared, committed, reviewed binding and not a proof (S5 lane); the frontdoor admission of the same chain is still a caller-supplied path read without containment or signature, its analyzer report files are never opened, and its directory-hash digest form can never equal the promotion's content digest, so the frontdoor gate is satisfiable only by a fabricated admission (frontdoor lane); the S5 lane's open PR 63 hardens the shared confinement primitive this module imports and is not merged here; and the S8 freshness bound remains a declared property because the content seal is unkeyed. The scope boundary is explicit: the specification stays PROPOSED, this slice adopts nothing, promotes no skill, activates no runtime, qualifies no model and no executor, grants no permission and changes no authority. The canonical owner trust anchor is unchanged and still publishes no key, so no approval can authorize a promotion and the chain still refuses at OWNER_AUTHORITY_NOT_PUBLISHED; the bounded promotion acceptance remains an owner act. Declaring the new surface moved the canonical instruction state (the authority matrix is an instruction source), so the effective instruction digest moved three times during the run and the S12 profile pins, the reference run spec qualification and the HO-01 frozen input were re-earned each time, with the HO-01 comparison re-frozen (the re-run reproduced the same behavioral evals, decision and metrics; only the bindings moved). This disposition is REQUIRED_BUT_BLOCKED at publication because the Registry write itself has not happened yet: the run change registration registry/MAWS_EVIDENCE_ADMISSION_2026_10_21_001.yaml and the contract record registry/MAWS_EVIDENCE_ADMISSION_CONTRACT_2026_10_21_001.yaml are published in a follow-up pull request of this repository, and the owner-side classification is rebound from REQUIRED_BUT_BLOCKED to UPDATED with the registry commit sha after that write.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/evidence-admission.schema.json",
+      "CONTRACT_RECORD:core/contracts/skill-promotion-adoption.schema.json"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+ "source_refs": [
+      "core/contracts/evidence-admission.schema.json",
+      "core/contracts/skill-promotion-adoption.schema.json",
+      "scripts/tools/evidence-admission.mjs",
+      "scripts/tools/admit-evidence.mjs",
+      "scripts/tools/promote-skill-candidate.mjs",
+      "tests/vnext/evidence-admission.test.mjs",
+      "tests/vnext/skill-promotion.test.mjs",
+      "evals/fixtures/maws-vnext/evidence-admission.contracts.json",
+      "evals/fixtures/maws-vnext/skill-promotion-adoption.contracts.json",
+      "evals/fixtures/maws-vnext-baseline.json",
+      "evals/catalog.json",
+      "docs/authority-matrix.md",
+      "core/contracts/README.md",
+      "CHANGELOG.md",
+      "evidence/evidence-admission-2026-10-21/RUN.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/evidence-admission-2026-10-21/RUN.md",
+      "evidence/evidence-admission-2026-10-21/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "node --test tests/vnext/*.test.mjs 732 of 732 pass with zero failures at the published head",
+      "npm run validate ok with issues empty; npm run validate-maws-vnext ok with 25 fixtures and 273 cases and issues empty; npm run eval:maws-vnext ok with every fixture family passed; npm run validate-behavioral-eval 7 cases checked 0 unexpected results; npm run validate-experiment-comparison 1 checked 0 invalid; npm run validate-executor-model-profile 19 and 7 cases checked with 6 profiles and 0 issues; npm run validate-instruction-bundle, validate-instruction-integrity, validate-neutral and validate-secrets all pass",
+      "the three negative classes the directive names are each bound by a test that fails when the corresponding guard is removed: path substitution (the admission names another record or another corpus), manipulated references (the material digests do not match the bound attestation, the material set does not carry its own identity, the content source identity does not name the admitted material) and inadmissible evidence (an admission for another content, another skill or another subject, a material that is not the committed content, an admission that is not committed, a commit outside the published history, a tree that is not versioned, a reference outside the canonical admission surface, an admission that claims authority)",
+      "the S8 non-regression is measured, not asserted: the provenance module, its contract and its test file are byte-identical to the S8 head, the error-code set is the same twenty names, the change is an ADDITION (a gate verified against the S8 attestation) and not a modification of an S8 rule, and the one existing assertion that had changed was restored to its original form after the review proved it had dropped the CLI-level coverage of the anchor pinning",
+      "mutation probes: twenty-seven probes, each neutering one guard in an isolated copy of the committed tree; the first run reported six unbound guards and one stale probe, every one of them a real gap in the test suite or a stale probe definition, all repaired and re-probed; the final result is 27 of 27 BOUND, 0 unbound, 0 broken, every executed run genuinely executed",
+      "independent review: two rounds on the exact heads by review agents distinct from the author, both with mutation probes; every finding was confirmed real and repaired in the same change, among them a proven end-to-end bypass of the source-trust binding through the weaker source kind, a proven false security claim in the governed surfaces, and a proven coverage regression of an S8 property",
+      "the cross-lane re-pins recorded in the owner-side run record: the six S12 model-adaptive profile pins, the reference run spec qualification and the HO-01 experiment's frozen reference-spec input were re-earned three times as the governed surfaces were corrected, and the HO-01 comparison was re-frozen each time; the re-run reproduced the same behavioral evals, the same decision and the same metrics, only the bindings moved",
+      "Mimosa deep security scan scan-2026-10-21T03-53-21.259Z-73d5465f9ae0, seal sha256:20ff861dee9dc77207bf7eebc6a69ce6301f2b6ee805982cc2ea7340ce4b523b, 0 findings, 201 packages scanned",
+      "the hosted CI job could NOT execute: the job was created with zero steps and reports 'The job was not started because your account is locked due to a billing issue' - an account-level condition, not a code failure; every step of that workflow was replicated locally on the published head and the absence of a hosted green gate is disclosed rather than presented as one",
+      "the four foreign gates are recorded with their owners and with what remains possible because of each: the behavioral-eval contract's subject label (S5 lane), the frontdoor admission's caller-supplied path and its incompatible digest form (frontdoor lane), the open S5-lane PR 63 that hardens the shared confinement primitive this module imports, and the S8 freshness bound's declared property"
+    ],
+    "implementation_commit_sha": "41bb624",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/evidence-admission-2026-10-21/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (closed relevance taxonomy: an added or amended canonical contract surface is CONTRACT_RECORD relevance)"
+    ],
+    "registry_baseline_sha": "b99e951"
+  }
+}

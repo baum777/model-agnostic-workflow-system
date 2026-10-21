@@ -1,7 +1,7 @@
 {
-  "derived_effective_instruction_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
-  "source_revision": "content:b72fa3161ae56bbf6de3789d1653cc2456cc9fa7cd9cbb484a8ec2b569ce2977",
-  "instruction_inventory_digest": "94ecae70a43c8ed601b6967ccf870e3e66bc79ffde4e071d1c7315d2334a841f",
+  "derived_effective_instruction_digest": "sha256:7e2d802714d2d37282708c7c2491ff8667d35e87e1a619f0fd987ff7c9997c5c",
+  "source_revision": "content:1b4e72f1807a9eb697431ec27b92617e2e571db9544f72a9898a6f681d3cf7b2",
+  "instruction_inventory_digest": "4ae22d226580d1a27300c02026134239f74761b73d709036e9dfffd9a4aa8bd0",
   "verified_source_count": 8,
   "selected_sources": [
     {
@@ -20,7 +20,7 @@
       "ref": "docs/authority-matrix.md",
       "binding_class": "canonical",
       "assembly_slot": "core",
-      "source_digest": "sha256:321dfdcc0ed67aa7e88f07ccd81cf2b8a2812749739b0d4128a6d152c384b155"
+      "source_digest": "sha256:51f9b582a1ddc6daa0c167a0c453164ded03796adce1c913e979394df83938d8"
     },
     {
       "ref": "docs/governance/source-hierarchy.md",
@@ -55,21 +55,21 @@
   ],
   "fingerprints": {
     "exec_openrouter_glm": {
-      "declared_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
-      "derived_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+      "declared_digest": "sha256:7e2d802714d2d37282708c7c2491ff8667d35e87e1a619f0fd987ff7c9997c5c",
+      "derived_digest": "sha256:7e2d802714d2d37282708c7c2491ff8667d35e87e1a619f0fd987ff7c9997c5c",
       "digest_matches": true
     },
     "exec_local_tests": {
-      "declared_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
-      "derived_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+      "declared_digest": "sha256:7e2d802714d2d37282708c7c2491ff8667d35e87e1a619f0fd987ff7c9997c5c",
+      "derived_digest": "sha256:7e2d802714d2d37282708c7c2491ff8667d35e87e1a619f0fd987ff7c9997c5c",
       "digest_matches": true
     },
     "exec_unitera_execution_control_fixture": {
-      "declared_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
-      "derived_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+      "declared_digest": "sha256:7e2d802714d2d37282708c7c2491ff8667d35e87e1a619f0fd987ff7c9997c5c",
+      "derived_digest": "sha256:7e2d802714d2d37282708c7c2491ff8667d35e87e1a619f0fd987ff7c9997c5c",
       "digest_matches": true
     }
   },
   "declared_digests_used_for_decisions": false,
-  "observed_at": "2026-10-21T04:27:57.527Z"
+  "observed_at": "2026-10-21T08:17:58.815Z"
 }

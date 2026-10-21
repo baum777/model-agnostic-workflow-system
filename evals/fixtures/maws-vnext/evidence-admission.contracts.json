@@ -1,0 +1,167 @@
+{
+  "id": "maws-vnext-evidence-admission-contracts",
+  "kind": "maws-vnext",
+  "target": {
+    "name": "maws-vnext-contracts"
+  },
+  "blocking": true,
+  "cases": [
+    {
+      "case_id": "evidence-admission-valid-committed-source",
+      "schema": "core/contracts/evidence-admission.schema.json",
+      "valid": true,
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "admission_id": "admit_evidence_2026_10_21_0001",
+        "skill_id": "example-safe-skill",
+        "subject_ref": "example-safe-skill",
+        "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "material": {
+          "record_ref": "evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-candidate.json",
+          "record_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baseline_record_ref": "evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json",
+          "baseline_record_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "corpus_ref": "evals/skill-effectiveness",
+          "corpus_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "material_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "source": {
+          "kind": "git_commit",
+          "commit": "0123456789abcdef0123456789abcdef01234567",
+          "surface": "evidence"
+        },
+        "admitted_at": "2026-10-21T04:00:00Z",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "evidence-admission-valid-content-source",
+      "schema": "core/contracts/evidence-admission.schema.json",
+      "valid": true,
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "admission_id": "admit_evidence_2026_10_21_0002",
+        "skill_id": "example-safe-skill",
+        "subject_ref": "example-safe-skill",
+        "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "material": {
+          "record_ref": "evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-candidate.json",
+          "record_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baseline_record_ref": "evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json",
+          "baseline_record_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "corpus_ref": "evals/skill-effectiveness",
+          "corpus_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "material_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "source": {
+          "kind": "content",
+          "content_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "surface": "evidence"
+        },
+        "admitted_at": "2026-10-21T04:00:00Z",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "evidence-admission-rejects-an-admission-that-claims-authority",
+      "schema": "core/contracts/evidence-admission.schema.json",
+      "valid": false,
+      "expected_error": "authority_granted",
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "admission_id": "admit_evidence_2026_10_21_0003",
+        "skill_id": "example-safe-skill",
+        "subject_ref": "example-safe-skill",
+        "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "material": {
+          "record_ref": "evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-candidate.json",
+          "record_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baseline_record_ref": "evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json",
+          "baseline_record_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "corpus_ref": "evals/skill-effectiveness",
+          "corpus_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "material_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "source": {
+          "kind": "git_commit",
+          "commit": "0123456789abcdef0123456789abcdef01234567",
+          "surface": "evidence"
+        },
+        "admitted_at": "2026-10-21T04:00:00Z",
+        "authority_granted": true
+      }
+    },
+    {
+      "case_id": "evidence-admission-rejects-a-committed-source-without-a-commit",
+      "schema": "core/contracts/evidence-admission.schema.json",
+      "valid": false,
+      "expected_error": "commit",
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "admission_id": "admit_evidence_2026_10_21_0004",
+        "skill_id": "example-safe-skill",
+        "subject_ref": "example-safe-skill",
+        "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "material": {
+          "record_ref": "evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-candidate.json",
+          "record_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baseline_record_ref": "evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json",
+          "baseline_record_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "corpus_ref": "evals/skill-effectiveness",
+          "corpus_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "material_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+        },
+        "source": {
+          "kind": "git_commit",
+          "surface": "evidence"
+        },
+        "admitted_at": "2026-10-21T04:00:00Z",
+        "authority_granted": false
+      }
+    },
+    {
+      "case_id": "evidence-admission-rejects-a-material-outside-the-evidence-surface",
+      "schema": "core/contracts/evidence-admission.schema.json",
+      "valid": false,
+      "expected_error": "record_ref",
+      "guards": [
+        "S8"
+      ],
+      "instance": {
+        "schema_version": "1.0.0",
+        "admission_id": "admit_evidence_2026_10_21_0005",
+        "skill_id": "example-safe-skill",
+        "subject_ref": "example-safe-skill",
+        "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "material": {
+          "record_ref": "somewhere-else/eval-record.json",
+          "record_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "baseline_record_ref": "evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json",
+          "baseline_record_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "corpus_ref": "evals/skill-effectiveness",
+          "corpus_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "material_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "source": {
+          "kind": "git_commit",
+          "commit": "0123456789abcdef0123456789abcdef01234567",
+          "surface": "evidence"
+        },
+        "admitted_at": "2026-10-21T04:00:00Z",
+        "authority_granted": false
+      }
+    }
+  ]
+}
