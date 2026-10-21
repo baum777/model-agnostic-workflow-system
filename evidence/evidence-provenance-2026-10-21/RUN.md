@@ -80,6 +80,17 @@ Declaring the new surface moved the canonical instruction state (`docs/authority
 
 The open S5 lane PR #59 (`fix/s5-path-confinement-20261021`, "confine the S5 corpus loader to real paths, symlinks included") hardens the same corpus loader this gate re-executes over. It is a foreign lane and is **not** merged here. This gate closes the corpus-directory and corpus-content containment itself; PR #59 additionally closes the time-of-check/time-of-use window.
 
+## Publication
+
+| Surface | PR | Merge commit | Head commit |
+| --- | --- | --- | --- |
+| Owner repository (`baum777/model-agnostic-workflow-system`) | **60** | `a01bf1a78fa7636823fcd8a07736b1930e7eb8d4` | `cba9c68a91a279488ad785e8b95d047dcc4fd4b6` |
+| Registry (`baum777/unitera-registry`) | **246** | `0eaef9925ef550161f5e4ab5eb6c279fb12336fa` | `01a99a606229f8ebe1592a19a5f3c74d46843604` |
+| Registry rebind (PARTIAL → COMPLETE) | **247** | `b99e951d67589388041e08a7cec078033419a6ef` | `ebf40728e2873cb2dd37894923d24ce12dc67c86` |
+| Atlas (`baum777/unitera_atlas`) | **189** | `b8627eda52e5ffa4b34cd3777b974df014e5e94e` | `be3b59306f1d53b266caef98721d49277a0d9937` |
+
+The owner-side classification is rebound from `REQUIRED_BUT_BLOCKED` to `UPDATED` with `registry_commit_sha` = the commit that holds the current Registry records. The Atlas claim is `C-MAWS-S8-EVIDENCE-PROVENANCE-2026-10-21`, pinned as an `EVENT_COMMIT_PIN` to the MAWS merge commit.
+
 ## Gates at the published head
 
 | Gate | Result |
