@@ -256,11 +256,26 @@ No live provider credentials are used; no live transport is exercised; no second
 
 ## Registry disposition
 
-`registry-disposition.json` in this directory: `REQUIRED_BUT_BLOCKED`, `material_change: true`, `registry_relevant_change: true`, affected records `CONTRACT_RECORD:core/contracts/experiment-definition.schema.json` and `CONTRACT_RECORD:core/contracts/experiment-comparison.schema.json` (two new canonical machine-readable record surfaces that downstream consumers validate against), `registry_commit_sha: null`. The Registry write (CONTRACT_RECORD projection + run change registration) follows this repository's merge as a separate Unitera-registry change; this disposition is rebound to `UPDATED` with the registry merge SHA in the follow-up owner evidence update.
+`registry-disposition.json` in this directory: **`UPDATED`**, `material_change: true`, `registry_relevant_change: true`, affected records `CONTRACT_RECORD:core/contracts/experiment-definition.schema.json` and `CONTRACT_RECORD:core/contracts/experiment-comparison.schema.json` (two new canonical machine-readable record surfaces that downstream consumers validate against), `registry_commit_sha: 59add1f73b70def191e65fb67ade2fe4d8b11c95`.
+
+The disposition was `REQUIRED_BUT_BLOCKED` with `registry_commit_sha: null` from the moment the slice was first published, and is rebound to `UPDATED` now that the Registry write is merged: unitera-registry pull request 231 merged as `59add1f73b70def191e65fb67ade2fe4d8b11c95` on 2026-10-21T02:14:00Z, and it publishes the run change registration and the CONTRACT_RECORD projection of the two new contracts. The Atlas representation follows it: unitera_atlas pull request 178 merged as `21624fa75728fd6afee67a1268e8fab0d9adc9de` on 2026-10-21T02:20:25Z. The source publication itself is merged: MAWS pull request 51 merged as `10d8577382a0e51090404f063012bf1eefb745a2` on 2026-10-21T02:07:38Z.
+
+## Closure
+
+| Surface | Pull request | Merge commit | Merged at |
+| --- | --- | --- | --- |
+| MAWS (source) | 51 | `10d8577382a0e51090404f063012bf1eefb745a2` | 2026-10-21T02:07:38Z |
+| Unitera Registry (registration + contract projection) | 231 | `59add1f73b70def191e65fb67ade2fe4d8b11c95` | 2026-10-21T02:14:00Z |
+| Unitera Atlas (representation) | 178 | `21624fa75728fd6afee67a1268e8fab0d9adc9de` | 2026-10-21T02:20:25Z |
+
+All three merges were executed through the GitHub GraphQL `mergePullRequest` mutation with `expectedHeadOid` and `mergeMethod: MERGE` — the REST merge endpoint answers 404 on these repositories — with no admin bypass, no force merge, no squash and no direct push to a default branch. Each merge commit and each branch head was verified to be an ancestor of its repository's default branch after the merge.
+
+**The hosted CI jobs for all three pull requests could not execute**: GitHub Actions is account-locked for billing, so the jobs are created with **zero steps** and fail within seconds without running anything, while the same workflows succeeded earlier the same day with 17 steps (MAWS) and 14 steps (Registry). Every step was therefore replicated locally — the loop-repo-ci workflow on the published MAWS head under Node 20.20.2, and both registry gates with owner-repository mirrors — and all of them pass. **No hosted green result is claimed for any of the three merges**, and the absence of a hosted run is disclosed rather than presented as a green gate.
 
 ## Next gate
 
-- Registry write for the two new CONTRACT_RECORDs and the run change registration, then the rebind to `UPDATED`.
-- Atlas representation of the new surfaces.
 - Slice S13 remains responsible for the single-executor versus multi-executor orchestration comparison; HO-01 provides the chaining it consumes.
-- HO-02 (independent review), HO-03 (a real model comparison) and HO-04 (an adoption probe) remain open and are not addressed by this slice.
+- HO-02 (independent review), HO-03 (a real model comparison) and HO-04 (an adoption probe) remain open and are not addressed by this slice. HO-02 is partly discharged: the two independent tool reviews recorded above are not the human or GitHub review the slice would need, and a GitHub reviewer could not be requested for the pull request at all.
+- The Atlas records the MAWS materialization revision `d6a8fdd` in `data/repos.yaml`, which lags the owner default branch. Advancing that pin is a separate, dedicated Atlas operation and is not repaired by this slice.
+- One pre-existing registry reachability mismatch remains, in another lane's record, whose own correction is open in unitera-registry pull request 236.
+- One confirmed finding from the second independent review is recorded and **not** repaired here: the shared S5 evaluation module carries a second, purely lexical path confinement, so the S5 skill-effectiveness lane can follow a symlink out of its corpus directory. That module is the S5 lane's surface, not this slice's; the HO-01 chain is unaffected, because its own corpus binding refuses a symlinked case file before the corpus is read.
