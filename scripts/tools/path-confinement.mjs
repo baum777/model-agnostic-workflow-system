@@ -37,9 +37,12 @@
 //   R2  C1-C5 do not close a race in which a concurrent writer replaces the
 //       PARENT DIRECTORY of the target between the containment check and
 //       the open, and the replacement carries a file with the same device
-//       and inode identity. Closing that would require openat(2) with
-//       O_NOFOLLOW relative to a trusted directory descriptor, which Node's
-//       public API does not expose.
+//       and inode identity. The parent directory's own identity is
+//       re-verified, so that case is DETECTED as long as the new parent has
+//       a fresh inode; escaping it needs the parent's inode number to be
+//       reused as well. Closing that would require openat(2) with O_NOFOLLOW
+//       relative to a trusted directory descriptor, which Node's public API
+//       does not expose.
 //   R3  A filesystem that has itself stopped responding can still block in
 //       the kernel. O_NONBLOCK keeps a FIFO from blocking the OPEN, and the
 //       regular-file guard then refuses it, but no user-space flag prevents
