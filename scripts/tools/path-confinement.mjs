@@ -14,22 +14,43 @@
 //   C2  the REAL path of the target stays inside the REAL path of the base,
 //       so a symlink INSIDE the base that points OUTSIDE it is refused, and
 //       so is a symlinked parent directory that carries the target out;
-//   C3  the content is read through a descriptor opened with O_NOFOLLOW on
-//       the verified real path, and the descriptor's identity (device and
-//       inode) is compared with the identity observed during the check, so a
-//       target replaced in the window is detected instead of being read;
+//   C3  the content is read through a descriptor opened with O_NOFOLLOW and
+//       O_NONBLOCK on the verified real path, and the descriptor's identity
+//       (device and inode) is compared with the identity observed during the
+//       check, so a file REPLACED in the window is detected instead of being
+//       read;
 //   C4  the target must be a regular file, so a directory, a FIFO or a
-//       device can never be read as material (a FIFO would block the
-//       reader forever).
+//       device can never be read as material;
+//   C5  the target must have exactly ONE link, so a hardlink — which shares
+//       its inode with another name and whose real path is its own path, so
+//       that C2 cannot see the material also existing outside the base — is
+//       refused rather than read.
 //
-// RESIDUAL (documented, not eliminated): C1-C4 do not close a race in which
-// a concurrent writer replaces the PARENT DIRECTORY of the target between
-// the containment check and the open, and the replacement carries a file
-// with the same device and inode identity. Closing that would require
-// openat(2) with O_NOFOLLOW relative to a trusted directory descriptor,
-// which Node's public API does not expose. The threat requires a concurrent
-// writer with write access to the working tree that already holds the
-// material. No adversarial parallel symlink swap is claimed as tested.
+// RESIDUAL (documented, not eliminated):
+//   R1  C3 detects the REPLACEMENT of a target, not an in-place rewrite of
+//       the same inode. A writer that truncates and rewrites the file
+//       between the check and the read keeps the device and inode identity,
+//       so the mutation is not detected here. Such a writer holds write
+//       access to the material and could equally have written the corpus
+//       before the run; the mutation is visible in the corpus digest that
+//       the record carries.
+//   R2  C1-C5 do not close a race in which a concurrent writer replaces the
+//       PARENT DIRECTORY of the target between the containment check and
+//       the open, and the replacement carries a file with the same device
+//       and inode identity. Closing that would require openat(2) with
+//       O_NOFOLLOW relative to a trusted directory descriptor, which Node's
+//       public API does not expose.
+//   R3  A filesystem that has itself stopped responding can still block in
+//       the kernel. O_NONBLOCK keeps a FIFO from blocking the OPEN, and the
+//       regular-file guard then refuses it, but no user-space flag prevents
+//       a hung mount from blocking a read.
+//   R4  A bind mount inside the base is not detected: the real path of a
+//       bind-mounted file is its own path inside the base. Creating one
+//       requires privileges that already exceed the read.
+//
+// The threat behind R1, R2 and R4 requires a concurrent writer with write
+// access to the working tree that already holds the material. No adversarial
+// parallel symlink swap is claimed as tested.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -42,6 +63,7 @@ export const PATH_CONFINEMENT_CODES = Object.freeze({
   ESCAPES_BASE_THROUGH_SYMLINK: 'PATH_ESCAPES_BASE_THROUGH_SYMLINK',
   NOT_FOUND: 'PATH_NOT_FOUND',
   NOT_A_FILE: 'PATH_NOT_A_FILE',
+  MULTIPLE_LINKS: 'PATH_MULTIPLE_LINKS',
   IS_A_SYMLINK: 'PATH_IS_A_SYMLINK',
   CHANGED_DURING_RESOLUTION: 'PATH_CHANGED_DURING_RESOLUTION',
   NOT_READABLE: 'PATH_NOT_READABLE'
@@ -65,6 +87,14 @@ function fail(code, message) {
 // instead of being assumed.
 export const O_NOFOLLOW_SUPPORTED = Number.isInteger(fs.constants.O_NOFOLLOW);
 const NOFOLLOW = O_NOFOLLOW_SUPPORTED ? fs.constants.O_NOFOLLOW : 0;
+
+// O_NONBLOCK keeps the OPEN from waiting for a writer: a FIFO that was
+// swapped in after the containment check would otherwise block the open
+// forever, and the regular-file guard that would refuse it would never run.
+// With the flag the descriptor is produced immediately, the guard refuses the
+// FIFO, and the reader returns. It has no effect on a regular file.
+export const O_NONBLOCK_SUPPORTED = Number.isInteger(fs.constants.O_NONBLOCK);
+const NONBLOCK = O_NONBLOCK_SUPPORTED ? fs.constants.O_NONBLOCK : 0;
 
 /**
  * True when `candidate` is `base` itself or lies below it. The comparison is
@@ -136,6 +166,18 @@ export function confineFileToBase(baseDir, relativePath) {
   if (!stat.isFile()) {
     fail(PATH_CONFINEMENT_CODES.NOT_A_FILE, `${relativePath} is not a regular file`);
   }
+  // C5: the target must carry exactly ONE link. A hardlink shares its inode
+  // with another name, and the real path of a hardlink IS its own path, so
+  // C2 cannot see that the same material also exists under a name outside
+  // the base. A target with more than one link is therefore refused rather
+  // than read: the corpus is a small set of tracked files, each of which has
+  // one link.
+  if (typeof stat.nlink === 'number' && stat.nlink > 1) {
+    fail(
+      PATH_CONFINEMENT_CODES.MULTIPLE_LINKS,
+      `${relativePath} has ${stat.nlink} links; a material that shares its inode with another name may carry content from outside the base`
+    );
+  }
   const parentPath = path.dirname(realPath);
   let parentStat;
   try {
@@ -169,7 +211,10 @@ export function confineFileToBase(baseDir, relativePath) {
 export function readConfinedFile(confined) {
   let fd;
   try {
-    fd = fs.openSync(confined.realPath, fs.constants.O_RDONLY | NOFOLLOW);
+    // O_NONBLOCK: a FIFO swapped in after the containment check must not
+    // block the open. The descriptor is produced at once, and the
+    // regular-file guard below refuses it.
+    fd = fs.openSync(confined.realPath, fs.constants.O_RDONLY | NOFOLLOW | NONBLOCK);
   } catch (error) {
     if (error && error.code === 'ELOOP') {
       fail(PATH_CONFINEMENT_CODES.IS_A_SYMLINK, `${confined.relativePath} is a symbolic link at the verified path`);

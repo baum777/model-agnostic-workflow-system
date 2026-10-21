@@ -13,6 +13,25 @@
 //       createExecutor() built on runtime/executors/executor-base.mjs);
 //       without both it refuses with LIVE_MODEL_EXECUTOR_UNAVAILABLE.
 //
+// Path discipline, by surface:
+//   --corpus         the CORPUS is confined: it must resolve inside the
+//                    repository, and every file it declares must resolve
+//                    inside the corpus.
+//   --baseline-record, --out, --executor-module are OPERATOR surfaces and
+//                    are deliberately NOT confined to the repository. They
+//                    act with the invoking operator's own authority: --out
+//                    writes the record wherever the operator named (and
+//                    creates the directories above it), --baseline-record
+//                    reads the file the operator named, and
+//                    --executor-module imports the module the operator
+//                    named, which is code execution by design. The trust
+//                    boundary that actually gates a verdict is not those
+//                    paths but the supplied baseline record, which is
+//                    validated against its own content seal and bound to
+//                    this corpus, this mode and this subject before it is
+//                    compared (BASELINE_RECORD_INVALID /
+//                    BASELINE_RECORD_MISMATCH).
+//
 // Verdict semantics (fail closed):
 //   - any security regression (a security-class case not refused) => BLOCKED
 //   - any failed case in a blocking family              => BLOCKED
@@ -44,6 +63,9 @@ const CORPUS_SCHEMA_VERSION = '1.0.0';
 const RUN_SCHEMA_VERSION = '1.0.0';
 const ASSERTION_TYPES = new Set(['contains', 'not_contains', 'equals', 'regex']);
 const SECURITY_CLASSES = new Set(['none', 'secret_exfiltration', 'permission_escalation', 'destructive_command']);
+// The family whose cases come from the variant files rather than from a
+// family file of its own. Only this family may be declared "via: variant".
+const VARIANT_FAMILY = 'positive';
 const DEFAULT_LIVE_TIMEOUT_MS = 120000;
 
 export class EvalConfigError extends Error {
@@ -85,6 +107,9 @@ function round6(value) {
 //   CORPUS_PATH_SYMLINK_ESCAPE the path resolves outside the corpus through
 //                              a symbolic link (file or parent directory)
 //   CORPUS_PATH_NOT_A_FILE     the target is not a regular file
+//   CORPUS_PATH_MULTIPLE_LINKS the target has more than one link, so its
+//                              material may also exist under a name outside
+//                              the corpus
 //   CORPUS_PATH_CHANGED        the target was replaced between the
 //                              containment check and the read
 export const CORPUS_PATH_CODES = {
@@ -95,6 +120,7 @@ export const CORPUS_PATH_CODES = {
   [PATH_CONFINEMENT_CODES.ESCAPES_BASE_THROUGH_SYMLINK]: 'CORPUS_PATH_SYMLINK_ESCAPE',
   [PATH_CONFINEMENT_CODES.NOT_FOUND]: 'CORPUS_FILE_INVALID',
   [PATH_CONFINEMENT_CODES.NOT_A_FILE]: 'CORPUS_PATH_NOT_A_FILE',
+  [PATH_CONFINEMENT_CODES.MULTIPLE_LINKS]: 'CORPUS_PATH_MULTIPLE_LINKS',
   [PATH_CONFINEMENT_CODES.IS_A_SYMLINK]: 'CORPUS_PATH_SYMLINK_ESCAPE',
   [PATH_CONFINEMENT_CODES.CHANGED_DURING_RESOLUTION]: 'CORPUS_PATH_CHANGED',
   [PATH_CONFINEMENT_CODES.NOT_READABLE]: 'CORPUS_FILE_INVALID'
@@ -144,6 +170,17 @@ export function loadCorpus(corpusDir) {
     if (typeof family.family !== 'string' || typeof family.file !== 'string' || typeof family.blocking !== 'boolean') {
       throw new EvalConfigError('CORPUS_FAMILY_INVALID', 'family entries need family/file/blocking');
     }
+    if (family.via !== undefined && family.via !== 'variant') {
+      throw new EvalConfigError('CORPUS_FAMILY_INVALID', `family ${family.family} declares the unknown via ${JSON.stringify(family.via)}; only "variant" is known`);
+    }
+    // Only the family that the variant files populate may be declared
+    // "via: variant". Any other family declared that way would contribute NO
+    // case at all: its file is never read, it can never fail, and a BLOCKING
+    // family that can never fail would let the security gate pass with zero
+    // security cases measured.
+    if (family.via === 'variant' && family.family !== VARIANT_FAMILY) {
+      throw new EvalConfigError('CORPUS_FAMILY_INVALID', `family ${family.family} declares via: variant; only the ${VARIANT_FAMILY} family may be populated from the variant files`);
+    }
     // Every declared family file is confined to the corpus directory before
     // it is read: the file must resolve inside the corpus even when it is
     // reached through a symbolic link.
@@ -154,9 +191,18 @@ export function loadCorpus(corpusDir) {
     // checkout directory.
     families.set(family.family, { ...family, cases, file: confined ? confined.resolved : null, logical_file: family.file });
   }
+  if (!manifest.variants || typeof manifest.variants !== 'object' || Array.isArray(manifest.variants) || Object.keys(manifest.variants).length === 0) {
+    throw new EvalConfigError('CORPUS_VARIANTS_INVALID', 'corpus.json must declare a non-empty variants object');
+  }
   const variants = new Map();
   for (const [variantName, variantSpec] of Object.entries(manifest.variants)) {
-    const positiveFamily = families.get('positive');
+    if (!variantSpec || typeof variantSpec.positive_cases_file !== 'string') {
+      throw new EvalConfigError('CORPUS_VARIANTS_INVALID', `variant ${variantName} must declare positive_cases_file`);
+    }
+    const positiveFamily = families.get(VARIANT_FAMILY);
+    if (!positiveFamily) {
+      throw new EvalConfigError('CORPUS_FAMILY_INVALID', `corpus.json must declare the ${VARIANT_FAMILY} family; the variant files populate it`);
+    }
     const positiveConfined = confineCorpusFile(corpusDir, variantSpec.positive_cases_file);
     positiveFamily.cases = loadCases(positiveConfined);
     positiveFamily.file = positiveConfined.resolved;
@@ -165,6 +211,14 @@ export function loadCorpus(corpusDir) {
       positive_cases_logical_file: variantSpec.positive_cases_file,
       positive_cases: positiveFamily.cases
     });
+  }
+  // A blocking family that contributes NO case can never fail, so it can
+  // never block. A corpus whose blocking families are empty would let the
+  // security gate pass with zero security cases measured.
+  for (const [familyName, family] of families) {
+    if (family.blocking === true && family.cases.length === 0) {
+      throw new EvalConfigError('CORPUS_FAMILY_EMPTY', `the blocking family ${familyName} contributes no case and could never block`);
+    }
   }
   return { corpusDir, manifest, families, variants, subject: manifest.subject };
 }
@@ -602,6 +656,26 @@ export function assertCorpusInsideRepository(repoRoot, corpusDir) {
   return corpusReal;
 }
 
+/**
+ * Re-anchor the corpus directory and refuse a corpus root that changed
+ * identity since it was anchored.
+ *
+ * The anchor is a path, not a handle: between the anchor and the read, a
+ * writer with access to the working tree could replace the corpus directory
+ * with a symbolic link to a corpus elsewhere, and the confinement would then
+ * attach to that other corpus. Re-anchoring after the load catches the
+ * replacement before any record is written. A replacement that is undone
+ * before the second anchor is not caught; closing that would need a
+ * trusted directory descriptor, which Node's public API does not expose.
+ */
+export function assertCorpusUnchanged(repoRoot, corpusDir, anchoredRealPath) {
+  const current = assertCorpusInsideRepository(repoRoot, corpusDir);
+  if (current !== anchoredRealPath) {
+    throw new EvalConfigError('CORPUS_DIR_CHANGED', 'the corpus directory changed while it was being read');
+  }
+  return current;
+}
+
 async function main() {
   let args;
   try {
@@ -632,6 +706,15 @@ async function main() {
 
   try {
     const corpus = loadCorpus(corpusDir);
+    // The corpus root is re-anchored right after the load: a corpus
+    // directory that was replaced while it was being read is refused before
+    // any record is produced.
+    try {
+      assertCorpusUnchanged(root, args.corpus || 'evals/skill-effectiveness', corpusDir);
+    } catch (error) {
+      console.error(`config error: ${error.message}`);
+      process.exit(3);
+    }
     if (args.variant === 'BASELINE') {
       const baselineRecord = finalizeRecord(
         await runVariant({ corpus, variant: 'BASELINE', mode: args.mode, executor, evalId: args.evalId || 'bev_skill_effectiveness_baseline', instructionRevision: args.instructionRevision })

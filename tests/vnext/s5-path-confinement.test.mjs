@@ -274,6 +274,144 @@ test('the corpus error vocabulary maps the read-time refusal to a corpus code', 
     CORPUS_PATH_CODES[PATH_CONFINEMENT_CODES.NOT_A_FILE],
     'CORPUS_PATH_NOT_A_FILE'
   );
+  assert.equal(
+    CORPUS_PATH_CODES[PATH_CONFINEMENT_CODES.MULTIPLE_LINKS],
+    'CORPUS_PATH_MULTIPLE_LINKS'
+  );
+});
+
+test('a FIFO swapped in after the check cannot block the read', { timeout: 20000 }, (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 's5-fifo-swap-'));
+  try {
+    const target = path.join(dir, 'cases.json');
+    fs.writeFileSync(target, '{"cases":[]}\n');
+    const confined = confineFileToBase(dir, 'cases.json');
+    // The target is replaced by a FIFO in the window between the
+    // containment check and the read. The open must not wait for a writer.
+    fs.unlinkSync(target);
+    let fifoCreated = true;
+    try {
+      execFileSync('mkfifo', [target]);
+    } catch {
+      fifoCreated = false;
+    }
+    if (!fifoCreated) {
+      t.skip('mkfifo is not available in this environment');
+      return;
+    }
+    assert.throws(
+      () => readConfinedFile(confined),
+      (error) => error instanceof PathConfinementError && error.code === PATH_CONFINEMENT_CODES.NOT_A_FILE
+    );
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a case file that is a hardlink to a file outside the corpus is refused', () => {
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 's5-hardlink-outside-'));
+  const tmp = writeTempCorpus((dir) => {
+    const outsideCases = path.join(outside, 'cases.json');
+    fs.copyFileSync(path.join(CORPUS_DIR, 'negative-cases', 'cases.json'), outsideCases);
+    const link = path.join(dir, 'negative-cases', 'cases.json');
+    fs.unlinkSync(link);
+    fs.linkSync(outsideCases, link);
+  });
+  try {
+    // A hardlink has no path of its own: the real path of the link is its
+    // own path inside the corpus, so only the link count reveals that the
+    // same material also exists under a name outside the corpus.
+    assert.throws(
+      () => loadCorpus(tmp),
+      (error) => error instanceof EvalConfigError && error.code === 'CORPUS_PATH_MULTIPLE_LINKS'
+    );
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+    fs.rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+test('a parent directory replaced after the check is detected', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 's5-parent-swap-'));
+  try {
+    const familyDir = path.join(dir, 'family');
+    fs.mkdirSync(familyDir);
+    const target = path.join(familyDir, 'cases.json');
+    fs.writeFileSync(target, '{"cases":[]}\n');
+    const confined = confineFileToBase(dir, 'family/cases.json');
+    // The parent directory is replaced by a new directory that carries the
+    // SAME file inode, so only the parent identity tells the two apart.
+    const original = fs.statSync(target);
+    fs.renameSync(familyDir, path.join(dir, 'family-original'));
+    fs.mkdirSync(familyDir);
+    fs.linkSync(path.join(dir, 'family-original', 'cases.json'), target);
+    const swapped = fs.statSync(target);
+    assert.equal(swapped.ino, original.ino, 'the file inode is unchanged; only the parent differs');
+    assert.throws(
+      () => readConfinedFile(confined),
+      (error) => error instanceof PathConfinementError
+        && error.code === PATH_CONFINEMENT_CODES.CHANGED_DURING_RESOLUTION
+        && /parent directory/.test(error.message)
+    );
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a manifest without variants is refused with a corpus code', () => {
+  const tmp = writeTempCorpus((dir) => {
+    const manifest = readManifest(dir);
+    delete manifest.variants;
+    writeManifest(dir, manifest);
+  });
+  try {
+    assert.throws(
+      () => loadCorpus(tmp),
+      (error) => error instanceof EvalConfigError && error.code === 'CORPUS_VARIANTS_INVALID'
+    );
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('a family that declares an unknown via is refused', () => {
+  const tmp = writeTempCorpus((dir) => {
+    const manifest = readManifest(dir);
+    manifest.families[1].via = 'somewhere-else';
+    writeManifest(dir, manifest);
+  });
+  try {
+    assert.throws(
+      () => loadCorpus(tmp),
+      (error) => error instanceof EvalConfigError && error.code === 'CORPUS_FAMILY_INVALID'
+    );
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('a blocking family that would contribute no case is refused', () => {
+  const tmp = writeTempCorpus((dir) => {
+    const manifest = readManifest(dir);
+    // A family declared "via: variant" other than the positive family never
+    // has its file read, so it would contribute no case at all — and a
+    // blocking family that can never fail can never block.
+    manifest.families.push({
+      family: 'security_regression',
+      file: '../../outside/ghost-security.json',
+      via: 'variant',
+      blocking: true
+    });
+    writeManifest(dir, manifest);
+  });
+  try {
+    assert.throws(
+      () => loadCorpus(tmp),
+      (error) => error instanceof EvalConfigError && error.code === 'CORPUS_FAMILY_INVALID'
+    );
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
 });
 
 test('a corpus directory outside the repository is refused', () => {
@@ -288,10 +426,44 @@ test('a corpus directory outside the repository is refused', () => {
   }
 });
 
+test('a corpus directory that resolves out of the repository is refused', () => {
+  // A fake repository root in a temp directory: the corpus inside it is a
+  // symbolic link to a corpus elsewhere, so the DECLARED path is inside the
+  // root while the material is not. The check must judge the real path.
+  const fakeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 's5-fake-repo-'));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 's5-corpus-outside-'));
+  try {
+    fs.copyFileSync(path.join(CORPUS_DIR, 'corpus.json'), path.join(outside, 'corpus.json'));
+    fs.symlinkSync(outside, path.join(fakeRoot, 'corpus'));
+    assert.throws(
+      () => assertCorpusInsideRepository(fakeRoot, 'corpus'),
+      (error) => error instanceof EvalConfigError && error.code === 'CORPUS_DIR_ESCAPES_REPO'
+    );
+  } finally {
+    fs.rmSync(fakeRoot, { recursive: true, force: true });
+    fs.rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+test('a corpus path that leaves the repository is refused at the CLI', () => {
+  // The CLI's corpus path is anchored at the repository root, so a path
+  // that climbs out of it is refused before anything is read. This needs no
+  // write into the repository at all.
+  const result = spawnSync(process.execPath, [RUNNER, '--corpus', '../outside-corpus'], {
+    cwd: ROOT,
+    encoding: 'utf8'
+  });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /must stay inside the repository/);
+});
+
 test('a corpus directory that resolves out of the repository is refused at the CLI', () => {
   // The link lives inside the repository on purpose: a purely lexical check
-  // would accept it, and the corpus it names is outside the tree.
-  const holder = fs.mkdtempSync(path.join(ROOT, '.s5-confinement-tmp-'));
+  // would accept it, and the corpus it names is outside the tree. It is
+  // created under artifacts/, the repository's own ignored output
+  // directory, so that a run that dies before the cleanup leaves no
+  // tracked residue behind.
+  const holder = fs.mkdtempSync(path.join(ROOT, 'artifacts', '.s5-confinement-tmp-'));
   const outside = fs.mkdtempSync(path.join(os.tmpdir(), 's5-corpus-outside-'));
   try {
     fs.copyFileSync(path.join(CORPUS_DIR, 'corpus.json'), path.join(outside, 'corpus.json'));
