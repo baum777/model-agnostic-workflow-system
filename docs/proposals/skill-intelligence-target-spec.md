@@ -477,6 +477,46 @@ Die geschlossene Taxonomie in 6.2 ist der Zielumfang des Auditors, nicht der Umf
 
 Ein Auditor, der eine Klasse nicht prüft, behauptet für diese Klasse keine Compliance.
 
+### 6.7 Welle 2 — Advisory-Signallayer für die semantischen Klassen
+
+Welle 1 hat die zwei statisch entscheidbaren Klassen geprüft und die übrigen
+acht als nicht statisch analysierbar ausgewiesen. Welle 2 erweitert die
+Wellenabdeckung um eine deterministische Signallayer
+(`runtime/instructions/instruction-semantic-signals.mjs`): jede der acht
+semantischen Klassen erhält ein Signal, das Kandidatenfundstellen mit Beleg
+benennt.
+
+Das Signal entscheidet die Klasse nicht.
+
+- Jeder Fund trägt `determinism: semantic_advisory`, `requires_owner_review:
+  true` und niemals `risk_level: blocker`; ein solcher Befund blockiert
+  niemals allein.
+- Die Klasse bleibt als nicht statisch analysierbar ausgewiesen. Der
+  Audit-Report führt die Kandidatenzahl je Klasse neben dieser Limitation.
+- Ein Kandidat ist ein Hinweis; die Klassifikation ist eine
+  owner-geprüfte Analyse.
+- Das Fehlen von Kandidaten ist kein Freibrief: es bleibt die deklarierte
+  Limitation der Klasse.
+
+Die acht Signale sind:
+
+| Klasse | Deterministisches Signal |
+|---|---|
+| RULE_CONFLICT | derselbe punktierte Key ist in Instruktionszeilen unterschiedlicher Quellen an unterschiedliche Werte gebunden |
+| PRECEDENCE_CONFLICT | dasselbe Subjekt wird in Quellen unterschiedlicher Authority-Klasse entgegengesetzt geregelt |
+| OVERCONSTRAINT | ein Verbot quantifiziert über alles und nennt keine Grenze, an der es endet |
+| REDUNDANT_INSTRUCTION | dieselbe normalisierte Instruktion steht in mehr als einer Quelle |
+| CONTEXT_OVERLOAD | jede Instruktion einer Quelle steht bereits in einer Quelle höherer Authority |
+| AUTHORITY_LEAK | eine Quelle unterhalb der kanonischen Authority-Klassen behauptet eine Berechtigung |
+| MODEL_DRIFT | eine Instruktion behauptet ein Modellverhalten oder eine Modelleigenschaft |
+| SKILL_ROUTING_AMBIGUITY | zwei Skill-Beschreibungen beanspruchen dasselbe Feld |
+
+Die Welle ist messbar gemacht: der aktuelle Korpus lieferte in der
+unkalibrierten Fassung 107 Rohkandidaten (davon 100 aus der
+Skill-Routing-Klasse). Nach Kalibrierung der drei verrauschenden Signale
+liefert derselbe Korpus 0 Kandidaten. Die Kalibrierung ist Teil des
+Evidence-Runs `evidence/instruction-audit-wave2-2026-10-21/`.
+
 ---
 
 ## 7. Adaptive Context Assembly
@@ -1474,12 +1514,12 @@ Stattdessen soll es:
 
 > MAWS evolves from a provider-neutral workflow and skill execution framework into an evidence-driven, instruction-aware and continuously improvable agent harness — without granting models authority over their own governance.
 
-**Target Status:** PROPOSED  
+**Target Status:** ADOPTED — TARGET SPECIFICATION (owner act of 2026-10-21)  
 **Specification Version:** 0.2.0  
-**Canonical Adoption:** NONE — die Fortschreibung auf v0.2.0 bleibt ein Vorschlag; die kanonische Adoption ist ein separater Governance-Schritt und wird durch dieses Dokument nicht ausgeführt  
-**Implementation Status:** NOT APPLIED BY THIS SPEC — die Slices S0–S3 und die S4-Welle-A-Instruktionsreduktion sind an ihren Owner-Surfaces gemergt und werden durch diese Fortschreibung weder neu begonnen noch rückwirkend als abgeschlossen erklärt  
+**Canonical Adoption:** ADOPTED AS THE SHARED-CORE DEVELOPMENT TARGET — owner act of 2026-10-21, recorded as OD-20 in `docs/maws-vnext-owner-decisions.md`. The act names this document and this version as the governing target of the MAWS-SII development lane, and it takes up the standing owner dispositions OA-04 (specification adoption) and OA-05 (instruction audit capability implementation) together with the resumption of that lane. The adoption grants no authority, qualification, permission or runtime activation, it replaces no approval decision, and it does not discharge the owner review of the advisory candidates the auditor names. The document surface keeps its path under `docs/proposals/`: eighteen evidence records of 2026-10-20/21 reference that path, and the evidence path contract makes those records immutable. The promotion of the document into the canonical docs surface is a separate slice and remains the next gate of the document placement.  
+**Implementation Status:** APPLIED IN PART, BY SLICE — die Slices S0–S8 und S11–S13 sind an ihren Owner-Surfaces gemergt; die Welle 2 des S3-Auditors (deterministische Advisory-Signallayer für die acht semantischen Klassen) ist mit gepflanzten Fixtures implementiert und gegen den aktuellen Korpus gemessen; die Slices S9 (Regression and Rollback) und S10 (Cross-Model Optimization) sind offen  
 **Runtime Activation:** NONE  
-**Next Gate:** ausstehende Registry-`CONTRACT_RECORD`-Schreibung zu S1 → S4 Skill Improvement Analyzer → S5 Behavioral Evaluation Baseline → S11 Harness Context Separation
+**Next Gate:** ausstehende Registry-`CONTRACT_RECORD`-Schreibung zu S1 → S4 Skill Improvement Analyzer → S5 Behavioral Evaluation Baseline → S11 Harness Context Separation, die offenen Slices S9 und S10, die owner-geprüfte Analyse der Advisory-Kandidaten aus Welle 2, sowie die dokumentbezogene Platzierung dieses Dokuments in der kanonischen Docs-Fläche
 
 ---
 

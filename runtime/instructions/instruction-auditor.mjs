@@ -9,6 +9,7 @@
 // only gate via existing gate policy owned elsewhere.
 import { FailClosedError, canonicalJson, sha256Hex } from '../vnext/util.mjs';
 import { buildInstructionGraph } from './instruction-resolver.mjs';
+import { collectAdvisorySignals } from './instruction-semantic-signals.mjs';
 
 export const AUDIT_SCHEMA_VERSION = '1.0.0';
 
@@ -16,17 +17,23 @@ export const AUDIT_SCHEMA_VERSION = '1.0.0';
 // decidability. `analyzable_static: true` classes are audited in wave 1;
 // the rest are declared in the audit coverage so absence of findings for
 // them is an explicit limitation, never a silent clean bill.
+//
+// `advisory_signal` names the deterministic signal that wave 2 uses to point
+// at candidate occurrences of a class. The signal does not decide the class:
+// a candidate is evidence, the classification is the owner's judgement. The
+// class therefore stays not statically analyzable, and its finding carries
+// `determinism: semantic_advisory`.
 export const AUDIT_TAXONOMY = [
   { finding_class: 'STALE_REFERENCE', definition: 'referenced file, import or reference does not exist', analyzable_static: true },
   { finding_class: 'INVALID_COMMAND', definition: 'referenced command is not available', analyzable_static: true },
-  { finding_class: 'RULE_CONFLICT', definition: 'two relevant rules are logically incompatible', analyzable_static: false },
-  { finding_class: 'PRECEDENCE_CONFLICT', definition: 'contradiction between authority levels', analyzable_static: false },
-  { finding_class: 'OVERCONSTRAINT', definition: 'rule is broader than its necessary scope', analyzable_static: false },
-  { finding_class: 'REDUNDANT_INSTRUCTION', definition: 'repetition without independent function', analyzable_static: false },
-  { finding_class: 'CONTEXT_OVERLOAD', definition: 'irrelevant context is loaded', analyzable_static: false },
-  { finding_class: 'AUTHORITY_LEAK', definition: 'instruction claims a permission that does not exist', analyzable_static: false },
-  { finding_class: 'MODEL_DRIFT', definition: 'instruction behavior changes after a model change', analyzable_static: false },
-  { finding_class: 'SKILL_ROUTING_AMBIGUITY', definition: 'skill selection is ambiguous or imprecise', analyzable_static: false }
+  { finding_class: 'RULE_CONFLICT', definition: 'two relevant rules are logically incompatible', analyzable_static: false, advisory_signal: 'the same dotted key is bound to different values in instruction lines of different sources' },
+  { finding_class: 'PRECEDENCE_CONFLICT', definition: 'contradiction between authority levels', analyzable_static: false, advisory_signal: 'the same subject is governed in opposite directions by sources of different authority class' },
+  { finding_class: 'OVERCONSTRAINT', definition: 'rule is broader than its necessary scope', analyzable_static: false, advisory_signal: 'a prohibition quantifies over everything and names no scope it stops at' },
+  { finding_class: 'REDUNDANT_INSTRUCTION', definition: 'repetition without independent function', analyzable_static: false, advisory_signal: 'the same normalized instruction is stated in more than one source' },
+  { finding_class: 'CONTEXT_OVERLOAD', definition: 'irrelevant context is loaded', analyzable_static: false, advisory_signal: 'every instruction of a source is already stated by a source of higher authority' },
+  { finding_class: 'AUTHORITY_LEAK', definition: 'instruction claims a permission that does not exist', analyzable_static: false, advisory_signal: 'a source below the canonical authority classes claims a permission' },
+  { finding_class: 'MODEL_DRIFT', definition: 'instruction behavior changes after a model change', analyzable_static: false, advisory_signal: 'an instruction depends on a model or on a model property' },
+  { finding_class: 'SKILL_ROUTING_AMBIGUITY', definition: 'skill selection is ambiguous or imprecise', analyzable_static: false, advisory_signal: 'two skill descriptions claim the same ground' }
 ];
 
 const RISK_BY_CLASS = { STALE_REFERENCE: 'high', INVALID_COMMAND: 'medium' };
@@ -69,6 +76,38 @@ function buildFinding({ auditId, graphDigest, findingClass, edge, authorityClass
   };
 }
 
+// A wave 2 finding: a candidate occurrence of a class that static analysis
+// cannot decide. It is advisory by construction - it never gates, it never
+// mutates, and it always asks for owner review.
+function buildAdvisoryFinding({ auditId, graphDigest, revision, candidate }) {
+  requireFindingClass(candidate.finding_class);
+  const findingId = `iaf_${sha256Hex(canonicalJson({
+    audit_id: auditId,
+    finding_class: candidate.finding_class,
+    from: candidate.source_path,
+    line: candidate.line,
+    evidence: candidate.evidence_refs
+  })).slice(0, 16)}`;
+  return {
+    schema_version: AUDIT_SCHEMA_VERSION,
+    audit_id: auditId,
+    finding_id: findingId,
+    finding_class: candidate.finding_class,
+    determinism: 'semantic_advisory',
+    source_path: candidate.source_path,
+    source_revision: revision,
+    line_range: [candidate.line, candidate.line],
+    authority_class: candidate.authority_class,
+    observed_problem: candidate.observed_problem,
+    evidence_refs: [...new Set(candidate.evidence_refs)],
+    inferred_cause: null,
+    risk_level: candidate.risk_level,
+    confidence: candidate.confidence,
+    recommended_action: candidate.recommended_action,
+    requires_owner_review: true
+  };
+}
+
 // auditInstructionSources({ root, revision }) ->
 //   { schema_version, audit_id, revision, graph_digest, source_count,
 //     edge_count, findings, findings_count, coverage, digest }
@@ -93,14 +132,38 @@ export function auditInstructionSources({ root, revision }) {
       })
     );
   }
+
+  // Wave 2: the eight semantic classes get a deterministic signal layer. The
+  // signals are candidates, not proofs: they are emitted as advisory
+  // findings that ask for owner review and that can never gate.
+  const advisory = collectAdvisorySignals({ root, graph });
+  for (const candidate of advisory.signals) {
+    findings.push(
+      buildAdvisoryFinding({
+        auditId,
+        graphDigest: graph.digest,
+        revision,
+        candidate
+      })
+    );
+  }
+
   findings.sort((a, b) => (a.source_path < b.source_path ? -1 : a.source_path > b.source_path ? 1 : a.finding_id < b.finding_id ? -1 : 1));
 
   const coverage = {
     classes_analyzed: AUDIT_TAXONOMY.filter((entry) => entry.analyzable_static).map((entry) => entry.finding_class),
     classes_declared_not_analyzable: AUDIT_TAXONOMY.filter((entry) => !entry.analyzable_static).map((entry) => ({
       finding_class: entry.finding_class,
-      reason: 'not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result'
+      reason: 'not statically analyzable: requires semantic interpretation beyond static reference analysis; an explicit advisory limitation of audit wave 1, not a clean result',
+      advisory_signal: entry.advisory_signal,
+      advisory_note: 'wave 2 names candidate occurrences of this class with the deterministic signal stated above; the signal does not decide the class, the owner does'
     })),
+    classes_detected_advisory: AUDIT_TAXONOMY.filter((entry) => !entry.analyzable_static).map((entry) => ({
+      finding_class: entry.finding_class,
+      signal: entry.advisory_signal,
+      candidate_count: advisory.by_class[entry.finding_class] ?? 0
+    })),
+    advisory_signal_version: advisory.schema_version,
     reference_classes: {
       resolved: graph.status_counts.resolved,
       glob_pattern: graph.status_counts.glob_pattern,
