@@ -1,0 +1,75 @@
+{
+  "derived_effective_instruction_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+  "source_revision": "content:b72fa3161ae56bbf6de3789d1653cc2456cc9fa7cd9cbb484a8ec2b569ce2977",
+  "instruction_inventory_digest": "94ecae70a43c8ed601b6967ccf870e3e66bc79ffde4e071d1c7315d2334a841f",
+  "verified_source_count": 8,
+  "selected_sources": [
+    {
+      "ref": "AGENTS.md",
+      "binding_class": "canonical",
+      "assembly_slot": "core",
+      "source_digest": "sha256:7e50f78e715acbf07e495f642520cbcd980fff26b727b0cf83ec4c6d07a6d110"
+    },
+    {
+      "ref": "WORKFLOW.md",
+      "binding_class": "canonical",
+      "assembly_slot": "core",
+      "source_digest": "sha256:5ee4950b99e9501818cc479369f12dcbfa581b2af34cbb55f62249fd554962a4"
+    },
+    {
+      "ref": "docs/authority-matrix.md",
+      "binding_class": "canonical",
+      "assembly_slot": "core",
+      "source_digest": "sha256:321dfdcc0ed67aa7e88f07ccd81cf2b8a2812749739b0d4128a6d152c384b155"
+    },
+    {
+      "ref": "docs/governance/source-hierarchy.md",
+      "binding_class": "canonical",
+      "assembly_slot": "core",
+      "source_digest": "sha256:cb894e579a45b19f28f52c90b4bc413923fb3ed34b2763781b77b10b99cb809b"
+    },
+    {
+      "ref": "docs/model-agnostic-core-prompt-system.md",
+      "binding_class": "canonical",
+      "assembly_slot": "core",
+      "source_digest": "sha256:472fe896b257e8dc47e89d456cd3b92e1d30a3b40344adcd4651904d4ea05dcf"
+    },
+    {
+      "ref": "core/contracts/permission-boundary.json",
+      "binding_class": "canonical_contract",
+      "assembly_slot": "workflow_contract",
+      "source_digest": "sha256:c7dd4826fa873d06fbc0c00c1f3c26d4c996c4adba001ca5fbf668ee5bbe2609"
+    },
+    {
+      "ref": "core/contracts/workflow-memory-contract.json",
+      "binding_class": "canonical_contract",
+      "assembly_slot": "workflow_contract",
+      "source_digest": "sha256:353fc6cbdd40f9c656b97c23a044a0ae120c714548730ec2c9aba3584ea0e0e3"
+    },
+    {
+      "ref": "core/contracts/workflow-routing-map.json",
+      "binding_class": "canonical_contract",
+      "assembly_slot": "workflow_contract",
+      "source_digest": "sha256:a86aad8ae73b2f31114f33a9621aa182850ad183b9901356b06c00e88a28270b"
+    }
+  ],
+  "fingerprints": {
+    "exec_openrouter_glm": {
+      "declared_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+      "derived_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+      "digest_matches": true
+    },
+    "exec_local_tests": {
+      "declared_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+      "derived_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+      "digest_matches": true
+    },
+    "exec_unitera_execution_control_fixture": {
+      "declared_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+      "derived_digest": "sha256:5cd347a2fabade3be59fb503b3977c2c72458bfdce9b73737582fc6e0dbc7088",
+      "digest_matches": true
+    }
+  },
+  "declared_digests_used_for_decisions": false,
+  "observed_at": "2026-10-21T04:27:57.527Z"
+}

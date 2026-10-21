@@ -49,7 +49,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] },
@@ -100,7 +100,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": {
@@ -145,7 +145,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -185,7 +185,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -224,7 +224,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -265,7 +265,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -418,7 +418,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -457,7 +457,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -498,7 +498,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -538,7 +538,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -578,7 +578,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": {
@@ -622,7 +622,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -662,7 +662,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -702,7 +702,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -742,7 +742,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -782,7 +782,7 @@
             "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
             "api_surface_version": "2026-10",
             "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-            "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+            "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
           }
         },
         "qualification": { "state": "PROPOSED", "evidence_refs": [] }
@@ -812,7 +812,7 @@
         },
         "in_force": {
           "execution_profile_ref": "profile_readonly_v1",
-          "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff",
+          "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c",
           "qualification": {
             "qualification_id": "qual_s12_fixture_0001",
             "executor_id": "exec_openai_codex",
@@ -835,7 +835,7 @@
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
               "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-              "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+              "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
             },
             "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
@@ -872,7 +872,7 @@
         },
         "in_force": {
           "execution_profile_ref": "profile_readonly_v1",
-          "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff",
+          "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c",
           "qualification": {
             "qualification_id": "qual_s12_fixture_0001",
             "executor_id": "exec_openai_codex",
@@ -895,7 +895,7 @@
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
               "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-              "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+              "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
             },
             "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
@@ -924,7 +924,7 @@
         },
         "in_force": {
           "execution_profile_ref": "profile_readonly_v1",
-          "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff",
+          "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c",
           "qualification": {
             "qualification_id": "qual_s12_fixture_0002",
             "executor_id": "exec_openai_codex",
@@ -947,7 +947,7 @@
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
               "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-              "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+              "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
             },
             "digest": "9e27d48be56f100da4970d403113a5867840fd243d9636a2c7ab50bff73a32e6"
           }
@@ -976,7 +976,7 @@
         },
         "in_force": {
           "execution_profile_ref": "profile_readonly_v1",
-          "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff",
+          "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c",
           "qualification": {
             "qualification_id": "qual_s12_fixture_0001",
             "executor_id": "exec_openai_codex",
@@ -999,7 +999,7 @@
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
               "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-              "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+              "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
             },
             "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
@@ -1051,7 +1051,7 @@
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
               "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-              "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+              "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
             },
             "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
@@ -1072,7 +1072,7 @@
         },
         "in_force": {
           "execution_profile_ref": "profile_readonly_v1",
-          "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff",
+          "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c",
           "qualification": {
             "qualification_id": "qual_s12_fixture_0001",
             "executor_id": "exec_openai_codex",
@@ -1095,7 +1095,7 @@
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
               "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-              "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+              "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
             },
             "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }
@@ -1124,7 +1124,7 @@
         },
         "in_force": {
           "execution_profile_ref": "profile_readonly_v1",
-          "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff",
+          "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c",
           "qualification": {
             "qualification_id": "qual_s12_fixture_0001",
             "executor_id": "exec_openai_codex",
@@ -1147,7 +1147,7 @@
               "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
               "api_surface_version": "2026-10",
               "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-              "effective_instruction_digest": "sha256:fa5eb48ac774baaf7613af5ff8929440f757ecbd4f1f636aef5c780c996328ff"
+              "effective_instruction_digest": "sha256:6fb34ad009b1589066dd5233dbbab7a8e6b900c69f23754fd3f2664046db587c"
             },
             "digest": "2af4acf94007a3f99f6d68dd675a4bd16db6f883395f49eee23f937c25d6c15d"
           }

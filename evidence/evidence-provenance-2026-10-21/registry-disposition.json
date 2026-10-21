@@ -1,0 +1,66 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S8 evidence provenance, executed under the owner directive of 2026-10-21 ('S8 Evidence Provenance: ensure that qualification evidence is not legitimized merely through caller claims, but can be traced back to verifiable, immutable execution results'), with the standing invariants 'Approval != Grant' - 'Caller Input != Authority' - 'Receipt != Verification'. The behavioral evidence of the promotion chain was the ONE link that was asserted by the caller instead of recomputed from disk: the promotion input carried the eval record object, its digest and its verdict inline, the record_ref was a free string that was never resolved, the corpus was never consulted and the verdict was taken as given, so a caller could fabricate a schema-valid BehavioralEvalRecord with verdict IMPROVEMENT_PROVEN and the chain accepted it. The slice closes that gap with the new runtime module scripts/tools/evidence-provenance.mjs and the new canonical contract core/contracts/evidence-provenance.schema.json: the record is READ from the canonical evidence surface (a caller-supplied record object is refused outright), the record must satisfy its own content seal, the corpus is resolved in the tree and re-hashed from disk, the evaluation is RE-EXECUTED over that corpus and must reproduce the record field for field, and the comparison AND the verdict AND the baseline reference are RE-DERIVED from the baseline record on disk. The attestation is carried by the contract with execution_rederived and comparison_rederived as const true, the post-adoption readback re-VERIFIES the bound evidence instead of merely re-reading it, and the CLI pins the evidence tree of its own installation so an input file can neither redirect the evidence nor widen a gate. The slice also amends core/contracts/skill-promotion-adoption.schema.json (its eval_evidence block now carries provenance attestations and a corpus_ref), the S5 producer scripts/tools/run-skill-effectiveness-evals.mjs (a BLOCKED candidate now names its baseline, which the canonical contract required and the producer never wrote), and scripts/tools/experiment-comparison-evidence.mjs (the instruction-binding artifact of the HO-01 run bundles is now inside the run-evidence digest, which makes the previous run's claim that the projection covers it true). Two live defects were found by the new gate and are repaired in the same change: the SHIPPED behavioral evidence of 2026-10-20 no longer reproduces, because the S7 slice changed the corpus about six hours after those records were sealed and the evidence was never re-issued (the evidence is re-issued under evidence/skill-effectiveness-evals-2026-10-21/, the superseded evidence is kept and annotated, and the staleness is bound by a test that asserts the refusal); and the frontdoor admission of the same chain is still a caller-supplied file at an arbitrary path, which is recorded as a residual of the frontdoor lane and NOT changed here. Two further residuals are recorded and not repaired: the freshness bound is a DECLARED property (the content seal is unkeyed and does not cover created_at, so an editor of the evidence tree can re-date a record; a future-dated record is now refused and the bound is stated honestly), and the corpus is not bound to the ADOPTED CONTENT (the corpus names its subject by label; the binding needs a subject-content digest that the behavioral eval contract of the S5 lane does not carry). The scope boundary is explicit: the specification stays PROPOSED, this slice adopts nothing, promotes no skill, activates no runtime, qualifies no model and no executor, grants no permission and changes no authority. The canonical owner trust anchor is unchanged and still publishes no key, so no approval can authorize a promotion and the chain still refuses at OWNER_AUTHORITY_NOT_PUBLISHED; the bounded promotion acceptance remains an owner act. This disposition is REQUIRED_BUT_BLOCKED at publication because the Registry write itself has not happened yet: the run change registration registry/MAWS_EVIDENCE_PROVENANCE_2026_10_21_001.yaml and the contract record registry/MAWS_EVIDENCE_PROVENANCE_CONTRACT_2026_10_21_001.yaml are published in a follow-up pull request of this repository, and the owner-side classification is rebound from REQUIRED_BUT_BLOCKED to UPDATED with the registry commit sha after that write.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/evidence-provenance.schema.json",
+      "CONTRACT_RECORD:core/contracts/skill-promotion-adoption.schema.json"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "core/contracts/evidence-provenance.schema.json",
+      "core/contracts/skill-promotion-adoption.schema.json",
+      "scripts/tools/evidence-provenance.mjs",
+      "scripts/tools/promote-skill-candidate.mjs",
+      "scripts/tools/run-skill-effectiveness-evals.mjs",
+      "scripts/tools/experiment-comparison-evidence.mjs",
+      "tests/vnext/evidence-provenance.test.mjs",
+      "tests/vnext/skill-promotion.test.mjs",
+      "tests/vnext/experiment-comparison.test.mjs",
+      "evals/fixtures/maws-vnext/skill-promotion-adoption.contracts.json",
+      "evals/fixtures/maws-vnext-baseline.json",
+      "docs/authority-matrix.md",
+      "core/contracts/README.md",
+      "CHANGELOG.md",
+      "evidence/evidence-provenance-2026-10-21/RUN.md"
+    ],
+    "supersession_refs": [
+      "evidence/skill-effectiveness-evals-2026-10-20/eval-record-bev-skill-effectiveness-baseline.json (superseded by evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json: the records of 2026-10-20 no longer reproduce from the corpus, which the S7 slice changed after they were sealed; the refusal is bound by a test)",
+      "evidence/skill-effectiveness-evals-2026-10-20/eval-record-bev-skill-effectiveness-candidate.json (superseded by evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-candidate.json on the same ground)"
+    ],
+    "provenance_refs": [
+      "evidence/evidence-provenance-2026-10-21/RUN.md",
+      "evidence/evidence-provenance-2026-10-21/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "node --test tests/vnext/*.test.mjs 683 of 683 pass with zero failures at the published head (the S8 evidence-provenance group contributes 25 cases, the promotion group 47)",
+      "npm run validate ok with issues empty; npm run validate-maws-vnext ok with 24 fixtures and 268 cases and issues empty; npm run eval:maws-vnext ok with every fixture family passed",
+      "npm run validate-behavioral-eval 7 cases checked 0 unexpected results; npm run validate-experiment-comparison 1 checked 0 invalid; npm run validate-executor-model-profile 19 and 7 cases checked 0 unexpected results, 6 profiles 0 issues; npm run validate-instruction-bundle, validate-instruction-integrity, validate-neutral and validate-secrets pass",
+      "the two live defects the new gate found are bound by tests: the shipped 2026-10-20 evidence no longer reproduces (EVIDENCE_EXECUTION_MISMATCH) and a blocked candidate names its baseline (the contract required the field and the producer never wrote it)",
+      "the negative cases are forgeries that a self-declared record could not survive: a forged record with a perfect seal, a forged comparison, a flipped verdict, a forged baseline reference, a forged evidence reference, a forged instruction revision, a future-dated record, a moved corpus, a corpus content file that leaves the tree, a reference outside the evidence surface, a reference of the wrong shape, a tree escape, a live_model record, a caller-supplied record object and a tampered corpus after the adoption",
+      "mutation probes: nineteen probes executed on the exact head, each neutering one guard in an isolated copy of the committed tree; the first run of thirteen reported four guards without a failing test (the verdict re-derivation, the reference shape check, the refusal of a caller-supplied record object and the readback re-verification), all four were real gaps in the test suite, were repaired and the probes were re-run against the refreshed head; six further probes cover the guards the independent review rounds added; the final result is 19 of 19 BOUND and 0 unbound, one probe (the readback re-verification) having been retargeted after a review repair refactored its branch and bound by a supplementary probe; every executed run genuinely executed its suite (tests greater than zero, cancelled zero, skipped zero, no uncaught exceptions)",
+      "independent review: two rounds on the exact heads by review agents distinct from the author, both PASS_WITH_FINDINGS, every finding confirmed real and repaired (the freshness bound rested on an unsealed field, three fields of the re-execution were self-referential, the baseline reference was unbound for a rejected candidate, the corpus content was not proven to stay inside the tree, the gate and the readback could read different evidence trees, a readback without an evidence tree skipped silently, the attestation wording overstated the seal and the digest, a test assertion was vacuous, the new contract was missing from the contract index, the CHANGELOG interval was wrong, and the instruction-binding artifact was outside the HO-01 run-evidence digest, which made the previous run's claim that the projection covers it false); no human approval is claimed",
+      "the cross-lane re-pins recorded in the owner-side run record: the six S12 model-adaptive profile pins (fa5eb48a to 6fb34ad0), the reference run spec qualification (f96f62b7 to 5cd347a2), the HO-01 experiment's frozen reference-spec input (cfca89a2 to 787b6ada) and the HO-01 comparison record and run bundles, re-frozen by re-running the experiment; the re-run reproduced the same behavioral evals, the same decision and the same metrics, only the definition and spec bindings moved",
+      "Mimosa deep security scan scan-2026-10-21T03-53-21.259Z-73d5465f9ae0, seal sha256:20ff861dee9dc77207bf7eebc6a69ce6301f2b6ee805982cc2ea7340ce4b523b, 0 findings, 201 packages scanned",
+      "the hosted CI job could NOT execute: GitHub Actions is account-locked for billing and the check reports 'The job was not started because your account is locked due to a billing issue'; every step of that workflow was replicated locally on the published head and the absence of a hosted green gate is disclosed rather than presented as one"
+    ],
+    "implementation_commit_sha": "cc7a815c765591fa6bdfb71c8b1f860bd4f88c9a",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/evidence-provenance-2026-10-21/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (closed relevance taxonomy: an added or amended canonical contract surface is CONTRACT_RECORD relevance)"
+    ],
+    "registry_baseline_sha": "2e790a0"
+  }
+}

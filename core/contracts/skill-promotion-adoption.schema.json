@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "core/contracts/skill-promotion-adoption.schema.json",
   "title": "SkillPromotionAdoptionRecord Contract",
-  "description": "S8 (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED): canonical record of one owner-governed skill promotion. The record binds the whole promotion chain: the skill frontdoor admission (mandatory complement of behavioral evidence, never replaced by it) bound to the EXACT candidate identity and content that is adopted, the S5 behavioral eval evidence bound by content digest, subject and corpus and age, the canonical owner approval bound to the approved candidate digest, the versioned canonical adoption (the adopted version strictly greater than the superseded version READ FROM THE CANONICAL TREE, the adoption digest over the whole bound chain, and an append-only adoption ledger that makes the applied change reconstructable and replay-protected), the export regeneration state, and the post-adoption readback. authority_granted is false by construction: Feedback != Rule, Proposal != Applied Change, Eval PASS != Authority, Approval != Permission -- the adoption changes canonical skill content and never grants permission, qualification, or runtime authority.",
+  "description": "S8 (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, PROPOSED): canonical record of one owner-governed skill promotion. The record binds the whole promotion chain: the skill frontdoor admission (mandatory complement of behavioral evidence, never replaced by it) bound to the EXACT candidate identity and content that is adopted, the S5 behavioral eval evidence PROVENANCE-VERIFIED against the immutable execution results it comes from (each bound evaluation is re-executed over the corpus on disk and its verdict re-derived from its baseline on disk -- a caller-supplied record object, digest or verdict legitimizes nothing), the canonical owner approval bound to the approved candidate digest, the versioned canonical adoption (the adopted version strictly greater than the superseded version READ FROM THE CANONICAL TREE, the adoption digest over the whole bound chain, and an append-only adoption ledger that makes the applied change reconstructable and replay-protected), the export regeneration state, and the post-adoption readback. authority_granted is false by construction: Feedback != Rule, Proposal != Applied Change, Eval PASS != Authority, Approval != Permission, Receipt != Verification -- the adoption changes canonical skill content and never grants permission, qualification, or runtime authority.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -39,28 +39,30 @@
     "eval_evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["behavioral_eval_records", "improvement_proven", "corpus_digest", "max_evidence_age_days"],
+      "required": ["behavioral_eval_records", "improvement_proven", "corpus_ref", "corpus_digest", "max_evidence_age_days", "provenance_verified"],
       "properties": {
         "behavioral_eval_records": {
           "type": "array",
           "minItems": 1,
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["record_ref", "content_digest", "verdict", "subject_ref", "corpus_digest", "created_at"],
-            "properties": {
-              "record_ref": { "type": "string", "minLength": 1 },
-              "content_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-              "verdict": { "enum": ["BASELINE_RECORDED", "IMPROVEMENT_PROVEN", "IMPROVEMENT_REJECTED", "BLOCKED"] },
-              "subject_ref": { "type": "string", "minLength": 1 },
-              "corpus_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-              "created_at": { "type": "string", "minLength": 1 }
-            }
-          }
+          "items": { "$ref": "evidence-provenance.schema.json" },
+          "description": "One provenance attestation per bound behavioral evaluation. Every entry is an evaluation that was RE-EXECUTED over the corpus on disk and whose verdict was re-derived from its baseline: a caller-supplied record object, digest or verdict is not representable here."
         },
         "improvement_proven": { "type": "boolean" },
-        "corpus_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "max_evidence_age_days": { "type": "integer", "minimum": 1 }
+        "corpus_ref": {
+          "type": "string",
+          "pattern": "^evals/[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*$",
+          "description": "The one corpus the promotion binds. Every bound evaluation was re-executed over this corpus."
+        },
+        "corpus_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The digest of the whole corpus, recomputed from its files on disk."
+        },
+        "max_evidence_age_days": { "type": "integer", "minimum": 1 },
+        "provenance_verified": {
+          "const": true,
+          "description": "The evidence was traced back to its immutable execution results. An evidence set that was not provenance-verified is not representable here."
+        }
       }
     },
     "owner_approval": {

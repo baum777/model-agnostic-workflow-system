@@ -4,7 +4,7 @@
   "definition_version": "1.1.0",
   "created_at": "2026-10-21T00:00:00Z",
   "hypothesis": {
-    "statement": "On the frozen synthetic repository-analysis task, a candidate configuration that changes exactly one declared dimension \u2014 the analysis context depth, from 'full' to 'reduced' \u2014 produces an incomplete audit report. The behavioral evaluation must measure a negative output-assertion delta against the baseline, and the comparison must report the candidate as a regression against the success bounds, with no promotion effect.",
+    "statement": "On the frozen synthetic repository-analysis task, a candidate configuration that changes exactly one declared dimension — the analysis context depth, from 'full' to 'reduced' — produces an incomplete audit report. The behavioral evaluation must measure a negative output-assertion delta against the baseline, and the comparison must report the candidate as a regression against the success bounds, with no promotion effect.",
     "predicted_outcome": "REGRESSION_DETECTED",
     "rationale": "The experiment exercises the comparison machinery, not model behaviour. The dimension value selects a materialization rule that is part of this definition, so the derived output of each arm is reproducible from the definition alone. The candidate arm is deliberately the worse one: the chain is only proven when it detects that degradation reliably instead of reporting an improvement."
   },
@@ -114,7 +114,7 @@
       },
       {
         "path": "runtime/cli/specs/reference-audit-v1.json",
-        "digest": "sha256:cfca89a235e3914cedc7637a0b1ae2bcc8146811a0e7d07e65839ecb45832288"
+        "digest": "sha256:787b6adabfa7cce80e29f39a1489d19594061591207d08118ba0754764b74c80"
       }
     ]
   },

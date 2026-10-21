@@ -604,6 +604,21 @@ test('negative: a semantic field named at is not dropped from the digest', () =>
   assert.ok(issues.some((issue) => issue.startsWith('E18:')), `the semantic field was not caught: ${issues.join('; ')}`);
 });
 
+test('negative: the instruction binding is inside the run-evidence digest', () => {
+  // The instruction binding is part of the run bundle, so it must be part of
+  // the digest: a run that was executed under another instruction state must
+  // not compare equal to this one.
+  const tamperedRoot = tempDir('maws-ho01-instruction-binding-');
+  fs.cpSync(RUN_ROOT, tamperedRoot, { recursive: true });
+  const bindingFile = path.join(tamperedRoot, RESULT.comparison.runs.baseline.evidence_bundle_path, 'instruction-binding.json');
+  const binding = JSON.parse(fs.readFileSync(bindingFile, 'utf8'));
+  binding.derived_effective_instruction_digest = `sha256:${'0'.repeat(64)}`;
+  fs.writeFileSync(bindingFile, `${JSON.stringify(binding, null, 2)}\n`);
+  const issues = semanticComparisonIssues(RESULT.comparison, { artifactsBase: tamperedRoot, root: ROOT });
+  assert.ok(issues.length > 0, 'the instruction binding was dropped from the run-evidence digest');
+  assert.ok(issues.some((issue) => issue.startsWith('E18:')), `the changed instruction binding was not caught: ${issues.join('; ')}`);
+});
+
 test('negative: a referenced behavioral-eval record that is not one is refused with a structured issue', () => {
   // A referenced record that is well-formed JSON but not a behavioral-eval
   // record must produce an issue, not crash the validator.
