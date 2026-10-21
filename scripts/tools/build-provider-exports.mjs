@@ -169,7 +169,12 @@ function buildProviderExports(baseRoot = repoRoot(), options = {}) {
   const registry = buildNeutralCoreRegistry(root);
   const providerCapabilities = loadProviderCapabilities(root);
   const providers = Array.isArray(providerCapabilities.providers) ? providerCapabilities.providers : [];
-  const args = options.provider ? { provider: options.provider } : parseArgs(process.argv.slice(2));
+  // Library callers state their selection explicitly: `allProviders` never
+  // reads process.argv, so a caller's command line can never narrow the
+  // export set behind its back.
+  const args = options.allProviders === true
+    ? { provider: null }
+    : (options.provider ? { provider: options.provider } : parseArgs(process.argv.slice(2)));
   const selectedProviders = providers.filter((provider) => providerMatches(provider, args.provider));
 
   return selectedProviders.map((provider) => ({

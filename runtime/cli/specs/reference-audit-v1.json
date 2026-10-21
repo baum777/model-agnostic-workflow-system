@@ -156,9 +156,9 @@
         ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+        "effective_instruction_digest": "sha256:6041f53e72e413138360159c68e5e2394792355a1b11bbcdff15c6e9b98646ed"
       },
-      "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c3d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+      "digest": "8fa74254dbb41d16fa94f4f6c8748f731d74dc7c3258e0e6d4c2698117e9d9da"
     },
     "exec_local_tests": {
       "fingerprint_id": "fp_local_tests_deterministic_verification",
@@ -174,9 +174,9 @@
         ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+        "effective_instruction_digest": "sha256:6041f53e72e413138360159c68e5e2394792355a1b11bbcdff15c6e9b98646ed"
       },
-      "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c3d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+      "digest": "ff08dbcad58d4f74a8a4972e6654d09f9aecd3e2c57d91ae784bd60e15db2c42"
     },
     "exec_unitera_execution_control_fixture": {
       "fingerprint_id": "fp_unitera_execution_control_fixture",
@@ -192,9 +192,9 @@
         ],
         "api_surface_version": "2026-10",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+        "effective_instruction_digest": "sha256:6041f53e72e413138360159c68e5e2394792355a1b11bbcdff15c6e9b98646ed"
       },
-      "digest": "b7f3a1c0ffee11dd22cc33bb44aa55996677889900aabbccddeeff0011223344"
+      "digest": "a35efa0fb0b744e1feb84fad536c09004accb20a699c7ce6de2948d61a2d4845"
     }
   },
   "subsumption_records": [],
@@ -213,9 +213,9 @@
         ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+        "effective_instruction_digest": "sha256:6041f53e72e413138360159c68e5e2394792355a1b11bbcdff15c6e9b98646ed"
       },
-      "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c3d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+      "digest": "8fa74254dbb41d16fa94f4f6c8748f731d74dc7c3258e0e6d4c2698117e9d9da"
     },
     "fp_local_tests_deterministic_verification": {
       "fingerprint_id": "fp_local_tests_deterministic_verification",
@@ -231,9 +231,9 @@
         ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+        "effective_instruction_digest": "sha256:6041f53e72e413138360159c68e5e2394792355a1b11bbcdff15c6e9b98646ed"
       },
-      "digest": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c3d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+      "digest": "ff08dbcad58d4f74a8a4972e6654d09f9aecd3e2c57d91ae784bd60e15db2c42"
     },
     "fp_unitera_execution_control_fixture": {
       "fingerprint_id": "fp_unitera_execution_control_fixture",
@@ -249,9 +249,9 @@
         ],
         "api_surface_version": "2026-10",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6"
+        "effective_instruction_digest": "sha256:6041f53e72e413138360159c68e5e2394792355a1b11bbcdff15c6e9b98646ed"
       },
-      "digest": "b7f3a1c0ffee11dd22cc33bb44aa55996677889900aabbccddeeff0011223344"
+      "digest": "a35efa0fb0b744e1feb84fad536c09004accb20a699c7ce6de2948d61a2d4845"
     }
   },
   "availability": {
@@ -376,5 +376,20 @@
     "run_ref": "run_cli_reference_audit_0001",
     "authority_grant": "none",
     "created_at": "2026-09-25T00:00:00Z"
+  },
+  "instruction_binding": {
+    "bundle_id": "bundle_reference_audit_v1",
+    "task_ref": "task_reference_audit_v1",
+    "workflow_class": "implementation",
+    "selection": {
+      "overlay_refs": [],
+      "skill_refs": [],
+      "reference_refs": [],
+      "evidence_refs": []
+    },
+    "context_binding_refs": [],
+    "required_context_digests": [],
+    "executor_profile_ref": "profile_readonly_v1",
+    "assembly_policy_ref": "assembly_policy_default_v1"
   }
 }

@@ -3,9 +3,12 @@
 // Implements the versioned canonical adoption path for a skill candidate:
 // frontdoor admission bound to the exact candidate identity and content, S5
 // behavioral eval evidence bound by content digest, subject, corpus and age,
-// canonical owner approval bound to the approved candidate digest, versioned
-// adoption with the superseded version READ FROM THE CANONICAL TREE, an
-// append-only adoption ledger, and the post-adoption readback.
+// canonical owner approval VERIFIED against the canonical owner authority
+// anchor (a self-declared approver and decision reference authorise
+// nothing), versioned adoption with the superseded version READ FROM THE
+// CANONICAL TREE, the canonical registry and provider export regeneration
+// with readback, an append-only adoption ledger, and the post-adoption
+// readback.
 //
 // Separation rules (spec 12.3/13.4): the promotion chain changes canonical
 // skill content and NOTHING else -- no permission, no qualification, no
@@ -22,6 +25,20 @@ import { canonicalJson, nowIso } from '../../runtime/vnext/util.mjs';
 import { validateInstanceAgainstContract } from './validate-maws-vnext-contracts.mjs';
 import { validateBehavioralEvalRecord, semanticEvalIssues } from './validate-behavioral-eval.mjs';
 import { computeContentDigest } from './run-skill-effectiveness-evals.mjs';
+import {
+  loadOwnerAuthority,
+  readOwnerApproval,
+  verifyOwnerApproval,
+  CANONICAL_OWNER_AUTHORITY_PATH,
+  OWNER_AUTHORITY_CONTRACT,
+  OWNER_APPROVAL_CONTRACT
+} from '../../runtime/skills/owner-authority.mjs';
+import {
+  exportPlan,
+  snapshotExports,
+  restoreExports,
+  regenerateCanonicalExports
+} from '../../runtime/skills/export-regeneration.mjs';
 
 const ADOPTION_CONTRACT = 'core/contracts/skill-promotion-adoption.schema.json';
 const FRONTDOOR_CONTRACT = 'core/contracts/skill-frontdoor-admission.schema.json';
@@ -29,10 +46,6 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 const SKILL_ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/;
 const DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/;
 const DEFAULT_MAX_EVIDENCE_AGE_DAYS = 90;
-// The export surfaces of THIS repository. The canonical export regeneration
-// is NOT performed by this slice (see exportRegenerationState below); the
-// refs name the surfaces that a regeneration would have to rewrite.
-const DEFAULT_EXPORT_REFS = ['contracts/core-registry.json', 'providers/'];
 
 export class PromotionError extends Error {
   constructor(code, message) {
@@ -194,24 +207,62 @@ export function validateEvalEvidence({
   };
 }
 
-// validateOwnerApproval({ ownerApproval, candidateDigest }) -> the approval
-// as the record states it. The approval must name the candidate content it
-// approves; an approval that is not bound to a digest approves nothing.
-export function validateOwnerApproval({ ownerApproval, candidateDigest }) {
-  if (!ownerApproval || ownerApproval.approver !== 'canonical_owner' || !isNonEmptyString(ownerApproval.decision_ref) || !isNonEmptyString(ownerApproval.approved_at)) {
-    promotionError('OWNER_APPROVAL_MISSING', 'promotion requires canonical owner approval (approver, decision_ref, approved_at); approval is never implied');
+// validateOwnerApproval({ ownerApprovalRef, ownerAuthorityPath, canonicalRoot,
+// candidateDigest, skillId, root, now }) -> the verified approval.
+//
+// The approval is NOT a self-declared object: it is an artifact in the
+// canonical decision surface of the target tree, verified against the
+// canonical owner authority anchor (a published public key). An approver
+// name and a decision reference without a valid signature are caller input
+// and authorize nothing.
+export function validateOwnerApproval({
+  ownerApprovalRef,
+  ownerAuthorityPath = path.join(REPO_ROOT, CANONICAL_OWNER_AUTHORITY_PATH),
+  canonicalRoot,
+  candidateDigest,
+  skillId = null,
+  root = REPO_ROOT,
+  now = new Date()
+}) {
+  if (!isNonEmptyString(ownerApprovalRef)) {
+    promotionError('OWNER_APPROVAL_MISSING', 'promotion requires a canonical owner approval artifact; approval is never implied');
   }
-  if (Number.isNaN(Date.parse(ownerApproval.approved_at))) {
-    promotionError('OWNER_APPROVAL_INVALID', `approved_at "${ownerApproval.approved_at}" is not a timestamp`);
+  let authority;
+  try {
+    authority = loadOwnerAuthority({
+      authorityPath: ownerAuthorityPath,
+      root,
+      validate: (record) => validateInstanceAgainstContract(record, OWNER_AUTHORITY_CONTRACT, root)
+    });
+  } catch (error) {
+    promotionError(error?.code || 'OWNER_AUTHORITY_INVALID', error.message);
   }
-  if (ownerApproval.candidate_digest !== candidateDigest) {
-    promotionError('OWNER_APPROVAL_CANDIDATE_MISMATCH', `the owner approval binds candidate digest ${String(ownerApproval.candidate_digest)}, the promoted content digests to ${candidateDigest}`);
+  let approval;
+  try {
+    approval = readOwnerApproval({ approvalRef: ownerApprovalRef, canonicalRoot });
+  } catch (error) {
+    promotionError(error?.code || 'OWNER_APPROVAL_INVALID', error.message);
+  }
+  const contractIssues = validateInstanceAgainstContract(approval.record, OWNER_APPROVAL_CONTRACT, root);
+  if (contractIssues.length > 0) {
+    promotionError('OWNER_APPROVAL_INVALID', `the owner approval violates its contract: ${contractIssues.join('; ')}`);
+  }
+  let verified;
+  try {
+    verified = verifyOwnerApproval({
+      approval: approval.record,
+      authority,
+      candidateDigest,
+      skillId,
+      now
+    });
+  } catch (error) {
+    promotionError(error?.code || 'OWNER_APPROVAL_INVALID', error.message);
   }
   return {
-    approver: 'canonical_owner',
-    decision_ref: ownerApproval.decision_ref,
-    approved_at: ownerApproval.approved_at,
-    candidate_digest: ownerApproval.candidate_digest
+    ...verified,
+    approval_record_ref: approval.relative,
+    approval_record_digest: approval.digest
   };
 }
 
@@ -277,24 +328,12 @@ export function assertAdoptionAllowed({ adoptionId, skillId, adoptedVersion, led
   }
 }
 
-// exportRegenerationState({ exportRefs, now }) -> the truthful export state.
-// This slice writes the canonical skill file only; the canonical registry and
-// provider export surfaces are NOT regenerated here, and the record says so
-// instead of claiming a regeneration that never happened.
-export function exportRegenerationState({ exportRefs = DEFAULT_EXPORT_REFS, now = nowIso }) {
-  return {
-    performed: false,
-    export_refs: [...exportRefs],
-    regenerated_at: null,
-    not_performed_reason: 'the canonical registry and provider export surfaces are not regenerated by this slice; the promotion writes the canonical skill file only, and the export regeneration remains an open obligation'
-  };
-}
-
 // semanticPromotionIssues(record) -> string[]. The invariants the minimal
 // schema engine cannot express: the evidence proves an improvement, the
 // evidence measured the promoted skill, the admission screened the adopted
-// content, the approval binds the adopted content, and the record grants no
-// authority.
+// content, the approval binds the adopted content AND was verified against
+// the canonical owner authority, the canonical exports were regenerated and
+// read back, and the record grants no authority.
 export function semanticPromotionIssues(record) {
   const issues = [];
   if (record.authority_granted !== false) {
@@ -318,6 +357,21 @@ export function semanticPromotionIssues(record) {
   if (record.owner_approval?.candidate_digest !== record.candidate?.candidate_digest) {
     issues.push('owner_approval: the approval does not bind the adopted content');
   }
+  if (record.owner_approval?.signature_verified !== true) {
+    issues.push('owner_approval: the approval was not verified against the canonical owner authority');
+  }
+  if (record.owner_approval?.skill_id !== record.candidate?.skill_id) {
+    issues.push('owner_approval: the approval approves another skill than the adopted one');
+  }
+  if (record.export_regeneration?.performed !== true) {
+    issues.push('export_regeneration: the canonical exports were not regenerated');
+  }
+  if (record.export_regeneration?.readback_verified !== true) {
+    issues.push('export_regeneration: the regenerated exports were not read back');
+  }
+  if (!Array.isArray(record.export_regeneration?.export_digests) || record.export_regeneration.export_digests.length === 0) {
+    issues.push('export_regeneration: the record names no regenerated export');
+  }
   if (record.post_adoption_readback?.readback_digest_match !== true) {
     issues.push('post_adoption_readback: the readback did not match');
   }
@@ -326,14 +380,15 @@ export function semanticPromotionIssues(record) {
 
 // promoteSkillCandidate({ adoptionId, skillId, adoptedVersion,
 // supersededVersion, candidateContent, candidateDigest, admissionPath,
-// evalRecords, ownerApproval, canonicalRoot, exportRefs, now }) ->
+// evalRecords, ownerApprovalRef, ownerAuthorityPath, canonicalRoot, now }) ->
 // { record, issues, canonicalPath }.
 //
 // Executes the full chain against the caller-provided canonicalRoot (a real
-// promotion on the live tree is an owner act) and performs the
-// post-adoption readback (re-read + digest match) fail-closed. A record that
-// does not satisfy the contract leaves NO mutation behind: the canonical file
-// is restored before the issues are returned.
+// promotion on the live tree is an owner act), regenerates the canonical
+// registry and provider exports and verifies them by readback, and performs
+// the post-adoption readback fail-closed. A record that does not satisfy the
+// contract leaves NO mutation behind: the canonical file AND the regenerated
+// exports are restored before the issues are returned.
 export function promoteSkillCandidate({
   adoptionId,
   skillId,
@@ -343,9 +398,9 @@ export function promoteSkillCandidate({
   candidateDigest,
   admissionPath,
   evalRecords,
-  ownerApproval,
+  ownerApprovalRef,
+  ownerAuthorityPath = path.join(REPO_ROOT, CANONICAL_OWNER_AUTHORITY_PATH),
   canonicalRoot,
-  exportRefs = DEFAULT_EXPORT_REFS,
   now = nowIso,
   root = REPO_ROOT,
   maxEvidenceAgeDays = DEFAULT_MAX_EVIDENCE_AGE_DAYS
@@ -365,7 +420,15 @@ export function promoteSkillCandidate({
   }
 
   const evalEvidence = validateEvalEvidence({ evalRecords, root, skillId, now, maxEvidenceAgeDays });
-  const approval = validateOwnerApproval({ ownerApproval, candidateDigest });
+  const approval = validateOwnerApproval({
+    ownerApprovalRef,
+    ownerAuthorityPath,
+    canonicalRoot,
+    candidateDigest,
+    skillId,
+    root,
+    now
+  });
 
   // Replay protection comes FIRST: the ledger records every applied
   // adoption, so a replayed adoption id or an adoption that does not move
@@ -426,6 +489,33 @@ export function promoteSkillCandidate({
     promotionError('READBACK_DIGEST_MISMATCH', `post-adoption readback failed: canonical file digests to ${readbackDigest}, expected ${candidateDigest}`);
   }
 
+  // The canonical tree changed, so its projections are regenerated: the
+  // neutral core registry and every provider export are rebuilt from the
+  // tree and read back. An incomplete regeneration is fail-closed and rolls
+  // the tree back to the state it had before the promotion.
+  let planned;
+  try {
+    planned = exportPlan({ canonicalRoot });
+  } catch (error) {
+    restoreCanonicalFile({ canonicalPath: paths.canonicalPath, priorContent });
+    promotionError(error?.code || 'EXPORT_REGENERATION_FAILED', error.message);
+  }
+  const exportSnapshot = snapshotExports({ canonicalRoot, plan: planned.plan });
+  let exportState;
+  try {
+    exportState = regenerateCanonicalExports({
+      canonicalRoot,
+      adoptedSkillId: skillId,
+      adoptionDigest,
+      now,
+      planned
+    });
+  } catch (error) {
+    restoreExports({ canonicalRoot, snapshot: exportSnapshot });
+    restoreCanonicalFile({ canonicalPath: paths.canonicalPath, priorContent });
+    promotionError(error?.code || 'EXPORT_REGENERATION_FAILED', error.message);
+  }
+
   const record = {
     schema_version: '1.0.0',
     adoption_id: adoptionId,
@@ -451,7 +541,7 @@ export function promoteSkillCandidate({
       adopted_at: now(),
       adoption_ledger_ref: paths.ledgerPathRelative
     },
-    export_regeneration: exportRegenerationState({ exportRefs, now }),
+    export_regeneration: exportState,
     post_adoption_readback: {
       performed: true,
       readback_digest_match: readbackDigestMatch,
@@ -466,6 +556,7 @@ export function promoteSkillCandidate({
     ...semanticPromotionIssues(record)
   ];
   if (issues.length > 0) {
+    restoreExports({ canonicalRoot, snapshot: exportSnapshot });
     restoreCanonicalFile({ canonicalPath: paths.canonicalPath, priorContent });
     return { record, issues, canonicalPath: paths.canonicalPath, admissionDigest: admission.digest };
   }
@@ -524,6 +615,21 @@ export function postAdoptionReadback({ record, canonicalRoot }) {
   if (!ledger.some((entry) => entry.adoption_digest === record.canonical_adoption.adoption_digest)) {
     issues.push('post_adoption_readback: the adoption ledger holds no entry for this adoption');
   }
+  // The regenerated exports are re-read as well: a projection that drifted
+  // away from the adoption is a failed readback, not a detail.
+  for (const entry of record.export_regeneration?.export_digests ?? []) {
+    let exportContent = null;
+    try {
+      exportContent = fs.readFileSync(path.join(canonicalRoot, entry.ref), 'utf8');
+    } catch (error) {
+      issues.push(`post_adoption_readback: regenerated export missing: ${entry.ref}`);
+      continue;
+    }
+    const exportDigest = sha256Prefixed(exportContent);
+    if (exportDigest !== entry.digest) {
+      issues.push(`post_adoption_readback: regenerated export ${entry.ref} digests to ${exportDigest}, record binds ${entry.digest}`);
+    }
+  }
   return issues;
 }
 
@@ -539,8 +645,40 @@ export function runCli(args) {
   } catch (error) {
     return { ok: false, issues: [`PROMOTION_INPUT_UNREADABLE: ${error.message}`] };
   }
+  // The CLI accepts an ALLOWLIST of inputs. The trust anchor is not part of
+  // it: the canonical owner authority is read from the pinned canonical
+  // location of this installation, so an input file can never point the
+  // promotion at an anchor the caller controls.
+  const {
+    adoption_id: adoptionId,
+    skill_id: skillId,
+    adopted_version: adoptedVersion,
+    superseded_version: supersededVersion,
+    candidate_content: candidateContent,
+    candidate_digest: candidateDigest,
+    admission_path: admissionPath,
+    eval_records: evalRecords,
+    owner_approval_ref: ownerApprovalRef,
+    canonical_root: canonicalRoot,
+    max_evidence_age_days: maxEvidenceAgeDays
+  } = input ?? {};
   try {
-    const { record, issues } = promoteSkillCandidate({ ...input, root: REPO_ROOT, canonicalRoot: path.resolve(input.canonical_root) });
+    const { record, issues } = promoteSkillCandidate({
+      adoptionId,
+      skillId,
+      adoptedVersion,
+      supersededVersion,
+      candidateContent,
+      candidateDigest,
+      admissionPath,
+      evalRecords,
+      ownerApprovalRef,
+      ownerAuthorityPath: path.join(REPO_ROOT, CANONICAL_OWNER_AUTHORITY_PATH),
+      canonicalRoot: path.resolve(canonicalRoot ?? ''),
+      root: REPO_ROOT,
+      now: nowIso,
+      maxEvidenceAgeDays: maxEvidenceAgeDays ?? DEFAULT_MAX_EVIDENCE_AGE_DAYS
+    });
     return { ok: issues.length === 0, issues, record };
   } catch (error) {
     if (error instanceof PromotionError) {

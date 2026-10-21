@@ -1,0 +1,170 @@
+// MAWS vNext — canonical export regeneration (spec MAWS-SII-TARGET-SPEC-001
+// v0.2.0, slice S8, spec section 13.4 and the S8 slice item "Registry-/
+// Provider-Exports regenerieren").
+//
+// A canonical adoption changes the canonical tree. The registry and the
+// provider exports are PROJECTIONS of that tree, so an adoption that does
+// not regenerate them leaves the canonical tree inconsistent: the adopted
+// skill is in the tree and absent from every export.
+//
+// Rules enforced here (all fail closed):
+//   E1  the registry and every provider export are regenerated from the
+//       canonical tree itself (the canonical generators, no second
+//       implementation);
+//   E2  every written export is read back and its digest compared with the
+//       digest of the content that was written (a receipt is not a
+//       verification);
+//   E3  the regenerated registry must actually contain the adopted skill —
+//       an export that does not reflect the adoption is an incomplete
+//       regeneration;
+//   E4  the regeneration is bound to the adoption: the record names the
+//       adoption digest, the generator version and the digest of every
+//       written export.
+//
+// The regeneration grants nothing and activates nothing: it rewrites
+// projections of a tree that was already changed.
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+
+import { buildNeutralCoreRegistry } from '../../scripts/tools/build-neutral-core-registry.mjs';
+import { buildProviderExports } from '../../scripts/tools/build-provider-exports.mjs';
+
+export const EXPORT_REGENERATION_VERSION = 'canonical-export-regeneration 1.0.0';
+export const REGISTRY_EXPORT_TARGETS = [
+  'core/contracts/core-registry.json',
+  'contracts/core-registry.json'
+];
+
+export class ExportRegenerationError extends Error {
+  constructor(code, message) {
+    super(message);
+    this.name = 'ExportRegenerationError';
+    this.code = code;
+  }
+}
+
+function exportError(code, message) {
+  throw new ExportRegenerationError(code, message);
+}
+
+function digestOf(content) {
+  return `sha256:${crypto.createHash('sha256').update(content).digest('hex')}`;
+}
+
+// exportPlan({ canonicalRoot }) -> [{ ref, content }] — the exact bytes that
+// every export surface must carry after the regeneration. The plan is
+// computed before anything is written, so a failing generator leaves the
+// tree untouched.
+export function exportPlan({ canonicalRoot }) {
+  let registry;
+  try {
+    registry = buildNeutralCoreRegistry(canonicalRoot);
+  } catch (error) {
+    exportError('EXPORT_REGENERATION_FAILED', `the neutral core registry could not be built from the canonical tree: ${error.message}`);
+  }
+  const plan = [];
+  const registryContent = `${JSON.stringify(registry, null, 2)}\n`;
+  for (const target of REGISTRY_EXPORT_TARGETS) {
+    plan.push({ ref: target, content: registryContent, kind: 'registry' });
+  }
+
+  let providerExports;
+  try {
+    providerExports = buildProviderExports(canonicalRoot, { allProviders: true });
+  } catch (error) {
+    exportError('EXPORT_REGENERATION_FAILED', `the provider exports could not be built from the canonical tree: ${error.message}`);
+  }
+  for (const providerExport of providerExports) {
+    const content = `${JSON.stringify(providerExport.export, null, 2)}\n`;
+    for (const target of providerExport.writeTargets) {
+      plan.push({ ref: target, content, kind: 'provider_export', provider: providerExport.provider });
+    }
+  }
+  if (plan.length === 0) {
+    exportError('EXPORT_REGENERATION_INCOMPLETE', 'the canonical export regeneration produced no export surface at all');
+  }
+  return { plan, registry };
+}
+
+// snapshotExports({ canonicalRoot, plan }) -> the prior state of every export
+// surface, so a failed regeneration leaves no mutation behind.
+export function snapshotExports({ canonicalRoot, plan }) {
+  const snapshot = new Map();
+  for (const entry of plan) {
+    const absolute = path.join(canonicalRoot, entry.ref);
+    snapshot.set(entry.ref, fs.existsSync(absolute) ? fs.readFileSync(absolute, 'utf8') : null);
+  }
+  return snapshot;
+}
+
+// restoreExports({ canonicalRoot, snapshot }) -> the restored export
+// surfaces. A file that did not exist before is removed again.
+export function restoreExports({ canonicalRoot, snapshot }) {
+  for (const [ref, content] of snapshot.entries()) {
+    const absolute = path.join(canonicalRoot, ref);
+    if (content === null) {
+      fs.rmSync(absolute, { force: true });
+      continue;
+    }
+    fs.mkdirSync(path.dirname(absolute), { recursive: true });
+    fs.writeFileSync(absolute, content);
+  }
+}
+
+// assertRegistryReflectsAdoption({ registry, adoptedSkillId }) -> void.
+// The regenerated registry must carry the adopted skill; an export that does
+// not reflect the adoption is an incomplete regeneration (E3).
+export function assertRegistryReflectsAdoption({ registry, adoptedSkillId }) {
+  const expectedSourcePath = `skills/${adoptedSkillId}/SKILL.md`;
+  const present = (registry?.skills || []).some((skill) => skill?.sourcePath === expectedSourcePath);
+  if (!present) {
+    exportError(
+      'EXPORT_REGENERATION_INCOMPLETE',
+      `the regenerated registry does not contain the adopted skill (${expectedSourcePath}); the export regeneration is incomplete`
+    );
+  }
+}
+
+// regenerateCanonicalExports({ canonicalRoot, adoptedSkillId, adoptionDigest,
+// now }) -> the export regeneration state that goes into the adoption record.
+// Every written surface is read back and its digest compared with the digest
+// of the content that was written.
+export function regenerateCanonicalExports({ canonicalRoot, adoptedSkillId = null, adoptionDigest = null, now = () => new Date().toISOString(), planned = null }) {
+  const { plan, registry } = planned ?? exportPlan({ canonicalRoot });
+  if (adoptedSkillId) {
+    assertRegistryReflectsAdoption({ registry, adoptedSkillId });
+  }
+  const written = [];
+  for (const entry of plan) {
+    const absolute = path.join(canonicalRoot, entry.ref);
+    fs.mkdirSync(path.dirname(absolute), { recursive: true });
+    fs.writeFileSync(absolute, entry.content);
+    written.push({ ref: entry.ref, kind: entry.kind, provider: entry.provider ?? null, expected_digest: digestOf(entry.content) });
+  }
+  // E2: read back every written surface and compare the digest.
+  for (const entry of written) {
+    const absolute = path.join(canonicalRoot, entry.ref);
+    let content;
+    try {
+      content = fs.readFileSync(absolute, 'utf8');
+    } catch (error) {
+      exportError('EXPORT_REGENERATION_INCOMPLETE', `the regenerated export ${entry.ref} is not readable after the write: ${error.message}`);
+    }
+    const actual = digestOf(content);
+    if (actual !== entry.expected_digest) {
+      exportError('EXPORT_REGENERATION_INCOMPLETE', `the regenerated export ${entry.ref} digests to ${actual}, the written content digests to ${entry.expected_digest}`);
+    }
+    entry.digest = actual;
+    entry.bytes = Buffer.byteLength(content, 'utf8');
+  }
+  return {
+    performed: true,
+    generator_version: EXPORT_REGENERATION_VERSION,
+    registry_version: registry?.schemaVersion ?? null,
+    adoption_digest: adoptionDigest,
+    export_digests: written.map((entry) => ({ ref: entry.ref, digest: entry.digest, bytes: entry.bytes })),
+    regenerated_at: now(),
+    readback_verified: true
+  };
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/owner-authority.schema.json",
+  "title": "Canonical Owner Authority Contract",
+  "description": "The trust anchor for canonical owner decisions (spec MAWS-SII-TARGET-SPEC-001 v0.2.0, slice S8, spec sections 12.3/13.1/13.4). It holds the public keys that may sign a canonical owner approval. An approval is only an approval when one of these keys vouches for it: a self-declared approver name and a free decision reference are caller input and authorise nothing. The anchor is a governed repository surface - publishing, rotating or revoking a key is a reviewed change of the canonical tree, never a runtime act. The anchor grants no capability, no permission and no execution authorisation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "authority_id",
+    "authority_status",
+    "keys",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "authority_id": {
+      "const": "canonical_owner",
+      "description": "The single authority identity whose approvals this anchor can verify."
+    },
+    "authority_status": {
+      "enum": ["PENDING_PUBLICATION", "PUBLISHED"],
+      "description": "PENDING_PUBLICATION means no key is published yet: every approval is refused fail-closed until the owner publishes one."
+    },
+    "keys": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/authorityKey"
+      }
+    },
+    "updated_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    }
+  },
+  "$defs": {
+    "authorityKey": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key_id",
+        "algorithm",
+        "public_key_pem",
+        "role",
+        "status",
+        "added_at"
+      ],
+      "properties": {
+        "key_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "algorithm": {
+          "const": "ed25519"
+        },
+        "public_key_pem": {
+          "type": "string",
+          "minLength": 1,
+          "description": "SPKI PEM public key. The private key never lives in this repository."
+        },
+        "role": {
+          "const": "canonical_owner"
+        },
+        "status": {
+          "enum": ["active", "revoked"]
+        },
+        "added_at": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+        }
+      }
+    }
+  }
+}
