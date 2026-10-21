@@ -82,7 +82,9 @@ fixture.
 
 - `node --test tests/vnext/instruction-semantic-signals.test.mjs`: 6/6 PASS.
 - `node --test tests/vnext/instruction-auditor.test.mjs`: 10/10 PASS.
-- `npm run test:vnext`: 762/762 PASS.
+- `npm run test:vnext`: 787/787 PASS at the published head (762/762 at the
+  implementation commit `7c5b25b`; the rebased head carries the concurrent
+  assurance lane's additional tests).
 - `npm run validate`: PASS (no issues).
 - `npm run validate-maws-vnext`: PASS (no issues).
 - `npm run validate-instruction-integrity`: 21 fixture cases checked, 0
