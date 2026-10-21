@@ -5,73 +5,127 @@
       "file": "scripts/tools/baum-loop-repo.mjs",
       "line": 54,
       "code": "SOURCE_SHELL_INTERPOLATION",
-      "justification": "The command is a compile-time constant ('git rev-parse --show-toplevel') with no caller-supplied content; the shell is involved only because execSync takes a string, and no argument material is interpolated. The repository's policy for anything argument-bearing is execFileSync with an array."
+      "justification": "The command is a compile-time constant ('git rev-parse --show-toplevel') with no caller-supplied content; the shell is involved only because execSync takes a string, and no argument material is interpolated. The repository's policy for anything argument-bearing is execFileSync with an array.",
+      "excerpt": "return execSync('git rev-parse --show-toplevel', { encoding: 'utf8', timeout: 5000 }).trim();"
     },
     {
       "file": "scripts/tools/baum-loop-repo.mjs",
       "line": 133,
       "code": "SOURCE_SHELL_INTERPOLATION",
-      "justification": "Same class as line 54: the execSync argument is a constant git command string spanning the following lines; no caller-supplied or derived content is interpolated into the shell string."
+      "justification": "Same class as line 54: the execSync argument is a constant git command string spanning the following lines; no caller-supplied or derived content is interpolated into the shell string.",
+      "excerpt": "const status = execSync("
     },
     {
       "file": "scripts/tools/run-skill-effectiveness-evals.mjs",
-      "line": 723,
+      "line": 788,
       "code": "SOURCE_DYNAMIC_IMPORT_SPECIFIER",
-      "justification": "The specifier is a file URL the loader itself constructs from a corpus path that has passed the shared path-confinement primitive (the corpus file is confined to the corpus directory and verified on a descriptor before this import is reached); the dynamic form is how the variant module is loaded from the confined location. The confinement, not the import form, is the enforced boundary."
+      "justification": "The specifier is a file URL the loader itself constructs from a corpus path that has passed the shared path-confinement primitive (the corpus file is confined to the corpus directory and verified on a descriptor before this import is reached); the dynamic form is how the variant module is loaded from the confined location. The confinement, not the import form, is the enforced boundary.",
+      "excerpt": "const factory = await import(moduleUrl);"
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
       "line": 55,
       "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
-      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner's rule is proven to fire on it. It is never executed by this repository."
+      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner's rule is proven to fire on it. It is never executed by this repository.",
+      "excerpt": "'  return eval(input);',"
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
       "line": 62,
       "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
-      "justification": "The assertion locates the eval finding by its excerpt; the trigger text is a comparison key passed to includes(), not executed or evaluated code."
+      "justification": "The assertion locates the eval finding by its excerpt; the trigger text is a comparison key passed to includes(), not executed or evaluated code.",
+      "excerpt": "const evalFinding = report.unbaselined.find((finding) => finding.excerpt.includes('eval(input)'));"
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
       "line": 70,
       "code": "SOURCE_SHELL_INTERPOLATION",
-      "justification": "Negative-test fixture content: the execSync trigger exists only as a string literal fed to a temporary fixture tree to prove the SHELL_INTERPOLATION rule fires. Never executed by this repository."
+      "justification": "Negative-test fixture content: the execSync trigger exists only as a string literal fed to a temporary fixture tree to prove the SHELL_INTERPOLATION rule fires. Never executed by this repository.",
+      "excerpt": "'app/shell.mjs': 'import { execSync } from \"node:child_process\";\\nexport const out = execSync(cmd);\\n',"
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
       "line": 71,
       "code": "SOURCE_UNPINNED_NETWORK_EGRESS",
-      "justification": "Negative-test fixture content: the fetch trigger exists only as a string literal fed to a temporary fixture tree to prove the UNPINNED_NETWORK_EGRESS rule fires. Never executed by this repository."
+      "justification": "Negative-test fixture content: the fetch trigger exists only as a string literal fed to a temporary fixture tree to prove the UNPINNED_NETWORK_EGRESS rule fires. Never executed by this repository.",
+      "excerpt": "'app/net.mjs': 'export async function go(url) { return fetch(url); }\\n',"
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
       "line": 72,
       "code": "SOURCE_DYNAMIC_IMPORT_SPECIFIER",
-      "justification": "Negative-test fixture content: the non-literal import trigger exists only as a string literal fed to a temporary fixture tree to prove the DYNAMIC_IMPORT_SPECIFIER rule fires. Never executed by this repository."
+      "justification": "Negative-test fixture content: the non-literal import trigger exists only as a string literal fed to a temporary fixture tree to prove the DYNAMIC_IMPORT_SPECIFIER rule fires. Never executed by this repository.",
+      "excerpt": "'app/dyn.mjs': 'export async function load(name) { return import(name); }\\n'"
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
       "line": 97,
       "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
-      "justification": "Negative-test fixture content: the trigger string for the baseline round-trip test (a finding is baselined, then the baseline goes stale). Never executed by this repository."
+      "justification": "Negative-test fixture content: the trigger string for the baseline round-trip test (a finding is baselined, then the baseline goes stale). Never executed by this repository.",
+      "excerpt": "'app/bad.mjs': 'export function run(input) {\\n  return eval(input);\\n}\\n'"
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
-      "line": 151,
+      "line": 182,
       "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
-      "justification": "Negative-test fixture content: the trigger string for the determinism test. Never executed by this repository."
+      "justification": "Negative-test fixture content: the trigger string for the determinism test. Never executed by this repository.",
+      "excerpt": "'app/a.mjs': 'export const x = eval(input);\\n',"
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
-      "line": 152,
+      "line": 183,
       "code": "SOURCE_UNPINNED_NETWORK_EGRESS",
-      "justification": "Negative-test fixture content: the fetch trigger string for the determinism test. Never executed by this repository."
+      "justification": "Negative-test fixture content: the fetch trigger string for the determinism test. Never executed by this repository.",
+      "excerpt": "'app/b.mjs': 'export const y = fetch(url);\\n'"
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
-      "line": 175,
+      "line": 206,
       "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
-      "justification": "Negative-test fixture content: the trigger string for the CLI exit-code test. Never executed by this repository."
+      "justification": "Negative-test fixture content: the trigger string for the CLI exit-code test. Never executed by this repository.",
+      "excerpt": "'scripts/bad.mjs': 'export const x = eval(input);\\n'"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 118,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "excerpt": "baseline: { schema_version: '1.0.0', entries: [{ ...baseline.entries[0], excerpt: 'return eval(other);' }] }",
+      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository."
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 127,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "excerpt": "'app/bad.mjs': 'export function run(input) {\\n  return eval(input);\\n}\\n'",
+      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository."
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 137,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "excerpt": "fs.writeFileSync(path.join(root, 'app/bad.mjs'), '// a\\n// b\\n// c\\nexport function run(input) {\\n  return eval(input);\\n}\\n');",
+      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository."
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 143,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "excerpt": "fs.writeFileSync(path.join(root, 'app/bad.mjs'), '// a\\n// b\\n// c\\nexport function run(input) {\\n  return eval(input);\\n}\\n// tail\\n');",
+      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository."
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 148,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "excerpt": "fs.writeFileSync(path.join(root, 'app/bad.mjs'), 'export function run(input) {\\n  return eval(input);\\n}\\nexport function run2(input) {\\n  return eval(input);\\n",
+      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository."
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 148,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "excerpt": "fs.writeFileSync(path.join(root, 'app/bad.mjs'), 'export function run(input) {\\n  return eval(input);\\n}\\nexport function run2(input) {\\n  return eval(input);\\n",
+      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository."
     }
   ]
 }

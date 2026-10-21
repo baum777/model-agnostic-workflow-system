@@ -1,0 +1,46 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "This change hardens the source security gate's baseline matching after its first real collision with a co-lane's legitimate edit: the s5-frontdoor-evidence lane's pull request 68 moved the baselined non-literal import in scripts/tools/run-skill-effectiveness-evals.mjs from line 723 to line 788, which made the line-keyed baseline stale and the gate red on the merged main. The match key is now file plus rule plus the reported code line's excerpt, so a disclosure survives a line move, a changed line is still stale, a second identical occurrence is still unbaselined (matching consumes the entry), and legacy entries without an excerpt keep the line-based match. All existing baseline entries were rebound to their excerpts from a live scan and the drift test's own fixture content is disclosed. The change touches the gate's matching rule and its baseline and test file only: no contract, corpus, record format, digest, ownership, lifecycle state, authority or dependency class changes, no npm dependency is added, and the registration of this adjustment is the new run change registration in the Registry; the Atlas representation trails it.",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "evidence/source-security-scan-2026-10-21/baseline-key-adjustment-2026-10-21.md"
+    ],
+    "source_refs": [
+      "scripts/tools/scan-source-security.mjs",
+      "tests/tools/source-security-scan.test.mjs",
+      "security/source-security-baseline.json",
+      "CHANGELOG.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/source-security-scan-2026-10-21/baseline-key-adjustment-2026-10-21.md"
+    ],
+    "evidence_refs": [
+      "the collision: MAWS pull request 68 (df8c683e557a711562bc6cc61ac8504120825161, the s5-frontdoor-evidence lane) moved the baselined import from line 723 to line 788; the gate on the merged main answered FAIL with one unbaselined finding and one stale baseline entry",
+      "the repair: the baseline match key is file + rule + excerpt; the disclosure survives the move (verified at origin/main: PASS, 233 analysed, required coverage 4/4, zero unbaselined, zero stale, 18 entries)",
+      "tests/tools/source-security-scan.test.mjs 11 of 11 pass, including the new drift test: a disclosure survives another writer moving the code to a different line, a changed line content is stale, and a doubled occurrence is not covered by one disclosure",
+      "the CLI detection tolerates stdin invocation (node -)",
+      "hosted GitHub Actions remains blocked account-wide; every gate here is a local run under Node v24.19.0"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/source-security-scan-2026-10-21/registry-disposition.json (PASS, see validation note below)",
+      "node scripts/tools/scan-source-security.mjs answers PASS exit 0 at the branch head",
+      "node --test tests/tools/source-security-scan.test.mjs 11 of 11 pass"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "no contract changes: core/contracts is untouched",
+      "the gate's verdict semantics are unchanged: PASS still means zero unbaselined findings, zero stale entries, zero parse failures and full required coverage; only the match key moved from line to content",
+      "the establishment's own disposition evidence/source-security-scan-2026-10-21/registry-disposition.json stands unchanged as committed history; this file classifies the adjustment",
+      "nothing is superseded"
+    ],
+    "registry_baseline_sha": "4e5d66b4a8db52426cc2cfd5d0d1a68d4350a514",
+    "implementation_commit_sha": "3322a9f5a80b5b3de9046df3ce425aab0f09a96c",
+    "registry_commit_sha": null
+  }
+}
