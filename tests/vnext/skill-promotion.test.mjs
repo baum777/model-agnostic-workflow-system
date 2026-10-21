@@ -1060,10 +1060,10 @@ test('S8 the CLI refuses a broken canonical target with a structured refusal, ne
   assert.match(result.issues[0], /^[A-Z_]+: /);
 });
 
-test('S8 the CLI turns an unexpected failure into a structured refusal, never a stack trace', () => {
+test('S8 the CLI answers every malformed input with a structured refusal, never a stack trace', () => {
   const world = setup();
-  const input = {
-    adoption_id: 'adopt_s8_cli_unexpected_0001',
+  const baseInput = {
+    adoption_id: 'adopt_s8_cli_malformed_0001',
     skill_id: 'promoted-skill',
     adopted_version: '1.0.0',
     superseded_version: '0.9.0',
@@ -1071,18 +1071,21 @@ test('S8 the CLI turns an unexpected failure into a structured refusal, never a 
     candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
     admission_path: world.admissionPath,
     eval_records: world.evalEntries,
-    owner_approval_ref: world.ownerApprovalRef,
-    // A malformed canonical target: the promotion fails with an unexpected
-    // error, and the CLI must still answer with a structured refusal.
-    canonical_root: 12345
+    owner_approval_ref: world.ownerApprovalRef
   };
-  const inputPath = path.join(world.dir, 'input-unexpected.json');
-  fs.writeFileSync(inputPath, JSON.stringify(input, null, 2));
-
-  const result = runCli(['--input', inputPath]);
-  assert.equal(result.ok, false);
-  assert.ok(result.issues.length > 0);
-  assert.match(result.issues[0], /^PROMOTION_FAILED: /);
+  const cases = [
+    { name: 'no canonical root', input: { ...baseInput } },
+    { name: 'a canonical root that is a file', input: { ...baseInput, canonical_root: path.join(world.dir, 'not-a-dir') } },
+    { name: 'a canonical root that does not exist', input: { ...baseInput, canonical_root: path.join(world.dir, 'missing-tree') } }
+  ];
+  for (const entry of cases) {
+    const inputPath = path.join(world.dir, `input-${entry.name.replace(/\s+/g, '-')}.json`);
+    fs.writeFileSync(inputPath, JSON.stringify(entry.input, null, 2));
+    const result = runCli(['--input', inputPath]);
+    assert.equal(result.ok, false, entry.name);
+    assert.ok(result.issues.length > 0, entry.name);
+    assert.match(result.issues[0], /^[A-Z_]+: /, entry.name);
+  }
 });
 
 test('S8 the CLI pins the evidence age bound: a widened bound in the input is ignored', () => {
@@ -1243,6 +1246,153 @@ test('S8 an export surface under a symlinked parent directory is refused', () =>
   );
   assert.deepEqual(fs.readdirSync(outsideDir), []);
   assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+});
+
+test('S8 the superseded version is read from the canonical tree, not asserted by the caller', () => {
+  const world = setup();
+  // The live skill declares 1.5.0; the caller claims 0.9.0 and adopts 1.0.0.
+  // A self-declared prior version would allow a silent downgrade.
+  fs.mkdirSync(path.join(world.tree, 'skills/promoted-skill'), { recursive: true });
+  fs.writeFileSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md'), candidateContentWithVersion('1.5.0'));
+
+  expectPromotionError('ADOPTION_VERSION_REGRESSION', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_downgrade_live_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+
+  // A promotion that moves the skill forward is accepted, and the record
+  // names the version the CANONICAL TREE declared. The frontdoor admission
+  // and the owner approval must screen the 2.0.0 content.
+  const v2Content = candidateContentWithVersion('2.0.0');
+  const v2Digest = sha256Prefixed(v2Content);
+  const v2AdmissionPath = path.join(world.dir, 'admission-v2.json');
+  fs.writeFileSync(v2AdmissionPath, JSON.stringify(admissionRecord({ sourceRevision: v2Digest }), null, 2));
+  const approval = writeApproval(world.tree, signApproval(approvalBody({ candidateDigest: v2Digest }), world.keyPair.privateKey), 'core/authority/approvals/owner_decision_v2_0001.json');
+  const { record, issues } = promoteSkillCandidate({
+    adoptionId: 'adopt_s8_upgrade_live_0001',
+    skillId: 'promoted-skill',
+    adoptedVersion: '2.0.0',
+    supersededVersion: '0.9.0',
+    candidateContent: v2Content,
+    candidateDigest: v2Digest,
+    admissionPath: v2AdmissionPath,
+    evalRecords: world.evalEntries,
+    ownerApprovalRef: approval,
+    ownerAuthorityPath: world.ownerAuthorityPath,
+    canonicalRoot: world.tree,
+    root
+  });
+  assert.deepEqual(issues, []);
+  assert.equal(record.canonical_adoption.superseded_version, '1.5.0');
+  assert.equal(record.canonical_adoption.superseded_version_source, 'canonical_skill_file');
+});
+
+test('S8 a decision dated in the future authorizes nothing', () => {
+  const world = setup({ approval: approvalBody({ approvedAt: '2099-01-01T00:00:00Z' }) });
+  expectPromotionError('OWNER_APPROVAL_FUTURE', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_future_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+});
+
+test('S8 a failed rollback is reported as a named failure', () => {
+  const world = setup();
+  // The export surface is replaced by a directory after it was written: the
+  // rollback can no longer restore it, and that must be reported, not
+  // swallowed.
+  const error = expectPromotionError('PROMOTION_ROLLBACK_FAILED', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_rollback_failed_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root,
+      onExportsWritten: ({ written }) => {
+        const target = written.find((entry) => entry.ref.endsWith('core-registry.json'));
+        const absolute = path.join(world.tree, target.ref);
+        fs.rmSync(absolute, { force: true });
+        fs.mkdirSync(absolute, { recursive: true });
+      }
+    })
+  );
+  assert.match(error.message, /rollback did not restore every surface/);
+});
+
+test('S8 the post-adoption readback reports an unreadable ledger instead of raising', () => {
+  const world = setup();
+  const { record } = promoteSkillCandidate({
+    adoptionId: 'adopt_s8_readback_ledger_0001',
+    skillId: 'promoted-skill',
+    adoptedVersion: '1.0.0',
+    supersededVersion: '0.9.0',
+    candidateContent: CANDIDATE_CONTENT,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    admissionPath: world.admissionPath,
+    evalRecords: world.evalEntries,
+    ownerApprovalRef: world.ownerApprovalRef,
+    ownerAuthorityPath: world.ownerAuthorityPath,
+    canonicalRoot: world.tree,
+    root
+  });
+  const ledgerPath = path.join(world.tree, record.canonical_adoption.adoption_ledger_ref);
+  fs.rmSync(ledgerPath, { force: true });
+  fs.mkdirSync(ledgerPath, { recursive: true });
+
+  const issues = postAdoptionReadback({ record, canonicalRoot: world.tree });
+  assert.ok(Array.isArray(issues));
+  assert.ok(issues.some((issue) => issue.includes('adoption ledger')), issues.join(' | '));
+});
+
+test('S8 the CLI refuses an input without a canonical root', () => {
+  const world = setup();
+  const input = {
+    adoption_id: 'adopt_s8_cli_no_root_0001',
+    skill_id: 'promoted-skill',
+    adopted_version: '1.0.0',
+    superseded_version: '0.9.0',
+    candidate_content: CANDIDATE_CONTENT,
+    candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
+    admission_path: world.admissionPath,
+    eval_records: world.evalEntries,
+    owner_approval_ref: world.ownerApprovalRef
+  };
+  const inputPath = path.join(world.dir, 'input-no-root.json');
+  fs.writeFileSync(inputPath, JSON.stringify(input, null, 2));
+
+  const result = runCli(['--input', inputPath]);
+  assert.equal(result.ok, false);
+  assert.match(result.issues[0], /PROMOTION_CANONICAL_ROOT_MISSING/);
 });
 
 test('S8 adoption never grants authority (const false at the schema level)', () => {

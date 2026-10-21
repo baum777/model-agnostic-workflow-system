@@ -55,12 +55,12 @@ This run closes that obligation. The effective instruction digest is now **deriv
 | P1 | the binding keeps the caller-declared digest | 3 failing tests — BOUND |
 | P2 | the derivation returns the bundle's declared digest | 1 failing test — BOUND |
 | P2b | the D2 consistency check is removed | 1 failing test — BOUND |
-| P3 | the live source re-read is skipped at the call site | 3 failing tests — BOUND |
+| P3 | the live source re-read is skipped at the call site | 1 failing test — BOUND (the function-level mutation is bound by 3) |
 | P4 | the CLI passes the spec-declared fingerprints to the gate | 2 failing tests — BOUND |
 
 ## Verification (measured on the reviewed head)
 
-- `node --test tests/vnext/*.test.mjs` — **606 pass / 0 fail** (the S7 group contributes 16 tests, the S8 group 38; the remainder is the rebased upstream suite).
+- `node --test tests/vnext/*.test.mjs` — **611 pass / 0 fail** (the S7 group contributes 16 tests, the S8 group 43; the remainder is the rebased upstream suite).
 - `node --test tests/tools/*.test.mjs` — 21 pass / 0 fail.
 - `npm run validate`, `npm run validate-maws-vnext`, `npm run eval:maws-vnext` — issues `[]` / `ok:true`.
 - `node scripts/tools/ci-gate.mjs` — PASS CI Gate.
@@ -84,9 +84,20 @@ The two S7-specific observations of that round are closed here:
 | the probe wording for P2 was imprecise: returning the bundle's declared digest at the *return* site is vacuous (D2 makes both values provably equal); the meaningful mutation point is the recomputation itself | The probe table names the recomputation site; the D2 consistency check and the recomputation are both bound (1 failing test each) |
 | the `assemble` seam and the library-level gate parameters are public parameters of production modules | The seams are now **documented in the code** (module header, `deriveInstructionBinding`, `promoteSkillCandidate`, `validateOwnerApproval`) as test seams that the production path never uses: the CLI assembles the bundle itself, pins the anchor and pins the age bounds. |
 
-## Rebase onto the upstream main
+## Rebase onto the upstream main, and what moved the pins
 
-The branch was rebased onto `origin/main` = `0b49f65` (the DSI merge) after the second review round. The DSI lane touches **no** canonical instruction source (all eight were checked), so the derived digests are unchanged (`sha256:b897157a…` for the reference spec, `sha256:07f58608…` for the S12 bundle) and the committed pins remain valid. This was re-derived and verified, not assumed.
+The branch was rebased onto `origin/main` = `0b49f65` (the DSI merge) after the second review round. The DSI lane touches **no** canonical instruction source (all eight were checked), so the rebase itself left the derived digests unchanged and the committed pins valid — this was re-derived and verified, not assumed.
+
+The pins moved **twice** afterwards, both times because this run itself changed a canonical instruction source — which is the S7 semantics working exactly as intended:
+
+1. Registering the new surface families in `docs/authority-matrix.md` (a canonical instruction source) invalidated the S12 profile pins. They were re-earned in the same change.
+2. Naming the round-3 module `runtime/skills/canonical-path.mjs` in the same authority matrix row moved the effective instruction state again. The pins were re-earned again (the S12 profiles, the S12 contract fixture and test constant, and the reference run spec via the re-qualification tool).
+
+The derived digests at the published head are `sha256:f96f62b7…` for the reference spec and `sha256:fa5eb48a…` for the S12 bundle. A future change to any canonical instruction source invalidates them again, and the repository gate fails until they are re-earned.
+
+## Fourth review round (exact head `aa83ad9`)
+
+The head was reviewed a fourth time (local audit agent, tool-driven, with mutation probes, on a pristine extraction of the reviewed commit). Verdict: **PASS_WITH_FINDINGS** — the round-3 repairs were confirmed behaviourally. The round's findings were S8-side (the CWD fallback of the promotion CLI, the unbound superseded-version gate, three unbound implemented guards, the dispositions and the maturity registration); all of them were repaired in the same change and are recorded in the S8 run record. The S7 probes were re-run on that head and are still bound (declared digest kept 3, declared digest returned 1, D2 check removed 1, source re-read skipped 1, CLI passes the declared fingerprints 2).
 
 ## Consequence for the S12 lane (recorded, not hidden)
 

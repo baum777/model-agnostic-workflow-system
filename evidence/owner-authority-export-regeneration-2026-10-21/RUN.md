@@ -22,7 +22,7 @@ Two obligations of the predecessor:
 | `runtime/skills/export-regeneration.mjs` (new) | The canonical export regeneration: the neutral core registry and every provider export are rebuilt from the canonical tree with the canonical generators, bound to the adoption digest, read back, and rolled back completely when the regeneration is incomplete. |
 | `scripts/tools/promote-skill-candidate.mjs` | The promotion chain now requires the verified approval and the performed export regeneration; the CLI accepts an **allowlist** of inputs and pins the trust anchor to the canonical location of its own installation. |
 | `core/contracts/skill-promotion-adoption.schema.json` | `owner_approval.signature_verified` is `const true` (with `authority_digest`, `key_id`, `approval_record_ref`, `approval_record_digest`), `export_regeneration.performed` is `const true` (with `generator_version`, `registry_version`, `adoption_digest`, `export_digests`, `readback_verified`). An adoption without a verified approval and a performed export regeneration is **not representable**. |
-| `tests/vnext/skill-promotion.test.mjs` | 26 tests (was 22), including the authority, export and rollback bindings. |
+| `tests/vnext/skill-promotion.test.mjs` | 43 tests (was 22), including the authority, export, rollback and containment bindings. |
 
 ## Rules enforced (all fail closed)
 
@@ -115,15 +115,39 @@ The repaired head was reviewed a third time (local audit agent, tool-driven, wit
 
 ## Verification (measured on the reviewed head)
 
-- `node --test tests/vnext/*.test.mjs` — **606 pass / 0 fail** (the S8 group contributes 38 tests, the S7 group 16; the remainder is the rebased upstream suite).
+- `node --test tests/vnext/*.test.mjs` — **611 pass / 0 fail** (the S8 group contributes 43 tests, the S7 group 16; the remainder is the rebased upstream suite).
 - `node --test tests/tools/*.test.mjs` — 21 pass / 0 fail.
 - `npm run validate`, `npm run validate-maws-vnext`, `npm run eval:maws-vnext` — issues `[]` / `ok:true`.
 - `node scripts/tools/ci-gate.mjs` — PASS CI Gate.
 - The export regeneration against the real tree reproduces the committed export bytes exactly (12/12) — the canonical tree carries no export drift.
 
+### Fourth review round (exact head `aa83ad9`) and its findings
+
+The head was reviewed a fourth time (local audit agent, tool-driven, with mutation probes, on a pristine extraction of the reviewed commit). Verdict: **PASS_WITH_FINDINGS** — the round-3 repairs were confirmed behaviourally, and the round produced seven findings, all repaired in the same change:
+
+| Finding | Repair |
+| --- | --- |
+| **P2** — the promotion CLI silently targeted the **process working directory** when the input named no `canonical_root`: the write set was retargeted at an arbitrary directory and the containment proof then held relative to that directory. | The canonical root is mandatory: a missing, empty or non-directory target is refused with `PROMOTION_CANONICAL_ROOT_MISSING` before anything is written. |
+| **P2** — the "the superseded version is READ FROM THE CANONICAL TREE" gate was not test-bound: a mutation let a live skill at 1.5.0 be overwritten by 1.0.0 with the suite green. | A test seeds the canonical skill file with a higher version and asserts the regression refusal; a second promotion that moves the skill forward asserts that the record names the version the canonical tree declared (`superseded_version_source: canonical_skill_file`). |
+| **P3** — the round-3 repair "the readback reports issues instead of raising" was implemented but not test-bound. | A test calls the exported readback with an unreadable ledger and asserts an issue string. |
+| **P3** — the rule "a failed restore is reported as `PROMOTION_ROLLBACK_FAILED`" was implemented but not test-bound. | A test drives a rollback that cannot restore an export surface and asserts the named failure. |
+| **P3** — the rule "a decision dated in the future is refused" was implemented but not test-bound. | A test with a 2099 approval asserts `OWNER_APPROVAL_FUTURE`. |
+| **P2** — the two run dispositions bound the round-2 implementation commit and omitted the round-3 module. | The dispositions name the reviewed implementation commit and the new module in `source_refs`; the test counts are the measured ones. |
+| **P3** — the new round-3 module was not registered in the vNext maturity model. | `runtime/skills/canonical-path.mjs` is registered in the maturity baseline and named in the authority matrix row. |
+
+### Mutation probes (after the fourth round)
+
+| Probe | Mutation | Bound by |
+| --- | --- | --- |
+| F1 | the CLI falls back to the process working directory | 2 failing tests — BOUND |
+| F2 | the superseded version is not read from the canonical tree | 1 failing test — BOUND |
+| F3 | the readback raises instead of reporting | 1 failing test — BOUND |
+| F4 | a failed rollback is not reported | 1 failing test — BOUND |
+| F5 | a future-dated approval is accepted | 1 failing test — BOUND |
+
 ## Rebase onto the upstream main
 
-The branch was rebased onto `origin/main` = `0b49f65` (the DSI merge) after the second review round. The DSI lane touches **no** canonical instruction source, so the derived digests are unchanged (`sha256:b897157a…` for the reference spec, `sha256:07f58608…` for the S12 bundle) and the committed pins remain valid — this was re-derived and verified, not assumed.
+The branch was rebased onto `origin/main` = `0b49f65` (the DSI merge) after the second review round. The DSI lane touches **no** canonical instruction source, so the rebase left the derived digests unchanged and the committed pins valid — re-derived and verified, not assumed. The pins were then re-earned twice, because this run itself changed a canonical instruction source (`docs/authority-matrix.md`, the maturity registration of the new surfaces); the S7 run record carries the full pin history and the derived digests at the published head.
 
 ## Scope boundary (what is NOT claimed)
 

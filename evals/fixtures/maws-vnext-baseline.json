@@ -200,7 +200,8 @@
       "runtime": [
         "runtime/skills/owner-authority.mjs",
         "runtime/skills/export-regeneration.mjs",
-        "scripts/tools/promote-skill-candidate.mjs"
+        "scripts/tools/promote-skill-candidate.mjs",
+        "runtime/skills/canonical-path.mjs"
       ]
     }
   ]

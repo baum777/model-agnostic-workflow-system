@@ -816,6 +816,16 @@ export function runCli(args) {
     owner_approval_ref: ownerApprovalRef,
     canonical_root: canonicalRoot
   } = input ?? {};
+  // The canonical root is MANDATORY: without it the write set would silently
+  // target the process working directory, and the containment proof would
+  // hold relative to that directory instead of the tree the owner chose.
+  if (!isNonEmptyString(canonicalRoot)) {
+    return { ok: false, issues: ['PROMOTION_CANONICAL_ROOT_MISSING: the adoption input names no canonical_root; the promotion never targets the process working directory'], record: null };
+  }
+  const resolvedCanonicalRoot = path.resolve(canonicalRoot);
+  if (!fs.existsSync(resolvedCanonicalRoot) || !fs.statSync(resolvedCanonicalRoot).isDirectory()) {
+    return { ok: false, issues: [`PROMOTION_CANONICAL_ROOT_MISSING: the canonical root ${resolvedCanonicalRoot} is not a readable directory`], record: null };
+  }
   try {
     const { record, issues } = promoteSkillCandidate({
       adoptionId,
@@ -828,7 +838,7 @@ export function runCli(args) {
       evalRecords,
       ownerApprovalRef,
       ownerAuthorityPath: path.join(REPO_ROOT, CANONICAL_OWNER_AUTHORITY_PATH),
-      canonicalRoot: path.resolve(canonicalRoot ?? ''),
+      canonicalRoot: resolvedCanonicalRoot,
       root: REPO_ROOT,
       now: nowIso,
       maxEvidenceAgeDays: DEFAULT_MAX_EVIDENCE_AGE_DAYS

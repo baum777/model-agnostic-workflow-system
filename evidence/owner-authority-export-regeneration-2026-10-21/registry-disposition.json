@@ -21,6 +21,7 @@
       "core/contracts/skill-promotion-adoption.schema.json",
       "runtime/skills/owner-authority.mjs",
       "runtime/skills/export-regeneration.mjs",
+      "runtime/skills/canonical-path.mjs",
       "scripts/tools/promote-skill-candidate.mjs",
       "scripts/tools/build-provider-exports.mjs",
       "scripts/tools/build-neutral-core-registry.mjs",
@@ -36,7 +37,7 @@
       "evidence/owner-authority-export-regeneration-2026-10-21/registry-disposition.json"
     ],
     "evidence_refs": [
-      "node --test tests/vnext/*.test.mjs (all pass at the published head; the S8 group contributes 33 tests, the S7 group 16, the suite total is recorded in evidence/owner-authority-export-regeneration-2026-10-21/RUN.md)",
+      "node --test tests/vnext/*.test.mjs (all pass at the published head; the S8 group contributes 43 tests, the S7 group 16, the suite total is recorded in evidence/owner-authority-export-regeneration-2026-10-21/RUN.md)",
       "node --test tests/tools/*.test.mjs (all pass)",
       "npm run validate (ok:true, issues empty)",
       "npm run validate-maws-vnext (ok:true, issues empty)",
