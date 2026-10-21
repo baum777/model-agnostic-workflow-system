@@ -29,6 +29,7 @@ import path from 'node:path';
 
 import { buildNeutralCoreRegistry } from '../../scripts/tools/build-neutral-core-registry.mjs';
 import { buildProviderExports } from '../../scripts/tools/build-provider-exports.mjs';
+import { assertCanonicalTarget, CanonicalPathError } from './canonical-path.mjs';
 
 export const EXPORT_REGENERATION_VERSION = 'canonical-export-regeneration 1.0.0';
 export const REGISTRY_EXPORT_TARGETS = [
@@ -171,18 +172,17 @@ export function regenerateCanonicalExports({ canonicalRoot, adoptedSkillId = nul
   const written = [];
   for (const entry of plan) {
     const absolute = path.join(canonicalRoot, entry.ref);
-    // An export surface is a regular file INSIDE the canonical tree. A
-    // symlinked surface is refused: writing through it would mutate a file
-    // outside the canonical root, and the rollback could not restore it.
-    let isSymlink = false;
+    // An export surface is a regular file INSIDE the canonical tree: no
+    // symlinked file, no symlinked parent directory. Writing through either
+    // would mutate a file outside the canonical root, and the rollback could
+    // not restore it.
     try {
-      isSymlink = fs.lstatSync(absolute).isSymbolicLink();
-    } catch {
-      // The surface does not exist yet: it is created by the regeneration.
-      isSymlink = false;
-    }
-    if (isSymlink) {
-      exportError('EXPORT_SURFACE_NOT_A_FILE', `the export surface ${entry.ref} is a symlink; the canonical export regeneration never writes through a link`);
+      assertCanonicalTarget({ root: canonicalRoot, absolutePath: absolute, label: `export surface ${entry.ref}` });
+    } catch (error) {
+      if (error instanceof CanonicalPathError) {
+        exportError('EXPORT_SURFACE_NOT_A_FILE', error.message);
+      }
+      throw error;
     }
     try {
       fs.mkdirSync(path.dirname(absolute), { recursive: true });

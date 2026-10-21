@@ -60,7 +60,7 @@ This run closes that obligation. The effective instruction digest is now **deriv
 
 ## Verification (measured on the reviewed head)
 
-- `node --test tests/vnext/*.test.mjs` — **566 pass / 0 fail** (the S7 group contributes 16 tests; the S8 group 33).
+- `node --test tests/vnext/*.test.mjs` — **606 pass / 0 fail** (the S7 group contributes 16 tests, the S8 group 38; the remainder is the rebased upstream suite).
 - `node --test tests/tools/*.test.mjs` — 21 pass / 0 fail.
 - `npm run validate`, `npm run validate-maws-vnext`, `npm run eval:maws-vnext` — issues `[]` / `ok:true`.
 - `node scripts/tools/ci-gate.mjs` — PASS CI Gate.
@@ -83,6 +83,10 @@ The two S7-specific observations of that round are closed here:
 | --- | --- |
 | the probe wording for P2 was imprecise: returning the bundle's declared digest at the *return* site is vacuous (D2 makes both values provably equal); the meaningful mutation point is the recomputation itself | The probe table names the recomputation site; the D2 consistency check and the recomputation are both bound (1 failing test each) |
 | the `assemble` seam and the library-level gate parameters are public parameters of production modules | The seams are now **documented in the code** (module header, `deriveInstructionBinding`, `promoteSkillCandidate`, `validateOwnerApproval`) as test seams that the production path never uses: the CLI assembles the bundle itself, pins the anchor and pins the age bounds. |
+
+## Rebase onto the upstream main
+
+The branch was rebased onto `origin/main` = `0b49f65` (the DSI merge) after the second review round. The DSI lane touches **no** canonical instruction source (all eight were checked), so the derived digests are unchanged (`sha256:b897157a…` for the reference spec, `sha256:07f58608…` for the S12 bundle) and the committed pins remain valid. This was re-derived and verified, not assumed.
 
 ## Consequence for the S12 lane (recorded, not hidden)
 

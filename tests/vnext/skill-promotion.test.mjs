@@ -975,11 +975,12 @@ test('S8 a symlinked canonical skill path is refused', () => {
 
 test('S8 an unwritable adoption ledger rolls the whole promotion back', () => {
   const world = setup();
-  // The ledger cannot be written (it points into a directory that does not
-  // exist): the applied change cannot be recorded, so the promotion must
-  // roll back instead of applying an unrecorded change.
+  // The ledger cannot be written: the applied change cannot be recorded, so
+  // the promotion must roll back instead of applying an unrecorded change.
+  // The ledger is replaced after it was read, so the failure hits the
+  // append, not the read.
   fs.mkdirSync(path.join(world.tree, 'skills/promoted-skill'), { recursive: true });
-  fs.symlinkSync('/nonexistent-maws-ledger-target/ADOPTIONS.jsonl', path.join(world.tree, 'skills/promoted-skill/ADOPTIONS.jsonl'));
+  fs.writeFileSync(path.join(world.tree, 'skills/promoted-skill/ADOPTIONS.jsonl'), '');
 
   expectPromotionError('PROMOTION_LEDGER_UNWRITABLE', () =>
     promoteSkillCandidate({
@@ -994,7 +995,12 @@ test('S8 an unwritable adoption ledger rolls the whole promotion back', () => {
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
-      root
+      root,
+      onExportsWritten: () => {
+        const ledgerPath = path.join(world.tree, 'skills/promoted-skill/ADOPTIONS.jsonl');
+        fs.rmSync(ledgerPath, { force: true });
+        fs.mkdirSync(ledgerPath, { recursive: true });
+      }
     })
   );
   assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
@@ -1102,6 +1108,141 @@ test('S8 the CLI pins the evidence age bound: a widened bound in the input is ig
   const result = runCli(['--input', inputPath]);
   assert.equal(result.ok, false);
   assert.match(result.issues[0], /EVAL_EVIDENCE_STALE/);
+});
+
+test('S8 the adopted content is verified again after the export step', () => {
+  const world = setup();
+  // The export step changes the adopted file: the promotion must notice and
+  // refuse, and the adoption must not be recorded.
+  const error = expectPromotionError('READBACK_DIGEST_MISMATCH', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_post_export_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root,
+      onExportsWritten: () => {
+        fs.appendFileSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md'), '<!-- changed after the adoption -->');
+      }
+    })
+  );
+  assert.match(error.message, /after the export regeneration/);
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+});
+
+test('S8 the readback before the ledger append re-verifies the owner approval', () => {
+  const world = setup();
+  // The owner approval is swapped after the export step: the pre-append
+  // readback must catch it and the adoption must not be recorded.
+  const error = expectPromotionError('READBACK_MISMATCH', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_pre_readback_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root,
+      onExportsWritten: () => {
+        const approvalPath = path.join(world.tree, world.ownerApprovalRef);
+        const approval = JSON.parse(fs.readFileSync(approvalPath, 'utf8'));
+        approval.decision_ref = 'owner_decision_swapped_0001';
+        fs.writeFileSync(approvalPath, `${JSON.stringify(approval, null, 2)}\n`);
+      }
+    })
+  );
+  assert.match(error.message, /owner approval/);
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/ADOPTIONS.jsonl')), false);
+});
+
+test('S8 an unreadable adoption ledger is refused fail-closed', () => {
+  const world = setup();
+  // The ledger path is a directory: the applied change cannot be read, so
+  // the promotion refuses instead of ignoring the record.
+  fs.mkdirSync(path.join(world.tree, 'skills/promoted-skill/ADOPTIONS.jsonl'), { recursive: true });
+  expectPromotionError('ADOPTION_LEDGER_CORRUPT', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_ledger_unreadable_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+});
+
+test('S8 a symlinked adoption ledger is refused', () => {
+  const world = setup();
+  const outside = path.join(world.dir, 'outside-ledger.jsonl');
+  fs.writeFileSync(outside, '');
+  fs.mkdirSync(path.join(world.tree, 'skills/promoted-skill'), { recursive: true });
+  fs.symlinkSync(outside, path.join(world.tree, 'skills/promoted-skill/ADOPTIONS.jsonl'));
+
+  expectPromotionError('PROMOTION_LEDGER_PATH_NOT_A_FILE', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_ledger_symlink_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+  assert.equal(fs.readFileSync(outside, 'utf8'), '');
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
+});
+
+test('S8 an export surface under a symlinked parent directory is refused', () => {
+  const world = setup();
+  const outsideDir = path.join(world.dir, 'outside-providers');
+  fs.mkdirSync(outsideDir, { recursive: true });
+  fs.symlinkSync(outsideDir, path.join(world.tree, 'providers'));
+
+  expectPromotionError('EXPORT_SURFACE_NOT_A_FILE', () =>
+    promoteSkillCandidate({
+      adoptionId: 'adopt_s8_parent_symlink_0001',
+      skillId: 'promoted-skill',
+      adoptedVersion: '1.0.0',
+      supersededVersion: '0.9.0',
+      candidateContent: CANDIDATE_CONTENT,
+      candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+      admissionPath: world.admissionPath,
+      evalRecords: world.evalEntries,
+      ownerApprovalRef: world.ownerApprovalRef,
+      ownerAuthorityPath: world.ownerAuthorityPath,
+      canonicalRoot: world.tree,
+      root
+    })
+  );
+  assert.deepEqual(fs.readdirSync(outsideDir), []);
+  assert.equal(fs.existsSync(path.join(world.tree, 'skills/promoted-skill/SKILL.md')), false);
 });
 
 test('S8 adoption never grants authority (const false at the schema level)', () => {

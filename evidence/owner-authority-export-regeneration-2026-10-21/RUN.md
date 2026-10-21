@@ -78,6 +78,18 @@ The repaired head was reviewed again (local audit agent, tool-driven, with mutat
 | **P3** — the "documented test seam" claim did not exist in the code. | The seams are now documented in the module headers and in the function doc comments of `validateOwnerApproval`, `promoteSkillCandidate` and `deriveInstructionBinding`. |
 | **P3** — the run record claimed a disposition record that the folder did not contain. | The disposition is part of this change; the wording of the registration row now matches the open-obligations list. |
 
+### Third review round (exact head `76cb132`) and its findings
+
+The repaired head was reviewed a third time (local audit agent, tool-driven, with mutation probes, on a pristine extraction of the reviewed commit). Verdict: **PASS_WITH_FINDINGS** — the round-2 repairs were confirmed behaviourally, and the round produced four findings, all repaired in the same change:
+
+| Finding | Repair |
+| --- | --- |
+| **P2** — the adoption ledger was still written through a symlink: the record of the applied change landed outside the canonical tree that was changed. | The third write path is now checked like the other two: a symlinked or escaping ledger path is refused (`PROMOTION_LEDGER_PATH_NOT_A_FILE`). |
+| **P3** — the symlink refusal only inspected the final path component, so an export surface under a symlinked **parent directory** was still written outside the tree. | A new shared module `runtime/skills/canonical-path.mjs` proves containment twice: the final component must not be a symlink, and the nearest existing ancestor must resolve INSIDE the canonical root. It is applied to the canonical skill file, the adoption ledger and every regenerated export surface. |
+| **P3** — three implemented guards (the post-export verification of the adopted content, the readback before the ledger append, the fail-closed ledger read) were not test-bound, and the run record claimed two of them as bound. | Five tests were added (the adopted content is verified again after the export step; the readback before the ledger append re-verifies the owner approval; an unreadable ledger is refused; a symlinked ledger is refused; an export surface under a symlinked parent directory is refused), and the probe table below states the measured binding instead of the claimed one. |
+| **P3** — `postAdoptionReadback` raised instead of returning issues, breaking its documented contract. | The ledger read failure inside the readback is now reported as an issue string; the exported readback never throws. |
+| **P3** — the evidence did not record the rebase, the CHANGELOG did not mention the second-round repairs, and the recorded test totals were stale. | Corrected in this change: the rebase is recorded below, the CHANGELOG carries the second- and third-round repair sets, and the totals are the measured ones. |
+
 ### Mutation probes (after the repair)
 
 | Probe | Mutation | Bound by |
@@ -94,16 +106,24 @@ The repaired head was reviewed again (local audit agent, tool-driven, with mutat
 | R4 | the CLI honours the evidence age bound from the input | bound by the "pins the evidence age bound" test — BOUND |
 | R5 | a symlinked export surface is written through | bound by the "symlinked export surface" test — BOUND |
 | R6 | a symlinked canonical skill path is written through | bound by the "symlinked canonical skill path" test — BOUND |
-| R7 | the adopted content is not verified after the export step | bound by the export-hook test and the readback — BOUND |
-| R8 | the readback before the ledger append is skipped | bound by the readback tests — BOUND |
+| R7 | the adopted content is not verified after the export step | 1 failing test — BOUND |
+| R8 | the readback before the ledger append is skipped | 1 failing test — BOUND |
+| R9 | the ledger read is not fail-closed | 1 failing test — BOUND |
+| R10 | the adoption ledger path is not containment-checked | 1 failing test — BOUND |
+| R11 | the export surfaces are not containment-checked | 2 failing tests — BOUND |
+| R12 | the canonical skill path is not containment-checked | 1 failing test — BOUND |
 
 ## Verification (measured on the reviewed head)
 
-- `node --test tests/vnext/*.test.mjs` — **566 pass / 0 fail** (the S8 group contributes 33 tests; the S7 group 16).
+- `node --test tests/vnext/*.test.mjs` — **606 pass / 0 fail** (the S8 group contributes 38 tests, the S7 group 16; the remainder is the rebased upstream suite).
 - `node --test tests/tools/*.test.mjs` — 21 pass / 0 fail.
 - `npm run validate`, `npm run validate-maws-vnext`, `npm run eval:maws-vnext` — issues `[]` / `ok:true`.
 - `node scripts/tools/ci-gate.mjs` — PASS CI Gate.
 - The export regeneration against the real tree reproduces the committed export bytes exactly (12/12) — the canonical tree carries no export drift.
+
+## Rebase onto the upstream main
+
+The branch was rebased onto `origin/main` = `0b49f65` (the DSI merge) after the second review round. The DSI lane touches **no** canonical instruction source, so the derived digests are unchanged (`sha256:b897157a…` for the reference spec, `sha256:07f58608…` for the S12 bundle) and the committed pins remain valid — this was re-derived and verified, not assumed.
 
 ## Scope boundary (what is NOT claimed)
 

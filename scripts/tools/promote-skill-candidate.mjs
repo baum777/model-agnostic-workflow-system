@@ -39,6 +39,7 @@ import {
   restoreExports,
   regenerateCanonicalExports
 } from '../../runtime/skills/export-regeneration.mjs';
+import { assertCanonicalTarget, CanonicalPathError } from '../../runtime/skills/canonical-path.mjs';
 
 const ADOPTION_CONTRACT = 'core/contracts/skill-promotion-adoption.schema.json';
 const FRONTDOOR_CONTRACT = 'core/contracts/skill-frontdoor-admission.schema.json';
@@ -472,18 +473,25 @@ export function promoteSkillCandidate({
   // The superseded version is READ FROM THE CANONICAL TREE, never asserted
   // by the caller: a self-declared prior version would allow a silent
   // downgrade of a live skill.
-  // The canonical skill file is a regular file inside the canonical tree.
-  // A symlinked path is refused: the adoption would write through a link to
-  // a file outside the tree, and the rollback could not restore it.
-  let canonicalPathIsSymlink = false;
+  // The canonical skill file is a regular file inside the canonical tree: no
+  // symlinked file, no symlinked parent directory. The adoption ledger is
+  // checked the same way: it is the record of the applied change and must
+  // land inside the tree that was changed.
   try {
-    canonicalPathIsSymlink = fs.lstatSync(paths.canonicalPath).isSymbolicLink();
-  } catch {
-    // The canonical skill file does not exist yet: the adoption creates it.
-    canonicalPathIsSymlink = false;
+    assertCanonicalTarget({ root: canonicalRoot, absolutePath: paths.canonicalPath, label: 'canonical skill' });
+  } catch (error) {
+    if (error instanceof CanonicalPathError) {
+      promotionError('PROMOTION_CANONICAL_PATH_NOT_A_FILE', error.message);
+    }
+    throw error;
   }
-  if (canonicalPathIsSymlink) {
-    promotionError('PROMOTION_CANONICAL_PATH_NOT_A_FILE', `the canonical skill path ${paths.canonicalPathRelative} is a symlink; a promotion never writes through a link`);
+  try {
+    assertCanonicalTarget({ root: canonicalRoot, absolutePath: paths.ledgerPath, label: 'adoption ledger' });
+  } catch (error) {
+    if (error instanceof CanonicalPathError) {
+      promotionError('PROMOTION_LEDGER_PATH_NOT_A_FILE', error.message);
+    }
+    throw error;
   }
   const priorContent = fs.existsSync(paths.canonicalPath) ? fs.readFileSync(paths.canonicalPath, 'utf8') : null;
   let effectiveSupersededVersion = supersededVersion;
@@ -736,9 +744,15 @@ export function postAdoptionReadback({ record, canonicalRoot, expectLedgerEntry 
     issues.push('post_adoption_readback: the recorded readback did not match');
   }
   if (expectLedgerEntry) {
-    const ledger = readAdoptionLedger({ ledgerPath: path.join(canonicalRoot, record.canonical_adoption.adoption_ledger_ref) });
-    if (!ledger.some((entry) => entry.adoption_digest === record.canonical_adoption.adoption_digest)) {
-      issues.push('post_adoption_readback: the adoption ledger holds no entry for this adoption');
+    try {
+      const ledger = readAdoptionLedger({ ledgerPath: path.join(canonicalRoot, record.canonical_adoption.adoption_ledger_ref) });
+      if (!ledger.some((entry) => entry.adoption_digest === record.canonical_adoption.adoption_digest)) {
+        issues.push('post_adoption_readback: the adoption ledger holds no entry for this adoption');
+      }
+    } catch (error) {
+      // The readback REPORTS; it never throws: a caller of the exported
+      // readback receives issues, not an exception.
+      issues.push(`post_adoption_readback: the adoption ledger could not be read: ${error.message}`);
     }
   }
   // The owner approval artifact is re-read as well: the recorded approval
