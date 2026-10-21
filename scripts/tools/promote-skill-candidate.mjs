@@ -298,7 +298,16 @@ export function resolveCanonicalPaths({ canonicalRoot, skillId }) {
   if (!isNonEmptyString(skillId) || !SKILL_ID_PATTERN.test(skillId)) {
     promotionError('PROMOTION_SKILL_ID_INVALID', `skill id "${String(skillId)}" must match ${SKILL_ID_PATTERN}`);
   }
+  // The canonical root is mandatory and must be a directory: an empty value
+  // would resolve to the process working directory and retarget the whole
+  // write set.
+  if (!isNonEmptyString(canonicalRoot)) {
+    promotionError('PROMOTION_CANONICAL_ROOT_MISSING', 'the promotion requires a canonical root; it never targets the process working directory');
+  }
   const root = path.resolve(canonicalRoot);
+  if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) {
+    promotionError('PROMOTION_CANONICAL_ROOT_MISSING', `the canonical root ${root} is not a readable directory`);
+  }
   const canonicalPathRelative = `skills/${skillId}/SKILL.md`;
   const ledgerPathRelative = `skills/${skillId}/ADOPTIONS.jsonl`;
   const canonicalPath = path.resolve(root, canonicalPathRelative);
@@ -643,7 +652,10 @@ export function promoteSkillCandidate({
     if (failures.length > 0) {
       issues.push(`rollback: the promotion left surfaces behind: ${failures.join('; ')}`);
     }
-    return { record, issues, canonicalPath: paths.canonicalPath, admissionDigest: admission.digest };
+    // The adoption was NOT applied: the record is not returned, so no
+    // consumer can read a record that claims a promotion that never
+    // happened. The issues carry the reasons.
+    return { record: null, issues, canonicalPath: paths.canonicalPath, admissionDigest: admission.digest };
   }
 
   // The readback runs BEFORE the ledger entry is written: the adopted file,

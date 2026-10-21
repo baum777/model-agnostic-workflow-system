@@ -12,6 +12,10 @@
 //   C2  the nearest existing ancestor of the path must resolve INSIDE the
 //       canonical root (a symlinked parent directory would carry the write
 //       out of the tree even though the final component is a regular file).
+//
+// `allowSymlinkTarget` skips C1 for the RESTORE path: a surface that WAS a
+// symlink before the promotion is restored AS the symlink it was (the link
+// is recreated, never written through). C2 still applies.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -48,7 +52,7 @@ function realpathOfNearestExistingAncestor(target) {
 //
 // The path must be lexically inside the root, its final component must not be
 // a symlink, and its nearest existing ancestor must resolve inside the root.
-export function assertCanonicalTarget({ root, absolutePath, label }) {
+export function assertCanonicalTarget({ root, absolutePath, label, allowSymlinkTarget = false }) {
   const resolvedRoot = path.resolve(root);
   const resolvedTarget = path.resolve(absolutePath);
   if (!resolvedTarget.startsWith(`${resolvedRoot}${path.sep}`)) {
@@ -60,7 +64,7 @@ export function assertCanonicalTarget({ root, absolutePath, label }) {
   } catch {
     stats = null;
   }
-  if (stats !== null && stats.isSymbolicLink()) {
+  if (stats !== null && stats.isSymbolicLink() && !allowSymlinkTarget) {
     fail('CANONICAL_PATH_IS_A_SYMLINK', `the ${label} path is a symlink; the promotion never writes through a link`);
   }
   const realRoot = (() => {

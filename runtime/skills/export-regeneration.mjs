@@ -123,6 +123,26 @@ export function restoreExports({ canonicalRoot, snapshot }) {
   for (const [ref, state] of snapshot.entries()) {
     const absolute = path.join(canonicalRoot, ref);
     try {
+      // The restore is a write path too: it may only touch surfaces inside
+      // the canonical tree. A surface that WAS a symlink is recreated as the
+      // symlink it was (the link is never written through).
+      const recreatesLink = state === null || state.kind === 'symlink';
+      try {
+        assertCanonicalTarget({
+          root: canonicalRoot,
+          absolutePath: absolute,
+          label: `export surface ${ref}`,
+          allowSymlinkTarget: recreatesLink
+        });
+      } catch (error) {
+        if (error instanceof CanonicalPathError) {
+          // The path is not inside the canonical tree, so the regeneration
+          // never wrote it and there is nothing to restore there. This is
+          // NOT a failed rollback: the refusal is the correct behaviour.
+          continue;
+        }
+        throw error;
+      }
       if (state === null) {
         fs.rmSync(absolute, { force: true });
         continue;

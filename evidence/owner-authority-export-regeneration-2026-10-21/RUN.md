@@ -139,10 +139,33 @@ The head was reviewed a fourth time (local audit agent, tool-driven, with mutati
 
 | Probe | Mutation | Bound by |
 | --- | --- | --- |
-| F1 | the CLI falls back to the process working directory | 2 failing tests — BOUND |
+| F1 | the CLI falls back to the process working directory | 1 failing test — BOUND |
 | F2 | the superseded version is not read from the canonical tree | 1 failing test — BOUND |
 | F3 | the readback raises instead of reporting | 1 failing test — BOUND |
 | F4 | a failed rollback is not reported | 1 failing test — BOUND |
+| F5 | a future-dated approval is accepted | 1 failing test — BOUND |
+
+### Fifth review round (exact head `8c56646`) — the merge verdict
+
+The head was reviewed a fifth time (local audit agent, tool-driven, with mutation probes, on a pristine extraction of the reviewed commit). Verdict: **PASS_WITH_FINDINGS**, and the reviewer's merge verdict was: *the code is merge-ready; the registration artifacts are not*. It found **no P1/P2 live defect in the promotion chain** (15 mutation probes, all bound) and no way to widen a gate through the CLI, replace the derived digest with a declared one, accept an approval without a published-key signature, or claim a regeneration that did not happen. The findings and their repair:
+
+| Finding | Repair |
+| --- | --- |
+| **P2** — the two dispositions bound the round-2 implementation commit, which does not contain the round-3 module the S8 disposition names. | The dispositions are bound to the implementation commit of this change in a separate bind commit (the pattern the DSI lane already uses). |
+| **P2** — the S7 disposition was not updated in the same round (no `canonical-path.mjs` in `source_refs`, a stale test count). | Both dispositions now name the module and the measured test counts. |
+| **P3** — the export **restore** path was a write path that was not containment-checked: a plan ref that escapes the root was refused at write time, but the rollback then wrote to the escaping path and created directories outside the canonical root. | The restore is containment-checked as well. A path that is not inside the canonical tree is skipped (the regeneration never wrote it, so there is nothing to restore), and a surface that WAS a symlink is restored as the symlink it was — the link is recreated, never written through. |
+| **P3** — the library entry point still accepted an empty `canonical_root` (`path.resolve('')` is the process working directory). | The library refuses a missing, empty or non-directory canonical root with `PROMOTION_CANONICAL_ROOT_MISSING`, exactly like the CLI. |
+| **P3** — a rolled-back promotion still returned a full adoption record (asserting `export_regeneration.performed: true` for an adoption that never happened). | The issue path returns no record: the adoption was not applied, and the issues carry the reasons. |
+| **P3** — a probe count in this record was overstated. | The count is the measured one. |
+
+### Mutation probes (after the fifth round)
+
+| Probe | Mutation | Bound by |
+| --- | --- | --- |
+| F1 | the CLI falls back to the process working directory | 1 failing test — BOUND |
+| F2 | the superseded version is taken from the caller | 1 failing test — BOUND |
+| F3 | the readback raises instead of reporting | 1 failing test — BOUND |
+| F4 | the rollback failure list is swallowed | 1 failing test — BOUND |
 | F5 | a future-dated approval is accepted | 1 failing test — BOUND |
 
 ## Rebase onto the upstream main
