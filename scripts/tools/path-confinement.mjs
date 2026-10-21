@@ -26,7 +26,11 @@
 //       that C2 cannot see the material also existing outside the base — is
 //       refused rather than read. The count is read TWICE: once on the path
 //       during the check, and once on the opened descriptor, so that a
-//       hardlink created in the window between the two is caught as well.
+//       hardlink that still EXISTS when the descriptor is inspected is caught
+//       as well. A hardlink created AND removed inside the window between
+//       the two leaves the count unchanged and is NOT caught; it is
+//       indistinguishable from R1's in-place rewrite, and R1's reasoning
+//       applies to it.
 //
 // RESIDUAL (documented, not eliminated):
 //   R1  C3 detects the REPLACEMENT of a target, not an in-place rewrite of
@@ -38,8 +42,11 @@
 //       the record carries. The same holds for a link that is created
 //       AFTER the descriptor was opened: the descriptor already refers to
 //       the inode, and the writer reaches the content through the new name
-//       exactly as R1 describes. C5 closes the window between the check
-//       and the open, not the window after the open.
+//       exactly as R1 describes. C5 detects a second name that still EXISTS
+//       at the descriptor check; it does not detect a link that is created
+//       and removed again inside the window, and it does not detect a link
+//       created after the descriptor was opened. Neither gap is an in-place
+//       rewrite that C3 could have caught either: all three are R1.
 //   R2  C1-C5 do not close a race in which a concurrent writer replaces the
 //       PARENT DIRECTORY of the target between the containment check and
 //       the open, and the replacement carries a file with the same device

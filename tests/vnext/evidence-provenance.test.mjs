@@ -392,8 +392,12 @@ test('S8 corpus content that leaves the tree is refused', async () => {
   const world = await buildTree();
   // The corpus DIRECTORY is inside the tree, but a family FILE that is a
   // symbolic link to a file outside it would make the measured material live
-  // outside the governed tree. The linked file is a VALID case file, so the
-  // loader accepts it and the containment proof is what refuses it.
+  // outside the governed tree. The linked file is a VALID case file, but the
+  // S5 loader confines every declared family file in real terms and refuses
+  // it FIRST (CORPUS_PATH_SYMLINK_ESCAPE), one layer before this module's
+  // own containment proof could report it; the module's corpusLoadError
+  // keeps the specific EVIDENCE_CORPUS_CONTENT_ESCAPES for the same defect
+  // instead of its generic corpus-invalid code.
   const outside = path.join(world.tree, 'outside-cases.json');
   fs.writeFileSync(outside, fs.readFileSync(path.join(world.tree, 'evals', CORPUS_NAME, 'negative-cases', 'cases.json'), 'utf8'));
   fs.rmSync(path.join(world.tree, 'evals', CORPUS_NAME, 'negative-cases', 'cases.json'));

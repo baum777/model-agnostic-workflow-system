@@ -50,10 +50,20 @@ containment check and the read, and the read is refused with `PATH_MULTIPLE_LINK
 
 ### 1.3 The residual, stated honestly
 
-The module header's residual **R1** is extended: a link created **after** the descriptor was
-opened reaches the content exactly as an in-place rewrite does, and is not detected. C5 closes
-the window between the check and the open, not the window after the open. The residual list is
-otherwise unchanged (R1–R4), and none of the four is claimed as eliminated.
+The module header's residual **R1** is extended. The first wording of this run claimed that C5
+"closes the window between the check and the open". **The independent review refuted that
+wording**, and the reviewer was right: a hardlink that is created **and removed** again inside
+the window leaves the link count unchanged, so the descriptor check sees `nlink = 1` and passes.
+The reviewer reproduced it — a link is created, the content is rewritten through the second name,
+the link is removed, and the read returns the rewritten content without any refusal. That is an
+in-place rewrite of the same inode, which is exactly the class R1 names, and no path or identity
+check could have caught it either.
+
+The corrected statement: **C5 detects a second name that still exists when the descriptor is
+inspected.** It does not detect a link created and removed inside the window, and it does not
+detect a link created after the descriptor was opened. Both are R1. The module header now says
+that, and a new test binds the residual, so the prose cannot outrun the code again. The residual
+list is otherwise unchanged (R1–R4), and none of the four is claimed as eliminated.
 
 ---
 
@@ -191,9 +201,37 @@ integration*, *the C5 follow-up* and *the Registry and Atlas representation of t
 each in its own fresh context on a model different from the one that wrote the code, with one
 independent confirmer per finding, reproducing every finding from its evidence alone.
 
-The result is published in the run report of that review and is summarised in section 6. Every
-confirmed finding is repaired in the same change, or — when it belongs to another lane — is
-attributed to that lane in section 6 and in the Registry and the Atlas.
+**It reported 15 confirmed findings and refuted none.** Every confirmed finding was repaired in
+the same change, or — where it belongs to another lane — attributed to that lane in section 6 and
+in the Registry and the Atlas. The findings and their dispositions:
+
+| # | Severity | Where | Disposition |
+| --- | --- | --- | --- |
+| 1 | P2 | Registry record: the pre-rebase base in `change_status_scope`, the gate figures 678/653, the digest measurement against one base only, and the pre-repair description of the loader | **Repaired** in this run |
+| 2 | P2 | Atlas claim: the pre-rebase head, implementation commit and base, and a description of the pinned tree that names neither C5 nor `CORPUS_PATH_MULTIPLE_LINKS` and describes C3 without `O_NONBLOCK` | **Repaired** in this run |
+| 3 | P3 | Registry record: a corrupted 41-character commit id in the branch-commit list, and three of the eleven slice commits missing without the list being marked as an excerpt | **Repaired** in this run |
+| 4 | P3 | Slice run record §10: the Atlas claim count and the Registry reachability figures were not reproducible | **Repaired** in this run |
+| 5 | P3 | S8 test comment: it still described the loader as accepting the escaping family file, which it no longer does | **Repaired** in this run |
+| 6 | P3 | The two layers do not agree on a symbolic link that stays *inside* the corpus: the S5 loader accepts it, the S8 gate refuses it | **Repaired** by qualifying the claim in the slice record §8; the divergence is the S8 lane's own stricter policy and was not changed |
+| 7 | P3 | The module header's residual text claimed that C5 closes the window between the check and the open; a link created **and removed** inside that window leaves the count unchanged and passes | **Repaired** in this run: the header now says what the code does, and a new test binds the residual |
+| 8 | P2 | Registry record `checks`: the pre-rebase gate figures and a single-base digest measurement | **Repaired** in this run |
+| 9 | P3 | Registry record: the prose and the structured field named different bases | **Repaired** in this run |
+| 10 | P2 | Both registrations enumerated C1–C4 and omitted C5 and `CORPUS_PATH_MULTIPLE_LINKS`; both described C3 without `O_NONBLOCK` | **Repaired** in this run |
+| 11 | P2 | The two foreign drifts, their causes, and the volatility of both gates with the freshness of the local mirror | **Attributed** to the personal-pilot launch acceptance lane, see §6.2 and §6.3 |
+| 12 | P3 | Registry record: the branch-commit list was incomplete | **Repaired** in this run, with #3 |
+| 13 | P3 | Registry record: `observed_at` preceded the merge the record claims | **Repaired** in this run |
+| 14 | P3 | The repairs existed only on unmerged branches, and the shared read-only checkouts drifted during the review | **Closed by publishing** the three surfaces; the drift is a workspace artefact, not a record defect |
+| 15 | P3 | Slice run record §10: the same non-reproducible figures as #4 | **Repaired** in this run, with #4 |
+
+Two of the fifteen were against the C5 change of this run itself — the residual wording of
+finding 7, and the completeness of the new test — and both were repaired here rather than
+argued away. The reviewer also established the boundary of the C5 change empirically: the new
+check refuses a second name that still exists at the descriptor check, and a forged or
+non-comparable link count is refused as well; the benign cases — the shipped corpus, a `cp -al`
+copy (refused already by the pre-existing check-time rule), and a corpus with a symlink that
+stays inside it — are not refused by it.
+
+The full report, with the reproduction of every finding, is the deliverable of that review.
 
 ---
 
@@ -272,6 +310,20 @@ historical, 28 separate current observations, **82 diagnostics (74 of them unver
 `baum-os` commit newer than the mirror's head becomes unverifiable, and each of the false
 mismatches is indistinguishable in the output from a real drift. The gate must therefore be run
 against a refreshed or freshly provisioned mirror before its output is read as a drift.
+
+The review went further and reproduced a **third** mirror state, in which only the remote
+tracking refs were rewound while the objects stayed in place. That state answers **572** verified
+claims and **46** mismatches — and, decisively, **the real drift disappears**: the
+`PERSONAL_PILOT_LAUNCH_ACCEPTANCE` record is reported as `PASS_NOT_REACHABLE_ON_DEFAULT_BRANCH`,
+declared false and derived false, because its commit is not an ancestor of the rewound ref. A
+stale mirror therefore does not only fabricate findings; it can **hide a real one behind a green
+verdict**. In the state in which the newer objects are also absent, the same record degrades to
+`COMMIT_UNRESOLVABLE` and the gate's exit code is 0.
+
+So the failure mode of a stale mirror is bidirectional: it invents mismatches and unverifiable
+diagnostics, and it can mask a real mismatch. The Atlas path defect of §6.2 is the one finding
+that survives every mirror state, because it is a property of the claim's own pin and not of the
+mirror.
 
 The CI-faithful invocation — a freshly provisioned mirror farm — is the method whose result can
 be relied on, and it is the method used above.
