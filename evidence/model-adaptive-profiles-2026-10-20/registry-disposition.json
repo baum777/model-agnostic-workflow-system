@@ -47,13 +47,14 @@
     "evidence_refs": [
       "evidence/model-adaptive-profiles-2026-10-20/RUN.md (incl. the seven mutation-evidence records)",
       "npm run validate-executor-model-profile (fixture: 19 schema cases checked, 0 unexpected results; denial cases: 7 checked, 0 unexpected results; store: 6 profiles checked, 0 issues)",
-      "npm run test:vnext (488/488 pass, 0 fail; baseline of the same tree without tests/vnext/executor-model-profile.test.mjs 427/427; the S12 file contributes 61 tests)",
-      "npm run validate-maws-vnext (PASS, ok:true, contract fixtures 18 / cases 195), npm run eval:maws-vnext (PASS, ok:true, total 17, passed 17, failed 0)",
+      "npm run test:vnext (539/539 pass, 0 fail; baseline of the same tree without tests/vnext/executor-model-profile.test.mjs 478/478; the S12 file contributes 61 tests)",
+      "npm run validate-maws-vnext (PASS, ok:true, contract fixtures 20 / cases 215), npm run eval:maws-vnext (PASS, ok:true, total 19, passed 19, failed 0)",
       "npm run validate / validate-neutral (PASS, issueCount 0), npm run validate-registry-disposition evidence/model-adaptive-profiles-2026-10-20/registry-disposition.json (PASS, {\"passed\": true, \"issues\": []})",
       "mutation evidence: seven guards weakened and observed to fail (pinned-dimension comparison, model/provider coverage comparison, harness capability check, instruction-digest drift classification, the contract const 'unchanged' on authority_ceiling, the required pinned_dimensions block, the S7 fingerprint effective_instruction_digest requirement), all restored afterwards; the final tree carries no mutation marker",
-      "node --check on runtime/harness-context/profiles/model-adaptive/profile-resolver.mjs, executor-profile.mjs, profile-store.mjs and scripts/tools/validate-executor-model-profile.mjs (PASS)"
+      "node --check on runtime/harness-context/profiles/model-adaptive/profile-resolver.mjs, executor-profile.mjs, profile-store.mjs and scripts/tools/validate-executor-model-profile.mjs (PASS)",
+      "re-verification after the rebase onto origin/main bfa56ec17306ab709be3d492f02ac27150b4661a: npm run test:skill-frontdoor (6/6 pass, 0 fail) and node scripts/tools/ci-gate.mjs (PASS CI Gate) are green on the rebased tree; the hosted GitHub Actions job could not run because the account is locked for a billing issue, so the local evidence above is the verification of record"
     ],
-    "implementation_commit_sha": "70d21a3c2bd426450fa6b061d11dae668f89e797",
+    "implementation_commit_sha": "186240aa154df7f41c63210566edc7109f159ed3",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/model-adaptive-profiles-2026-10-20/registry-disposition.json",
@@ -66,6 +67,6 @@
       "core/contracts/executor-model-profile.schema.json (new canonical contract in this change set)",
       "core/contracts/materiality-decision.schema.json (amended canonical contract in this change set: component vocabulary gains effective_instruction_digest)"
     ],
-    "registry_baseline_sha": "27b17b62800d5d37e14bfe48ecd210603c4e1cb6"
+    "registry_baseline_sha": "bfa56ec17306ab709be3d492f02ac27150b4661a"
   }
 }
