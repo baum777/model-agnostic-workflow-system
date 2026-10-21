@@ -83,6 +83,13 @@ family `sha256:c548d38ec5d55350d8bc1d6795b22e8ce580289f52407b9e56ed97487f744f5c`
 The existing S5 regression suite `tests/vnext/run-skill-effectiveness.test.mjs` is byte-identical
 to `origin/main` and was not edited by this run.
 
+**The HO-01 chain is unaffected.** The HO-01 comparison chain imports the loader, so it was
+re-run on this branch and its record was compared field by field with the committed one:
+**exactly one leaf field differs — `created_at`**, the per-run wall-clock value. The decision
+(`REGRESSION`), the metrics (`output_assertion_pass_delta` −0.1875, `routing_accuracy_delta` 0,
+`security_regressions` 0), the hypothesis outcome and every digest are identical. The HO-01 lane
+keeps its qualification; this run neither widens nor narrows its scope.
+
 ---
 
 ## 3. Hosted CI — the infrastructure is not restored
