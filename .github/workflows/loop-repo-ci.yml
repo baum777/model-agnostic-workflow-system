@@ -47,6 +47,11 @@ jobs:
       - name: Assurance run records (the durable evidence check)
         run: npm run validate:assurance-run -- --all
 
+      - name: Merge executor lane binding (the cross-lane merge guard)
+        run: |
+          npm run test:merge-executor
+          python3 -m unittest tests/tools/merge_lane_authorization_schema_test.py
+
       - name: Runtime vNext complete unit suite
         run: npm run test:vnext
 

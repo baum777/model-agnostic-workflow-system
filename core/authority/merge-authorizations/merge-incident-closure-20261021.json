@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "lane_id": "merge-incident-closure-20261021",
+  "authority": "canonical_owner",
+  "base_ref": "main",
+  "head_ref": "docs/merge-incident-closure-20261021",
+  "head_repository": "baum777",
+  "required_checks": [],
+  "required_local_gates": [
+    "validate",
+    "test:vnext",
+    "test:merge-executor"
+  ],
+  "authorized_commit": "17dc32b6bfa388d0f58116086c8765b2499788a4"
+}
