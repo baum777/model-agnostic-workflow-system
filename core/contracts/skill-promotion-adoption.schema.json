@@ -7,7 +7,7 @@
   "additionalProperties": false,
   "required": [
     "schema_version", "adoption_id", "candidate", "frontdoor_admission",
-    "eval_evidence", "owner_approval", "canonical_adoption",
+    "eval_evidence", "evidence_admission", "owner_approval", "canonical_adoption",
     "export_regeneration", "post_adoption_readback", "authority_granted",
     "created_at"
   ],
@@ -63,6 +63,27 @@
           "const": true,
           "description": "The evidence was traced back to its immutable execution results. An evidence set that was not provenance-verified is not representable here."
         }
+      }
+    },
+    "evidence_admission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "admission_id", "admission_ref", "admission_digest", "skill_id", "subject_ref", "content_digest", "material_digest", "source_kind", "source_commit", "source_admission_commit", "admitted_at", "authority_granted"],
+      "description": "The admission of the bound evidence to the adopted content and to a proved source. The content digest binds the evaluation to the artifact it is supposed to qualify - without it an old corpus that measured an old skill version would satisfy every provenance gate - and the committed source binds it to reviewable repository content.",
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "admission_id": { "type": "string", "pattern": "^admit_evidence_[a-z0-9_]+$" },
+        "admission_ref": { "type": "string", "pattern": "^evidence/admissions/[A-Za-z0-9][A-Za-z0-9._-]*\\.json$" },
+        "admission_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "skill_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
+        "subject_ref": { "type": "string", "minLength": 1 },
+        "content_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$", "description": "The content the admitted evidence is admitted FOR. It must be the adopted content." },
+        "material_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "source_kind": { "enum": ["git_commit", "content"], "description": "The identity that was proved for the admitted source. git_commit: the material is committed, unmodified repository content. content: the material is identified by its content only, because the tree is not versioned. The kind is recorded, so the weaker guarantee is never mistaken for the stronger one." },
+        "source_commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$", "description": "The commit that published the admitted material. It is present for the git_commit kind and null for the content kind." },
+        "source_admission_commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$", "description": "The commit that published the admission artifact itself. It is present for the git_commit kind and null for the content kind." },
+        "admitted_at": { "type": "string", "minLength": 1 },
+        "authority_granted": { "const": false, "description": "An admission is a binding, never an authority." }
       }
     },
     "owner_approval": {

@@ -32,6 +32,7 @@ import {
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
 import { canonicalJson } from '../../runtime/vnext/util.mjs';
 import { computeContentDigest, loadCorpus, runSkillEffectivenessEval } from '../../scripts/tools/run-skill-effectiveness-evals.mjs';
+import { computeAdmission } from '../../scripts/tools/admit-evidence.mjs';
 import { approvalPayload } from '../../runtime/skills/owner-authority.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -371,7 +372,8 @@ function setup({
   authorityStatus = 'PUBLISHED',
   publishKey = true,
   canonicalRoot = null,
-  approve = true
+  approve = true,
+  content = CANDIDATE_CONTENT
 } = {}) {
   const dir = tempDir();
   const tree = canonicalRoot ?? makeCanonicalTree();
@@ -394,10 +396,41 @@ function setup({
     baseline_record_ref: fixture.baselineRecordRef,
     expected_digest: computeContentDigest(fixture.candidateRecord)
   }];
+  // The admission binds the evidence to the content that is promoted. The
+  // fixture tree is not versioned, so the admission carries the content
+  // source kind: the material is identified by its content, and no
+  // committed source is established.
+  const candidateArtifact = path.join(dir, 'candidate-SKILL.md');
+  fs.writeFileSync(candidateArtifact, content);
+  const evidenceAdmission = computeAdmission({
+    skillId: 'promoted-skill',
+    recordRef: fixture.recordRef,
+    baselineRef: fixture.baselineRecordRef,
+    corpusRef: fixture.corpusRef,
+    evidenceRoot: evidenceTree,
+    contentPath: candidateArtifact,
+    sourceKind: 'content'
+  });
+  const evidenceAdmissionRef = `evidence/admissions/${evidenceAdmission.admission_id}.json`;
+  const evidenceAdmissionPath = path.join(evidenceTree, evidenceAdmissionRef);
+  fs.mkdirSync(path.dirname(evidenceAdmissionPath), { recursive: true });
+  fs.writeFileSync(evidenceAdmissionPath, `${JSON.stringify(evidenceAdmission, null, 2)}\n`);
   const body = approval ?? approvalBody();
   const signed = approve ? signApproval(body, keyPair.privateKey, keyId) : body;
   const ref = writeApproval(tree, signed, approvalRef);
-  return { dir, tree, evidenceTree, admissionPath, evalEntries, ownerAuthorityPath: anchorPath, ownerApprovalRef: ref, keyPair, fixture };
+  return {
+    dir,
+    tree,
+    evidenceTree,
+    admissionPath,
+    evalEntries,
+    evidenceAdmissionRef,
+    evidenceAdmission,
+    ownerAuthorityPath: anchorPath,
+    ownerApprovalRef: ref,
+    keyPair,
+    fixture
+  };
 }
 
 async function expectPromotionError(code, fn) {
@@ -425,6 +458,7 @@ test('S8 the full promotion chain produces a valid adoption record with a matchi
     candidateDigest,
     admissionPath: world.admissionPath,
     evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
     ownerApprovalRef: world.ownerApprovalRef,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
@@ -453,6 +487,7 @@ test('S8 the canonical exports are regenerated, bound to the adoption and read b
     candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
     admissionPath: world.admissionPath,
     evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
     ownerApprovalRef: world.ownerApprovalRef,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
@@ -506,6 +541,7 @@ test('S8 an incomplete export regeneration fails closed and leaves no mutation b
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -533,6 +569,7 @@ test('S8 the export readback detects a surface that changed after the write', as
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -568,6 +605,7 @@ test('S8 an export that does not reflect the adopted skill is an incomplete rege
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -599,6 +637,7 @@ test('S8 a failing export write rolls every export surface and the skill file ba
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -628,6 +667,7 @@ test('S8 a self-declared approval without a verified signature authorizes nothin
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -657,6 +697,7 @@ test('S8 an approval signed by an unpublished key authorizes nothing', async () 
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: ref,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -678,6 +719,7 @@ test('S8 a revoked key authorizes nothing', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -700,6 +742,7 @@ test('S8 an authority without a published key refuses every approval', async () 
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -722,6 +765,7 @@ test('S8 an authority without a published key refuses every approval', async () 
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: inconsistent.admissionPath,
       evalRecords: inconsistent.evalEntries,
+    evidenceAdmissionRef: inconsistent.evidenceAdmissionRef,
       ownerApprovalRef: inconsistent.ownerApprovalRef,
       ownerAuthorityPath: inconsistent.ownerAuthorityPath,
       canonicalRoot: inconsistent.tree,
@@ -749,6 +793,7 @@ test('S8 an expired approval authorizes nothing', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -770,6 +815,7 @@ test('S8 an approval for another candidate content authorizes nothing', async ()
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -791,6 +837,7 @@ test('S8 an approval for another skill authorizes nothing', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -815,6 +862,7 @@ test('S8 an approval outside the canonical decision surface is refused', async (
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: escaped,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -839,6 +887,7 @@ test('S8 a tampered approval body does not verify', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: ref,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -860,6 +909,7 @@ test('S8 no promotion without the skill frontdoor: BLOCKED or non-ELIGIBLE admis
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -884,6 +934,7 @@ test('S8 a BLOCKED evaluation can never support promotion, and the evidence is b
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -906,6 +957,7 @@ test('S8 a BLOCKED evaluation can never support promotion, and the evidence is b
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: tampered.admissionPath,
       evalRecords: tampered.evalEntries,
+    evidenceAdmissionRef: tampered.evidenceAdmissionRef,
       ownerApprovalRef: tampered.ownerApprovalRef,
       ownerAuthorityPath: tampered.ownerAuthorityPath,
       canonicalRoot: tampered.tree,
@@ -932,6 +984,7 @@ test('S8 improvement must be proven: a genuine evaluation that proves no improve
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -953,6 +1006,7 @@ test('S8 adoption is versioned: downgrades and equal versions fail closed', asyn
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -970,6 +1024,7 @@ test('S8 adoption is versioned: downgrades and equal versions fail closed', asyn
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -990,6 +1045,7 @@ test('S8 post-adoption readback detects canonical tampering', async () => {
     candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
     admissionPath: world.admissionPath,
     evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
     ownerApprovalRef: world.ownerApprovalRef,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
@@ -1012,6 +1068,7 @@ test('S8 a replayed adoption id is refused', async () => {
     candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
     admissionPath: world.admissionPath,
     evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
     ownerApprovalRef: world.ownerApprovalRef,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
@@ -1032,6 +1089,7 @@ test('S8 a replayed adoption id is refused', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1052,6 +1110,7 @@ test('S8 the post-adoption readback detects a tampered regenerated export', asyn
     candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
     admissionPath: world.admissionPath,
     evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
     ownerApprovalRef: world.ownerApprovalRef,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
@@ -1086,6 +1145,7 @@ test('S8 a symlinked export surface is refused and nothing outside the tree is w
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1114,6 +1174,7 @@ test('S8 a symlinked canonical skill path is refused', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1143,6 +1204,7 @@ test('S8 an unwritable adoption ledger rolls the whole promotion back', async ()
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1170,6 +1232,7 @@ test('S8 the post-adoption readback re-verifies the owner approval artifact', as
     candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
     admissionPath: world.admissionPath,
     evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
     ownerApprovalRef: world.ownerApprovalRef,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
@@ -1200,6 +1263,7 @@ test('S8 the CLI refuses a broken canonical target with a structured refusal, ne
     candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
     admission_path: world.admissionPath,
     eval_records: world.evalEntries,
+    evidence_admission_ref: world.evidenceAdmissionRef,
     owner_approval_ref: world.ownerApprovalRef,
     canonical_root: notADirectory
   };
@@ -1224,6 +1288,7 @@ test('S8 the CLI answers every malformed input with a structured refusal, never 
     candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
     admission_path: world.admissionPath,
     eval_records: world.evalEntries,
+    evidence_admission_ref: world.evidenceAdmissionRef,
     owner_approval_ref: world.ownerApprovalRef
   };
   const cases = [
@@ -1252,6 +1317,7 @@ test('S8 the CLI pins the evidence tree: an input cannot redirect the behavioral
     candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
     admission_path: world.admissionPath,
     eval_records: world.evalEntries,
+    evidence_admission_ref: world.evidenceAdmissionRef,
     owner_approval_ref: world.ownerApprovalRef,
     canonical_root: world.tree,
     // The input tries to point the chain at an evidence tree it controls and
@@ -1289,6 +1355,7 @@ test('S8 stale evidence fails closed: the record age stays inside the contract b
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1312,6 +1379,7 @@ test('S8 the adopted content is verified again after the export step', async () 
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1340,6 +1408,7 @@ test('S8 the readback before the ledger append re-verifies the owner approval', 
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1373,6 +1442,7 @@ test('S8 an unreadable adoption ledger is refused fail-closed', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1400,6 +1470,7 @@ test('S8 a symlinked adoption ledger is refused', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1427,6 +1498,7 @@ test('S8 an export surface under a symlinked parent directory is refused', async
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1455,6 +1527,7 @@ test('S8 the superseded version is read from the canonical tree, not asserted by
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1471,6 +1544,9 @@ test('S8 the superseded version is read from the canonical tree, not asserted by
   const v2AdmissionPath = path.join(world.dir, 'admission-v2.json');
   fs.writeFileSync(v2AdmissionPath, JSON.stringify(admissionRecord({ sourceRevision: v2Digest }), null, 2));
   const approval = writeApproval(world.tree, signApproval(approvalBody({ candidateDigest: v2Digest }), world.keyPair.privateKey), 'core/authority/approvals/owner_decision_v2_0001.json');
+  // The evidence must be admitted for the CONTENT that is adopted, so the
+  // second version needs its own admission.
+  const v2world = setup({ content: v2Content });
   const { record, issues } = await promoteSkillCandidate({
     adoptionId: 'adopt_s8_upgrade_live_0001',
     skillId: 'promoted-skill',
@@ -1479,11 +1555,12 @@ test('S8 the superseded version is read from the canonical tree, not asserted by
     candidateContent: v2Content,
     candidateDigest: v2Digest,
     admissionPath: v2AdmissionPath,
-    evalRecords: world.evalEntries,
+    evalRecords: v2world.evalEntries,
+    evidenceAdmissionRef: v2world.evidenceAdmissionRef,
     ownerApprovalRef: approval,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
-    evidenceRoot: world.evidenceTree,
+    evidenceRoot: v2world.evidenceTree,
     root
   });
   assert.deepEqual(issues, []);
@@ -1503,6 +1580,7 @@ test('S8 a decision dated in the future authorizes nothing', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1527,6 +1605,7 @@ test('S8 a failed rollback is reported as a named failure', async () => {
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1554,6 +1633,7 @@ test('S8 the post-adoption readback reports an unreadable ledger instead of rais
     candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
     admissionPath: world.admissionPath,
     evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
     ownerApprovalRef: world.ownerApprovalRef,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
@@ -1580,6 +1660,7 @@ test('S8 the CLI refuses an input without a canonical root', async () => {
     candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
     admission_path: world.admissionPath,
     eval_records: world.evalEntries,
+    evidence_admission_ref: world.evidenceAdmissionRef,
     owner_approval_ref: world.ownerApprovalRef
   };
   const inputPath = path.join(world.dir, 'input-no-root.json');
@@ -1618,6 +1699,7 @@ test('S8 a caller-supplied behavioral record is refused: the evidence is read fr
       candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
       admissionPath: world.admissionPath,
       evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
       ownerApprovalRef: world.ownerApprovalRef,
       ownerAuthorityPath: world.ownerAuthorityPath,
       canonicalRoot: world.tree,
@@ -1639,6 +1721,7 @@ test('S8 the post-adoption readback re-verifies the bound evidence, not only its
     candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
     admissionPath: world.admissionPath,
     evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
     ownerApprovalRef: world.ownerApprovalRef,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
@@ -1669,6 +1752,7 @@ test('S8 the standalone readback reports the gap when no evidence tree is given'
     candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
     admissionPath: world.admissionPath,
     evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
     ownerApprovalRef: world.ownerApprovalRef,
     ownerAuthorityPath: world.ownerAuthorityPath,
     canonicalRoot: world.tree,
@@ -1734,9 +1818,17 @@ test('S8 the CLI accepts the SHIPPED behavioral evidence and then refuses the un
   // The CLI always reads the canonical owner authority of its own
   // installation: the input file cannot point it at another anchor, and
   // the anchor it does read publishes no key, so the approval is refused.
+  //
+  // The chain stops one gate earlier than it used to: the SHIPPED evidence
+  // measures the subject "maws-workflow-core-router-profile", for which this
+  // repository holds no canonical artifact, so no content has been admitted
+  // for it. The refusal is therefore the ADMISSION refusal - which is what
+  // proves that the shipped evidence still passes the provenance gate: a
+  // provenance failure would carry a different code.
   const result = await runCli(['--input', inputPath]);
   assert.equal(result.ok, false);
   assert.ok(result.issues.length > 0);
-  assert.match(result.issues[0], /OWNER_AUTHORITY_NOT_PUBLISHED/);
+  assert.match(result.issues[0], /EVIDENCE_ADMISSION_/);
+  assert.doesNotMatch(result.issues[0], /EVIDENCE_(RECORD|CORPUS|EXECUTION|COMPARISON|BASELINE|MODE|SUBJECT|STALE|DIGEST|REF)/);
   assert.equal(fs.existsSync(path.join(world.tree, `skills/${SHIPPED_SKILL_ID}/SKILL.md`)), false);
 });

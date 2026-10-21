@@ -114,7 +114,7 @@
       },
       {
         "path": "runtime/cli/specs/reference-audit-v1.json",
-        "digest": "sha256:787b6adabfa7cce80e29f39a1489d19594061591207d08118ba0754764b74c80"
+        "digest": "sha256:07dc8f2c6ebbbc66231b0769df2c00e7a43d87b21588f2f066cc956c4e728a3f"
       }
     ]
   },

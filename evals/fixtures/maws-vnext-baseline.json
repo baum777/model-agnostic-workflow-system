@@ -195,7 +195,8 @@
         "core/contracts/skill-promotion-adoption.schema.json",
         "core/contracts/owner-authority.schema.json",
         "core/contracts/owner-approval.schema.json",
-        "core/contracts/evidence-provenance.schema.json"
+        "core/contracts/evidence-provenance.schema.json",
+        "core/contracts/evidence-admission.schema.json"
       ],
       "fixture_covered": true,
       "runtime": [
@@ -204,7 +205,10 @@
         "scripts/tools/promote-skill-candidate.mjs",
         "runtime/skills/canonical-path.mjs",
         "scripts/tools/evidence-provenance.mjs",
-        "tests/vnext/evidence-provenance.test.mjs"
+        "tests/vnext/evidence-provenance.test.mjs",
+        "scripts/tools/evidence-admission.mjs",
+        "scripts/tools/admit-evidence.mjs",
+        "tests/vnext/evidence-admission.test.mjs"
       ]
     }
   ]

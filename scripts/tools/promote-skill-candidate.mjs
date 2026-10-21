@@ -25,6 +25,7 @@ import { canonicalJson, nowIso } from '../../runtime/vnext/util.mjs';
 import { validateInstanceAgainstContract } from './validate-maws-vnext-contracts.mjs';
 import { validateBehavioralEvalRecord } from './validate-behavioral-eval.mjs';
 import { verifyEvidenceProvenance } from './evidence-provenance.mjs';
+import { verifyEvidenceAdmission, EVIDENCE_ADMISSION_CONTRACT } from './evidence-admission.mjs';
 import {
   loadOwnerAuthority,
   readOwnerApproval,
@@ -391,6 +392,17 @@ export function semanticPromotionIssues(record) {
   if (record.owner_approval?.candidate_digest !== record.candidate?.candidate_digest) {
     issues.push('owner_approval: the approval does not bind the adopted content');
   }
+  // The admission binds the evidence to the adopted content and to a proved
+  // source. An adoption record without it is not representable.
+  if (record.evidence_admission?.content_digest !== record.candidate?.candidate_digest) {
+    issues.push('evidence_admission: the admitted evidence is not admitted for the adopted content');
+  }
+  if (record.evidence_admission?.authority_granted !== false) {
+    issues.push('evidence_admission: an admission is a binding and never grants authority');
+  }
+  if (!['git_commit', 'content'].includes(record.evidence_admission?.source_kind)) {
+    issues.push('evidence_admission: the admitted evidence has no proved source identity');
+  }
   if (record.owner_approval?.signature_verified !== true) {
     issues.push('owner_approval: the approval was not verified against the canonical owner authority');
   }
@@ -444,6 +456,7 @@ export async function promoteSkillCandidate({
   candidateDigest,
   admissionPath,
   evalRecords,
+  evidenceAdmissionRef,
   ownerApprovalRef,
   ownerAuthorityPath = path.join(REPO_ROOT, CANONICAL_OWNER_AUTHORITY_PATH),
   canonicalRoot,
@@ -480,6 +493,25 @@ export async function promoteSkillCandidate({
     now,
     maxEvidenceAgeDays
   });
+  // The S8 gate proved that the bound evaluation REPRODUCES. The admission
+  // gate proves the two bindings that stand above it: the evidence is
+  // admitted FOR the content that is being adopted, and it comes from a
+  // source whose committed identity is proved. The admission is verified
+  // against the attestation the S8 gate just produced, so a substituted path
+  // or a manipulated digest cannot be admitted.
+  let evidenceAdmission;
+  try {
+    evidenceAdmission = verifyEvidenceAdmission({
+      root: evidenceTree,
+      admissionRef: evidenceAdmissionRef,
+      attestations: evalEvidence.behavioral_eval_records,
+      skillId,
+      candidateDigest,
+      validate: (candidate) => validateInstanceAgainstContract(candidate, EVIDENCE_ADMISSION_CONTRACT, root)
+    });
+  } catch (error) {
+    promotionError(error?.code || 'EVIDENCE_ADMISSION_FAILED', error.message);
+  }
   const approval = validateOwnerApproval({
     ownerApprovalRef,
     ownerAuthorityPath,
@@ -555,6 +587,7 @@ export async function promoteSkillCandidate({
     screened_digest: screenedDigest,
     frontdoor_admission_digest: admission.digest,
     eval_evidence: evalEvidence.behavioral_eval_records,
+    evidence_admission: evidenceAdmission,
     owner_approval: approval
   }));
 
@@ -643,6 +676,7 @@ export async function promoteSkillCandidate({
       screened_digest: screenedDigest
     },
     eval_evidence: evalEvidence,
+    evidence_admission: evidenceAdmission,
     owner_approval: approval,
     canonical_adoption: {
       canonical_path: paths.canonicalPathRelative,
@@ -686,6 +720,7 @@ export async function promoteSkillCandidate({
     canonicalRoot,
     evidenceRoot: evidenceTree,
     validate: (candidate) => validateBehavioralEvalRecord(candidate, root),
+    root,
     now,
     expectLedgerEntry: false
   });
@@ -770,7 +805,7 @@ function restoreCanonicalFile({ canonicalPath, priorContent }) {
 // executed again over the corpus and the verdict is derived again from the
 // baseline. A receipt that stopped reproducing between the gate and the
 // adoption is a failed readback.
-export async function postAdoptionReadback({ record, canonicalRoot, evidenceRoot = null, validate = null, now = nowIso, expectLedgerEntry = true }) {
+export async function postAdoptionReadback({ record, canonicalRoot, evidenceRoot = null, validate = null, root = REPO_ROOT, now = nowIso, expectLedgerEntry = true }) {
   const issues = [];
   const canonicalPath = path.join(canonicalRoot, record.canonical_adoption.canonical_path);
   let content = null;
@@ -863,6 +898,34 @@ export async function postAdoptionReadback({ record, canonicalRoot, evidenceRoot
       }
     }
   }
+  // The evidence admission is re-VERIFIED as well: the admission artifact
+  // must still be the committed artifact that admitted the evidence for the
+  // adopted content.
+  const admissionRef = record.evidence_admission?.admission_ref;
+  if (admissionRef) {
+    if (!evidenceRoot) {
+      issues.push('post_adoption_readback: the evidence admission was not re-verified: no evidence tree was given');
+    } else {
+      try {
+        const readmitted = verifyEvidenceAdmission({
+          root: evidenceRoot,
+          admissionRef,
+          attestations: boundEvidence,
+          skillId: record.candidate?.skill_id ?? null,
+          candidateDigest: record.candidate?.candidate_digest ?? null,
+          validate: (candidate) => validateInstanceAgainstContract(candidate, EVIDENCE_ADMISSION_CONTRACT, root)
+        });
+        if (readmitted.admission_digest !== record.evidence_admission.admission_digest) {
+          issues.push(`post_adoption_readback: the evidence admission ${admissionRef} digests to ${readmitted.admission_digest}, record binds ${record.evidence_admission.admission_digest}`);
+        }
+        if (readmitted.source_commit !== record.evidence_admission.source_commit) {
+          issues.push(`post_adoption_readback: the committed source of the admitted material is ${readmitted.source_commit}, record binds ${record.evidence_admission.source_commit}`);
+        }
+      } catch (error) {
+        issues.push(`post_adoption_readback: the evidence admission ${admissionRef} no longer holds: ${error.message}`);
+      }
+    }
+  }
   return issues;
 }
 
@@ -893,6 +956,7 @@ export async function runCli(args) {
     candidate_digest: candidateDigest,
     admission_path: admissionPath,
     eval_records: evalRecords,
+    evidence_admission_ref: evidenceAdmissionRef,
     owner_approval_ref: ownerApprovalRef,
     canonical_root: canonicalRoot
   } = input ?? {};
@@ -916,6 +980,7 @@ export async function runCli(args) {
       candidateDigest,
       admissionPath,
       evalRecords,
+      evidenceAdmissionRef,
       ownerApprovalRef,
       ownerAuthorityPath: path.join(REPO_ROOT, CANONICAL_OWNER_AUTHORITY_PATH),
       canonicalRoot: resolvedCanonicalRoot,
