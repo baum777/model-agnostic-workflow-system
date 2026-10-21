@@ -38,6 +38,7 @@ import {
   CORPUS_PATH_CODES,
   EvalConfigError,
   assertCorpusInsideRepository,
+  assertCorpusUnchanged,
   loadCorpus,
   runSkillEffectivenessEval,
   runVariant
@@ -442,6 +443,75 @@ test('a corpus directory that resolves out of the repository is refused', () => 
   } finally {
     fs.rmSync(fakeRoot, { recursive: true, force: true });
     fs.rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+test('a corpus directory that changed while it was being read is refused', () => {
+  // A fake repository root in a temp directory: the corpus inside it is
+  // anchored, then REPLACED, and the second anchor must notice that the
+  // corpus root is no longer the one that was anchored.
+  const fakeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 's5-fake-repo-'));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 's5-corpus-outside-'));
+  try {
+    const corpusDir = path.join(fakeRoot, 'corpus');
+    fs.mkdirSync(corpusDir);
+    fs.copyFileSync(path.join(CORPUS_DIR, 'corpus.json'), path.join(corpusDir, 'corpus.json'));
+    const anchored = assertCorpusInsideRepository(fakeRoot, 'corpus');
+    // An unchanged corpus root is not a false positive.
+    assert.equal(assertCorpusUnchanged(fakeRoot, 'corpus', anchored).path, anchored.path);
+
+    // The corpus root is replaced by a DIFFERENT corpus inside the same
+    // root: the path still resolves inside the repository, so the refusal
+    // comes from the identity comparison.
+    fs.renameSync(corpusDir, path.join(fakeRoot, 'corpus-original'));
+    fs.mkdirSync(corpusDir);
+    fs.copyFileSync(path.join(CORPUS_DIR, 'corpus.json'), path.join(corpusDir, 'corpus.json'));
+    assert.throws(
+      () => assertCorpusUnchanged(fakeRoot, 'corpus', anchored),
+      (error) => error instanceof EvalConfigError && error.code === 'CORPUS_DIR_CHANGED'
+    );
+
+    // The corpus root is replaced by a symbolic link to a corpus OUTSIDE
+    // the root: the re-anchor refuses it as an escape.
+    fs.rmSync(corpusDir, { recursive: true, force: true });
+    fs.symlinkSync(outside, corpusDir);
+    assert.throws(
+      () => assertCorpusUnchanged(fakeRoot, 'corpus', anchored),
+      (error) => error instanceof EvalConfigError && error.code === 'CORPUS_DIR_ESCAPES_REPO'
+    );
+  } finally {
+    fs.rmSync(fakeRoot, { recursive: true, force: true });
+    fs.rmSync(outside, { recursive: true, force: true });
+  }
+});
+
+test('a manifest that is not a JSON object is refused with a corpus code', () => {
+  const tmp = writeTempCorpus((dir) => {
+    fs.writeFileSync(path.join(dir, 'corpus.json'), 'null\n');
+  });
+  try {
+    assert.throws(
+      () => loadCorpus(tmp),
+      (error) => error instanceof EvalConfigError && error.code === 'CORPUS_MANIFEST_INVALID'
+    );
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('a family entry that is null is refused with a corpus code', () => {
+  const tmp = writeTempCorpus((dir) => {
+    const manifest = readManifest(dir);
+    manifest.families[1] = null;
+    writeManifest(dir, manifest);
+  });
+  try {
+    assert.throws(
+      () => loadCorpus(tmp),
+      (error) => error instanceof EvalConfigError && error.code === 'CORPUS_FAMILY_INVALID'
+    );
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
   }
 });
 

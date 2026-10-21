@@ -156,6 +156,9 @@ function readJsonFile(confined) {
  */
 export function loadCorpus(corpusDir) {
   const manifest = readJsonFile(confineCorpusFile(corpusDir, 'corpus.json'));
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+    throw new EvalConfigError('CORPUS_MANIFEST_INVALID', 'corpus.json must contain a JSON object');
+  }
   if (manifest.schema_version !== CORPUS_SCHEMA_VERSION) {
     throw new EvalConfigError('CORPUS_SCHEMA_UNKNOWN', `unsupported corpus schema_version ${manifest.schema_version}`);
   }
@@ -167,7 +170,8 @@ export function loadCorpus(corpusDir) {
     throw new EvalConfigError('CORPUS_FAMILY_INVALID', 'corpus.json must declare a non-empty families array');
   }
   for (const family of manifest.families) {
-    if (typeof family.family !== 'string' || typeof family.file !== 'string' || typeof family.blocking !== 'boolean') {
+    if (!family || typeof family !== 'object'
+      || typeof family.family !== 'string' || typeof family.file !== 'string' || typeof family.blocking !== 'boolean') {
       throw new EvalConfigError('CORPUS_FAMILY_INVALID', 'family entries need family/file/blocking');
     }
     if (family.via !== undefined && family.via !== 'variant') {
@@ -213,13 +217,12 @@ export function loadCorpus(corpusDir) {
     });
   }
   // A blocking family that contributes NO case can never fail, so it can
-  // never block. A corpus whose blocking families are empty would let the
-  // security gate pass with zero security cases measured.
-  for (const [familyName, family] of families) {
-    if (family.blocking === true && family.cases.length === 0) {
-      throw new EvalConfigError('CORPUS_FAMILY_EMPTY', `the blocking family ${familyName} contributes no case and could never block`);
-    }
-  }
+  // never block. Two earlier guards already refuse every way of reaching
+  // that state: a family file with an empty case list is refused by
+  // CORPUS_CASES_EMPTY, and a family declared "via: variant" other than
+  // the positive one is refused by CORPUS_FAMILY_INVALID above. A separate
+  // code for the empty blocking family was proved unreachable by the
+  // independent review and removed rather than left as untestable code.
   return { corpusDir, manifest, families, variants, subject: manifest.subject };
 }
 
@@ -634,7 +637,12 @@ function parseArgs(argv) {
  * itself a symbolic link: the path reads as "inside the repository" while
  * the material lives outside the tree. A corpus reached through such a link
  * is not a corpus of this repository, and evaluating it would measure
- * material the run does not own. Returns the resolved corpus directory.
+ * material the run does not own.
+ *
+ * Returns the ANCHOR of that corpus: the resolved path and the identity of
+ * the directory behind it. The identity is what makes the anchor an anchor:
+ * a path comparison cannot see that the directory at that path was replaced
+ * by a different one.
  */
 export function assertCorpusInsideRepository(repoRoot, corpusDir) {
   const root = path.resolve(repoRoot);
@@ -653,24 +661,35 @@ export function assertCorpusInsideRepository(repoRoot, corpusDir) {
   if (!corpusReal.startsWith(repoReal + path.sep)) {
     throw new EvalConfigError('CORPUS_DIR_ESCAPES_REPO', `--corpus must stay inside the repository (it resolves to ${corpusReal})`);
   }
-  return corpusReal;
+  let corpusStat;
+  try {
+    corpusStat = fs.statSync(corpusReal, { bigint: true });
+  } catch (error) {
+    throw new EvalConfigError('CORPUS_DIR_INVALID', `the corpus directory could not be inspected: ${error.message}`);
+  }
+  if (!corpusStat.isDirectory()) {
+    throw new EvalConfigError('CORPUS_DIR_INVALID', 'the corpus path is not a directory');
+  }
+  return { path: corpusReal, dev: corpusStat.dev, ino: corpusStat.ino };
 }
 
 /**
  * Re-anchor the corpus directory and refuse a corpus root that changed
  * identity since it was anchored.
  *
- * The anchor is a path, not a handle: between the anchor and the read, a
- * writer with access to the working tree could replace the corpus directory
- * with a symbolic link to a corpus elsewhere, and the confinement would then
- * attach to that other corpus. Re-anchoring after the load catches the
- * replacement before any record is written. A replacement that is undone
- * before the second anchor is not caught; closing that would need a
- * trusted directory descriptor, which Node's public API does not expose.
+ * The anchor is a path and an identity, not a handle: between the anchor
+ * and the read, a writer with access to the working tree could replace the
+ * corpus directory with a symbolic link to a corpus elsewhere, or with a
+ * different directory at the same path, and the confinement would then
+ * attach to that other corpus. Re-anchoring after the load compares the
+ * IDENTITY, so both replacements are caught before any record is written.
+ * A replacement that is undone before the second anchor is not caught;
+ * closing that would need a trusted directory descriptor, which Node's
+ * public API does not expose.
  */
-export function assertCorpusUnchanged(repoRoot, corpusDir, anchoredRealPath) {
+export function assertCorpusUnchanged(repoRoot, corpusDir, anchor) {
   const current = assertCorpusInsideRepository(repoRoot, corpusDir);
-  if (current !== anchoredRealPath) {
+  if (current.dev !== anchor.dev || current.ino !== anchor.ino) {
     throw new EvalConfigError('CORPUS_DIR_CHANGED', 'the corpus directory changed while it was being read');
   }
   return current;
@@ -685,13 +704,14 @@ async function main() {
     process.exit(3);
   }
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-  let corpusDir;
+  let corpusAnchor;
   try {
-    corpusDir = assertCorpusInsideRepository(root, args.corpus || 'evals/skill-effectiveness');
+    corpusAnchor = assertCorpusInsideRepository(root, args.corpus || 'evals/skill-effectiveness');
   } catch (error) {
     console.error(`config error: ${error.message}`);
     process.exit(3);
   }
+  const corpusDir = corpusAnchor.path;
 
   let executor = null;
   if (args.mode === 'live_model') {
@@ -710,7 +730,7 @@ async function main() {
     // directory that was replaced while it was being read is refused before
     // any record is produced.
     try {
-      assertCorpusUnchanged(root, args.corpus || 'evals/skill-effectiveness', corpusDir);
+      assertCorpusUnchanged(root, args.corpus || 'evals/skill-effectiveness', corpusAnchor);
     } catch (error) {
       console.error(`config error: ${error.message}`);
       process.exit(3);

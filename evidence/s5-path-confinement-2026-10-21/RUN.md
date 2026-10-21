@@ -28,7 +28,7 @@ A lexical comparison answers "does the *string* start with the base". It does no
 | E2 | a family file reached through a symlinked *parent* directory inside the corpus | the declared path is lexically inside; the material is not |
 | E3 | a corpus directory that is itself a symbolic link out of the repository (CLI `--corpus`) | the run evaluates a corpus that is not this repository's corpus |
 
-The same finding was reached independently by the HO-01 lane's independent review. It is recorded in the HO-01 **disposition** (`evidence/local-optimization-comparison-2026-10-21/registry-disposition.json`, the `reason` field) as: *"the second review confirmed that a second, purely lexical resolveInside lives in the shared S5 evaluation module (`scripts/tools/run-skill-effectiveness-evals.mjs:79`) and that loadCorpus there follows a symlink out of the corpus directory, so the S5 skill-effectiveness lane can measure material outside the repository."* That lane named the finding and deliberately left the module untouched, because the module is the S5 lane's surface. This run is that lane.
+The same finding was reached independently by the HO-01 lane's independent review. It is recorded in the HO-01 **disposition** (`evidence/local-optimization-comparison-2026-10-21/registry-disposition.json`, `evidence_refs[16]`) as: *"the second review confirmed that a second, purely lexical resolveInside lives in the shared S5 evaluation module (`scripts/tools/run-skill-effectiveness-evals.mjs:79`) and that loadCorpus there follows a symlink out of the corpus directory, so the S5 skill-effectiveness lane can measure material outside the repository."* That lane named the finding and deliberately left the module untouched, because the module is the S5 lane's surface. This run is that lane.
 
 ## 2. What changed
 
@@ -70,7 +70,7 @@ The primitive raises typed `PathConfinementError`s; the corpus loader maps them 
 | `PATH_BASE_UNRESOLVABLE` | `CORPUS_DIR_INVALID` | the corpus directory itself could not be resolved (**new**) |
 | `PATH_NOT_FOUND`, `PATH_NOT_READABLE` | `CORPUS_FILE_INVALID` | the file could not be read (unchanged from before) |
 
-The corpus loader adds its own manifest codes: `CORPUS_VARIANTS_INVALID` (the manifest declares no usable variants), `CORPUS_FAMILY_EMPTY` (a blocking family would contribute no case and could therefore never block) and `CORPUS_FAMILY_INVALID` (an unknown `via`, or a family other than `positive` declared `via: variant`). The CLI check is separate and lives at the corpus-directory level: `assertCorpusInsideRepository` raises `CORPUS_DIR_ESCAPES_REPO` when the corpus directory resolves outside the repository, and `assertCorpusUnchanged` raises `CORPUS_DIR_CHANGED` when the corpus root was replaced between the anchor and the load.
+The corpus loader adds its own manifest codes: `CORPUS_VARIANTS_INVALID` (the manifest declares no usable variants) and `CORPUS_MANIFEST_INVALID` (the manifest is not a JSON object) are **new**. `CORPUS_FAMILY_INVALID` already existed on `origin/main` for the families-array and family-entry shape checks; this run adds new *usages* of it (an unknown `via`, a family other than `positive` declared `via: variant`, a missing `positive` family, and a `null` family entry), not a new code. The CLI check is separate and lives at the corpus-directory level: `assertCorpusInsideRepository` raises `CORPUS_DIR_ESCAPES_REPO` when the corpus directory resolves outside the repository and returns an **anchor** — the resolved path together with the identity of the directory behind it — and `assertCorpusUnchanged` raises `CORPUS_DIR_CHANGED` when the corpus root was replaced between the anchor and the load. The anchor compares the *identity*, not the path, because a corpus directory replaced by a different one at the same path is invisible to a path comparison.
 
 ### Surfaces that are deliberately NOT confined
 
@@ -85,7 +85,7 @@ The corpus loader adds its own manifest codes: `CORPUS_VARIANTS_INVALID` (the ma
 | | Residual |
 | --- | --- |
 | **R1** | C3 detects the **replacement** of a target, not an in-place rewrite of the same inode. A writer that truncates and rewrites the file between the check and the read keeps the device and inode identity, so the mutation is not detected here. Such a writer holds write access to the material and could equally have written the corpus before the run; the mutation is visible in the corpus digest that the record carries. |
-| **R2** | C1–C5 do not close a race in which a concurrent writer replaces the **parent directory** of the target between the containment check and the open, and the replacement carries a file with the same device and inode identity. Closing that would require `openat(2)` with `O_NOFOLLOW` relative to a trusted directory descriptor, which Node's public API does not expose. |
+| **R2** | C1–C5 do not close a race in which a concurrent writer replaces the **parent directory** of the target between the containment check and the open, and the replacement carries a file with the same device and inode identity **and** the replacement directory itself carries the checked parent identity. The parent identity is re-verified, so the described case — same file identity, new parent — is *detected* as long as the new parent has a fresh inode; escaping it needs the parent's inode number to be reused as well. Closing that would require `openat(2)` with `O_NOFOLLOW` relative to a trusted directory descriptor, which Node's public API does not expose. |
 | **R3** | A filesystem that has itself stopped responding can still block in the kernel. `O_NONBLOCK` keeps a FIFO from blocking the *open*, and the regular-file guard then refuses it, but no user-space flag prevents a hung mount from blocking a read. |
 | **R4** | A bind mount inside the base is not detected: the real path of a bind-mounted file is its own path inside the base. Creating one requires privileges that already exceed the read. |
 
@@ -102,8 +102,8 @@ The threat behind R1, R2 and R4 requires a concurrent writer with write access t
 | Gate | Result |
 | --- | --- |
 | `node --test tests/vnext/run-skill-effectiveness.test.mjs` | **12/12 pass, 0 fail** — the existing suite, byte-identical to `origin/main` |
-| `node --test tests/vnext/s5-path-confinement.test.mjs` | **22/22 pass, 0 fail** (new) |
-| `npm run test:vnext` | **675/675 pass, 0 fail** (`origin/main` alone: 653/653 — the 22 new tests are the only difference) |
+| `node --test tests/vnext/s5-path-confinement.test.mjs` | **25/25 pass, 0 fail** (new) |
+| `npm run test:vnext` | **678/678 pass, 0 fail** (`origin/main` alone: 653/653 — the 25 new tests are the only difference) |
 | `npm run eval:skill-effectiveness` | exit 0, final verdict `IMPROVEMENT_PROVEN` |
 | `npm run validate-behavioral-eval` | PASS |
 | `npm run eval:maws-vnext` | PASS |
@@ -142,12 +142,15 @@ The full `npm run eval` certification suite fails in this environment at the ren
 | a FIFO swapped in after the check cannot block the read | C3 + `O_NONBLOCK`: the open must not wait for a writer |
 | a case file that is a hardlink to a file outside the corpus is refused | C5 → `CORPUS_PATH_MULTIPLE_LINKS` |
 | a parent directory replaced after the check is detected | C3, parent branch (the file inode is unchanged; only the parent differs) |
-| the corpus error vocabulary maps the read-time refusal to a corpus code | the S5 code path for the read-time refusals |
+| the corpus error vocabulary maps the read-time refusal to a corpus code | the **mapping table** from the primitive's codes to the corpus codes. The live read-time refusal through `loadCorpus` is reachable and was demonstrated by the review, but it is not bound by a committed test: the window is a race, and a deterministic test would have to inject it. |
 | a manifest without variants is refused with a corpus code | `CORPUS_VARIANTS_INVALID` instead of a raw `TypeError` |
 | a family that declares an unknown `via` is refused | `CORPUS_FAMILY_INVALID` |
 | a blocking family that would contribute no case is refused | the ghost `via: variant` family cannot silently drop a family from the measurement |
 | a corpus directory outside the repository is refused | the repository boundary, at the function boundary |
 | a corpus directory that resolves out of the repository is refused | the real-path branch, against a fake repository root in a temp directory |
+| a corpus directory that changed while it was being read is refused | the re-anchor: an unchanged root is not a false positive, a replacement at the same path is `CORPUS_DIR_CHANGED`, and a replacement that resolves outside is `CORPUS_DIR_ESCAPES_REPO` |
+| a manifest that is not a JSON object is refused with a corpus code | `CORPUS_MANIFEST_INVALID` instead of a raw `TypeError` |
+| a family entry that is null is refused with a corpus code | `CORPUS_FAMILY_INVALID` instead of a raw `TypeError` |
 | a corpus path that leaves the repository is refused at the CLI | the CLI wiring, without a write into the repository |
 | a corpus directory that resolves out of the repository is refused at the CLI | the CLI wiring, end to end; the link lives under `artifacts/`, the repository's ignored output directory |
 | the shipped corpus still loads and still proves the candidate improvement | the positive control |
@@ -155,15 +158,21 @@ The full `npm run eval` certification suite fails in this environment at the ren
 
 ### 5.4 Security scan — disclosed, not claimed
 
-A Mimosa deep static scan of the changed files was run: scan `scan-2026-10-21T02-55-05.384Z-47f1c429a877`, seal `sha256:1d7576ee1de5d6fb3b3f32fb81f86ed6111c017fc8522dd70296255be4b2fde8`, **0 findings**, 198 packages scanned, 2 packages matching 2 advisories in the offline dependency snapshot (context only, not adjudicated). The scan's own coverage artifact records `completeness: partial`, `runStatus: inconclusive` and a gap ("the call graph is partly incomplete: some calls are dynamically dispatched or beyond the analysis scale, so cross-file reachability may be incomplete"), 34 files selected and parsed. **No security claim is derived from this scan.** It is static-only and executes no runtime.
+A Mimosa deep static scan of the changed files was run: scan `scan-2026-10-21T02-55-05.384Z-47f1c429a877`, seal `sha256:1d7576ee1de5d6fb3b3f32fb81f86ed6111c017fc8522dd70296255be4b2fde8`, **0 findings**. The scan's own coverage artifact records `completeness: partial`, `runStatus: inconclusive` and a gap ("the call graph is partly incomplete: some calls are dynamically dispatched or beyond the analysis scale, so cross-file reachability may be incomplete"), 34 files selected and parsed. The dependency figures — 198 packages scanned, 2 packages matching 2 advisories in the offline dependency snapshot (context only, not adjudicated) — are recorded in the **job record** of the same scan (`~/.mimosa/security-scan-jobs/scan-job-mvhiri4x-9c954eb6fad7087d.json`), which carries the same scan id and the same seal; they are not part of the five sealed scan artifacts. **No security claim is derived from this scan.** It is static-only and executes no runtime.
 
 The commit hook that reported on the commits of this change is a **session-level plugin hook of the authoring environment**, not a repository-level hook: the repository itself has no `core.hooksPath`, no hook directory other than the untouched `*.sample` files, and no husky or other hook configuration. The hook reported that it could not produce a complete scan conclusion, and the commit proceeded under that environment's compatibility behaviour. **No security claim is derived from the hook either** — the phrase is not a repository document and is not cited as one.
 
 ## 6. Independent review
 
-An independent review was executed on a model **different** from the one that wrote the slice, with one independent confirmer per finding: three review lenses (a) *gaps in the new confinement*, (b) *regression and behavioural neutrality*, (c) *evidence integrity and the depth of the claims*, each in its own fresh context, and every finding of every lens was re-reproduced by a separate confirmer from its evidence alone. The reviewers worked read-only in the repository and used `/tmp` for their own probes.
+The slice was reviewed in **two rounds** and by a **third, independent reviewer**. Every review ran on a model **different** from the one that wrote the slice, every finding was re-reproduced by a separate confirmer from its evidence alone, and the reviewers worked read-only in the repository with their own probes under `/tmp`.
 
-**Outcome: 13 findings confirmed, 1 refuted.** Every confirmed finding was repaired in the same change, and the repairs are listed in §7.
+- **Round 1** (three lenses: *gaps in the new confinement*, *regression and behavioural neutrality*, *evidence integrity and the depth of the claims*) — §6.1.
+- **Round 2** (the re-review of the repaired state: two lenses, *proof of the fourteen repairs* and *the depth of the claims in the repaired state*) — §6.2.
+- **The codex connector** on pull request 59, in parallel — one P2, repaired in the same change (§6.2).
+
+**Outcome: 13 findings confirmed and 1 refuted in round 1; 14 confirmed and 0 refuted in round 2 (eleven distinct, three reported by both lenses); 1 P2 from the codex connector.** Every confirmed finding was repaired, and the repair table below says what each repair is.
+
+### 6.1 The first review round
 
 | # | Severity | Finding | Disposition |
 | --- | --- | --- | --- |
@@ -177,12 +186,31 @@ An independent review was executed on a model **different** from the one that wr
 | F8 | P3 | The parent-directory re-check branch of C3 had no committed test. | **Repaired.** A new test replaces the parent directory while carrying the same file inode, and asserts the parent branch of the refusal. |
 | F9 | P3 | This record quoted the candidate `corpus_digest` with the suffix `…fb54`; the digest ends `…7b54`. | **Repaired** — the citation is corrected above and the full value stands in the disposition. |
 | F10 | P3 | This record quoted the current `negative` family digest with the suffix `…8ce580`; the digest ends `…9de48d` (`8ce580` is a fragment of the unrelated `security_regression` digest). | **Repaired** — the citation is corrected above. |
-| F11 | P3 | D1 claimed the re-derived HO-01 record differs from the committed one "in exactly three fields"; it differs in four — `created_at` differs as well. | **Repaired** — the wording is corrected in §6.2 and in the disposition. |
-| F12 | P3 | The disposition claimed the review "is recorded in the run record", while §7 pointed at an unfilled placeholder. | **Repaired** — this section and §9 are filled in, and the disposition no longer claims more than the record carries. |
+| F11 | P3 | D1 claimed the re-derived HO-01 record differs from the committed one "in exactly three fields"; it differs in four — `created_at` differs as well. | **Repaired** — the wording is corrected in §7 and in the disposition. |
+| F12 | P3 | The disposition claimed the review "is recorded in the run record", while §7 pointed at an unfilled placeholder. | **Repaired** — this section (§6) is filled in with every finding and its disposition, and the disposition no longer claims more than the record carries. §9 remains, by design, the post-merge slot; it is filled in the closure commit. |
 | F13 | P3 | The pre-commit-hook disclosure cited facts that are not verifiable: there is no repository-level hook, no trace of the reported error code in any scan store, and no document called a "compatibility policy". | **Repaired** — §5.4 now states what actually happened, names the hook as an environment-level plugin hook, and drops the unverifiable reference. |
 | F14 | P3 | The HO-01 quotation in §1 was claimed to be non-verbatim. | **Refuted by the confirmer**: the sentence is verbatim in the HO-01 *disposition* — which is what this record names — and the reviewer had looked in the HO-01 run record instead. The citation is now made more precise anyway. |
 
-**What the review did not cover:** the full `npm run test:vnext` was not repeated by the reviewers (it was run by the calling agent); the Registry and Atlas entries were not reviewed (the review covered the MAWS source slice only); the render and accessibility kinds of `npm run eval` remain unverified for the environment reason in §5.2; and no adversarial parallel symlink swap was executed as a live exploit.
+### 6.2 The second review round (the re-review of the repaired state)
+
+The repaired state was re-reviewed the same way: two lenses (a) *proof of the fourteen repairs*, (b) *the depth of the claims in the repaired state*, each in its own fresh context on a model different from the one that wrote the slice, with one independent confirmer per finding. **Outcome: 14 findings confirmed, 0 refuted** — three of them were reported by both lenses, so eleven are distinct. All are P3. A third, independent reviewer — the **codex connector** on pull request 59 — raised one P2 in parallel.
+
+| # | Severity | Finding | Disposition |
+| --- | --- | --- | --- |
+| G1 | P3 | A `null` entry in the manifest's `families` array still threw a raw `TypeError` instead of a typed `CORPUS_FAMILY_INVALID` — the same unclassified-manifest-surface class R5 repaired elsewhere. | **Repaired** — a family entry that is not an object is refused with `CORPUS_FAMILY_INVALID`. Bound by a new test. |
+| G2 | P3 | A `corpus.json` containing the JSON literal `null` threw a raw `TypeError` instead of a typed corpus code. | **Repaired** — `CORPUS_MANIFEST_INVALID`. Bound by a new test. |
+| G3 | P3 | The `CORPUS_DIR_CHANGED` refusal (the re-anchor) had no committed test; a mutation test showed that removing it left the whole suite green. | **Repaired.** The re-anchor now compares the corpus root's **identity**, not its path — a corpus directory replaced by a different one at the same path is invisible to a path comparison — and a new test binds it. |
+| G4 | P3 | `CORPUS_FAMILY_EMPTY` is unreachable: a 36-manifest sweep over every constructible axis never produced it, and no test could bind it. | **Repaired** — the unreachable branch and its code were **removed** rather than left as untestable code. The protection it stood for is delivered by the two codes that do fire: `CORPUS_CASES_EMPTY` for a family file with an empty case list, and `CORPUS_FAMILY_INVALID` for a ghost `via: variant` family. |
+| G5 | P3 | The R2 residual described the detection case incompletely: the case it describes (parent replaced, same file identity) **is** detected as long as the new parent has a fresh inode; escaping needs the parent's inode number reused as well. | **Repaired** — §4 and the module header now describe the residual the way the code behaves. |
+| G6 | P3 | §3 grouped `CORPUS_FAMILY_INVALID` under the codes the loader "adds", but that code already existed on `origin/main`; only the new *usages* are new. | **Repaired** — §3 now says so, and names `CORPUS_VARIANTS_INVALID` and `CORPUS_MANIFEST_INVALID` as the new codes. |
+| G7 | P3 | The §5.3 row claimed the read-time refusal's code path was bound; the test binds only the mapping table. | **Repaired** — the row now says exactly what is bound and names the live path as reachable but not test-bound. |
+| G8 | P3 | The F11 row pointed at a section "§6.2" that does not exist. | **Repaired** — the pointer names §7. |
+| G9 | P3 | The F12 row claimed "§9 are filled in" while §9 was still the post-merge placeholder. | **Repaired** — the row names §6 as filled and §9 as the post-merge slot, which the closure commit fills. |
+| G10 | P3 | The §1 citation named the HO-01 disposition's `reason` field; the quoted sentence is in `evidence_refs[16]`. | **Repaired** — the field pointer is correct. |
+| G11 | P3 | The dependency figures "198 packages scanned, 2 advisories" are not in the five sealed scan artifacts. | **Repaired** — §5.4 now names the job record that carries them, alongside the same scan id and seal. |
+| **H1** | **P2** | *(codex connector)* On a filesystem whose device or inode identifiers exceed `Number.MAX_SAFE_INTEGER`, the default numeric `statSync`/`fstatSync` can round two distinct identities to the same number, so the replacement guard could pass for a replaced target. | **Repaired** — every identity-bearing stat now asks for `bigint`, and the identities are compared exactly. The `bigint` stat of the *parent* directory was the one that mattered: the mixed comparison would otherwise have refused every legitimate read. |
+
+**What the review did not cover:** the full `npm run test:vnext` was not repeated by the reviewers (it was run by the calling agent); the Registry and Atlas entries were not reviewed (the review covered the MAWS source slice only); the render and accessibility kinds of `npm run eval` remain unverified for the environment reason in §5.2; and no adversarial parallel symlink swap was executed as a live exploit. The re-review also did not cover a live concurrent corpus-root race through the real CLI — that would require writes inside the repository, so the re-anchor is bound at the function level — nor a device-file swap, which needs `mknod` privileges.
 
 ## 7. Pre-existing drifts found, named, and deliberately not repaired here
 

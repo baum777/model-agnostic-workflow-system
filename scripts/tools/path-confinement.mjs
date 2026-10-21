@@ -157,9 +157,15 @@ export function confineFileToBase(baseDir, relativePath) {
     );
   }
   // C4: only a regular file may be material.
+  //
+  // The identity-bearing stats are read as BigInt. A device or inode
+  // identifier above Number.MAX_SAFE_INTEGER (a 64-bit XFS or NFS volume,
+  // for instance) would be rounded by the default numeric stat, and two
+  // distinct identities could then compare equal — which would defeat the
+  // replacement guard that C3 rests on.
   let stat;
   try {
-    stat = fs.statSync(realPath);
+    stat = fs.statSync(realPath, { bigint: true });
   } catch (error) {
     fail(PATH_CONFINEMENT_CODES.NOT_FOUND, `${relativePath} could not be inspected: ${error.message}`);
   }
@@ -172,7 +178,7 @@ export function confineFileToBase(baseDir, relativePath) {
   // the base. A target with more than one link is therefore refused rather
   // than read: the corpus is a small set of tracked files, each of which has
   // one link.
-  if (typeof stat.nlink === 'number' && stat.nlink > 1) {
+  if (typeof stat.nlink === 'bigint' && stat.nlink > 1n) {
     fail(
       PATH_CONFINEMENT_CODES.MULTIPLE_LINKS,
       `${relativePath} has ${stat.nlink} links; a material that shares its inode with another name may carry content from outside the base`
@@ -181,7 +187,7 @@ export function confineFileToBase(baseDir, relativePath) {
   const parentPath = path.dirname(realPath);
   let parentStat;
   try {
-    parentStat = fs.statSync(parentPath);
+    parentStat = fs.statSync(parentPath, { bigint: true });
   } catch (error) {
     fail(PATH_CONFINEMENT_CODES.NOT_FOUND, `the parent directory of ${relativePath} could not be inspected: ${error.message}`);
   }
@@ -226,8 +232,9 @@ export function readConfinedFile(confined) {
   }
   try {
     // C4 (again, on the opened descriptor itself): the material must be a
-    // regular file, whatever the path said a moment ago.
-    const fdStat = fs.fstatSync(fd);
+    // regular file, whatever the path said a moment ago. The identity is
+    // read as BigInt for the same reason as the stat above.
+    const fdStat = fs.fstatSync(fd, { bigint: true });
     if (!fdStat.isFile()) {
       fail(PATH_CONFINEMENT_CODES.NOT_A_FILE, `${confined.relativePath} is not a regular file`);
     }
@@ -240,7 +247,7 @@ export function readConfinedFile(confined) {
     }
     let parentStat;
     try {
-      parentStat = fs.statSync(confined.parentPath);
+      parentStat = fs.statSync(confined.parentPath, { bigint: true });
     } catch (error) {
       fail(
         PATH_CONFINEMENT_CODES.CHANGED_DURING_RESOLUTION,
