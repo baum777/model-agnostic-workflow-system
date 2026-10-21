@@ -96,7 +96,8 @@ commit itself, `39550245291`, carries the annotation:
 
 The lock is account-wide, not repository-specific: the Unitera Registry's own run for the S5
 registration (`39549887013`) and the Unitera Systems runs (`39532057727`) end in
-`startup_failure` after 0 seconds, with no job and no step.
+`startup_failure` after 0 seconds, with no job and no step. The follow-up pull request 63
+carries the same annotation on its own run (`39561925248`).
 
 **No hosted CI result is claimed for this slice, and none is possible while the lock stands.**
 The condition of the checklist — "after the restoration of the infrastructure" — is **not met**;
