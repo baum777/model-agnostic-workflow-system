@@ -9,17 +9,31 @@
       "excerpt": "return execSync('git rev-parse --show-toplevel', { encoding: 'utf8', timeout: 5000 }).trim();"
     },
     {
-      "file": "scripts/tools/baum-loop-repo.mjs",
-      "line": 133,
-      "code": "SOURCE_SHELL_INTERPOLATION",
-      "justification": "Same class as line 54: the execSync argument is a constant git command string spanning the following lines; no caller-supplied or derived content is interpolated into the shell string.",
-      "excerpt": "const status = execSync("
+      "file": "runtime/executors/openrouter-executor.mjs",
+      "line": 62,
+      "code": "SOURCE_UNPINNED_NETWORK_EGRESS",
+      "justification": "This is the platform fetch bound as the DEFAULT TRANSPORT of the OpenRouter executor, not a request to an arbitrary host: the outbound URL guard of this transport restricts the request to the explicit openrouter.ai host allowlist over https, with redirects refused so no authorization is forwarded. The gate reports the BINDING; it does not and cannot verify that guard, which lives in the transport. The request itself is issued through the bound implementation, not through a literal fetch call, which is why the bare form of the rule could not see it.",
+      "excerpt": "fetchImpl = globalThis.fetch?.bind(globalThis),"
+    },
+    {
+      "file": "runtime/decision-engine/jev/client.mjs",
+      "line": 126,
+      "code": "SOURCE_UNPINNED_NETWORK_EGRESS",
+      "justification": "This line selects the platform fetch as the default transport of the JEV decision client. The endpoint is constrained before the call by the client's own outbound guard, which requires an https URL whose host is in the configured allowlist. The gate reports the BINDING only and does not verify that guard. The line carries the binding twice (the type test and the selection), so the scanner reports two findings on it and two disclosures are required.",
+      "excerpt": ": (typeof globalThis.fetch === 'function' ? globalThis.fetch : null);"
+    },
+    {
+      "file": "runtime/decision-engine/jev/client.mjs",
+      "line": 126,
+      "code": "SOURCE_UNPINNED_NETWORK_EGRESS",
+      "justification": "Second occurrence on the same line: the selection of the platform fetch as the default transport appears twice in that expression, so the scanner reports two findings on line 126 and this disclosure covers the second one. The disclosure is identical to the first because it is the same binding.",
+      "excerpt": ": (typeof globalThis.fetch === 'function' ? globalThis.fetch : null);"
     },
     {
       "file": "scripts/tools/run-skill-effectiveness-evals.mjs",
       "line": 788,
       "code": "SOURCE_DYNAMIC_IMPORT_SPECIFIER",
-      "justification": "The specifier is a file URL the loader itself constructs from a corpus path that has passed the shared path-confinement primitive (the corpus file is confined to the corpus directory and verified on a descriptor before this import is reached); the dynamic form is how the variant module is loaded from the confined location. The confinement, not the import form, is the enforced boundary.",
+      "justification": "The specifier is a file URL the loader constructs from the --executor-module OPERATOR surface. The module's own header states that this argument is deliberately NOT confined to the repository and that loading it is code execution by design: the operator chooses the module. This disclosure therefore states the operator authority, not a confinement: the path-confinement primitive governs the CORPUS files (subject content, family and variant case files), which are read before the import, and the executor module itself is outside that boundary by design. The earlier justification of this entry claimed a confinement that does not exist here and was corrected on 2026-10-21 after an independent qualification.",
       "excerpt": "const factory = await import(moduleUrl);"
     },
     {
@@ -118,14 +132,114 @@
       "line": 148,
       "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
       "excerpt": "fs.writeFileSync(path.join(root, 'app/bad.mjs'), 'export function run(input) {\\n  return eval(input);\\n}\\nexport function run2(input) {\\n  return eval(input);\\n",
-      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository."
+      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository.",
+      "note": "This entry is duplicated on purpose: the fixture line carries the trigger TWICE, so the scanner reports two findings with the same excerpt and the consumption model requires one entry per finding. Do not 'deduplicate' these two entries - the gate would then report the second occurrence as unbaselined. Found by the independent qualification of 2026-10-21."
     },
     {
       "file": "tests/tools/source-security-scan.test.mjs",
       "line": 148,
       "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
       "excerpt": "fs.writeFileSync(path.join(root, 'app/bad.mjs'), 'export function run(input) {\\n  return eval(input);\\n}\\nexport function run2(input) {\\n  return eval(input);\\n",
-      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository."
+      "justification": "Negative-test fixture content: the trigger exists only as fixture string content of this test file, fed to temporary fixture trees to prove the rules fire; it is never executed by this repository.",
+      "note": "This entry is duplicated on purpose: the fixture line carries the trigger TWICE, so the scanner reports two findings with the same excerpt and the consumption model requires one entry per finding. Do not 'deduplicate' these two entries - the gate would then report the second occurrence as unbaselined. Found by the independent qualification of 2026-10-21."
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 264,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner rule is proven to fire on the member and alias form of its defect class. It is never executed by this repository.",
+      "excerpt": "'export const a = globalThis.eval(input);',"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 265,
+      "code": "SOURCE_UNPINNED_NETWORK_EGRESS",
+      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner rule is proven to fire on the member and alias form of its defect class. It is never executed by this repository.",
+      "excerpt": "'export const b = globalThis.fetch(url);',"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 266,
+      "code": "SOURCE_SHELL_INTERPOLATION",
+      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner rule is proven to fire on the member and alias form of its defect class. It is never executed by this repository.",
+      "excerpt": "'export const c = childProcess.execSync(command);',"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 267,
+      "code": "SOURCE_UNPINNED_NETWORK_EGRESS",
+      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner rule is proven to fire on the member and alias form of its defect class. It is never executed by this repository.",
+      "excerpt": "'export const d = https.get(url, handler);',"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 268,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner rule is proven to fire on the member and alias form of its defect class. It is never executed by this repository.",
+      "excerpt": "'export const e = new (Function)(\"return 1\")();',"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 269,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner rule is proven to fire on the member and alias form of its defect class. It is never executed by this repository.",
+      "excerpt": "'export const f = new globalThis.Function(\"return 1\")();',"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 270,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner rule is proven to fire on the member and alias form of its defect class. It is never executed by this repository.",
+      "excerpt": "'export const g = Function(\"return 1\")();',"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 271,
+      "code": "SOURCE_SHELL_INTERPOLATION",
+      "justification": "Negative-test fixture content: the trigger exists only as a string literal this test file feeds to a temporary fixture tree, so the scanner rule is proven to fire on the member and alias form of its defect class. It is never executed by this repository.",
+      "excerpt": "'export const h = spawn(command, { shell: true });'"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 276,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "justification": "The assertion MESSAGE names the trigger shape inside a string literal, and the rule sees the trigger text in that message. The message is printed by the test runner and never evaluated.",
+      "excerpt": "assert.ok(codes.includes(`1:${SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION}`), 'globalThis.eval is dynamic code execution');"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 277,
+      "code": "SOURCE_UNPINNED_NETWORK_EGRESS",
+      "justification": "The assertion MESSAGE names the trigger shape inside a string literal, and the rule sees the trigger text in that message. The message is printed by the test runner and never evaluated.",
+      "excerpt": "assert.ok(codes.includes(`2:${SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS}`), 'globalThis.fetch is network egress');"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 280,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "justification": "The assertion MESSAGE names the trigger shape inside a string literal, and the rule sees the trigger text in that message. The message is printed by the test runner and never evaluated.",
+      "excerpt": "assert.ok(codes.includes(`5:${SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION}`), 'new (Function) is dynamic code execution');"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 281,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "justification": "The assertion MESSAGE names the trigger shape inside a string literal, and the rule sees the trigger text in that message. The message is printed by the test runner and never evaluated.",
+      "excerpt": "assert.ok(codes.includes(`6:${SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION}`), 'new globalThis.Function is dynamic code execution');"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 55,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "justification": "Second occurrence of the same reviewed excerpt: the new negative cases reuse this fixture string, so the scanner reports the excerpt once more and this disclosure covers that second occurrence.",
+      "excerpt": "'  return eval(input);',"
+    },
+    {
+      "file": "tests/tools/source-security-scan.test.mjs",
+      "line": 97,
+      "code": "SOURCE_DYNAMIC_CODE_EXECUTION",
+      "justification": "Second occurrence of the same reviewed excerpt: the new negative cases reuse this fixture string, so the scanner reports the excerpt once more and this disclosure covers that second occurrence.",
+      "excerpt": "'app/bad.mjs': 'export function run(input) {\\n  return eval(input);\\n}\\n'"
     }
   ]
 }

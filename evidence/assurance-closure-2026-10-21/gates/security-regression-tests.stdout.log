@@ -1,0 +1,22 @@
+✔ buildSkillSpectorScanCommand uses the static JSON default shape (2.878825ms)
+✔ runPreinstallSkillRiskCheck passes a low-severity static report and writes evidence (3.318751ms)
+✔ runPreinstallSkillRiskCheck blocks a critical finding even when the scan exits zero (1.383694ms)
+✔ runPreinstallSkillRiskCheck blocks a missing target before invoking the scanner (0.86459ms)
+✔ F01 partial SkillSpector report with zero issues is INCOMPLETE (0.927512ms)
+✔ F01 complete safe 2.12.0 report can clear only the scanner subgate (0.135197ms)
+✔ F01 incomplete, unknown schema/version or DO_NOT_INSTALL is never clean (0.17283ms)
+✔ F02 out-of-root runDir and reportPath block with no writes (1.263662ms)
+✔ F02 sandbox symlinks are not safe evidence destinations (0.34325ms)
+✔ F04 runtime IDs cannot traverse and all readers fail closed (0.973211ms)
+✔ F04 symlinked runtime path blocks reads and writes (0.352416ms)
+✔ F04 run CLI rejects malicious spec run_id before writing (1.334873ms)
+✔ F05 MiniMax adapter works as a pure transformation after import repair (1.582722ms)
+✔ F06: CI helper dispatches literal argv without an interpolating shell (0.3725ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 82.029069

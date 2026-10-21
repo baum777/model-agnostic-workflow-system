@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/assurance-run-record.schema.json",
+  "title": "Assurance Run Record Contract",
+  "description": "A machine-readable, self-verifying record of the exact test and readback evidence of one assurance run. The record claims nothing that its own committed raw output does not contain: every gate carries the digest of the output it produced, and every counted claim is re-derivable from that output.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["assurance_run_record"],
+  "properties": {
+    "assurance_run_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version", "run_id", "created_at", "repository", "implementation_commit_sha",
+        "environment", "gates", "totals", "artifacts", "limits", "validator_command",
+        "contract_version"
+      ],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "run_id": { "type": "string", "minLength": 1, "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "created_at": { "type": "string", "minLength": 1 },
+        "repository": { "type": "string", "minLength": 1 },
+        "implementation_commit_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "environment": { "$ref": "#/$defs/environment" },
+        "gates": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/gate" }
+        },
+        "totals": { "$ref": "#/$defs/totals" },
+        "artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifact" }
+        },
+        "limits": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1, "pattern": "\\S" }
+        },
+        "validator_command": { "type": "string", "minLength": 1 },
+        "contract_version": { "const": "assurance-run-record.v1" }
+      }
+    }
+  },
+  "$defs": {
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node_version", "platform", "arch", "ci_parity", "hosted_ci_executed"],
+      "properties": {
+        "node_version": { "type": "string", "minLength": 1 },
+        "platform": { "type": "string", "minLength": 1 },
+        "arch": { "type": "string", "minLength": 1 },
+        "ci_parity": {
+          "enum": ["LOCAL_REPLICATION", "HOSTED_CI"],
+          "description": "LOCAL_REPLICATION is a local execution of the hosted workflow's steps under the workflow's pinned runtime. It is not a hosted run and never proves one."
+        },
+        "hosted_ci_executed": { "type": "boolean" }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "command", "status", "exit_code", "duration_ms", "stdout", "stderr"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "description": { "type": "string", "minLength": 1 },
+        "command": { "type": "string", "minLength": 1 },
+        "cwd": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Working directory of the gate relative to the repository root, or an absolute path for a gate that runs in another repository."
+        },
+        "status": { "enum": ["PASS", "FAIL"] },
+        "exit_code": { "type": "integer" },
+        "duration_ms": { "type": "integer", "minimum": 0 },
+        "counts": { "$ref": "#/$defs/counts" },
+        "stdout": { "$ref": "#/$defs/output" },
+        "stderr": { "$ref": "#/$defs/output" }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tests", "pass", "fail"],
+      "properties": {
+        "tests": { "type": "integer", "minimum": 0 },
+        "pass": { "type": "integer", "minimum": 0 },
+        "fail": { "type": "integer", "minimum": 0 },
+        "cancelled": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 },
+        "todo": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "bytes", "sha256"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1 },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gates", "gates_passed", "gates_failed", "tests_passed", "tests_failed"],
+      "properties": {
+        "gates": { "type": "integer", "minimum": 0 },
+        "gates_passed": { "type": "integer", "minimum": 0 },
+        "gates_failed": { "type": "integer", "minimum": 0 },
+        "tests_passed": { "type": "integer", "minimum": 0 },
+        "tests_failed": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

@@ -934,3 +934,244 @@ test('S9 the calculator refuses to admit an evaluation for content the corpus do
   }
   assert.match(String(message), /not the content the corpus subject carries/);
 });
+
+// ---------------------------------------------------------------------------
+// The REMAINING admission boundaries.
+//
+// The cases above cover the refusals the first qualification run exercised.
+// The cases below cover the refusal branches that were still UNPROVEN: the
+// committed-content comparison of the single-file material, the corpus FILE
+// SET comparison, the subject binding, the double-binding refusal, the
+// runtime's own contract check, and the shape refusals that do not depend on
+// an injected validator. Each case names the branch it reaches, and a
+// mutation probe proved that the branch is load-bearing.
+// ---------------------------------------------------------------------------
+
+test('S9 the behavioral eval record must be the committed material, byte for byte', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // The record is edited in the working copy AFTER the commit that published
+  // it. The corpus is untouched, so this is the single-file comparison and
+  // not the corpus comparison.
+  const recordPath = path.join(world.tree, RECORD_REF);
+  fs.writeFileSync(recordPath, `${fs.readFileSync(recordPath, 'utf8')}\n// edited after the commit\n`);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_SOURCE_MODIFIED', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /the behavioral eval record .* differs from the content commit/);
+});
+
+test('S9 the corpus file set must be the committed file set', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // A file is added to the corpus after the commit. Every file the corpus
+  // holds is still the committed one; the SET is not.
+  const extra = path.join(world.tree, CORPUS_REF, 'added-after-the-commit.json');
+  fs.writeFileSync(extra, '{ "note": "added after the commit" }\n');
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_SOURCE_MODIFIED', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /holds \d+ file\(s\) on disk and \d+ in commit/);
+});
+
+test('S9 a corpus file that the commit does not carry is refused', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // The file COUNT is unchanged and one committed file is gone, so the
+  // comparison reaches the per-file "not carried" refusal instead of the
+  // count refusal.
+  const corpusDir = path.join(world.tree, CORPUS_REF);
+  fs.rmSync(path.join(corpusDir, 'negative-cases', 'cases.json'), { force: true });
+  fs.mkdirSync(path.join(corpusDir, 'substituted'), { recursive: true });
+  fs.writeFileSync(path.join(corpusDir, 'substituted', 'cases.json'), '{ "cases": [] }\n');
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_SOURCE_MODIFIED', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /is not carried by commit/);
+});
+
+test('S9 the admission must name the subject the bound evaluation measured', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // Every digest still matches the promotion: only the SUBJECT the admission
+  // claims is different from the subject the evaluation measured.
+  const substituted = structuredClone(world.admission);
+  substituted.subject_ref = 'another-subject';
+  fs.writeFileSync(world.admissionPath, `${JSON.stringify(substituted, null, 2)}\n`);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_SUBJECT_MISMATCH', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /admits the subject "another-subject"/);
+});
+
+test('S9 the same evaluation may not be bound more than once', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_MATERIAL_MISMATCH', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation, attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /the promotion bound 2 times/);
+});
+
+test('S9 the runtime refuses a non-canonical content digest without the contract validator', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  const substituted = structuredClone(world.admission);
+  substituted.content_digest = 'not-a-digest';
+  fs.writeFileSync(world.admissionPath, `${JSON.stringify(substituted, null, 2)}\n`);
+  // The contract validator is NOT injected here: the runtime's own shape
+  // check must refuse the artifact on its own.
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_INVALID', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: null
+  }));
+  assert.match(error.message, /names no canonical content digest/);
+});
+
+test('S9 the runtime refuses an unknown source kind without the contract validator', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  const substituted = structuredClone(world.admission);
+  substituted.source.kind = 'unsigned_blob';
+  fs.writeFileSync(world.admissionPath, `${JSON.stringify(substituted, null, 2)}\n`);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: null
+  }));
+  assert.match(error.message, /declares the source kind "unsigned_blob"/);
+});
+
+test('S9 the runtime refuses an admission that violates its contract', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_INVALID', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: () => ['the admission is not shaped like the contract requires']
+  }));
+  assert.match(error.message, /violates its contract/);
+});
+
+test('S9 an admission artifact that is not readable JSON is refused', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  fs.writeFileSync(world.admissionPath, '{ this is not json\n');
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_INVALID', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /is not readable JSON/);
+});
+
+test('S9 a retracted published history leaves no commit the admission could name', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // The published history is retracted: the named commit still EXISTS as an
+  // object, but the repository has no HEAD any more, so no commit can be
+  // part of a published history.
+  git(world.tree, ['update-ref', '-d', `refs/heads/${world.worldBranch}`]);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_SOURCE_NOT_PUBLISHED', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /has no published history/);
+});
+
+test('S9 an admission is never implied: the reference must be given', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_REF_INVALID', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: null,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /admission is never implied/);
+});
+
+test('S9 an admission artifact that is a symbolic link out of the tree is refused', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // The artifact itself is a symbolic link that leaves the governed tree.
+  const outside = path.join(tempDir(), 'admission.json');
+  fs.copyFileSync(world.admissionPath, outside);
+  fs.rmSync(world.admissionPath);
+  fs.symlinkSync(outside, world.admissionPath);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_REF_INVALID', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /is not a contained file of the evidence tree/);
+});
+
+test('S9 an admitted record that became a symbolic link out of the tree is refused', async () => {
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  // The promotion bound a real record; the working copy then replaced it
+  // with a link that leaves the tree. The admission still names the same
+  // material, so only the CONTAINED read can catch this.
+  const recordPath = path.join(world.tree, RECORD_REF);
+  const outside = path.join(tempDir(), 'record.json');
+  fs.copyFileSync(recordPath, outside);
+  fs.rmSync(recordPath);
+  fs.symlinkSync(outside, recordPath);
+  const error = await expectAdmissionError('EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE', () => verifyEvidenceAdmission({
+    root: world.tree,
+    admissionRef: world.admissionRef,
+    attestations: [attestation],
+    skillId: SKILL_ID,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    validate: validateAdmission
+  }));
+  assert.match(error.message, /is not a contained file of the evidence tree/);
+});

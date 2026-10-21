@@ -10,19 +10,30 @@
 //
 // What it does, all fail closed:
 //
-//   1. It enumerates every .mjs and .js file under the governed roots
-//      (runtime/, scripts/, providers/, tests/). A file that cannot be
-//      read or parsed is a FAILURE, never a skip.
+//   1. It enumerates every REGULAR .mjs and .js file under the governed
+//      roots (runtime/, scripts/, providers/, tests/). A file that cannot
+//      be read or parsed is a FAILURE, never a skip. What is NOT claimed:
+//      a path that is a symbolic link, a FIFO or any other non-regular
+//      file is not analysed, and the report says which files it analysed;
+//      a governed ROOT that does not exist is not a failure either, which
+//      is why the coverage assertion below is what carries the verdict.
 //   2. It applies a bounded set of deterministic rules, each naming one
-//      concrete defect class:
-//        SOURCE_DYNAMIC_CODE_EXECUTION   eval(...), new Function(...),
-//                                        the node:vm module
-//        SOURCE_SHELL_INTERPOLATION      exec(...)/execSync(...) — the
-//                                        repository's own policy for
+//      concrete defect class. Every rule sees the BARE call and the
+//      MEMBER call, because the member call is the shape the repository
+//      itself uses:
+//        SOURCE_DYNAMIC_CODE_EXECUTION   eval(...), globalThis.eval(...),
+//                                        new Function(...), new (Function),
+//                                        new globalThis.Function(...),
+//                                        Function(...), the node:vm module
+//        SOURCE_SHELL_INTERPOLATION      exec(...)/execSync(...), the member
+//                                        form cp.execSync(...), and
+//                                        spawn(..., { shell: true }) —
+//                                        the repository's own policy for
 //                                        child_process is execFileSync with
 //                                        an argument array and no shell
-//        SOURCE_UNPINNED_NETWORK_EGRESS  fetch(...), http(s).request(...),
-//                                        net/tls connect
+//        SOURCE_UNPINNED_NETWORK_EGRESS  fetch(...), globalThis.fetch,
+//                                        http(s).get/request(...), net/tls
+//                                        connect
 //        SOURCE_DYNAMIC_IMPORT_SPECIFIER import(...) with a non-literal
 //                                        argument
 //   3. It checks COVERAGE as part of the verdict: the report names every
@@ -30,18 +41,23 @@
 //      absence made the external scan vacuous; if any of it falls out of
 //      the analysed set, the gate fails.
 //   4. A finding is a failure unless the baseline
-//      (security/source-security-baseline.json) carries exactly that file,
-//      line and rule with a justification. Conversely, a baseline entry
-//      that no longer matches a finding is STALE and fails the gate, so
-//      the baseline cannot rot into an amnesty list.
+//      (security/source-security-baseline.json) carries that file, that
+//      rule and that EXCERPT (the reviewed code line) — and a JUSTIFICATION
+//      with it. An entry without a justification does not cover its
+//      finding, so a new finding cannot be silenced by adding one silent
+//      line. Conversely, a baseline entry that no longer matches a finding
+//      is STALE and fails the gate, so the baseline cannot ROT into an
+//      amnesty list.
 //
 // Pattern hygiene: every rule regex is built from string fragments, so this
 // file never contains a rule's own trigger as code, and the scanner can be
 // run over itself. Trigger-shaped text in comments is removed before
-// matching (block comments wholesale, whole-line // comments), which keeps
-// line numbers stable. A trigger inside a string literal or a trailing
-// comment would still be reported — the baseline is the honest place to
-// disclose such a case, not silence.
+// matching, and the removal is STRING-AWARE: a `/*` inside a string
+// literal does not open a comment, because a blind stripper would let one
+// unbalanced `/*` swallow the rest of the file and hide every rule at
+// once. A trigger inside a string literal or a trailing comment would
+// still be reported — the baseline is the honest place to disclose such a
+// case, not silence.
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -69,15 +85,31 @@ export const REQUIRED_COVERAGE = Object.freeze([
 
 // Each rule regex is assembled from fragments (see the header: the scanner
 // must not carry its own triggers as code).
+//
+// The rule set was independently qualified on 2026-10-21. The qualification
+// found that the first form of every rule could only see a BARE call, so a
+// member call (`globalThis.fetch(...)`, `cp.execSync(...)`) and an aliased
+// form escaped the rule that names their defect class. The member forms are
+// therefore part of the rules now, and the repository's own egress call
+// sites - which the bare form could not see - are disclosed in the
+// baseline.
 const RULE_TRIGGER_SET = Object.freeze([
   { code: SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION, parts: ['(?<!\\.)\\be', 'val\\s*\\('] },
+  { code: SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION, parts: ['(?<![\\w$.])\\bglobalThis\\s*\\.\\s*', 'eval\\b'] },
   { code: SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION, parts: ['new\\s+Fun', 'ction\\s*\\('] },
+  { code: SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION, parts: ['new\\s*\\(?\\s*Fun', 'ction\\b'] },
+  { code: SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION, parts: ['\\bnew\\s+globalThis\\s*\\.\\s*Fun', 'ction\\b'] },
+  { code: SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION, parts: ['(?<![\\w$.])\\bFun', 'ction\\s*\\('] },
   { code: SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION, parts: ['\\bnode', ':vm\\b'] },
   { code: SOURCE_SECURITY_CODES.SHELL_INTERPOLATION, parts: ['(?<!\\.)\\bexec', '(?:Sync)?\\s*\\('] },
+  { code: SOURCE_SECURITY_CODES.SHELL_INTERPOLATION, parts: ['\\.\\s*execSync\\s*\\('] },
+  { code: SOURCE_SECURITY_CODES.SHELL_INTERPOLATION, parts: ['\\bspawn(?:Sync)?\\s*\\([^)]*shell\\s*:\\s*true'] },
   { code: SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS, parts: ['(?<!\\.)\\bfe', 'tch\\s*\\('] },
-  { code: SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS, parts: ['\\bhttps?', '\\.request\\s*\\('] },
+  { code: SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS, parts: ['\\bglobalThis\\s*\\.\\s*', 'fetch\\b'] },
+  { code: SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS, parts: ['\\bhttps?', '\\.(?:get|request)\\s*\\('] },
   { code: SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS, parts: ['\\b(?:ne', 't|tls)\\.connect\\s*\\('] },
-  { code: SOURCE_SECURITY_CODES.DYNAMIC_IMPORT_SPECIFIER, parts: ['\\bimport\\s*\\(\\s*(?!["\'', '`\\)])'] }
+  { code: SOURCE_SECURITY_CODES.DYNAMIC_IMPORT_SPECIFIER, parts: ['\\bimport\\s*\\(\\s*(?!["\'', '`\\)])'] },
+  { code: SOURCE_SECURITY_CODES.DYNAMIC_IMPORT_SPECIFIER, parts: ['\\bimport\\s*\\(\\s*`[^`]*\\$\\{'] }
 ]);
 
 const RULES = Object.freeze(
@@ -114,16 +146,135 @@ function listGovernedFiles(root, governedRoots) {
   return found.sort();
 }
 
-// Block comments are blanked (newlines preserved, so line numbers stay
-// stable) and whole-line // comments are dropped; a // that begins a line
-// can be dropped safely, while a // inside a line may be a URL inside a
-// string and is left alone.
+// Block comments and line comments are blanked before matching, with line
+// numbers preserved.
+//
+// The stripper is STRING-AWARE, and that is not a refinement: a blind
+// stripper opens a "comment" at the first `/*` it finds, wherever that is.
+// One unbalanced `/*` inside a string literal therefore swallowed the rest
+// of the file and hid EVERY rule at once - the cheapest possible evasion
+// of the whole gate. A `//` inside a string or a URL is likewise not a
+// comment.
+//
+// The walk is a small lexer over five modes (code, line comment, block
+// comment, string, regular expression literal). A regular expression
+// literal is recognised by the character before the slash, because a `/`
+// in code is a division far more often than a literal, and a regex that
+// contains a quote must not be mistaken for a string.
 function stripCommentShapes(source) {
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, (match) => match.replace(/[^\n]/g, ' '))
-    .split('\n')
-    .map((line) => (/^\s*\/\//.test(line) ? '' : line))
-    .join('\n');
+  const KEYWORDS_BEFORE_REGEX = new Set([
+    'return', 'typeof', 'case', 'in', 'of', 'new', 'delete', 'void',
+    'instanceof', 'do', 'else', 'yield', 'await', 'throw'
+  ]);
+  let out = '';
+  let index = 0;
+  let mode = 'code';
+  let lastSignificant = '';
+  let lastWord = '';
+  const regexCanStart = () => {
+    if (lastSignificant === '') return true;
+    if ('(,=:[!&|?{};+-*%~^<>'.includes(lastSignificant)) return true;
+    return KEYWORDS_BEFORE_REGEX.has(lastWord);
+  };
+  while (index < source.length) {
+    const character = source[index];
+    const next = source[index + 1];
+    if (mode === 'code') {
+      if (character === '/' && next === '/') {
+        mode = 'line';
+        out += '  ';
+        index += 2;
+        continue;
+      }
+      if (character === '/' && next === '*') {
+        mode = 'block';
+        out += '  ';
+        index += 2;
+        continue;
+      }
+      if (character === "'" || character === '"' || character === '`') {
+        mode = character === "'" ? 'single' : (character === '"' ? 'double' : 'template');
+        out += character;
+        index += 1;
+        continue;
+      }
+      if (character === '/' && regexCanStart()) {
+        mode = 'regex';
+        out += character;
+        index += 1;
+        continue;
+      }
+      out += character;
+      if (!/\s/.test(character)) {
+        lastSignificant = character;
+        if (/[\w$]/.test(character)) lastWord += character;
+        else lastWord = '';
+      }
+      index += 1;
+      continue;
+    }
+    if (mode === 'line') {
+      if (character === '\n') {
+        mode = 'code';
+        out += character;
+      } else {
+        out += ' ';
+      }
+      index += 1;
+      continue;
+    }
+    if (mode === 'block') {
+      if (character === '*' && next === '/') {
+        mode = 'code';
+        out += '  ';
+        index += 2;
+        continue;
+      }
+      out += (character === '\n' ? '\n' : ' ');
+      index += 1;
+      continue;
+    }
+    if (mode === 'regex') {
+      if (character === '\\') {
+        out += character + (next ?? '');
+        index += 2;
+        continue;
+      }
+      if (character === '[') {
+        // A character class may contain a slash without ending the literal.
+        out += character;
+        index += 1;
+        while (index < source.length && source[index] !== ']') {
+          out += source[index] === '\n' ? '\n' : source[index];
+          index += 1;
+        }
+        continue;
+      }
+      if (character === '/') {
+        mode = 'code';
+        out += character;
+        index += 1;
+        continue;
+      }
+      out += (character === '\n' ? '\n' : character);
+      index += 1;
+      continue;
+    }
+    // A string or a template literal.
+    if (character === '\\') {
+      out += character + (next ?? '');
+      index += 2;
+      continue;
+    }
+    if ((mode === 'single' && character === "'")
+      || (mode === 'double' && character === '"')
+      || (mode === 'template' && character === '`')) {
+      mode = 'code';
+    }
+    out += character;
+    index += 1;
+  }
+  return out;
 }
 
 // A file the gate counts must also be a file the runtime can parse: a
@@ -197,27 +348,49 @@ export function scanSourceSecurity({
     && entry.code === finding.code
     && (typeof entry.excerpt === 'string' ? entry.excerpt === finding.excerpt : entry.line === finding.line)
   );
-  const findingKeys = new Set(findings.map((finding) => `${finding.file}:${finding.code}:${finding.excerpt}`));
+  // Every disclosure must SAY WHY. An entry without a justification does
+  // not cover its finding: the gate would otherwise let anyone silence a
+  // new finding by adding one silent line to the baseline, which is the
+  // amnesty the baseline is supposed to prevent.
+  const justificationOf = (entry) => (
+    typeof entry?.justification === 'string' ? entry.justification.trim() : ''
+  );
   const baselined = [];
   const unbaselined = [];
   const staleBaselineEntries = [];
+  const entriesWithoutJustification = [];
   if (baselineEntries === null) {
     unbaselined.push(...findings);
   } else {
     const consumed = new Set();
+    const matched = new Set();
     for (const finding of findings) {
       const entry = baselineEntries.find((candidate, index) => (
         !consumed.has(index) && entryMatchesFinding(candidate, finding)
       ));
-      if (entry) {
-        consumed.add(baselineEntries.indexOf(entry));
-        baselined.push({ ...finding, justification: entry.justification ?? '' });
+      if (!entry) {
+        unbaselined.push(finding);
+        continue;
+      }
+      const index = baselineEntries.indexOf(entry);
+      matched.add(index);
+      if (justificationOf(entry)) {
+        consumed.add(index);
+        baselined.push({ ...finding, justification: justificationOf(entry) });
       } else {
+        // The entry MATCHES but says nothing. It is recorded as an entry
+        // without a justification, and the finding stays uncovered.
+        entriesWithoutJustification.push({
+          file: entry.file,
+          line: entry.line,
+          code: entry.code,
+          excerpt: finding.excerpt
+        });
         unbaselined.push(finding);
       }
     }
     baselineEntries.forEach((entry, index) => {
-      if (!consumed.has(index)) {
+      if (!matched.has(index)) {
         staleBaselineEntries.push({ file: entry.file, line: entry.line, code: entry.code });
       }
     });
@@ -247,6 +420,7 @@ export function scanSourceSecurity({
   const ok = unbaselined.length === 0
     && parseFailures.length === 0
     && staleBaselineEntries.length === 0
+    && entriesWithoutJustification.length === 0
     && requiredCoverageMissing.length === 0;
   return {
     schema_version: '1.0.0',
@@ -265,7 +439,8 @@ export function scanSourceSecurity({
     findings_total: findings.length,
     baselined,
     unbaselined,
-    stale_baseline_entries: staleBaselineEntries
+    stale_baseline_entries: staleBaselineEntries,
+    baseline_entries_without_justification: entriesWithoutJustification
   };
 }
 
@@ -296,6 +471,9 @@ function main() {
   }
   for (const entry of report.stale_baseline_entries) {
     emit.write(`  STALE BASELINE ${entry.code} ${entry.file}:${entry.line}\n`);
+  }
+  for (const entry of report.baseline_entries_without_justification) {
+    emit.write(`  BASELINE ENTRY WITHOUT JUSTIFICATION ${entry.code} ${entry.file}:${entry.line}\n`);
   }
   for (const failure of report.coverage.parse_failures) {
     emit.write(`  PARSE FAILURE ${failure.file}: ${failure.reason}\n`);
