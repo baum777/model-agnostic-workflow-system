@@ -100,7 +100,7 @@ test('a baselined finding passes with its justification surfaced, and a stale en
   const finding = first.unbaselined[0];
   const baseline = {
     schema_version: '1.0.0',
-    entries: [{ file: finding.file, line: finding.line, code: finding.code, justification: 'fixture' }]
+    entries: [{ file: finding.file, line: finding.line, code: finding.code, excerpt: finding.excerpt, justification: 'fixture' }]
   };
   const withBaseline = scanSourceSecurity({
     root,
@@ -115,10 +115,41 @@ test('a baselined finding passes with its justification surfaced, and a stale en
     root,
     governedRoots: ['app'],
     requiredCoverage: [],
-    baseline: { schema_version: '1.0.0', entries: [{ ...baseline.entries[0], line: 99 }] }
+    baseline: { schema_version: '1.0.0', entries: [{ ...baseline.entries[0], excerpt: 'return eval(other);' }] }
   });
   assert.equal(stale.ok, false);
   assert.equal(stale.stale_baseline_entries.length, 1);
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+test('a disclosure survives another writer moving the code to a different line', () => {
+  const root = buildTree({
+    'app/bad.mjs': 'export function run(input) {\n  return eval(input);\n}\n'
+  });
+  const first = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
+  const finding = first.unbaselined[0];
+  const baseline = {
+    schema_version: '1.0.0',
+    entries: [{ file: finding.file, line: finding.line, code: finding.code, excerpt: finding.excerpt, justification: 'reviewed shape' }]
+  };
+  // The code moves down by three lines — the interleaved-lane case — with
+  // the reviewed shape unchanged: the disclosure holds, no staleness.
+  fs.writeFileSync(path.join(root, 'app/bad.mjs'), '// a\n// b\n// c\nexport function run(input) {\n  return eval(input);\n}\n');
+  const after = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [], baseline });
+  assert.equal(after.ok, true, JSON.stringify({ unbaselined: after.unbaselined, stale: after.stale_baseline_entries }));
+  assert.equal(after.baselined.length, 1);
+  assert.equal(after.baselined[0].line, finding.line + 3);
+  // A CHANGED line content is still stale: the excerpt pins what was reviewed.
+  fs.writeFileSync(path.join(root, 'app/bad.mjs'), '// a\n// b\n// c\nexport function run(input) {\n  return eval(input);\n}\n// tail\n');
+  const tail = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [], baseline });
+  assert.equal(tail.ok, true);
+  // And a second, identical occurrence elsewhere in the same file is NOT
+  // covered by the one disclosure.
+  fs.writeFileSync(path.join(root, 'app/bad.mjs'), 'export function run(input) {\n  return eval(input);\n}\nexport function run2(input) {\n  return eval(input);\n}\n');
+  const doubled = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [], baseline });
+  assert.equal(doubled.ok, false);
+  assert.equal(doubled.baselined.length, 1);
+  assert.equal(doubled.unbaselined.length, 1);
   fs.rmSync(root, { recursive: true, force: true });
 });
 

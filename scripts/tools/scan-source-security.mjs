@@ -185,8 +185,19 @@ export function scanSourceSecurity({
   findings.sort((a, b) => (a.file + a.line + a.code).localeCompare(b.file + b.line + b.code));
 
   const baselineEntries = Array.isArray(baseline?.entries) ? baseline.entries : null;
-  const keyOf = (entry) => `${entry.file}:${entry.line}:${entry.code}`;
-  const findingKeys = new Set(findings.map(keyOf));
+  // A baseline entry matches a finding on file + rule + EXCERPT (the
+  // reported code line): the excerpt pins the content that was reviewed, so
+  // the disclosure survives another lane moving the code to a different
+  // line, and a changed line can no longer hide behind an old line number.
+  // An entry without an excerpt (a legacy shape) matches on file + line +
+  // code as before. Matching consumes the entry, so a SECOND occurrence of
+  // the same code stays unbaselined and fails.
+  const entryMatchesFinding = (entry, finding) => (
+    entry.file === finding.file
+    && entry.code === finding.code
+    && (typeof entry.excerpt === 'string' ? entry.excerpt === finding.excerpt : entry.line === finding.line)
+  );
+  const findingKeys = new Set(findings.map((finding) => `${finding.file}:${finding.code}:${finding.excerpt}`));
   const baselined = [];
   const unbaselined = [];
   const staleBaselineEntries = [];
@@ -196,7 +207,7 @@ export function scanSourceSecurity({
     const consumed = new Set();
     for (const finding of findings) {
       const entry = baselineEntries.find((candidate, index) => (
-        !consumed.has(index) && keyOf(candidate) === keyOf(finding)
+        !consumed.has(index) && entryMatchesFinding(candidate, finding)
       ));
       if (entry) {
         consumed.add(baselineEntries.indexOf(entry));
@@ -206,7 +217,7 @@ export function scanSourceSecurity({
       }
     }
     baselineEntries.forEach((entry, index) => {
-      if (!consumed.has(index) && !findingKeys.has(keyOf(entry))) {
+      if (!consumed.has(index)) {
         staleBaselineEntries.push({ file: entry.file, line: entry.line, code: entry.code });
       }
     });
@@ -296,6 +307,7 @@ function main() {
 }
 
 const invokedAsCli = process.argv[1]
+  && process.argv[1] !== '-'
   && import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href;
 if (invokedAsCli) {
   main();
