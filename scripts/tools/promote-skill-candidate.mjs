@@ -468,10 +468,14 @@ export async function promoteSkillCandidate({
     promotionError('PROMOTION_CANDIDATE_CONTENT_MISMATCH', `the frontdoor screened content ${screenedDigest}, the promoted content digests to ${candidateDigest}`);
   }
 
+  // The evidence tree is resolved ONCE: the gate and the post-adoption
+  // readback must read the SAME evidence, otherwise the readback would
+  // verify a different tree than the one the gate verified.
+  const evidenceTree = evidenceRoot ?? root;
   const evalEvidence = await validateEvalEvidence({
     evalRecords,
     root,
-    evidenceRoot,
+    evidenceRoot: evidenceTree,
     skillId,
     now,
     maxEvidenceAgeDays
@@ -680,7 +684,7 @@ export async function promoteSkillCandidate({
   const readbackIssues = await postAdoptionReadback({
     record,
     canonicalRoot,
-    evidenceRoot,
+    evidenceRoot: evidenceTree,
     validate: (candidate) => validateBehavioralEvalRecord(candidate, root),
     now,
     expectLedgerEntry: false
@@ -827,8 +831,13 @@ export async function postAdoptionReadback({ record, canonicalRoot, evidenceRoot
   // The bound evidence is re-VERIFIED: the evaluation is executed again over
   // the corpus and the verdict is derived again from the baseline. The
   // evidence that vouched for the adoption must still reproduce.
-  if (evidenceRoot) {
-    for (const entry of record.eval_evidence?.behavioral_eval_records ?? []) {
+  const boundEvidence = record.eval_evidence?.behavioral_eval_records ?? [];
+  if (boundEvidence.length > 0 && !evidenceRoot) {
+    // A silent skip would turn the readback into a weaker check than the
+    // claim says it is. The gap is reported instead.
+    issues.push('post_adoption_readback: the bound evidence was not re-verified: no evidence tree was given');
+  } else if (evidenceRoot) {
+    for (const entry of boundEvidence) {
       try {
         const reattested = await verifyEvidenceProvenance({
           root: evidenceRoot,

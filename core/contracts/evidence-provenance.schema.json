@@ -22,12 +22,12 @@
     "record_digest": {
       "type": "string",
       "pattern": "^sha256:[a-f0-9]{64}$",
-      "description": "The whole-record digest recomputed from the bytes on disk. It binds the attestation to the exact artifact that was verified, including its creation time."
+      "description": "The digest of the canonical form of the record as read from the evidence surface. It binds the attestation to the exact artifact that was verified, including its creation time. It is a digest of the parsed record, not of the file bytes: a reformatting of the file leaves it unchanged."
     },
     "content_digest": {
       "type": "string",
       "pattern": "^sha256:[a-f0-9]{64}$",
-      "description": "The record's own content seal, recomputed. It proves the record was not edited after it was sealed."
+      "description": "The record's own content seal, recomputed. The seal is an UNKEYED digest over the record without its creation time, so it detects an edit that was not re-sealed; it is not an authenticity property, and a re-sealed forgery is caught by the re-execution, not by the seal."
     },
     "corpus_ref": {
       "type": "string",
@@ -58,7 +58,11 @@
       "minLength": 1,
       "description": "The subject the evaluation measured. It is the corpus subject AND the record subject AND the promoted skill."
     },
-    "created_at": { "type": "string", "minLength": 1 },
+    "created_at": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The creation time the record DECLARES. The content seal does not cover it, so this is a declared property, not an authenticated one; the gate refuses a declaration outside the age bound and a declaration from the future."
+    },
     "execution_mode": {
       "const": "recorded_replay",
       "description": "Only a recorded_replay evaluation is deterministic enough to be re-executed. A live_model record is refused instead of being accepted unverified."
@@ -77,8 +81,9 @@
       "description": "The canonical runner that produces and re-executes the evaluation, so a receipt names the code that reproduces it."
     },
     "runner_digest": {
-      "type": ["string", "null"],
-      "description": "The digest of the canonical runner source, bound to the attestation."
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "The digest of the canonical runner source, bound to the attestation. A runner that cannot be read is a named refusal, not an empty field."
     },
     "verified_at": { "type": "string", "minLength": 1 }
   }

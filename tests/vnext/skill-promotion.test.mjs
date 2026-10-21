@@ -1658,6 +1658,29 @@ test('S8 the post-adoption readback re-verifies the bound evidence, not only its
   assert.ok(issues.some((issue) => issue.includes('no longer reproduces')), issues.join(' | '));
 });
 
+test('S8 the standalone readback reports the gap when no evidence tree is given', async () => {
+  const world = setup();
+  const { record } = await promoteSkillCandidate({
+    adoptionId: 'adopt_s8_readback_gap_0001',
+    skillId: 'promoted-skill',
+    adoptedVersion: '1.0.0',
+    supersededVersion: '0.9.0',
+    candidateContent: CANDIDATE_CONTENT,
+    candidateDigest: sha256Prefixed(CANDIDATE_CONTENT),
+    admissionPath: world.admissionPath,
+    evalRecords: world.evalEntries,
+    ownerApprovalRef: world.ownerApprovalRef,
+    ownerAuthorityPath: world.ownerAuthorityPath,
+    canonicalRoot: world.tree,
+    evidenceRoot: world.evidenceTree,
+    root
+  });
+  // A readback without an evidence tree cannot re-verify the bound evidence.
+  // The gap is REPORTED, never silently skipped.
+  const issues = await postAdoptionReadback({ record, canonicalRoot: world.tree });
+  assert.ok(issues.some((issue) => issue.includes('was not re-verified')), issues.join(' | '));
+});
+
 test('S8 frontdoor and eval helpers bind digests canonically', async () => {
   const dir = tempDir();
   const admissionPath = path.join(dir, 'admission.json');

@@ -16,10 +16,13 @@
 // contract shape, and they are still refused.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { canonicalJson } from '../../runtime/vnext/util.mjs';
 
 import {
   verifyEvidenceProvenance,
@@ -49,7 +52,7 @@ const BASELINE_REF = `${EVIDENCE_DIR}/eval-record-baseline.json`;
 
 // A minimal but REAL corpus: the runner executes it, the verifier executes
 // it again, and the two must agree.
-function corpusFiles() {
+function corpusFiles({ positiveBlocking = true, candidatePositiveText = 'Reuse decision: extend the existing canonical surface.' } = {}) {
   const positiveCase = (text) => ({
     case_id: 'se_pos_001',
     family: 'positive',
@@ -92,7 +95,7 @@ function corpusFiles() {
     corpus_id: 'provenance-corpus',
     subject: { kind: 'skill', ref: SUBJECT },
     families: [
-      { family: 'positive', file: 'shared', via: 'variant', blocking: true },
+      { family: 'positive', file: 'shared', via: 'variant', blocking: positiveBlocking },
       { family: 'negative', file: 'negative-cases/cases.json', blocking: true }
     ],
     variants: {
@@ -103,17 +106,17 @@ function corpusFiles() {
   return {
     'corpus.json': `${JSON.stringify(manifest, null, 2)}\n`,
     'baseline/cases.json': `${JSON.stringify({ cases: [positiveCase('Reuse decision: extend the existing shared core.')] }, null, 2)}\n`,
-    'candidates/cases.json': `${JSON.stringify({ cases: [positiveCase('Reuse decision: extend the existing canonical surface.')] }, null, 2)}\n`,
+    'candidates/cases.json': `${JSON.stringify({ cases: [positiveCase(candidatePositiveText)] }, null, 2)}\n`,
     'negative-cases/cases.json': `${JSON.stringify({ cases: [negativeCase] }, null, 2)}\n`
   };
 }
 
 // buildTree() -> an evidence tree that holds the corpus and the records the
 // canonical runner produced from it.
-async function buildTree() {
+async function buildTree(options = {}) {
   const tree = tempDir();
   const corpusDir = path.join(tree, 'evals', CORPUS_NAME);
-  for (const [relative, content] of Object.entries(corpusFiles())) {
+  for (const [relative, content] of Object.entries(corpusFiles(options))) {
     const absolute = path.join(corpusDir, relative);
     fs.mkdirSync(path.dirname(absolute), { recursive: true });
     fs.writeFileSync(absolute, content);
@@ -306,6 +309,106 @@ test('S8 a flipped verdict is refused: the verdict is derived, never declared', 
   assert.match(error.message, /does not follow from its baseline/);
 });
 
+test('S8 a record dated in the future is refused', async () => {
+  const world = await buildTree();
+  // A measurement cannot have been taken before it claims to have been
+  // taken. The declaration is re-dated into the future and re-sealed, so
+  // only the future check can catch it.
+  const future = structuredClone(world.candidateRecord);
+  future.created_at = '2099-01-01T00:00:00Z';
+  writeRecordFile(world.tree, RECORD_REF, reseal(future));
+
+  const error = await expectProvenanceError('EVIDENCE_STALE', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /future/);
+});
+
+test('S8 a forged evidence reference is refused: the references follow from the corpus', async () => {
+  const world = await buildTree();
+  // The evidence references are the record's own pointers to execution
+  // results. The re-execution derives them from the corpus, so a forged
+  // reference does not reproduce.
+  const forged = structuredClone(world.candidateRecord);
+  forged.evidence_refs = ['forged:evidence/that/does/not/exist'];
+  writeRecordFile(world.tree, RECORD_REF, reseal(forged));
+
+  await expectProvenanceError('EVIDENCE_EXECUTION_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+});
+
+test('S8 a forged instruction revision is refused: the revision follows from the corpus', async () => {
+  const world = await buildTree();
+  // The instruction revision names the instruction state the evaluation ran
+  // under. It is the CORPUS' declaration, so a record that names another one
+  // does not reproduce.
+  const forged = structuredClone(world.candidateRecord);
+  forged.subject.instruction_revision = 'revision-of-a-skill-that-was-never-evaluated';
+  writeRecordFile(world.tree, RECORD_REF, reseal(forged));
+
+  await expectProvenanceError('EVIDENCE_EXECUTION_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+});
+
+test('S8 a forged baseline reference is refused: it follows from the baseline on disk', async () => {
+  // A REJECTED candidate is the case where the behavioral-eval contract does
+  // NOT bind baseline_ref to the comparison (the R3 rule covers
+  // IMPROVEMENT_PROVEN only), so the provenance layer must bind it.
+  const world = await buildTree({ positiveBlocking: false, candidatePositiveText: 'Routing complete.' });
+  assert.equal(world.candidateRecord.verdict, 'IMPROVEMENT_REJECTED');
+  const forged = structuredClone(world.candidateRecord);
+  forged.baseline_ref = 'bev_some_other_baseline_0001';
+  writeRecordFile(world.tree, RECORD_REF, reseal(forged));
+
+  const error = await expectProvenanceError('EVIDENCE_COMPARISON_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /baseline reference/);
+});
+
+test('S8 corpus content that leaves the tree is refused', async () => {
+  const world = await buildTree();
+  // The corpus DIRECTORY is inside the tree, but a family FILE that is a
+  // symbolic link to a file outside it would make the measured material live
+  // outside the governed tree. The linked file is a VALID case file, so the
+  // loader accepts it and the containment proof is what refuses it.
+  const outside = path.join(world.tree, 'outside-cases.json');
+  fs.writeFileSync(outside, fs.readFileSync(path.join(world.tree, 'evals', CORPUS_NAME, 'negative-cases', 'cases.json'), 'utf8'));
+  fs.rmSync(path.join(world.tree, 'evals', CORPUS_NAME, 'negative-cases', 'cases.json'));
+  fs.symlinkSync(outside, path.join(world.tree, 'evals', CORPUS_NAME, 'negative-cases', 'cases.json'));
+
+  await expectProvenanceError('EVIDENCE_CORPUS_CONTENT_ESCAPES', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+});
+
 test('S8 a record that is not on disk is refused', async () => {
   const world = await buildTree();
   fs.rmSync(path.join(world.tree, RECORD_REF));
@@ -475,9 +578,11 @@ test('S8 the readback re-reads the record from the evidence surface and binds it
   const read = readEvidenceRecord({ root: world.tree, ref: RECORD_REF });
   assert.equal(read.relative, RECORD_REF);
   assert.match(read.digest, /^sha256:[a-f0-9]{64}$/);
-  // The digest is the digest of the file on disk, not of a claim.
+  // The digest is the digest of the record ON DISK, recomputed here and not
+  // taken from the record's own claim.
   const onDisk = readRecordFile(world.tree, RECORD_REF);
-  assert.equal(read.digest, `sha256:${read.digest.slice(7)}`);
+  const expected = `sha256:${crypto.createHash('sha256').update(canonicalJson(onDisk)).digest('hex')}`;
+  assert.equal(read.digest, expected);
   assert.equal(onDisk.eval_id, read.record.eval_id);
 });
 

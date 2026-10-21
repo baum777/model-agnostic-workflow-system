@@ -1,10 +1,10 @@
 [
   {
-    "execution_attempt_id": "att_fe064b76057d",
+    "execution_attempt_id": "att_36045d941d1f",
     "executor_id": "exec_openrouter_glm",
     "work_unit_id": "wu_run_ho01_cfg_candidate_root",
-    "started_at": "2026-10-21T03:51:41.244Z",
-    "finished_at": "2026-10-21T03:51:41.244Z",
+    "started_at": "2026-10-21T04:27:57.527Z",
+    "finished_at": "2026-10-21T04:27:57.527Z",
     "outcome": "SUCCESS",
     "outputs": [
       {
@@ -31,11 +31,11 @@
     "exit_code": null
   },
   {
-    "execution_attempt_id": "att_9e6c967599c0",
+    "execution_attempt_id": "att_da8e1fb6d839",
     "executor_id": "exec_unitera_execution_control_fixture",
     "work_unit_id": "wu_run_ho01_cfg_candidate_root",
-    "started_at": "2026-10-21T03:51:41.244Z",
-    "finished_at": "2026-10-21T03:51:41.244Z",
+    "started_at": "2026-10-21T04:27:57.527Z",
+    "finished_at": "2026-10-21T04:27:57.527Z",
     "outcome": "SUCCESS",
     "outputs": [],
     "metrics": {
@@ -48,11 +48,11 @@
     "exit_code": null
   },
   {
-    "execution_attempt_id": "att_27324113fc69",
+    "execution_attempt_id": "att_941f4b3c16de",
     "executor_id": "exec_local_tests",
     "work_unit_id": "wu_run_ho01_cfg_candidate_root",
-    "started_at": "2026-10-21T03:51:41.244Z",
-    "finished_at": "2026-10-21T03:51:41.244Z",
+    "started_at": "2026-10-21T04:27:57.527Z",
+    "finished_at": "2026-10-21T04:27:57.527Z",
     "outcome": "SUCCESS",
     "outputs": [],
     "metrics": {

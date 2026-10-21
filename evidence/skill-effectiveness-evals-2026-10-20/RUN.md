@@ -1,5 +1,7 @@
 # S5 Behavioral Evaluation — Implementation Run Record
 
+> **SUPERSEDED (annotated 2026-10-21).** The two eval records of this run are kept as the historical record of the S5 slice, but they are **provably stale** and must not be used as promotion evidence: the corpus was changed after they were produced (the S7 slice, commit `4d99c27`, added an assertion to the negative family about six hours after these records were sealed at `2026-10-20T17:01:56Z`), so they no longer reproduce from the corpus on disk. The S8 evidence-provenance gate refuses them with `EVIDENCE_EXECUTION_MISMATCH`, and that refusal is bound by a test (`tests/vnext/evidence-provenance.test.mjs`, "the SUPERSEDED shipped evidence no longer reproduces and is refused"). The re-issued evidence lives in `evidence/skill-effectiveness-evals-2026-10-21/`. Nothing else in this record is amended: the run, the gates and the verdict it recorded were correct at the time.
+
 - Run: S5-BEHAVIORAL-EVALUATION-2026-10-20
 - Spec binding: MAWS-SII-TARGET-SPEC-001 v0.2.0 (PROPOSED), slice S5, plus the dependency matrix in `docs/proposals/skill-intelligence-reconciliation-map-2026-10-20.md` §3 (S2 wave 1+2 and S3 closed → S5 unblocked).
 - Source of authority: the owner run directive of 2026-10-20 ("S5 als ersten Implementierungsrun durchführen. S11 kann unabhängig vorbereitet werden."), bounded to this slice. The spec remains PROPOSED; this run materializes the slice and does not adopt the specification.

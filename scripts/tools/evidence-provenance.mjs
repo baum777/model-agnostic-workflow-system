@@ -55,12 +55,15 @@ export const EVIDENCE_PROVENANCE_CONTRACT = 'core/contracts/evidence-provenance.
 export const EVIDENCE_RECORD_BASE = 'evidence';
 // The canonical corpus surface inside the governed tree.
 export const EVAL_CORPUS_BASE = 'evals';
-export const EVIDENCE_PROVENANCE_VERSION = 'evidence-provenance 1.0.0';
 export const DEFAULT_MAX_EVIDENCE_AGE_DAYS = 90;
 // The canonical runner that produces (and can re-execute) a behavioral eval
 // record. The attestation names it and binds its digest, so a receipt names
 // the exact evaluation code that reproduces it.
 export const EVIDENCE_RUNNER_REF = 'scripts/tools/run-skill-effectiveness-evals.mjs';
+// Clock skew allowance for a record's declared creation time (minutes). A
+// record dated in the future is refused: a measurement cannot have been
+// taken before it claims to have been taken.
+export const EVIDENCE_CLOCK_SKEW_MINUTES = 5;
 
 const DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/;
 const RECORD_REF_PATTERN = /^evidence\/[A-Za-z0-9][A-Za-z0-9._-]*(\/[A-Za-z0-9][A-Za-z0-9._-]*)*\.json$/;
@@ -216,9 +219,14 @@ export function corpusTreeDigest(corpus) {
 // The fields the runner produces from the corpus. The verdict and the
 // comparison are NOT among them: they are derived from the comparison with
 // the baseline and are re-derived separately.
+//
+// `eval_id` is deliberately NOT among them: it is an identity LABEL of the
+// evaluation, not a measurement, and no corpus determines it. A label that
+// the record carries and the re-execution copies back would only ever
+// compare equal to itself, so claiming it "reproduces" would be tautology.
+// The record itself is bound by its digest in the attestation.
 const EXECUTION_FIELDS = [
   'schema_version',
-  'eval_id',
   'variant',
   'subject',
   'model_run',
@@ -250,10 +258,43 @@ export function executionDifferences(record, rederived) {
   return differences;
 }
 
+// assertCorpusContentInside({ corpus, corpusDir }) -> the corpus content
+// files, each proven to stay inside the corpus directory.
+//
+// The corpus DIRECTORY is already proven to stay inside the tree. Its
+// CONTENT was not: a family file that is a symbolic link to a file outside
+// the tree would be read by the loader, and the measured material would then
+// live outside the governed tree while the corpus digest still binds it. The
+// containment proof is therefore repeated for every file the corpus names.
+function assertCorpusContentInside({ corpus, corpusDir }) {
+  const files = [];
+  for (const family of corpus.families.values()) {
+    if (family.file) files.push(family.file);
+  }
+  for (const variant of corpus.variants.values()) {
+    if (variant.positive_cases_file) files.push(variant.positive_cases_file);
+  }
+  for (const absolute of files) {
+    try {
+      assertCanonicalTarget({ root: corpusDir, absolutePath: absolute, label: 'corpus content file' });
+    } catch (error) {
+      if (error instanceof CanonicalPathError) {
+        provenanceError('EVIDENCE_CORPUS_CONTENT_ESCAPES', `the corpus content file ${absolute} does not stay inside the corpus directory: ${error.message}`);
+      }
+      throw error;
+    }
+  }
+}
+
 // reExecute({ corpusDir, record }) -> { corpus, rederived }. The evaluation
 // is re-executed over the corpus on disk. The corpus is loaded fresh for
 // every execution: the runner mutates the positive family per variant, so a
 // shared corpus object would leak one variant into the other.
+//
+// The re-execution is seeded from the CORPUS, not from the record: the
+// instruction revision is the corpus' own declaration, and the evidence
+// references are the corpus default. A record that seeds the re-execution
+// with its own values would only ever be compared with itself.
 async function reExecute({ corpusDir, record }) {
   let corpus = null;
   try {
@@ -261,6 +302,7 @@ async function reExecute({ corpusDir, record }) {
   } catch (error) {
     provenanceError('EVIDENCE_CORPUS_INVALID', `the behavioral eval corpus could not be loaded: ${error.message}`);
   }
+  assertCorpusContentInside({ corpus, corpusDir });
   let rederived = null;
   try {
     rederived = await runVariant({
@@ -268,8 +310,7 @@ async function reExecute({ corpusDir, record }) {
       variant: record.variant,
       mode: 'recorded_replay',
       evalId: record.eval_id,
-      instructionRevision: record.subject?.instruction_revision,
-      evidenceRefs: record.evidence_refs
+      instructionRevision: corpus.manifest?.subject?.instruction_revision ?? null
     });
   } catch (error) {
     provenanceError('EVIDENCE_EXECUTION_FAILED', `the evaluation could not be re-executed over the corpus: ${error.message}`);
@@ -309,13 +350,17 @@ function assertRecordReplayable({ record, relative }) {
 
 // runnerDigest() -> the digest of the canonical runner source, so the
 // attestation names the exact evaluation code that reproduces the record.
+// A runner that cannot be read is a NAMED refusal: an attestation that
+// names no code reproduces nothing.
 function runnerDigest() {
+  let content;
   try {
     const runnerPath = fileURLToPath(new URL('./run-skill-effectiveness-evals.mjs', import.meta.url));
-    return sha256Canonical(fs.readFileSync(runnerPath, 'utf8'));
-  } catch {
-    return null;
+    content = fs.readFileSync(runnerPath, 'utf8');
+  } catch (error) {
+    provenanceError('EVIDENCE_RUNNER_UNREADABLE', `the canonical runner ${EVIDENCE_RUNNER_REF} could not be read, so no attestation can name the code that reproduces the record: ${error.message}`);
   }
+  return sha256Canonical(content);
 }
 
 // verifyEvidenceProvenance({ root, recordRef, corpusRef, baselineRecordRef,
@@ -424,13 +469,25 @@ export async function verifyEvidenceProvenance({
   if (derivedCandidate.verdict !== record.verdict) {
     provenanceError('EVIDENCE_COMPARISON_MISMATCH', `the verdict of ${candidate.relative} does not follow from its baseline: record=${String(record.verdict)} rederived=${String(derivedCandidate.verdict)}`);
   }
+  if (derivedCandidate.baseline_ref !== record.baseline_ref) {
+    provenanceError('EVIDENCE_COMPARISON_MISMATCH', `the baseline reference of ${candidate.relative} does not follow from the baseline on disk: record=${String(record.baseline_ref)} rederived=${String(derivedCandidate.baseline_ref)}`);
+  }
 
   // A blocked evaluation never supports a promotion.
   if (record.verdict === 'BLOCKED') {
     provenanceError('EVIDENCE_BLOCKED', `the behavioral eval ${candidate.relative} is BLOCKED and can never support a promotion`);
   }
 
-  // E7: the evidence age stays inside the contract bound.
+  // E7: the DECLARED age of the evidence stays inside the contract bound.
+  //
+  // The bound is a property the record DECLARES: the content seal does not
+  // cover the creation time, so an editor of the evidence tree can re-date a
+  // record. The gate therefore states the bound honestly: it refuses a stale
+  // declaration and a declaration from the future, and it does NOT claim to
+  // authenticate the timestamp. The freshness of the MEASUREMENT is carried
+  // by the re-execution, which happens now, over the corpus on disk; the
+  // binding of the corpus to the ADOPTED CONTENT is a separate obligation
+  // that the behavioral eval contract does not carry yet.
   const nowMs = resolveNowMs(now);
   if (Number.isNaN(nowMs)) {
     provenanceError('EVIDENCE_STALE', `the behavioral eval ${candidate.relative} could not be compared against a valid clock`);
@@ -439,9 +496,12 @@ export async function verifyEvidenceProvenance({
   if (Number.isNaN(createdAt)) {
     provenanceError('EVIDENCE_STALE', `the behavioral eval ${candidate.relative} carries no usable created_at`);
   }
+  if (createdAt > nowMs + EVIDENCE_CLOCK_SKEW_MINUTES * 60000) {
+    provenanceError('EVIDENCE_STALE', `the behavioral eval ${candidate.relative} is dated in the future (${record.created_at}); a measurement cannot have been taken before it claims to have been taken`);
+  }
   const ageDays = (nowMs - createdAt) / 86400000;
   if (ageDays > maxEvidenceAgeDays) {
-    provenanceError('EVIDENCE_STALE', `the behavioral eval ${candidate.relative} is ${ageDays.toFixed(1)} days old, the bound is ${maxEvidenceAgeDays} days`);
+    provenanceError('EVIDENCE_STALE', `the behavioral eval ${candidate.relative} declares an age of ${ageDays.toFixed(1)} days, the bound is ${maxEvidenceAgeDays} days`);
   }
 
   // The caller's expectation is checked against the truth, never the other

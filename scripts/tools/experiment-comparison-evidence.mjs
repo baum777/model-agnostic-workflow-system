@@ -95,7 +95,11 @@ export const VOLATILE_BUNDLE_KEYS = new Set([
   'created_at',
   'started_at',
   'finished_at',
-  'bound_at'
+  'bound_at',
+  // The wall-clock stamp of the instruction binding. Two executions of the
+  // same frozen inputs demonstrably differ in it, and it carries no
+  // instruction state, so it is dropped like the other observation times.
+  'observed_at'
 ]);
 
 /** The key under which an intent binding carries its execution chain. */
@@ -238,6 +242,7 @@ export function projectRunEvidence(bundleDir) {
   const contextEnvelope = read('context-envelope.json');
   const completionContract = optional('completion-contract.json', null);
   const interactionSession = optional('interaction-session.json', null);
+  const instructionBinding = optional('instruction-binding.json', null);
   const runEvents = fs.existsSync(path.join(bundleDir, 'run-events.jsonl'))
     ? readJsonl(path.join(bundleDir, 'run-events.jsonl'))
     : [];
@@ -257,6 +262,10 @@ export function projectRunEvidence(bundleDir) {
     context_envelope: projectVolatile(contextEnvelope),
     completion_contract: projectVolatile(completionContract),
     interaction_session: projectVolatile(interactionSession),
+    // The instruction binding is part of the bundle, so it is part of the
+    // digest: a run that was executed under another instruction state must
+    // not compare equal to this one.
+    instruction_binding: projectVolatile(instructionBinding),
     run_events: projectVolatile(runEvents)
   };
 }
