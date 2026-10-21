@@ -154,7 +154,15 @@ behavioral evals, same decision, same metrics: routing 0, output −0.1875, secu
 
 ## Publication
 
-Filled at rebind time (see `registry-disposition.json`):
-implementation branch `feature/s5-frontdoor-evidence-20261021`, MAWS PR and merge SHA,
-Registry PR/SHA and Atlas PR/SHA recorded there once merged; this file and the disposition
-are then rebound from `REQUIRED_BUT_BLOCKED` to `UPDATED`.
+- Implementation: MAWS PR **68**, branch `feature/s5-frontdoor-evidence-20261021`,
+  head `23932038809c169ad974ee7949d82ea973e0fba3`, merged as
+  `df8c683e557a711562bc6cc61ac8504120825161` (2026-10-21T11:34:03Z) after a rebase onto
+  main `0daaa483…` (PRs #66/#67 landed during the run; the residual-wording conflict took
+  the main side, the CHANGELOG kept both entries). 756/756 vnext on the rebased head.
+- Registry: unitera-registry PR **262**, head `da13a41ddc632dad2db2b55042051918530bcb2f`,
+  merged as `2dc7b5bca550417ce4f28de3d395d1896c85bc66`; `validate_registry.py` PASS.
+  Records: `MAWS_S5_FRONTDOOR_EVIDENCE_2026_10_21_001.yaml` (run registration) and
+  `MAWS_S5_FRONTDOOR_CONTRACTS_2026_10_21_001.yaml` (the five CONTRACT_RECORD amendments).
+- This rebind: the disposition advances from `REQUIRED_BUT_BLOCKED` to `UPDATED` with the
+  registry commit sha (the S9 precedent of the same run-day). The Atlas representation
+  follows as its own surface and is recorded in the Atlas claim.
