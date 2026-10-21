@@ -20,13 +20,15 @@
           "skill_id": "example-safe-skill",
           "adopted_version": "1.0.0",
           "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "frontdoor_admission": {
           "record_ref": "evidence/frontdoor/sfa_s8_0001.json",
           "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           "implementation_disposition": "ELIGIBLE",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "eval_evidence": {
           "behavioral_eval_records": [
@@ -47,7 +49,8 @@
               "comparison_rederived": true,
               "runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
               "runner_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
-              "verified_at": "2026-10-21T00:00:00Z"
+              "verified_at": "2026-10-21T00:00:00Z",
+              "subject_content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             }
           ],
           "improvement_proven": true,
@@ -136,13 +139,15 @@
           "skill_id": "example-safe-skill",
           "adopted_version": "1.0.0",
           "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "frontdoor_admission": {
           "record_ref": "evidence/frontdoor/sfa_s8_0001.json",
           "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           "implementation_disposition": "ELIGIBLE",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "eval_evidence": {
           "behavioral_eval_records": [
@@ -163,7 +168,8 @@
               "comparison_rederived": true,
               "runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
               "runner_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
-              "verified_at": "2026-10-21T00:00:00Z"
+              "verified_at": "2026-10-21T00:00:00Z",
+              "subject_content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             }
           ],
           "improvement_proven": true,
@@ -252,13 +258,15 @@
           "skill_id": "example-safe-skill",
           "adopted_version": "1.0.0",
           "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "frontdoor_admission": {
           "record_ref": "evidence/frontdoor/sfa_s8_0001.json",
           "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           "implementation_disposition": "ELIGIBLE",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "eval_evidence": {
           "behavioral_eval_records": [
@@ -279,7 +287,8 @@
               "comparison_rederived": true,
               "runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
               "runner_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
-              "verified_at": "2026-10-21T00:00:00Z"
+              "verified_at": "2026-10-21T00:00:00Z",
+              "subject_content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             }
           ],
           "improvement_proven": true,
@@ -368,13 +377,15 @@
           "skill_id": "example-safe-skill",
           "adopted_version": "1.0.0",
           "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "frontdoor_admission": {
           "record_ref": "evidence/frontdoor/sfa_s8_0001.json",
           "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           "implementation_disposition": "ELIGIBLE",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "eval_evidence": {
           "behavioral_eval_records": [
@@ -395,7 +406,8 @@
               "comparison_rederived": true,
               "runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
               "runner_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
-              "verified_at": "2026-10-21T00:00:00Z"
+              "verified_at": "2026-10-21T00:00:00Z",
+              "subject_content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             }
           ],
           "improvement_proven": true,
@@ -482,13 +494,15 @@
           "skill_id": "example-safe-skill",
           "adopted_version": "1.0.0",
           "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "frontdoor_admission": {
           "record_ref": "evidence/frontdoor/sfa_s8_0001.json",
           "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           "implementation_disposition": "ELIGIBLE",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "eval_evidence": {
           "behavioral_eval_records": [
@@ -509,7 +523,8 @@
               "comparison_rederived": true,
               "runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
               "runner_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
-              "verified_at": "2026-10-21T00:00:00Z"
+              "verified_at": "2026-10-21T00:00:00Z",
+              "subject_content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             }
           ],
           "improvement_proven": true,
@@ -598,13 +613,15 @@
           "skill_id": "example-safe-skill",
           "adopted_version": "1.0.0",
           "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "frontdoor_admission": {
           "record_ref": "evidence/frontdoor/sfa_s8_0001.json",
           "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           "implementation_disposition": "ELIGIBLE",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "eval_evidence": {
           "behavioral_eval_records": [
@@ -614,7 +631,8 @@
               "verdict": "IMPROVEMENT_PROVEN",
               "subject_ref": "example-safe-skill",
               "corpus_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-              "created_at": "2026-10-21T00:00:00Z"
+              "created_at": "2026-10-21T00:00:00Z",
+              "subject_content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             }
           ],
           "improvement_proven": true,
@@ -703,13 +721,15 @@
           "skill_id": "example-safe-skill",
           "adopted_version": "1.0.0",
           "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "frontdoor_admission": {
           "record_ref": "evidence/frontdoor/sfa_s8_0001.json",
           "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           "implementation_disposition": "ELIGIBLE",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "eval_evidence": {
           "behavioral_eval_records": [
@@ -730,7 +750,8 @@
               "comparison_rederived": true,
               "runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
               "runner_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
-              "verified_at": "2026-10-21T00:00:00Z"
+              "verified_at": "2026-10-21T00:00:00Z",
+              "subject_content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             }
           ],
           "improvement_proven": true,
@@ -819,13 +840,15 @@
           "skill_id": "example-safe-skill",
           "adopted_version": "1.0.0",
           "candidate_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "frontdoor_admission": {
           "record_ref": "evidence/frontdoor/sfa_s8_0001.json",
           "admission_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           "implementation_disposition": "ELIGIBLE",
-          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          "screened_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "content_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         },
         "eval_evidence": {
           "behavioral_eval_records": [
@@ -846,7 +869,8 @@
               "comparison_rederived": true,
               "runner_ref": "scripts/tools/run-skill-effectiveness-evals.mjs",
               "runner_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
-              "verified_at": "2026-10-21T00:00:00Z"
+              "verified_at": "2026-10-21T00:00:00Z",
+              "subject_content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
             }
           ],
           "improvement_proven": true,

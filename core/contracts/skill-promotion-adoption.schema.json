@@ -6,48 +6,116 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version", "adoption_id", "candidate", "frontdoor_admission",
-    "eval_evidence", "evidence_admission", "owner_approval", "canonical_adoption",
-    "export_regeneration", "post_adoption_readback", "authority_granted",
+    "schema_version",
+    "adoption_id",
+    "candidate",
+    "frontdoor_admission",
+    "eval_evidence",
+    "evidence_admission",
+    "owner_approval",
+    "canonical_adoption",
+    "export_regeneration",
+    "post_adoption_readback",
+    "authority_granted",
     "created_at"
   ],
   "properties": {
-    "schema_version": { "const": "1.0.0" },
-    "adoption_id": { "type": "string", "pattern": "^adopt_[a-z0-9_]+$" },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "adoption_id": {
+      "type": "string",
+      "pattern": "^adopt_[a-z0-9_]+$"
+    },
     "candidate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["skill_id", "adopted_version", "candidate_digest", "screened_digest"],
+      "required": [
+        "skill_id",
+        "adopted_version",
+        "candidate_digest",
+        "screened_digest",
+        "content_digest"
+      ],
       "properties": {
-        "skill_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
-        "adopted_version": { "$ref": "#/$defs/semver" },
-        "candidate_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "screened_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        "skill_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "adopted_version": {
+          "$ref": "#/$defs/semver"
+        },
+        "candidate_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "screened_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The content digest the frontdoor screened (the candidate's SKILL.md bytes). The readback compares it with candidate_digest; screened_digest is the whole-tree identity and is never compared against the content."
+        }
       }
     },
     "frontdoor_admission": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["record_ref", "admission_digest", "implementation_disposition", "screened_digest"],
+      "required": [
+        "record_ref",
+        "admission_digest",
+        "implementation_disposition",
+        "screened_digest",
+        "content_digest"
+      ],
       "properties": {
-        "record_ref": { "type": "string", "minLength": 1 },
-        "admission_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "implementation_disposition": { "const": "ELIGIBLE" },
-        "screened_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        "record_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "admission_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "implementation_disposition": {
+          "const": "ELIGIBLE"
+        },
+        "screened_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The screened content digest the admission recorded for the candidate's SKILL.md — the same digest form as candidate_digest, which the promotion chain compares it against. The whole-tree screened_digest is provenance for the screened source tree and is never compared against the promoted content."
+        }
       }
     },
     "eval_evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["behavioral_eval_records", "improvement_proven", "corpus_ref", "corpus_digest", "max_evidence_age_days", "provenance_verified"],
+      "required": [
+        "behavioral_eval_records",
+        "improvement_proven",
+        "corpus_ref",
+        "corpus_digest",
+        "max_evidence_age_days",
+        "provenance_verified"
+      ],
       "properties": {
         "behavioral_eval_records": {
           "type": "array",
           "minItems": 1,
-          "items": { "$ref": "evidence-provenance.schema.json" },
+          "items": {
+            "$ref": "evidence-provenance.schema.json"
+          },
           "description": "One provenance attestation per bound behavioral evaluation. Every entry is an evaluation that was RE-EXECUTED over the corpus on disk and whose verdict was re-derived from its baseline: a caller-supplied record object, digest or verdict is not representable here."
         },
-        "improvement_proven": { "type": "boolean" },
+        "improvement_proven": {
+          "type": "boolean"
+        },
         "corpus_ref": {
           "type": "string",
           "pattern": "^evals/[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*$",
@@ -58,7 +126,10 @@
           "pattern": "^sha256:[a-f0-9]{64}$",
           "description": "The digest of the whole corpus, recomputed from its files on disk."
         },
-        "max_evidence_age_days": { "type": "integer", "minimum": 1 },
+        "max_evidence_age_days": {
+          "type": "integer",
+          "minimum": 1
+        },
         "provenance_verified": {
           "const": true,
           "description": "The evidence was traced back to its immutable execution results. An evidence set that was not provenance-verified is not representable here."
@@ -68,39 +139,131 @@
     "evidence_admission": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["schema_version", "admission_id", "admission_ref", "admission_digest", "skill_id", "subject_ref", "content_digest", "material_digest", "source_kind", "source_commit", "source_admission_commit", "admitted_at", "authority_granted"],
+      "required": [
+        "schema_version",
+        "admission_id",
+        "admission_ref",
+        "admission_digest",
+        "skill_id",
+        "subject_ref",
+        "content_digest",
+        "material_digest",
+        "source_kind",
+        "source_commit",
+        "source_admission_commit",
+        "admitted_at",
+        "authority_granted"
+      ],
       "description": "The admission of the bound evidence to the adopted content and to a proved source. The content digest binds the evaluation to the artifact it is supposed to qualify - without it an old corpus that measured an old skill version would satisfy every provenance gate - and the committed source binds it to reviewable repository content.",
       "properties": {
-        "schema_version": { "const": "1.0.0" },
-        "admission_id": { "type": "string", "pattern": "^admit_evidence_[a-z0-9_]+$" },
-        "admission_ref": { "type": "string", "pattern": "^evidence/admissions/[A-Za-z0-9][A-Za-z0-9._-]*\\.json$" },
-        "admission_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "skill_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
-        "subject_ref": { "type": "string", "minLength": 1 },
-        "content_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$", "description": "The content the admitted evidence is admitted FOR. It must be the adopted content." },
-        "material_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "source_kind": { "enum": ["git_commit", "content"], "description": "The identity that was proved for the admitted source. git_commit: the material is committed, unmodified repository content. content: the material is identified by its content only, and only where the tree is not versioned. The kind is recorded, so the weaker guarantee is never mistaken for the stronger one." },
-        "source_commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$", "description": "The commit that published the admitted material. It is present for the git_commit kind and null for the content kind." },
-        "source_admission_commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{40}$", "description": "The commit that published the admission artifact itself. It is present for the git_commit kind and null for the content kind." },
-        "admitted_at": { "type": "string", "minLength": 1 },
-        "authority_granted": { "const": false, "description": "An admission is a binding, never an authority." }
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "admission_id": {
+          "type": "string",
+          "pattern": "^admit_evidence_[a-z0-9_]+$"
+        },
+        "admission_ref": {
+          "type": "string",
+          "pattern": "^evidence/admissions/[A-Za-z0-9][A-Za-z0-9._-]*\\.json$"
+        },
+        "admission_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "skill_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "subject_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The content the admitted evidence is admitted FOR. It must be the adopted content."
+        },
+        "material_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "source_kind": {
+          "enum": [
+            "git_commit",
+            "content"
+          ],
+          "description": "The identity that was proved for the admitted source. git_commit: the material is committed, unmodified repository content. content: the material is identified by its content only, and only where the tree is not versioned. The kind is recorded, so the weaker guarantee is never mistaken for the stronger one."
+        },
+        "source_commit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{40}$",
+          "description": "The commit that published the admitted material. It is present for the git_commit kind and null for the content kind."
+        },
+        "source_admission_commit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{40}$",
+          "description": "The commit that published the admission artifact itself. It is present for the git_commit kind and null for the content kind."
+        },
+        "admitted_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authority_granted": {
+          "const": false,
+          "description": "An admission is a binding, never an authority."
+        }
       },
       "allOf": [
         {
-          "if": { "properties": { "source_kind": { "const": "git_commit" } }, "required": ["source_kind"] },
+          "if": {
+            "properties": {
+              "source_kind": {
+                "const": "git_commit"
+              }
+            },
+            "required": [
+              "source_kind"
+            ]
+          },
           "then": {
             "properties": {
-              "source_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
-              "source_admission_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+              "source_commit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              },
+              "source_admission_commit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              }
             }
           }
         },
         {
-          "if": { "properties": { "source_kind": { "const": "content" } }, "required": ["source_kind"] },
+          "if": {
+            "properties": {
+              "source_kind": {
+                "const": "content"
+              }
+            },
+            "required": [
+              "source_kind"
+            ]
+          },
           "then": {
             "properties": {
-              "source_commit": { "type": "null" },
-              "source_admission_commit": { "type": "null" }
+              "source_commit": {
+                "type": "null"
+              },
+              "source_admission_commit": {
+                "type": "null"
+              }
             }
           }
         }
@@ -109,75 +272,211 @@
     "owner_approval": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["approver", "skill_id", "decision_ref", "approved_at", "candidate_digest", "authority_id", "authority_digest", "key_id", "signature_verified", "approval_record_ref", "approval_record_digest"],
+      "required": [
+        "approver",
+        "skill_id",
+        "decision_ref",
+        "approved_at",
+        "candidate_digest",
+        "authority_id",
+        "authority_digest",
+        "key_id",
+        "signature_verified",
+        "approval_record_ref",
+        "approval_record_digest"
+      ],
       "properties": {
-        "approver": { "const": "canonical_owner" },
-        "skill_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
-        "decision_ref": { "type": "string", "minLength": 1 },
-        "approved_at": { "type": "string", "minLength": 1 },
-        "candidate_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "authority_id": { "const": "canonical_owner", "description": "The trust anchor the approval was verified against." },
-        "authority_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$", "description": "The digest of the exact trust anchor the approval was verified against, so the record names WHICH anchor vouched for it." },
-        "key_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]*$" },
-        "signature_verified": { "const": true, "description": "The approval signature verified against the published canonical owner key. A self-declared approver or decision reference is not representable here." },
-        "approval_record_ref": { "type": "string", "pattern": "^core/authority/approvals/[A-Za-z0-9][A-Za-z0-9._-]*\\.json$" },
-        "approval_record_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+        "approver": {
+          "const": "canonical_owner"
+        },
+        "skill_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "decision_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "approved_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "candidate_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "authority_id": {
+          "const": "canonical_owner",
+          "description": "The trust anchor the approval was verified against."
+        },
+        "authority_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The digest of the exact trust anchor the approval was verified against, so the record names WHICH anchor vouched for it."
+        },
+        "key_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "signature_verified": {
+          "const": true,
+          "description": "The approval signature verified against the published canonical owner key. A self-declared approver or decision reference is not representable here."
+        },
+        "approval_record_ref": {
+          "type": "string",
+          "pattern": "^core/authority/approvals/[A-Za-z0-9][A-Za-z0-9._-]*\\.json$"
+        },
+        "approval_record_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "frontdoor_admission_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The frontdoor admission digest the owner approval binds in its signed payload. Present whenever the approval carries the binding; the promotion requires it."
+        }
       }
     },
     "canonical_adoption": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["canonical_path", "superseded_version", "superseded_version_source", "adoption_digest", "adopted_at", "adoption_ledger_ref"],
+      "required": [
+        "canonical_path",
+        "superseded_version",
+        "superseded_version_source",
+        "adoption_digest",
+        "adopted_at",
+        "adoption_ledger_ref"
+      ],
       "properties": {
-        "canonical_path": { "type": "string", "pattern": "^skills/[a-z0-9][a-z0-9._-]*/SKILL\\.md$" },
-        "superseded_version": { "$ref": "#/$defs/semver" },
-        "superseded_version_source": { "enum": ["canonical_skill_file", "no_prior_canonical_version"] },
-        "adoption_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-        "adopted_at": { "type": "string", "minLength": 1 },
-        "adoption_ledger_ref": { "type": "string", "pattern": "^skills/[a-z0-9][a-z0-9._-]*/ADOPTIONS\\.jsonl$" }
+        "canonical_path": {
+          "type": "string",
+          "pattern": "^skills/[a-z0-9][a-z0-9._-]*/SKILL\\.md$"
+        },
+        "superseded_version": {
+          "$ref": "#/$defs/semver"
+        },
+        "superseded_version_source": {
+          "enum": [
+            "canonical_skill_file",
+            "no_prior_canonical_version"
+          ]
+        },
+        "adoption_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "adopted_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "adoption_ledger_ref": {
+          "type": "string",
+          "pattern": "^skills/[a-z0-9][a-z0-9._-]*/ADOPTIONS\\.jsonl$"
+        }
       }
     },
     "export_regeneration": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["performed", "generator_version", "registry_version", "adoption_digest", "export_digests", "regenerated_at", "readback_verified"],
+      "required": [
+        "performed",
+        "generator_version",
+        "registry_version",
+        "adoption_digest",
+        "export_digests",
+        "regenerated_at",
+        "readback_verified"
+      ],
       "properties": {
-        "performed": { "const": true, "description": "A canonical adoption always regenerates the canonical registry and provider exports. A promotion that did not regenerate them is not representable." },
-        "generator_version": { "type": "string", "minLength": 1 },
-        "registry_version": { "type": ["string", "null"] },
-        "adoption_digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$", "description": "The exports are bound to the adoption they were regenerated for." },
+        "performed": {
+          "const": true,
+          "description": "A canonical adoption always regenerates the canonical registry and provider exports. A promotion that did not regenerate them is not representable."
+        },
+        "generator_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "registry_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "adoption_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "The exports are bound to the adoption they were regenerated for."
+        },
         "export_digests": {
           "type": "array",
           "minItems": 1,
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["ref", "digest", "bytes"],
+            "required": [
+              "ref",
+              "digest",
+              "bytes"
+            ],
             "properties": {
-              "ref": { "type": "string", "minLength": 1 },
-              "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
-              "bytes": { "type": "integer", "minimum": 0 }
+              "ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "digest": {
+                "type": "string",
+                "pattern": "^sha256:[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              }
             }
           }
         },
-        "regenerated_at": { "type": "string", "minLength": 1 },
-        "readback_verified": { "const": true }
+        "regenerated_at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "readback_verified": {
+          "const": true
+        }
       }
     },
     "post_adoption_readback": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["performed", "readback_digest_match", "readback_at"],
+      "required": [
+        "performed",
+        "readback_digest_match",
+        "readback_at"
+      ],
       "properties": {
-        "performed": { "const": true },
-        "readback_digest_match": { "const": true },
-        "readback_at": { "type": "string", "minLength": 1 }
+        "performed": {
+          "const": true
+        },
+        "readback_digest_match": {
+          "const": true
+        },
+        "readback_at": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
-    "authority_granted": { "const": false },
-    "created_at": { "type": "string", "minLength": 1 }
+    "authority_granted": {
+      "const": false
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    }
   },
   "$defs": {
-    "semver": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" }
+    "semver": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    }
   }
 }

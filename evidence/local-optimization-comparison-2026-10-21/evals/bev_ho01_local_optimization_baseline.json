@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "eval_id": "bev_ho01_local_optimization_baseline",
-  "created_at": "2026-10-21T08:17:58.820Z",
+  "created_at": "2026-10-21T10:41:03.690Z",
   "variant": "BASELINE",
   "subject": {
     "kind": "harness",
@@ -80,7 +80,7 @@
     "corpus_ref": "ho01-local-optimization",
     "corpus_digest": "sha256:f7b5259a7133b58bd80f9aa084f556c0ec7f66c2345f8eb9c89ed80a296cee79",
     "runner": "run-skill-effectiveness-evals.mjs",
-    "content_digest": "sha256:362db89f2a7fa92b0e779d374dba67f938f0dc51c36612b8faffd048b5d70a51"
+    "content_digest": "sha256:e66abc5daf6d31d1ec67230fd9d2eaccb8f055385e98d83a368a791687161dbe"
   },
   "evidence_refs": [
     "corpus:ho01-local-optimization"

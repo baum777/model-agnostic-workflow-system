@@ -63,10 +63,15 @@ const APPROVAL_REF = 'core/authority/approvals/owner_decision_test_0001.json';
 // committed in this repository. The CLI reads them from the pinned evidence
 // surface of this installation, so they are exercised end to end.
 const SHIPPED_SKILL_ID = 'maws-workflow-core-router-profile';
+// The shipped evidence the CLI test consumes: the canonical skill-effectiveness
+// corpus re-run by the canonical runner with the subject-bound record contract
+// (schema 1.1.0). The older tree (evidence/skill-effectiveness-evals-2026-10-21)
+// stays as the historical 1.0.0 record set it is; its records cannot re-verify
+// under the current runner, which is the subject binding doing its job.
 const SHIPPED_EVAL_RECORDS = [{
-  record_ref: 'evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-candidate.json',
+  record_ref: 'evidence/skill-effectiveness-evals-subject-bound-2026-10-21/eval-record-bev-skill-effectiveness-candidate.json',
   corpus_ref: 'evals/skill-effectiveness',
-  baseline_record_ref: 'evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json'
+  baseline_record_ref: 'evidence/skill-effectiveness-evals-subject-bound-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json'
 }];
 const SHIPPED_CANDIDATE_CONTENT = `---
 name: maws-workflow-core-router-profile
@@ -96,7 +101,8 @@ function approvalBody({
   skillId = 'promoted-skill',
   candidateDigest = CANDIDATE_DIGEST,
   decisionRef = 'owner_decision_test_0001',
-  approvedAt = '2026-10-20T00:00:00Z'
+  approvedAt = '2026-10-20T00:00:00Z',
+  frontdoorAdmissionDigest = null
 } = {}) {
   return {
     schema_version: '1.0.0',
@@ -104,7 +110,8 @@ function approvalBody({
     skill_id: skillId,
     decision_ref: decisionRef,
     approved_at: approvedAt,
-    candidate_digest: candidateDigest
+    candidate_digest: candidateDigest,
+    ...(frontdoorAdmissionDigest !== null ? { frontdoor_admission_digest: frontdoorAdmissionDigest } : {})
   };
 }
 
@@ -140,6 +147,77 @@ function writeApproval(canonicalRoot, approval, ref = APPROVAL_REF) {
   fs.mkdirSync(path.dirname(absolute), { recursive: true });
   fs.writeFileSync(absolute, `${JSON.stringify(approval, null, 2)}\n`);
   return ref;
+}
+
+// --- frontdoor receipt staging -----------------------------------------------
+//
+// The promotion verifies the frontdoor admission as EVIDENCE: it must live in
+// the canonical tree's sandbox/runs surface, its identity must re-derive, and
+// its analyzer claims must follow from the reports it names. The fixture
+// therefore stages the screening run the way the checker writes it.
+
+const SKILLSPECTOR_CLEAN_REPORT = {
+  metadata: { skillspector_version: '2.12.0' },
+  execution_successful: true,
+  analysis_completeness: { execution_successful: true, is_complete: true, status: 'complete' },
+  issues: [],
+  risk_assessment: { score: 0, severity: 'NONE', max_issue_severity: 'NONE', recommendation: 'SAFE' }
+};
+const SKILLEVALUATOR_PASSED_REPORT = {
+  overall_status: 'passed',
+  overall_passed: true,
+  severity_counts: { critical: 0, high: 0, medium: 0, low: 0 }
+};
+
+// compactRunTimestamp(iso) -> the checker's run-directory timestamp form
+// (formatTimestamp: the compact date, the compact time, milliseconds kept).
+function compactRunTimestamp(iso) {
+  const [date, time] = String(iso).split('T');
+  return `${date.replace(/-/g, '')}T${time.replace(/:/g, '')}`;
+}
+
+// stageFrontdoorReceipt(canonicalTree, options) -> { path, digest, record,
+// runTs }. Writes a CLEAN screening run into the canonical tree: the two
+// analyzer reports and the receipt binding them, with the admission id
+// derived exactly the way the checker derives it. `overrides` are applied on
+// top of the record for the negative tests.
+function stageFrontdoorReceipt(canonicalTree, {
+  skillId = 'promoted-skill',
+  contentDigest = CANDIDATE_DIGEST,
+  treeDigestHex = 'd'.repeat(64),
+  decidedAt = '2026-10-20T00:00:00.000Z',
+  overrides = {}
+} = {}) {
+  const runTs = compactRunTimestamp(decidedAt);
+  const runDir = path.join(canonicalTree, 'sandbox', 'runs', runTs);
+  fs.mkdirSync(runDir, { recursive: true });
+  fs.writeFileSync(path.join(runDir, 'skillspector-report.json'), `${JSON.stringify(SKILLSPECTOR_CLEAN_REPORT, null, 2)}\n`);
+  fs.writeFileSync(path.join(runDir, 'skillevaluator-report.json'), `${JSON.stringify(SKILLEVALUATOR_PASSED_REPORT, null, 2)}\n`);
+  const record = {
+    schema_version: '1.1.0',
+    admission_id: `sfa_${treeDigestHex.slice(0, 12)}_${runTs}`,
+    candidate: {
+      skill_id: skillId,
+      target: 'local-directory',
+      target_kind: 'local-directory',
+      source_revision: `sha256:${treeDigestHex}`,
+      content_digest: contentDigest
+    },
+    requested_action: 'implement',
+    evidence: {
+      skillspector: { analyzer: 'NVIDIA/SkillSpector', version: '2.12.0', scan_mode: 'static-no-llm', exit_code: 0, report_path: `sandbox/runs/${runTs}/skillspector-report.json`, status: 'PASS', severity: 'none', severity_counts: { critical: 0, high: 0, medium: 0, low: 0 } },
+      skillevaluator_tier1: { analyzer: 'NVIDIA/SkillEvaluator', version: '1.4.0', profile: 'external', tier_scope: '1', exit_code: 0, report_path: `sandbox/runs/${runTs}/skillevaluator-report.json`, status: 'PASS', overall_status: 'passed', overall_passed: true, severity_counts: { critical: 0, high: 0, medium: 0, low: 0 } }
+    },
+    analysis_disposition: 'CLEAN',
+    implementation_disposition: 'ELIGIBLE',
+    authority_granted: false,
+    blockers: [],
+    decided_at: decidedAt
+  };
+  Object.assign(record, overrides);
+  const receiptPath = path.join(runDir, 'skill-frontdoor-admission.json');
+  fs.writeFileSync(receiptPath, `${JSON.stringify(record, null, 2)}\n`);
+  return { path: receiptPath, digest: sha256Prefixed(canonicalJson(record)), record, runTs };
 }
 
 // A minimal canonical tree the export generators can work on.
@@ -188,7 +266,8 @@ function buildCorpusFiles({
   positiveBlocking = true,
   baselinePositiveText = BASELINE_POSITIVE_TEXT,
   candidatePositiveText = CANDIDATE_POSITIVE_TEXT,
-  candidateSecurityClass = 'none'
+  candidateSecurityClass = 'none',
+  content = CANDIDATE_CONTENT
 } = {}) {
   const positiveCase = (text, securityClass) => ({
     case_id: 'se_pos_001',
@@ -247,7 +326,16 @@ function buildCorpusFiles({
   const manifest = {
     schema_version: '1.0.0',
     corpus_id: 'promotion-corpus',
-    subject: { kind: 'skill', ref: SUBJECT_REF },
+    // The subject content binding: the corpus CARRIES the content it
+    // measures and the loader verifies the bytes against the declared
+    // digest before any case runs, so every record binds the measured
+    // content by digest.
+    subject: {
+      kind: 'skill',
+      ref: SUBJECT_REF,
+      content_path: 'subject/SKILL.md',
+      content_digest: sha256Prefixed(content)
+    },
     families: [
       { family: 'positive', file: 'shared', via: 'variant', blocking: positiveBlocking },
       { family: 'negative', file: 'negative-cases/cases.json', blocking: true },
@@ -260,6 +348,7 @@ function buildCorpusFiles({
   };
   return {
     'corpus.json': `${JSON.stringify(manifest, null, 2)}\n`,
+    'subject/SKILL.md': content,
     'baseline/cases.json': `${JSON.stringify({ cases: [positiveCase(baselinePositiveText, 'none')] }, null, 2)}\n`,
     'candidates/cases.json': `${JSON.stringify({ cases: [positiveCase(candidatePositiveText, candidateSecurityClass)] }, null, 2)}\n`,
     'negative-cases/cases.json': `${JSON.stringify({ cases: [negativeCase] }, null, 2)}\n`,
@@ -301,69 +390,30 @@ async function buildEvidenceFixture(options = {}) {
 // The three genuine evidence worlds the tests need: an improvement, a
 // rejected candidate, and a blocked evaluation. The blocked world puts the
 // security class on the CANDIDATE's positive case: the security family is
-// shared, so a regression there would block the baseline first.
+// shared, so a regression there would block the baseline first. The v2 world
+// measures the 2.0.0 content: a promotion may only be admitted for content
+// the evidence actually measured.
 const FIXTURE = await buildEvidenceFixture();
 const REJECTED_FIXTURE = await buildEvidenceFixture({
   positiveBlocking: false,
   candidatePositiveText: 'Routing complete.'
 });
 const BLOCKED_FIXTURE = await buildEvidenceFixture({ candidateSecurityClass: 'secret_exfiltration' });
+const V2_FIXTURE = await buildEvidenceFixture({ content: candidateContentWithVersion('2.0.0') });
 
-function admissionRecord({
-  implementationDisposition = 'ELIGIBLE',
-  skillId = 'promoted-skill',
-  sourceRevision = CANDIDATE_DIGEST
-} = {}) {
-  return {
-    schema_version: '1.0.0',
-    admission_id: 'sfa_s8_candidate_0001',
-    candidate: {
-      skill_id: skillId,
-      target: 'local-directory',
-      target_kind: 'local-directory',
-      source_revision: sourceRevision
-    },
-    requested_action: 'implement',
-    evidence: {
-      skillspector: {
-        analyzer: 'NVIDIA/SkillSpector',
-        version: '0.5.0',
-        scan_mode: 'static-no-llm',
-        exit_code: 0,
-        report_path: 'sandbox/runs/20261020T000000Z/skillspector/skillspector-report.json',
-        status: 'PASS',
-        severity: 'none',
-        severity_counts: { critical: 0, high: 0, medium: 0, low: 0 }
-      },
-      skillevaluator_tier1: {
-        analyzer: 'NVIDIA/SkillEvaluator',
-        version: '0.5.0',
-        profile: 'external',
-        tier_scope: '1',
-        exit_code: 0,
-        report_path: 'sandbox/runs/20261020T000000Z/skillevaluator/skillevaluator-output.json',
-        status: 'PASS',
-        overall_status: 'passed',
-        overall_passed: true,
-        severity_counts: { critical: 0, high: 0, medium: 0, low: 0 }
-      }
-    },
-    analysis_disposition: 'CLEAN',
-    implementation_disposition: implementationDisposition,
-    authority_granted: false,
-    blockers: [],
-    decided_at: '2026-10-20T00:00:00.000Z'
-  };
-}
+// The BLOCKED-disposition override for the frontdoor-refusal tests: the
+// receipt is staged like every other world's, with the disposition the
+// checker would have derived for blocked analyzer evidence.
+const BLOCKED_RECEIPT = { implementation_disposition: 'BLOCKED', analysis_disposition: 'BLOCKED' };
 
 // setup() builds a complete, isolated promotion world: a canonical tree, a
-// trust anchor with a freshly generated key, a signed owner approval in the
-// canonical decision surface, the frontdoor admission and the behavioral
-// evidence. The evidence lives in its OWN tree (an isolated copy of the
-// fixture): the promotion chain reads the corpus and the records from disk,
-// so every test gets its own mutable copy.
+// trust anchor with a freshly generated key, a staged frontdoor screening
+// run, a signed owner approval whose SIGNED payload binds the screening, and
+// the behavioral evidence. The evidence lives in its OWN tree (an isolated
+// copy of the fixture): the promotion chain reads the corpus and the records
+// from disk, so every test gets its own mutable copy.
 function setup({
-  admission = admissionRecord(),
+  receiptOverrides = {},
   fixture = FIXTURE,
   approval = null,
   approvalRef = APPROVAL_REF,
@@ -386,8 +436,14 @@ function setup({
     keyStatus,
     authorityStatus
   });
-  const admissionPath = path.join(dir, 'admission.json');
-  fs.writeFileSync(admissionPath, JSON.stringify(admission, null, 2));
+  // The frontdoor screening run is staged INSIDE the canonical tree, the
+  // way the checker writes it, and binds the content that is promoted.
+  const frontdoor = stageFrontdoorReceipt(tree, {
+    skillId: 'promoted-skill',
+    contentDigest: sha256Prefixed(content),
+    overrides: receiptOverrides
+  });
+  const admissionPath = frontdoor.path;
   // The evidence is NAMED, never supplied: the chain reads the record and
   // the corpus from the evidence tree and re-derives everything from them.
   const evalEntries = [{
@@ -415,13 +471,16 @@ function setup({
   const evidenceAdmissionPath = path.join(evidenceTree, evidenceAdmissionRef);
   fs.mkdirSync(path.dirname(evidenceAdmissionPath), { recursive: true });
   fs.writeFileSync(evidenceAdmissionPath, `${JSON.stringify(evidenceAdmission, null, 2)}\n`);
-  const body = approval ?? approvalBody();
+  // The owner approval binds the frontdoor admission in its SIGNED body:
+  // the decision covers exactly the screening this world staged.
+  const body = approval ?? approvalBody({ frontdoorAdmissionDigest: frontdoor.digest });
   const signed = approve ? signApproval(body, keyPair.privateKey, keyId) : body;
   const ref = writeApproval(tree, signed, approvalRef);
   return {
     dir,
     tree,
     evidenceTree,
+    frontdoor,
     admissionPath,
     evalEntries,
     evidenceAdmissionRef,
@@ -683,7 +742,9 @@ test('S8 an approval signed by an unpublished key authorizes nothing', async () 
   const world = setup();
   // A second key pair signs the approval, but the anchor does not publish it.
   const foreign = makeKeyPair();
-  const body = approvalBody();
+  // The forged approval still binds the screening it claims to authorize:
+  // the refusal under test is the UNKNOWN KEY, not a missing binding.
+  const body = approvalBody({ frontdoorAdmissionDigest: world.frontdoor.digest });
   const foreignApproval = signApproval(body, foreign.privateKey, 'owner_key_foreign_0001');
   const ref = writeApproval(world.tree, foreignApproval, 'core/authority/approvals/foreign_decision_0001.json');
 
@@ -898,7 +959,7 @@ test('S8 a tampered approval body does not verify', async () => {
 });
 
 test('S8 no promotion without the skill frontdoor: BLOCKED or non-ELIGIBLE admissions fail closed', async () => {
-  const world = setup({ admission: admissionRecord({ implementationDisposition: 'BLOCKED' }) });
+  const world = setup({ receiptOverrides: BLOCKED_RECEIPT });
   await expectPromotionError('FRONTDOOR_ADMISSION_NOT_ELIGIBLE', async () =>
     await promoteSkillCandidate({
       adoptionId: 'adopt_s8_blocked_0001',
@@ -1541,12 +1602,18 @@ test('S8 the superseded version is read from the canonical tree, not asserted by
   // and the owner approval must screen the 2.0.0 content.
   const v2Content = candidateContentWithVersion('2.0.0');
   const v2Digest = sha256Prefixed(v2Content);
-  const v2AdmissionPath = path.join(world.dir, 'admission-v2.json');
-  fs.writeFileSync(v2AdmissionPath, JSON.stringify(admissionRecord({ sourceRevision: v2Digest }), null, 2));
-  const approval = writeApproval(world.tree, signApproval(approvalBody({ candidateDigest: v2Digest }), world.keyPair.privateKey), 'core/authority/approvals/owner_decision_v2_0001.json');
-  // The evidence must be admitted for the CONTENT that is adopted, so the
-  // second version needs its own admission.
-  const v2world = setup({ content: v2Content });
+  // The second screening run stages into the SAME canonical tree under its
+  // own run directory, and the approval binds it in its signed body.
+  const v2Frontdoor = stageFrontdoorReceipt(world.tree, {
+    skillId: 'promoted-skill',
+    contentDigest: v2Digest,
+    decidedAt: '2026-10-20T00:01:00.000Z'
+  });
+  const v2AdmissionPath = v2Frontdoor.path;
+  const approval = writeApproval(world.tree, signApproval(approvalBody({ candidateDigest: v2Digest, frontdoorAdmissionDigest: v2Frontdoor.digest }), world.keyPair.privateKey), 'core/authority/approvals/owner_decision_v2_0001.json');
+  // The evidence must measure the CONTENT that is adopted, so the second
+  // version needs its own evidence world and its own admission.
+  const v2world = setup({ content: v2Content, fixture: V2_FIXTURE });
   const { record, issues } = await promoteSkillCandidate({
     adoptionId: 'adopt_s8_upgrade_live_0001',
     skillId: 'promoted-skill',
@@ -1768,14 +1835,14 @@ test('S8 the standalone readback reports the gap when no evidence tree is given'
 });
 
 test('S8 frontdoor and eval helpers bind digests canonically', async () => {
-  const dir = tempDir();
-  const admissionPath = path.join(dir, 'admission.json');
-  fs.writeFileSync(admissionPath, JSON.stringify(admissionRecord(), null, 2));
-  const { digest } = readAndDigestJson(admissionPath);
-  assert.match(digest, /^sha256:[a-f0-9]{64}$/);
-  const again = readAndDigestJson(admissionPath);
-  assert.equal(again.digest, digest);
   const world = setup();
+  const { digest } = readAndDigestJson(world.admissionPath);
+  assert.match(digest, /^sha256:[a-f0-9]{64}$/);
+  const again = readAndDigestJson(world.admissionPath);
+  assert.equal(again.digest, digest);
+  // The staged receipt binds the promoted content in the CONTENT digest
+  // form, and the approval binds the receipt in its signed body.
+  assert.equal(JSON.parse(fs.readFileSync(world.admissionPath, 'utf8')).candidate.content_digest, CANDIDATE_DIGEST);
   const evidence = await validateEvalEvidence({ evalRecords: world.evalEntries, root, evidenceRoot: world.evidenceTree });
   assert.equal(evidence.improvement_proven, true);
   assert.equal(evidence.provenance_verified, true);
@@ -1791,11 +1858,13 @@ test('S8 the CLI accepts the SHIPPED behavioral evidence and then refuses the un
   // proven by the fact that the refusal is the approval refusal and not an
   // evidence refusal.
   const world = setup();
-  const admissionPath = path.join(world.dir, 'admission-shipped.json');
-  fs.writeFileSync(admissionPath, JSON.stringify(admissionRecord({
+  // The shipped promotion gets its own screening run in its own canonical
+  // tree, binding the shipped candidate content.
+  const shippedFrontdoor = stageFrontdoorReceipt(world.tree, {
     skillId: SHIPPED_SKILL_ID,
-    sourceRevision: sha256Prefixed(SHIPPED_CANDIDATE_CONTENT)
-  }), null, 2));
+    contentDigest: sha256Prefixed(SHIPPED_CANDIDATE_CONTENT)
+  });
+  const admissionPath = shippedFrontdoor.path;
   const input = {
     adoption_id: 'adopt_s8_cli_0001',
     skill_id: SHIPPED_SKILL_ID,
@@ -1831,4 +1900,185 @@ test('S8 the CLI accepts the SHIPPED behavioral evidence and then refuses the un
   assert.ok(result.issues.length > 0);
   assert.match(result.issues[0], /OWNER_AUTHORITY_NOT_PUBLISHED/);
   assert.equal(fs.existsSync(path.join(world.tree, `skills/${SHIPPED_SKILL_ID}/SKILL.md`)), false);
+});
+
+// --- S9/F2: the frontdoor admission is verified evidence ---------------------
+//
+// The receipt must live in the canonical screening surface, its identity must
+// re-derive, its analyzer claims must follow from the reports it names, and
+// the owner approval must bind exactly the receipt the promotion consumes.
+
+async function promotionOf(world, overrides = {}) {
+  return await promoteSkillCandidate({
+    adoptionId: 'adopt_s9_frontdoor_0001',
+    skillId: 'promoted-skill',
+    adoptedVersion: '1.0.0',
+    supersededVersion: '0.9.0',
+    candidateContent: CANDIDATE_CONTENT,
+    candidateDigest: CANDIDATE_DIGEST,
+    admissionPath: world.admissionPath,
+    evalRecords: world.evalEntries,
+    evidenceAdmissionRef: world.evidenceAdmissionRef,
+    ownerApprovalRef: world.ownerApprovalRef,
+    ownerAuthorityPath: world.ownerAuthorityPath,
+    canonicalRoot: world.tree,
+    evidenceRoot: world.evidenceTree,
+    root,
+    ...overrides
+  });
+}
+
+test('S9 a frontdoor receipt outside the canonical screening surface is refused', async () => {
+  const world = setup();
+  const escaped = path.join(world.dir, 'skill-frontdoor-admission.json');
+  fs.copyFileSync(world.admissionPath, escaped);
+  await expectPromotionError('FRONTDOOR_ADMISSION_SURFACE_INVALID', async () =>
+    await promotionOf(world, { admissionPath: escaped })
+  );
+});
+
+test('S9 a frontdoor receipt whose identity does not re-derive is refused', async () => {
+  const world = setup();
+  const receipt = JSON.parse(fs.readFileSync(world.admissionPath, 'utf8'));
+  receipt.admission_id = `sfa_${'e'.repeat(12)}_${world.frontdoor.runTs}`;
+  fs.writeFileSync(world.admissionPath, `${JSON.stringify(receipt, null, 2)}\n`);
+  // The receipt was modified, so the approval no longer binds it either —
+  // but the identity gate fires first.
+  await expectPromotionError('FRONTDOOR_ADMISSION_IDENTITY_MISMATCH', async () =>
+    await promotionOf(world)
+  );
+});
+
+test('S9 a frontdoor receipt whose named report is missing is refused', async () => {
+  const world = setup();
+  fs.rmSync(path.join(world.tree, 'sandbox', 'runs', world.frontdoor.runTs, 'skillspector-report.json'));
+  await expectPromotionError('FRONTDOOR_REPORT_MISSING', async () =>
+    await promotionOf(world)
+  );
+});
+
+test('S9 a frontdoor receipt whose analyzer evidence does not follow from its report is refused', async () => {
+  const world = setup();
+  // The report is manipulated into a blocking finding; the receipt still
+  // claims a CLEAN PASS. The re-derivation from the report refuses.
+  const reportPath = path.join(world.tree, 'sandbox', 'runs', world.frontdoor.runTs, 'skillspector-report.json');
+  const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  report.risk_assessment.severity = 'HIGH';
+  report.risk_assessment.max_issue_severity = 'HIGH';
+  report.risk_assessment.recommendation = 'DO_NOT_INSTALL';
+  report.risk_assessment.score = 80;
+  fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  await expectPromotionError('FRONTDOOR_REPORT_MISMATCH', async () =>
+    await promotionOf(world)
+  );
+});
+
+test('S9 a frontdoor receipt that screened OTHER content than the adoption promotes is refused', async () => {
+  const world = setup();
+  const receipt = JSON.parse(fs.readFileSync(world.admissionPath, 'utf8'));
+  receipt.candidate.content_digest = sha256Prefixed(`${CANDIDATE_CONTENT}\n<!-- other content -->`);
+  fs.writeFileSync(world.admissionPath, `${JSON.stringify(receipt, null, 2)}\n`);
+  await expectPromotionError('PROMOTION_CANDIDATE_CONTENT_MISMATCH', async () =>
+    await promotionOf(world)
+  );
+});
+
+test('S9 an approval that does not bind the frontdoor admission authorizes nothing', async () => {
+  const world = setup({ approval: approvalBody() });
+  await expectPromotionError('OWNER_APPROVAL_ADMISSION_UNBOUND', async () =>
+    await promotionOf(world)
+  );
+});
+
+test('S9 an approval that binds a DIFFERENT frontdoor admission authorizes nothing', async () => {
+  const world = setup({ approval: approvalBody({ frontdoorAdmissionDigest: `sha256:${'9'.repeat(64)}` }) });
+  await expectPromotionError('OWNER_APPROVAL_ADMISSION_MISMATCH', async () =>
+    await promotionOf(world)
+  );
+});
+
+test('S9 the record binds the screened content and the approval binding survives the readback', async () => {
+  const world = setup();
+  const { record, issues } = await promotionOf(world);
+  assert.deepEqual(issues, []);
+  assert.equal(record.candidate.content_digest, CANDIDATE_DIGEST);
+  assert.equal(record.frontdoor_admission.content_digest, CANDIDATE_DIGEST);
+  assert.notEqual(record.frontdoor_admission.screened_digest, CANDIDATE_DIGEST);
+  assert.equal(record.owner_approval.frontdoor_admission_digest, world.frontdoor.digest);
+});
+
+test('S9 a frontdoor receipt inside the tree at a NON-canonical run path is refused', async () => {
+  const world = setup();
+  const strayDir = path.join(world.tree, 'sandbox', 'runs', 'not-a-run-dir');
+  fs.mkdirSync(strayDir, { recursive: true });
+  const stray = path.join(strayDir, 'skill-frontdoor-admission.json');
+  fs.copyFileSync(world.admissionPath, stray);
+  await expectPromotionError('FRONTDOOR_ADMISSION_SURFACE_INVALID', async () =>
+    await promotionOf(world, { admissionPath: stray })
+  );
+});
+
+test('S9 a frontdoor receipt relocated to ANOTHER run directory is refused', async () => {
+  const world = setup();
+  const movedTs = '20261020T000001.000Z';
+  const movedDir = path.join(world.tree, 'sandbox', 'runs', movedTs);
+  fs.mkdirSync(movedDir, { recursive: true });
+  // Byte-identical receipt — its id still names the original run — under a
+  // different run directory. The identity must re-derive from the PATH too.
+  const moved = path.join(movedDir, 'skill-frontdoor-admission.json');
+  fs.copyFileSync(world.admissionPath, moved);
+  await expectPromotionError('FRONTDOOR_ADMISSION_IDENTITY_MISMATCH', async () =>
+    await promotionOf(world, { admissionPath: moved })
+  );
+});
+
+test('S9 the signed approval payload covers the admission binding', () => {
+  // The signature is taken over approvalPayload. The binding is only
+  // owner-attested if the payload FORM carries it: a payload form that
+  // silently dropped the field would sign approvals whose binding is
+  // outside the signature.
+  const withBinding = approvalBody({ frontdoorAdmissionDigest: `sha256:${'7'.repeat(64)}` });
+  const withoutBinding = approvalBody();
+  assert.notEqual(
+    approvalPayload(withBinding),
+    approvalPayload(withoutBinding),
+    'the approval payload must differ when the admission binding differs, otherwise the signature does not cover the binding'
+  );
+  assert.match(approvalPayload(withBinding), /frontdoor_admission_digest/);
+  // And the world's own approval signs over a payload that carries ITS
+  // binding.
+  const world = setup();
+  const approval = JSON.parse(fs.readFileSync(path.join(world.tree, world.ownerApprovalRef), 'utf8'));
+  assert.equal(
+    approvalPayload(approval),
+    approvalPayload({ ...approval, frontdoor_admission_digest: world.frontdoor.digest })
+  );
+});
+
+test('S9 the post-adoption readback cross-checks the approval binding against the admission', async () => {
+  const world = setup();
+  const { record } = await promotionOf(world);
+  // A record whose approval binding was altered afterwards must fail the
+  // readback: the recorded approval must bind exactly the recorded
+  // admission.
+  record.owner_approval.frontdoor_admission_digest = `sha256:${'6'.repeat(64)}`;
+  const issues = await postAdoptionReadback({ record, canonicalRoot: world.tree, evidenceRoot: world.evidenceTree });
+  assert.ok(
+    issues.some((issue) => issue.includes('the owner approval does not bind the admission digest')),
+    issues.join(' | ')
+  );
+});
+
+test('S9 an approval that is not a contained regular file of the canonical tree is refused', async () => {
+  const world = setup();
+  // The approval file inside the decision surface is replaced by a symlink
+  // to a file OUTSIDE the tree. The containment proof refuses the read.
+  const outside = path.join(world.dir, 'approval-outside.json');
+  fs.copyFileSync(path.join(world.tree, world.ownerApprovalRef), outside);
+  const approvalPath = path.join(world.tree, world.ownerApprovalRef);
+  fs.rmSync(approvalPath);
+  fs.symlinkSync(outside, approvalPath);
+  await expectPromotionError('OWNER_APPROVAL_PATH_ESCAPE', async () =>
+    await promotionOf(world)
+  );
 });

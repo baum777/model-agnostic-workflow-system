@@ -61,7 +61,7 @@
       "tool_contract_refs": ["core/contracts/tool-contracts/catalog.json"],
       "api_surface_version": "2026-10",
       "qualification_profile_ref": "qualprofile_model_adaptive_v1",
-      "effective_instruction_digest": "sha256:ff53f1102a5c814d1c8c0a0544f8c617385953e071a70c9fa320c206d11b7952"
+      "effective_instruction_digest": "sha256:2d68db2a6cf7dff3670bf68eb1ff7b36f9be71df0c984f74a8fde41fca941675"
     }
   },
   "qualification": {

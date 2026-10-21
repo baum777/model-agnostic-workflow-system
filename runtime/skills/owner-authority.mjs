@@ -30,6 +30,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { canonicalJson } from '../vnext/util.mjs';
+import { assertCanonicalTarget, CanonicalPathError } from './canonical-path.mjs';
 
 export const OWNER_AUTHORITY_CONTRACT = 'core/contracts/owner-authority.schema.json';
 export const OWNER_APPROVAL_CONTRACT = 'core/contracts/owner-approval.schema.json';
@@ -79,7 +80,11 @@ export function sha256Prefixed(content) {
 }
 
 // approvalPayload(approval) -> the exact bytes the signature covers: the
-// canonical JSON of every approval field except the signature envelope.
+// canonical JSON of every approval field except the signature envelope. An
+// approval that binds the frontdoor admission (frontdoor_admission_digest)
+// signs over that binding too, so the owner decision covers exactly the
+// screened admission the promotion consumes — a fabricated or substituted
+// admission cannot match a signature that binds another one.
 export function approvalPayload(approval) {
   return canonicalJson({
     schema_version: approval.schema_version,
@@ -87,7 +92,10 @@ export function approvalPayload(approval) {
     skill_id: approval.skill_id,
     decision_ref: approval.decision_ref,
     approved_at: approval.approved_at,
-    candidate_digest: approval.candidate_digest
+    candidate_digest: approval.candidate_digest,
+    ...(approval.frontdoor_admission_digest !== undefined
+      ? { frontdoor_admission_digest: approval.frontdoor_admission_digest }
+      : {})
   });
 }
 
@@ -172,6 +180,17 @@ export function resolveApprovalPath({ canonicalRoot, approvalRef }) {
 // surface and its content digest is bound into the adoption record.
 export function readOwnerApproval({ approvalRef, canonicalRoot }) {
   const { absolute, relative } = resolveApprovalPath({ canonicalRoot, approvalRef });
+  // The approval is read like every other governed artifact: through the
+  // canonical containment proof, so a symlinked file or a symlinked parent
+  // directory cannot move the read out of the tree.
+  try {
+    assertCanonicalTarget({ root: path.resolve(canonicalRoot), absolutePath: absolute, label: 'owner approval' });
+  } catch (error) {
+    if (error instanceof CanonicalPathError) {
+      authorityError('OWNER_APPROVAL_PATH_ESCAPE', `the owner approval ${relative} is not a contained regular file of the canonical tree: ${error.message}`);
+    }
+    throw error;
+  }
   let content;
   try {
     content = fs.readFileSync(absolute, 'utf8');
@@ -190,9 +209,14 @@ export function readOwnerApproval({ approvalRef, canonicalRoot }) {
   return { record, digest: sha256Prefixed(canonicalJson(record)), relative, absolute };
 }
 
-// verifyOwnerApproval({ approval, authority, candidateDigest, skillId, now })
+// verifyOwnerApproval({ approval, authority, candidateDigest, skillId, now,
+// frontdoorAdmissionDigest, maxApprovalAgeDays })
 //   -> the verified approval summary. Every check fails closed (A2..A5).
-export function verifyOwnerApproval({ approval, authority, candidateDigest, skillId = null, now = new Date(), maxApprovalAgeDays = DEFAULT_MAX_APPROVAL_AGE_DAYS }) {
+// frontdoorAdmissionDigest: when given (the promotion always gives it), the
+// approval must bind the frontdoor admission and bind EXACTLY it — the
+// signature covers the binding, so a substituted admission fails the
+// signature itself.
+export function verifyOwnerApproval({ approval, authority, candidateDigest, skillId = null, now = new Date(), frontdoorAdmissionDigest = null, maxApprovalAgeDays = DEFAULT_MAX_APPROVAL_AGE_DAYS }) {
   const nowMs = resolveNowMs(now);
   if (authority.authority_status !== 'PUBLISHED' || authority.keys.length === 0) {
     authorityError(
@@ -237,6 +261,22 @@ export function verifyOwnerApproval({ approval, authority, candidateDigest, skil
   if (approval.candidate_digest !== candidateDigest) {
     authorityError('OWNER_APPROVAL_CANDIDATE_MISMATCH', `the owner approval binds candidate digest ${approval.candidate_digest}, the promoted content digests to ${candidateDigest}`);
   }
+  // The owner decision covers the screened frontdoor admission: a promotion
+  // that requires the binding cannot be authorized by an approval that does
+  // not carry it, and an approval that binds a DIFFERENT admission fails the
+  // equality here (and would fail the signature against a payload that
+  // carries this field).
+  if (frontdoorAdmissionDigest !== null) {
+    if (!isNonEmptyString(approval.frontdoor_admission_digest)) {
+      authorityError('OWNER_APPROVAL_ADMISSION_UNBOUND', 'the approval does not bind the frontdoor admission it authorizes; the promotion requires the owner decision to cover the screened admission');
+    }
+    if (!DIGEST_PATTERN.test(String(approval.frontdoor_admission_digest))) {
+      authorityError('OWNER_APPROVAL_INVALID', 'the approval carries a malformed frontdoor admission digest');
+    }
+    if (approval.frontdoor_admission_digest !== frontdoorAdmissionDigest) {
+      authorityError('OWNER_APPROVAL_ADMISSION_MISMATCH', `the owner approval binds frontdoor admission ${approval.frontdoor_admission_digest}, the promotion consumes admission ${frontdoorAdmissionDigest}`);
+    }
+  }
   const signature = approval.signature;
   if (signature === null || typeof signature !== 'object' || Array.isArray(signature)) {
     authorityError('OWNER_APPROVAL_SIGNATURE_INVALID', 'the owner approval carries no signature');
@@ -280,6 +320,9 @@ export function verifyOwnerApproval({ approval, authority, candidateDigest, skil
     decision_ref: approval.decision_ref,
     approved_at: approval.approved_at,
     candidate_digest: approval.candidate_digest,
+    ...(approval.frontdoor_admission_digest !== undefined
+      ? { frontdoor_admission_digest: approval.frontdoor_admission_digest }
+      : {}),
     authority_id: authority.authority_id,
     authority_digest: sha256Prefixed(canonicalJson(authority)),
     key_id: key.key_id,

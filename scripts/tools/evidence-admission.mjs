@@ -12,13 +12,13 @@
 //
 // Two bindings are missing, and this module adds them:
 //
-//   A1  the CONTENT assignment. S8 binds the evaluation to a subject LABEL
-//       (subject.ref). No field anywhere carries the digest of the skill
-//       content the evaluation measured, so an old corpus that measured an
-//       old skill version would still pass every S8 gate while a new version
-//       is adopted. The admission artifact names the content digest the
-//       evaluation is admitted FOR, and the promotion requires it to be the
-//       digest of the content that is being adopted.
+//   A1  the CONTENT assignment. The corpus declares the subject content it
+//       carries, the corpus loader verifies those bytes against the declared
+//       digest before any case runs, and the S8 re-execution re-derives the
+//       subject from the corpus. The admission binds an evaluation only when
+//       that MEASURED content digest is exactly the digest of the content
+//       being adopted — the assignment is a verified digest equality, not a
+//       caller declaration.
 //
 //   A2  the SOURCE trust. S8 re-hashes the material it reads, but nothing
 //       binds the evidence TREE: no tree identity, no commit, no file set.
@@ -484,6 +484,20 @@ export function verifyEvidenceAdmission({
   const attestation = matches[0];
   if (record.subject_ref !== attestation.subject_ref) {
     admissionError('EVIDENCE_ADMISSION_SUBJECT_MISMATCH', `the evidence admission ${admission.relative} admits the subject "${String(record.subject_ref)}", the bound evaluation measured "${String(attestation.subject_ref)}"`);
+  }
+
+  // A1: the SUBJECT CONTENT assignment. The S8 gate re-executes the
+  // evaluation over the corpus on disk, and the corpus loader verifies the
+  // subject content against its declared digest BEFORE any case runs, so the
+  // attestation's subject content digest is the content the corpus actually
+  // carries and the re-execution actually measured. The admission may only
+  // bind an evaluation whose measured content IS the content being adopted:
+  // an evaluation of other content stays inadmissible even when its record,
+  // baseline and corpus digests all match, and a corpus without a subject
+  // content binding measures content it cannot name, so it is refused here
+  // as well.
+  if (attestation.subject_content_digest !== record.content_digest) {
+    admissionError('EVIDENCE_ADMISSION_SUBJECT_CONTENT_MISMATCH', `the evaluation bound by the admission ${admission.relative} measured subject content ${String(attestation.subject_content_digest)}, the admission binds content ${record.content_digest}; an evaluation may only be admitted for the content it actually measured`);
   }
 
   // A1/A2: the source identity of the admitted material. The two kinds state

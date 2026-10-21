@@ -60,7 +60,7 @@ import {
 const RUNNER_ID = 'run-skill-effectiveness-evals.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const CORPUS_SCHEMA_VERSION = '1.0.0';
-const RUN_SCHEMA_VERSION = '1.0.0';
+const RUN_SCHEMA_VERSION = '1.1.0';
 const ASSERTION_TYPES = new Set(['contains', 'not_contains', 'equals', 'regex']);
 const SECURITY_CLASSES = new Set(['none', 'secret_exfiltration', 'permission_escalation', 'destructive_command']);
 // The family whose cases come from the variant files rather than from a
@@ -151,6 +151,52 @@ function readJsonFile(confined) {
   return parsed;
 }
 
+// bindSubjectContent(corpusDir, subject) -> { content_digest, absolute } or
+// null. A skill subject MUST be bound to the content it measures: the corpus
+// declares `subject.content_path` (a file inside the corpus) and
+// `subject.content_digest`, and the loader reads the file through the corpus
+// confinement primitive and verifies the digest BEFORE any case is executed.
+// Without this binding a corpus measures recorded transcripts whose relation
+// to the named skill is a claim, not a fact; with it, the measured content is
+// part of the corpus itself and every downstream digest carries it.
+//
+//   CORPUS_SUBJECT_CONTENT_UNBOUND  a skill subject declares no content, or
+//                                   only one half of the binding
+//   CORPUS_SUBJECT_DIGEST_INVALID   the declared digest is not canonical
+//   CORPUS_SUBJECT_DIGEST_MISMATCH  the content on disk does not digest to
+//                                   the declared value
+//
+// A non-skill subject MAY carry the same binding voluntarily; it is then
+// verified with exactly the same force.
+function bindSubjectContent(corpusDir, subject) {
+  const declaresPath = typeof subject.content_path === 'string' && subject.content_path.length >= 1;
+  const declaresDigest = typeof subject.content_digest === 'string' && subject.content_digest.length >= 1;
+  if (subject.kind === 'skill' && !declaresPath) {
+    throw new EvalConfigError('CORPUS_SUBJECT_CONTENT_UNBOUND', 'a skill subject must declare subject.content_path: an evaluation that names a skill without carrying the content it measured cannot prove what it measured');
+  }
+  if (!declaresPath && !declaresDigest) {
+    return null;
+  }
+  if (!declaresPath || !declaresDigest) {
+    throw new EvalConfigError('CORPUS_SUBJECT_CONTENT_UNBOUND', 'subject.content_path and subject.content_digest must be declared together');
+  }
+  if (!/^sha256:[a-f0-9]{64}$/.test(subject.content_digest)) {
+    throw new EvalConfigError('CORPUS_SUBJECT_DIGEST_INVALID', `subject.content_digest "${subject.content_digest}" is not a canonical digest`);
+  }
+  const confined = confineCorpusFile(corpusDir, subject.content_path);
+  let bytes;
+  try {
+    bytes = readConfinedFile(confined);
+  } catch (error) {
+    throw asCorpusError(error, 'CORPUS_FILE_INVALID') || new EvalConfigError('CORPUS_FILE_INVALID', `${confined.resolved}: ${error.message}`);
+  }
+  const computed = `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`;
+  if (computed !== subject.content_digest) {
+    throw new EvalConfigError('CORPUS_SUBJECT_DIGEST_MISMATCH', `the subject content ${subject.content_path} digests to ${computed}, the corpus declares ${subject.content_digest}; the corpus does not carry the content it names`);
+  }
+  return { content_digest: computed, absolute: confined.resolved };
+}
+
 /**
  * Load and validate the corpus manifest plus every referenced family file.
  */
@@ -223,7 +269,18 @@ export function loadCorpus(corpusDir) {
   // the positive one is refused by CORPUS_FAMILY_INVALID above. A separate
   // code for the empty blocking family was proved unreachable by the
   // independent review and removed rather than left as untestable code.
-  return { corpusDir, manifest, families, variants, subject: manifest.subject };
+  //
+  // The subject content binding is verified here as well, so a corpus whose
+  // declared content diverges from the bytes it carries is refused before
+  // any case runs. `corpus.subject` carries the VERIFIED digest and drops
+  // the path: the record subject is bound by content, not by location.
+  const subjectBinding = bindSubjectContent(corpusDir, manifest.subject);
+  const subject = { ...manifest.subject };
+  delete subject.content_path;
+  if (subjectBinding) {
+    subject.content_digest = subjectBinding.content_digest;
+  }
+  return { corpusDir, manifest, families, variants, subject, subjectContentPath: subjectBinding ? subjectBinding.absolute : null };
 }
 
 function loadCases(confined) {
@@ -552,7 +609,7 @@ export function compareRecords(baselineRecord, candidateRecord) {
  * another experiment must never produce IMPROVEMENT_PROVEN here.
  */
 export function assertBaselineRecordUsable(baselineRecord, candidateContext) {
-  const { corpusDigest, mode, subjectRef } = candidateContext;
+  const { corpusDigest, mode, subjectRef, subjectDigest } = candidateContext;
   if (baselineRecord.variant !== 'BASELINE' || baselineRecord.verdict !== 'BASELINE_RECORDED') {
     throw new EvalConfigError('BASELINE_RECORD_INVALID', 'baseline record must be a BASELINE record with verdict BASELINE_RECORDED');
   }
@@ -571,6 +628,13 @@ export function assertBaselineRecordUsable(baselineRecord, candidateContext) {
   }
   if (baselineRecord.subject.ref !== subjectRef) {
     throw new EvalConfigError('BASELINE_RECORD_MISMATCH', 'baseline subject.ref does not match the candidate subject');
+  }
+  // The subject content binding: a baseline that measured OTHER content than
+  // the corpus carries cannot serve as the comparison reference. For a skill
+  // subject both sides always carry the digest; a mismatch is a substituted
+  // measurement, not a formatting difference.
+  if (baselineRecord.subject.content_digest !== subjectDigest) {
+    throw new EvalConfigError('BASELINE_RECORD_MISMATCH', `baseline subject content ${String(baselineRecord.subject.content_digest)} does not match the measured subject content ${String(subjectDigest)}`);
   }
   return baselineRecord;
 }
@@ -604,7 +668,8 @@ export async function runSkillEffectivenessEval(options) {
     assertBaselineRecordUsable(baselineRecord, {
       corpusDigest: baselineProbe.reproducibility.corpus_digest,
       mode,
-      subjectRef: corpus.subject.ref
+      subjectRef: corpus.subject.ref,
+      subjectDigest: corpus.subject.content_digest
     });
   }
   compareRecords(baselineRecord, candidateRecord);
