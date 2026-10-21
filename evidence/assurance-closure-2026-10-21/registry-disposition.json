@@ -1,0 +1,64 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "The change adds tool surfaces, a repository-local contract for the repository's OWN run records, regression tests and evidence, and repairs a defect inside the repository's own static security gate and its baseline. No adopted registered binding moves: no SOURCE_RECORD, CONTRACT_RECORD, AUTHORITY_MAPPING, DEPENDENCY_BINDING, LIFECYCLE_BINDING, SUPERSESSION, PROVENANCE or REGISTERED_IMPLEMENTATION_BINDING of any registered object changes. The new assurance-run-record schema is a repo-local artifact contract for this repository's own evidence and is not an adopted registered contract; the baseline entries are disclosures of findings inside this repository's own source and register nothing. The change registration in the Unitera Registry and the representation in the Unitera Atlas are required for every change by the project routing layer and are made outside this repository; this artifact is the owner-side classification that accompanies them.",
+    "registry_baseline_sha": "e53e2bf69931aac7c29b66f0f584426133e6518f",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "evidence/assurance-closure-2026-10-21/RUN.md"
+    ],
+    "source_refs": [
+      "core/contracts/assurance-run-record.schema.json",
+      "scripts/tools/capture-assurance-run.mjs",
+      "scripts/tools/validate-assurance-run-record.mjs",
+      "scripts/tools/scan-source-security.mjs",
+      "scripts/tools/baum-loop-repo.mjs",
+      "scripts/tools/evidence-admission.mjs",
+      "scripts/tools/evidence-provenance.mjs",
+      "scripts/tools/path-confinement.mjs",
+      "security/source-security-baseline.json",
+      "evidence/assurance-closure-2026-10-21/residual-matrix.json",
+      "evidence/assurance-closure-2026-10-21/baseline-qualification.md",
+      "evidence/assurance-closure-2026-10-21/mutation-probes.json",
+      "evidence/assurance-closure-2026-10-21/run-record.json",
+      "tests/tools/assurance-run-record.test.mjs",
+      "tests/tools/assurance-residual-matrix.test.mjs",
+      "tests/tools/source-security-scan.test.mjs",
+      "tests/tools/loop-repo-command-injection.test.mjs",
+      "tests/vnext/evidence-admission.test.mjs",
+      "tests/vnext/evidence-provenance.test.mjs",
+      ".github/workflows/loop-repo-ci.yml",
+      "package.json"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/assurance-closure-2026-10-21/RUN.md",
+      "evidence/assurance-closure-2026-10-21/baseline-qualification.md"
+    ],
+    "evidence_refs": [
+      "evidence/assurance-closure-2026-10-21/RUN.md",
+      "evidence/assurance-closure-2026-10-21/run-record.json",
+      "evidence/assurance-closure-2026-10-21/gates/",
+      "evidence/assurance-closure-2026-10-21/residual-matrix.json",
+      "evidence/assurance-closure-2026-10-21/mutation-probes.json",
+      "evidence/assurance-closure-2026-10-21/baseline-qualification.md"
+    ],
+    "implementation_commit_sha": "c25958111494c8c6c12a20436eee25366ef2ee29",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/assurance-closure-2026-10-21/registry-disposition.json (PASS)",
+      "node scripts/tools/validate-assurance-run-record.mjs evidence/assurance-closure-2026-10-21/run-record.json --current (passed, no issue)",
+      "node scripts/tools/scan-source-security.mjs (PASS, 238 analysed, required coverage 4/4, 5 source-level disclosures, 34 baseline entries, none without a justification)",
+      "node --test tests/vnext/*.test.mjs (781 pass / 0 fail)",
+      "node --test tests/tools/*.test.mjs (58 pass / 0 fail)",
+      "node --test tests/tools/assurance-residual-matrix.test.mjs (6 pass / 0 fail)",
+      "29 reverted mutation probes, all load-bearing (evidence/assurance-closure-2026-10-21/mutation-probes.json)"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}
