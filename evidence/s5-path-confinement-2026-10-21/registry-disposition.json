@@ -1,0 +1,57 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "S5 Path-Confinement Closure (owner ticket of 2026-10-21), a bounded closure of the path-confinement finding that the HO-01 lane's independent review raised and deliberately did not repair. The S5 corpus loader in scripts/tools/run-skill-effectiveness-evals.mjs resolved every corpus-declared path LEXICALLY, so a family file that is a symbolic link out of the corpus directory, a family file reached through a symlinked parent directory inside the corpus, and a corpus directory that is itself a symbolic link out of the repository (CLI --corpus) all carried the evaluation out of the corpus the run is supposed to measure. The loader now confines every declared path to the corpus directory in REAL terms and binds every read to a verified file descriptor: the new shared primitive scripts/tools/path-confinement.mjs proves containment twice (C1 lexical, C2 real-path) and binds the read to a verified descriptor (C3 device/inode identity of the descriptor and of the parent directory, opened with O_NOFOLLOW), and requires a regular file (C4). The CLI additionally requires the corpus directory to RESOLVE inside the repository. No CONTRACT_RECORD, PROVENANCE or SUPERSESSION class changes: core/contracts/behavioral-eval.schema.json is untouched, the behavioral-eval validator is untouched, the corpus content is untouched, the BehavioralEvalRecord format is untouched, nothing is superseded, and the evaluation output is digest-neutral (measured: the pristine origin/main tree and this branch produce byte-identical corpus digests, content digests, family digests, and an identical HO-01 comparison record). The runner is a tool surface, not a registered contract. Per the consumer binding in AGENTS.md, NO_CHANGE requires no Registry write; the change registration for this run is projected separately in the Unitera Registry, and the representation in the Unitera Atlas, after the source merge. The TOCTOU residual is documented and not claimed as eliminated: a concurrent writer that replaces the parent directory of the target between the containment check and the open, and that carries a file with the same device and inode identity, is not detectable without openat(2) relative to a trusted directory descriptor, which Node's public API does not expose; the detector for a replaced target IS bound by a test. No independent human approval is claimed: the review of this slice was performed by a tool-driven reviewer on a model different from the one that wrote the slice, with one independent confirmer per finding, and is recorded in the run record.",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "evidence/s5-path-confinement-2026-10-21/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/path-confinement.mjs",
+      "scripts/tools/run-skill-effectiveness-evals.mjs",
+      "tests/vnext/s5-path-confinement.test.mjs",
+      "tests/vnext/run-skill-effectiveness.test.mjs",
+      "CHANGELOG.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/s5-path-confinement-2026-10-21/RUN.md"
+    ],
+    "evidence_refs": [
+      "node --test tests/vnext/run-skill-effectiveness.test.mjs (12/12 pass, 0 fail; the existing S5 regression suite, byte-identical to origin/main)",
+      "node --test tests/vnext/s5-path-confinement.test.mjs (14/14 pass, 0 fail; the new negative and regression tests)",
+      "npm run test:vnext (667/667 pass, 0 fail; origin/main alone: 653/653, so the 14 new tests are the only difference)",
+      "npm run eval:skill-effectiveness (exit 0, final verdict IMPROVEMENT_PROVEN)",
+      "npm run validate-behavioral-eval (PASS)",
+      "npm run eval:maws-vnext (PASS)",
+      "npm run validate / validate-neutral / validate-maws-vnext / validate-secrets / scan-secrets (all PASS)",
+      "git diff --check (clean)",
+      "digest neutrality measured against a detached worktree at origin/main 2f94f8c5eab6ae3216b9dd0551a03624a88fd55c: identical baseline corpus_digest sha256:937478a9903ceb6a439e7e77a459a8d3a86b52f06a98a4467aea1bf97af42fc9, identical candidate corpus_digest sha256:3e5116fed728b3902002dddd790092ff10d5098d578a70076e1d5e4559dd7b54, identical baseline content_digest sha256:e370dca97aebb1526b4e4f23f7713053e14726e6689a08b8710ffc83022a13dd, identical candidate content_digest sha256:08724a06a5844413296ecead215688747b87d2e5aefc2df200795bee569064d0, and identical family digests in both arms",
+      "HO-01 chain neutrality: the local optimization comparison was re-run on the pristine origin/main tree and on this branch; the produced comparison records are identical apart from created_at (decision REGRESSION, metrics output_assertion_pass_delta -0.1875, routing_accuracy_delta 0, security_regressions 0, identical run-evidence and analysis-output digests and identical behavioral-eval record digests)",
+      "Mimosa deep static scan scan-2026-10-21T02-55-05.384Z-47f1c429a877, seal sha256:1d7576ee1de5d6fb3b3f32fb81f86ed6111c017fc8522dd70296255be4b2fde8: 0 findings, 198 packages scanned, 2 packages matching 2 advisories in the offline dependency snapshot (context only, not adjudicated). The scan's own coverage artifact records completeness partial, runStatus inconclusive, 34 files selected and parsed, and a gap in the call graph. The scan is static-only and executes no runtime, and NO SECURITY CLAIM is derived from it",
+      "pre-existing drift D1 (not caused by this run, not repaired here): the HO-01 committed comparison record fails E13 on the untouched origin/main because the S7/S8 residual lane re-pinned the HO-01 frozen run-spec digest in commit a55c8a1 without re-deriving the record that binds it; the re-derived record differs in exactly definition_digest, runs.baseline.spec_digest and runs.candidate.spec_digest, while the evidence digests, the analysis-output digests, the metrics and the decision are unchanged",
+      "pre-existing drift D2 (not caused by this run, not repaired here): the committed S5 eval records carry corpus_digest sha256:7c3a7a8006efa913ba0b6e23ebf5bec488eef5c748bcb99b5bf281bb3f5c7ad1 (baseline) while the current corpus produces sha256:937478a9903ceb6a439e7e77a459a8d3a86b52f06a98a4467aea1bf97af42fc9, the difference being the negative family only, because the S7 slice changed evals/skill-effectiveness/negative-cases/cases.json in commit 4d99c27 without regenerating the S5 evidence; the records remain contract-valid and their own content seals hold",
+      "Mimosa pre-commit hook on the implementation commit aae361cf16634851c1163e82b9d94807fb01cd39 did not produce a complete scan conclusion (scanner_enobufs); the commit was made under the compatibility policy and NO SECURITY CLAIM is derived from that hook either",
+      "validator: node scripts/tools/validate-registry-disposition.mjs evidence/s5-path-confinement-2026-10-21/registry-disposition.json (PASS)"
+    ],
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/s5-path-confinement-2026-10-21/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - the adopted relevance classes CONTRACT_RECORD, PROVENANCE, SUPERSESSION)",
+      "core/contracts/registry-disposition.schema.json (the closed relevance taxonomy and the affectedRecord syntax; non-relevant changes must declare no affected_record)",
+      "docs/governance/registry-disposition.md (the relevance rule: implementation details, refactors, tests and bug fixes are not automatically registry-relevant; they become relevant only when they alter a registered binding, record or claim in the closed taxonomy)",
+      "core/contracts/behavioral-eval.schema.json (unchanged by this change set)",
+      "core/contracts/registry-disposition.schema.json (unchanged by this change set)",
+      "evidence/s5-path-confinement-2026-10-21/RUN.md (sections 3 and 5.2: the containment rule and the measured digest neutrality)"
+    ],
+    "registry_baseline_sha": "2f94f8c5eab6ae3216b9dd0551a03624a88fd55c",
+    "implementation_commit_sha": "aae361cf16634851c1163e82b9d94807fb01cd39",
+    "registry_commit_sha": null
+  }
+}
