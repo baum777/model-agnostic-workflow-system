@@ -752,3 +752,220 @@ async function expectRunnerError(code, fn) {
   }
   assert.fail(`expected EvalConfigError ${code}`);
 }
+
+// ---------------------------------------------------------------------------
+// The REMAINING provenance boundaries.
+//
+// The cases above forge the CANDIDATE record. The cases below cover the
+// branches that were still UNPROVEN: the baseline half of E2 and E6 (the
+// baseline was only ever verified in its passing form), the corpus identity
+// gate, the variant gate, the clock gate and the shape of the caller's
+// digest. Each case names the branch it reaches, and a mutation probe proved
+// that the branch is load-bearing.
+// ---------------------------------------------------------------------------
+
+test('S8 the baseline record must satisfy its own content seal', async () => {
+  const world = await buildTree();
+  // The baseline is edited after it was sealed. The candidate is untouched,
+  // so this is the BASELINE's seal and not the candidate's.
+  const baseline = readRecordFile(world.tree, BASELINE_REF);
+  baseline.metrics.routing.decisions_matched = 1;
+  writeRecordFile(world.tree, BASELINE_REF, baseline);
+  const error = await expectProvenanceError('EVIDENCE_RECORD_SEAL_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /does not satisfy its own content seal/);
+});
+
+test('S8 the baseline is re-executed too: a baseline whose measurements do not follow from the corpus is refused', async () => {
+  const world = await buildTree();
+  // The forgery is RESEALED: the baseline carries a correct content seal and
+  // a correct contract shape, and its measurements still do not follow from
+  // the corpus.
+  const forged = reseal({
+    ...structuredClone(world.baselineRecord),
+    metrics: {
+      ...structuredClone(world.baselineRecord.metrics),
+      routing: {
+        ...structuredClone(world.baselineRecord.metrics.routing),
+        decisions_matched: 1
+      }
+    }
+  });
+  writeRecordFile(world.tree, BASELINE_REF, forged);
+  const error = await expectProvenanceError('EVIDENCE_EXECUTION_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /the baseline record .* does not reproduce from the corpus/);
+});
+
+test('S8 a baseline that measured another subject is refused', async () => {
+  const world = await buildTree();
+  const forged = reseal({
+    ...structuredClone(world.baselineRecord),
+    subject: { ...structuredClone(world.baselineRecord.subject), ref: 'another-subject' }
+  });
+  writeRecordFile(world.tree, BASELINE_REF, forged);
+  const error = await expectProvenanceError('EVIDENCE_SUBJECT_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /the baseline .* measured subject "another-subject"/);
+});
+
+test('S8 a record that names another corpus is refused', async () => {
+  const world = await buildTree();
+  const forged = reseal({
+    ...structuredClone(world.candidateRecord),
+    reproducibility: {
+      ...structuredClone(world.candidateRecord.reproducibility),
+      corpus_ref: 'another-corpus'
+    }
+  });
+  writeRecordFile(world.tree, RECORD_REF, forged);
+  const error = await expectProvenanceError('EVIDENCE_CORPUS_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /names corpus "another-corpus"/);
+});
+
+test('S8 the promotion binds candidate evaluations: a baseline record in the candidate slot is refused', async () => {
+  const world = await buildTree();
+  const error = await expectProvenanceError('EVIDENCE_VARIANT_UNSUPPORTED', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: BASELINE_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /the promotion binds candidate evaluations/);
+});
+
+test("S8 a caller's digest must be a canonical digest", async () => {
+  const world = await buildTree();
+  const error = await expectProvenanceError('EVIDENCE_DIGEST_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    expectedDigest: 'not-a-canonical-digest',
+    validate
+  }));
+  assert.match(error.message, /is not a canonical digest/);
+});
+
+test('S8 an unusable clock is refused', async () => {
+  const world = await buildTree();
+  const error = await expectProvenanceError('EVIDENCE_STALE', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    now: 'not-a-clock',
+    validate
+  }));
+  assert.match(error.message, /could not be compared against a valid clock/);
+});
+
+test('S8 a record reference must be given: the record is never supplied by the caller', async () => {
+  const world = await buildTree();
+  const error = await expectProvenanceError('EVIDENCE_REF_INVALID', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: null,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /reference is missing/);
+});
+
+test('S8 a record that is a symbolic link out of the tree is refused', async () => {
+  const world = await buildTree();
+  const recordPath = path.join(world.tree, RECORD_REF);
+  const outside = path.join(tempDir(), 'record.json');
+  fs.copyFileSync(recordPath, outside);
+  fs.rmSync(recordPath);
+  fs.symlinkSync(outside, recordPath);
+  const error = await expectProvenanceError('EVIDENCE_REF_INVALID', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /record/);
+});
+
+test('S8 a record that is not readable JSON is refused', async () => {
+  const world = await buildTree();
+  writeRecordFile(world.tree, RECORD_REF, { not: 'a record' });
+  fs.writeFileSync(path.join(world.tree, RECORD_REF), '{ this is not json\n');
+  const error = await expectProvenanceError('EVIDENCE_RECORD_INVALID', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /not readable JSON/);
+});
+
+test('S8 a corpus that is not a directory is refused', async () => {
+  const world = await buildTree();
+  const fileCorpus = 'evals/not-a-directory';
+  fs.writeFileSync(path.join(world.tree, fileCorpus), 'a file, not a corpus\n');
+  const error = await expectProvenanceError('EVIDENCE_CORPUS_INVALID', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: fileCorpus,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /corpus/);
+});
+
+test('S8 a record whose subject is not the subject the corpus measures is refused', async () => {
+  const world = await buildTree();
+  const forged = reseal({
+    ...structuredClone(world.candidateRecord),
+    subject: { ...structuredClone(world.candidateRecord.subject), ref: 'another-subject' }
+  });
+  writeRecordFile(world.tree, RECORD_REF, forged);
+  // No skill is named here, so the CORPUS is the reference the record must
+  // agree with.
+  const error = await expectProvenanceError('EVIDENCE_SUBJECT_MISMATCH', () => verifyEvidenceProvenance({
+    root: world.tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: null,
+    validate
+  }));
+  assert.match(error.message, /the corpus .* measures subject "provenance-subject"/);
+});

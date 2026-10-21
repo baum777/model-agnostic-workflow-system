@@ -1,0 +1,507 @@
+{
+  "schema_version": "1.0.0",
+  "matrix_id": "maws-residual-matrix-2026-10-21",
+  "created_at": "2026-10-21T00:00:00.000Z",
+  "purpose": "The inventory of the boundaries the evidence-admission and provenance gates draw, and of the PROOF each of them carries. A boundary that no test exercises is named as such instead of being left to the reader's trust. The matrix is machine-checked: a claim of proof that names a test which does not exist, or a refusal code that the surface does not contain, fails the check.",
+  "surfaces": [
+    "scripts/tools/path-confinement.mjs",
+    "scripts/tools/evidence-admission.mjs",
+    "scripts/tools/evidence-provenance.mjs"
+  ],
+  "proof_status_vocabulary": {
+    "PROVEN_NEGATIVE": "a negative test proves that the boundary is refused",
+    "PROVEN_LIMIT": "a test proves that the residual is real and is NOT eliminated",
+    "PARTIALLY_NARROWED": "the class is narrowed by construction and a part of it remains",
+    "PROVEN_BY_LOADER": "the refusal happens in the loader, before this surface can see it",
+    "UNPROVEN_BY_RUNTIME": "no test can be constructed in this runtime; the residual stands unmeasured",
+    "UNREACHABLE_IN_CHAIN": "the branch cannot be reached through the chain that calls it",
+    "DEAD_BRANCH": "the branch is unreachable in practice; another refusal covers the case"
+  },
+  "entries": [
+    {
+      "id": "R1",
+      "class": "TOCTOU",
+      "surface": "scripts/tools/path-confinement.mjs",
+      "boundary": "an in-place rewrite of the same inode between the containment check and the read keeps the device and inode identity, so the mutation is not detected; the same holds for a second name that is created and removed inside the window",
+      "refusal_code": null,
+      "proof_status": "PROVEN_LIMIT",
+      "proved_by": [
+        {
+          "file": "tests/vnext/s5-path-confinement.test.mjs",
+          "test": "a hardlink created and removed inside the check-to-open window is NOT detected"
+        }
+      ],
+      "note": "The residual is bound by a test that reads the rewritten content back: the limit is measured, not asserted. A second name that still EXISTS is refused (MULTIPLE_LINKS), and that contrast is part of the same test."
+    },
+    {
+      "id": "R2",
+      "class": "TOCTOU",
+      "surface": "scripts/tools/path-confinement.mjs",
+      "boundary": "a concurrent writer that replaces the PARENT DIRECTORY of a target between the check and the open, and the same-name race that remains inside ONE component resolution of the rooted descriptor traversal",
+      "refusal_code": null,
+      "proof_status": "PARTIALLY_NARROWED",
+      "proved_by": [
+        {
+          "file": "tests/vnext/s5-path-confinement.test.mjs",
+          "test": "an intermediate directory swapped to a symbolic link after the check is refused as an escape"
+        },
+        {
+          "file": "tests/vnext/s5-path-confinement.test.mjs",
+          "test": "a parent directory replaced after the check is detected"
+        }
+      ],
+      "note": "The rooted descriptor binding narrows the class: a swap at any component is refused (ESCAPES_BASE_THROUGH_SYMLINK) and a replaced parent is detected. What remains is a same-name race inside one component resolution, which the module header states and this matrix does not claim away."
+    },
+    {
+      "id": "R3",
+      "class": "TOCTOU",
+      "surface": "scripts/tools/path-confinement.mjs",
+      "boundary": "a filesystem that has itself stopped responding can still block in the kernel; no user-space flag prevents a hung mount from blocking a read",
+      "refusal_code": null,
+      "proof_status": "UNPROVEN_BY_RUNTIME",
+      "proved_by": [],
+      "note": "A hung filesystem cannot be constructed deterministically in this runtime. The residual is therefore UNMEASURED, not closed. O_NONBLOCK keeps a FIFO from blocking the OPEN and the regular-file guard then refuses it, but that is a different case."
+    },
+    {
+      "id": "R4",
+      "class": "TOCTOU",
+      "surface": "scripts/tools/path-confinement.mjs",
+      "boundary": "a bind mount inside the base is not detected: the real path of a bind-mounted file is its own path inside the base",
+      "refusal_code": null,
+      "proof_status": "UNPROVEN_BY_RUNTIME",
+      "proved_by": [],
+      "note": "Creating a bind mount requires privileges that already exceed the read. The residual is UNMEASURED, not closed."
+    },
+    {
+      "id": "S9-RECORD-BYTES",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "the admitted behavioral eval record must be the committed material, byte for byte",
+      "refusal_code": "EVIDENCE_ADMISSION_SOURCE_MODIFIED",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 the behavioral eval record must be the committed material, byte for byte"
+        }
+      ],
+      "note": "The single-file comparison was unproven before: only the corpus comparison had a test."
+    },
+    {
+      "id": "S9-CORPUS-FILE-SET",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "the corpus on disk must hold exactly the file set the commit carries",
+      "refusal_code": "EVIDENCE_ADMISSION_SOURCE_MODIFIED",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 the corpus file set must be the committed file set"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S9-CORPUS-FILE-NOT-CARRIED",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "a corpus file on disk that the content commit does not carry is refused",
+      "refusal_code": "EVIDENCE_ADMISSION_SOURCE_MODIFIED",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 a corpus file that the commit does not carry is refused"
+        }
+      ],
+      "note": "Reached with an unchanged file COUNT, so the per-file refusal is proved and not the count refusal."
+    },
+    {
+      "id": "S9-SUBJECT",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "the admission must name the subject the bound evaluation measured",
+      "refusal_code": "EVIDENCE_ADMISSION_SUBJECT_MISMATCH",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 the admission must name the subject the bound evaluation measured"
+        }
+      ],
+      "note": "The subject half of gate A2 was unproven; the skill half was covered."
+    },
+    {
+      "id": "S9-DOUBLE-BINDING",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "an admission must name exactly one bound evaluation; the same evaluation bound twice is refused",
+      "refusal_code": "EVIDENCE_ADMISSION_MATERIAL_MISMATCH",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 the same evaluation may not be bound more than once"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S9-CONTENT-DIGEST-SHAPE",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "the runtime refuses a content digest that is not canonical, on its own, without the contract validator",
+      "refusal_code": "EVIDENCE_ADMISSION_INVALID",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 the runtime refuses a non-canonical content digest without the contract validator"
+        }
+      ],
+      "note": "Proved with validate: null, so the runtime's own check is shown to be load-bearing and not a restatement of the contract."
+    },
+    {
+      "id": "S9-SOURCE-KIND",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "the runtime refuses a source kind it does not know, without the contract validator",
+      "refusal_code": "EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 the runtime refuses an unknown source kind without the contract validator"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S9-CONTRACT",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "the runtime refuses an admission that violates its contract",
+      "refusal_code": "EVIDENCE_ADMISSION_INVALID",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 the runtime refuses an admission that violates its contract"
+        }
+      ],
+      "note": "The runtime's own contract branch was unproven: the existing case reached a different branch with the same code."
+    },
+    {
+      "id": "S9-NOT-JSON",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "an admission artifact that is not readable JSON is refused",
+      "refusal_code": "EVIDENCE_ADMISSION_INVALID",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 an admission artifact that is not readable JSON is refused"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S9-REF-IMPLIED",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "an admission is never implied: the reference must be given",
+      "refusal_code": "EVIDENCE_ADMISSION_REF_INVALID",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 an admission is never implied: the reference must be given"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S9-ADMISSION-SYMLINK",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "an admission artifact that is a symbolic link out of the tree is refused by the shared confinement primitive",
+      "refusal_code": "EVIDENCE_ADMISSION_REF_INVALID",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 an admission artifact that is a symbolic link out of the tree is refused"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S9-RECORD-SYMLINK",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "an admitted record that became a symbolic link out of the tree is refused by the shared confinement primitive",
+      "refusal_code": "EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 an admitted record that became a symbolic link out of the tree is refused"
+        }
+      ],
+      "note": "The promotion bound a real record; the working copy replaced it with a link afterwards. Only the contained read can catch this."
+    },
+    {
+      "id": "S9-NO-PUBLISHED-HISTORY",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "a tree whose published history was retracted has no commit the admission could be part of",
+      "refusal_code": "EVIDENCE_ADMISSION_SOURCE_NOT_PUBLISHED",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-admission.test.mjs",
+          "test": "S9 a retracted published history leaves no commit the admission could name"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S9-MATERIAL-NOT-CARRIED",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "the admitted material is not carried by the content commit",
+      "refusal_code": "EVIDENCE_ADMISSION_SOURCE_UNVERIFIABLE",
+      "proof_status": "UNREACHABLE_IN_CHAIN",
+      "proved_by": [],
+      "note": "The material's references must match the attestation, and the attestation is derived from files that exist. A reference that is not carried by the commit is therefore refused earlier, at the material binding. The branch stays as a defensive check."
+    },
+    {
+      "id": "S9-MISSING",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-admission.mjs",
+      "boundary": "the admission artifact could not be read after the containment check succeeded",
+      "refusal_code": "EVIDENCE_ADMISSION_MISSING",
+      "proof_status": "DEAD_BRANCH",
+      "proved_by": [],
+      "note": "A missing artifact is refused earlier, by the confinement check, as REF_INVALID. This branch needs a confinement failure AFTER a successful check."
+    },
+    {
+      "id": "S8-BASELINE-SEAL",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "the baseline record must satisfy its own content seal",
+      "refusal_code": "EVIDENCE_RECORD_SEAL_MISMATCH",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 the baseline record must satisfy its own content seal"
+        }
+      ],
+      "note": "The baseline half of gate E2 was unproven: only the candidate's seal had a test."
+    },
+    {
+      "id": "S8-BASELINE-REEXECUTION",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "the baseline is re-executed over the corpus and must reproduce it field for field",
+      "refusal_code": "EVIDENCE_EXECUTION_MISMATCH",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 the baseline is re-executed too: a baseline whose measurements do not follow from the corpus is refused"
+        }
+      ],
+      "note": "The forgery carries a correct seal, so the refusal is the re-execution's and not the seal's."
+    },
+    {
+      "id": "S8-BASELINE-SUBJECT",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "the baseline must have measured the same subject as the candidate",
+      "refusal_code": "EVIDENCE_SUBJECT_MISMATCH",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 a baseline that measured another subject is refused"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S8-CORPUS-REF",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "the record must name the corpus that was resolved on disk",
+      "refusal_code": "EVIDENCE_CORPUS_MISMATCH",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 a record that names another corpus is refused"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S8-VARIANT",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "the promotion binds candidate evaluations; a baseline record in the candidate slot is refused",
+      "refusal_code": "EVIDENCE_VARIANT_UNSUPPORTED",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 the promotion binds candidate evaluations: a baseline record in the candidate slot is refused"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S8-DIGEST-SHAPE",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "a caller's expected digest must be a canonical digest",
+      "refusal_code": "EVIDENCE_DIGEST_MISMATCH",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 a caller's digest must be a canonical digest"
+        }
+      ],
+      "note": "Only the digest MISMATCH branch had a test; the shape branch is a different refusal."
+    },
+    {
+      "id": "S8-CLOCK",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "a record that cannot be compared against a valid clock is refused",
+      "refusal_code": "EVIDENCE_STALE",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 an unusable clock is refused"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S8-REF-IMPLIED",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "the record reference must be given: the record is never supplied by the caller",
+      "refusal_code": "EVIDENCE_REF_INVALID",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 a record reference must be given: the record is never supplied by the caller"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S8-RECORD-SYMLINK",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "a record that is a symbolic link out of the tree is refused",
+      "refusal_code": "EVIDENCE_REF_INVALID",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 a record that is a symbolic link out of the tree is refused"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S8-RECORD-NOT-JSON",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "a record that is not readable JSON is refused",
+      "refusal_code": "EVIDENCE_RECORD_INVALID",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 a record that is not readable JSON is refused"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S8-CORPUS-NOT-DIR",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "a corpus reference that is not a directory is refused",
+      "refusal_code": "EVIDENCE_CORPUS_INVALID",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 a corpus that is not a directory is refused"
+        }
+      ],
+      "note": null
+    },
+    {
+      "id": "S8-CORPUS-SUBJECT",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "the record's subject must be the subject the corpus measures",
+      "refusal_code": "EVIDENCE_SUBJECT_MISMATCH",
+      "proof_status": "PROVEN_NEGATIVE",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 a record whose subject is not the subject the corpus measures is refused"
+        }
+      ],
+      "note": "Proved without a promoted skill, so the corpus is the reference the record must agree with."
+    },
+    {
+      "id": "S8-CORPUS-CONTENT-SWEEP",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "a corpus CONTENT file that leaves the corpus directory is refused",
+      "refusal_code": "EVIDENCE_CORPUS_CONTENT_ESCAPES",
+      "proof_status": "PROVEN_BY_LOADER",
+      "proved_by": [
+        {
+          "file": "tests/vnext/evidence-provenance.test.mjs",
+          "test": "S8 corpus content that leaves the tree is refused"
+        }
+      ],
+      "note": "The corpus loader refuses the escaping file first, so this module's own sweep is never reached. The OUTCOME is proved; the branch is the loader's."
+    },
+    {
+      "id": "S8-CORPUS-CHANGED",
+      "class": "TOCTOU",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "a corpus that was REPLACED while it was being verified is refused before any attestation is produced",
+      "refusal_code": "EVIDENCE_CORPUS_CHANGED",
+      "proof_status": "UNPROVEN_BY_RUNTIME",
+      "proved_by": [],
+      "note": "The branch needs a writer that replaces the corpus directory between the re-execution and the re-anchoring. That is a race, and a race is not a test: the branch is UNMEASURED, not closed."
+    },
+    {
+      "id": "S8-EXECUTION-FAILED",
+      "class": "CONTENT",
+      "surface": "scripts/tools/evidence-provenance.mjs",
+      "boundary": "an evaluation that cannot be re-executed at all is refused",
+      "refusal_code": "EVIDENCE_EXECUTION_FAILED",
+      "proof_status": "UNPROVEN_BY_RUNTIME",
+      "proved_by": [],
+      "note": "The re-execution of a loaded corpus does not fail for the fixture shapes this repository ships. The branch is UNMEASURED, not closed."
+    }
+  ],
+  "validator_command": "node --test tests/tools/assurance-residual-matrix.test.mjs"
+}

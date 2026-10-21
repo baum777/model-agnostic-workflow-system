@@ -16,6 +16,8 @@
     "validate-secrets": "node scripts/tools/validate-secret-boundaries.mjs",
     "scan-secrets": "node scripts/tools/scan-secrets.mjs",
     "scan:source-security": "node scripts/tools/scan-source-security.mjs",
+    "capture:assurance-run": "node scripts/tools/capture-assurance-run.mjs",
+    "validate:assurance-run": "node scripts/tools/validate-assurance-run-record.mjs",
     "preinstall-risk-check": "node scripts/tools/preinstall-skill-risk-check.mjs",
     "skill:frontdoor": "node scripts/tools/skill-frontdoor-check.mjs",
     "validate-blocked-branch": "node scripts/tools/validate-blocked-branch-fixture.mjs",

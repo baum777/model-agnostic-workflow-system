@@ -1,0 +1,347 @@
+[
+  {
+    "id": "P01",
+    "status": "LOAD_BEARING",
+    "expected": "S9 the behavioral eval record must be the committed material, byte for byte",
+    "failing": [
+      "S9 the behavioral eval record must be the committed material, byte for byte"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P02",
+    "status": "LOAD_BEARING",
+    "expected": "S9 the corpus file set must be the committed file set",
+    "failing": [
+      "S9 the corpus file set must be the committed file set"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P03",
+    "status": "LOAD_BEARING",
+    "expected": "S9 a corpus file that the commit does not carry is refused",
+    "failing": [
+      "S9 a corpus file that the commit does not carry is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P04",
+    "status": "LOAD_BEARING",
+    "expected": "S9 the admission must name the subject the bound evaluation measured",
+    "failing": [
+      "S9 the admission must name the subject the bound evaluation measured"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P05",
+    "status": "LOAD_BEARING",
+    "expected": "S9 the same evaluation may not be bound more than once",
+    "failing": [
+      "S9 the same evaluation may not be bound more than once"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P06",
+    "status": "LOAD_BEARING",
+    "expected": "S9 the runtime refuses a non-canonical content digest without the contract validator",
+    "failing": [
+      "S9 the runtime refuses a non-canonical content digest without the contract validator"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P07",
+    "status": "LOAD_BEARING",
+    "expected": "S9 the runtime refuses an unknown source kind without the contract validator",
+    "failing": [
+      "S9 the runtime refuses an unknown source kind without the contract validator"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P08",
+    "status": "LOAD_BEARING",
+    "expected": "S9 the runtime refuses an admission that violates its contract",
+    "failing": [
+      "S9 the runtime refuses an admission that violates its contract"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P09",
+    "status": "LOAD_BEARING_WITH_CASCADE",
+    "expected": "S9 an admission artifact that is not readable JSON is refused",
+    "failing": [
+      "S9 a genuine admission is verified: the evidence is admitted for the adopted content from a committed source",
+      "S9 an admission for another content is refused: the evidence is not admitted for what is adopted",
+      "S9 an admission for another skill is refused",
+      "S9 a substituted record reference is refused: the admission must name the bound material",
+      "S9 a manipulated material digest is refused",
+      "S9 a tree that is not versioned cannot carry a committed admission",
+      "S9 material that was changed after its commit is refused",
+      "S9 an admission that was never committed is refused: an admission is a reviewed change",
+      "S9 an admission that was removed from the history is refused",
+      "S9 an admission that was changed after it was committed is refused",
+      "S9 a commit that does not exist is refused",
+      "S9 a commit outside the published history is refused",
+      "S9 the content source kind is admitted and recorded as the weaker form",
+      "S9 the full promotion chain accepts an admitted evaluation and refuses an admission for other content",
+      "S9 a forged content source identity is refused: the weaker kind must name the admitted material",
+      "S9 the weaker content kind is not admitted in a versioned tree: the source trust cannot be downgraded",
+      "S9 an admission that does not carry the digest of its own material set is refused",
+      "S9 an evaluation may only be admitted for the content it MEASURED",
+      "S9 the behavioral eval record must be the committed material, byte for byte",
+      "S9 the corpus file set must be the committed file set",
+      "S9 a corpus file that the commit does not carry is refused",
+      "S9 the admission must name the subject the bound evaluation measured",
+      "S9 the same evaluation may not be bound more than once",
+      "S9 the runtime refuses a non-canonical content digest without the contract validator",
+      "S9 the runtime refuses an unknown source kind without the contract validator",
+      "S9 an admission artifact that is not readable JSON is refused",
+      "S9 a retracted published history leaves no commit the admission could name",
+      "S9 an admitted record that became a symbolic link out of the tree is refused"
+    ],
+    "other_failures": [
+      "S9 a genuine admission is verified: the evidence is admitted for the adopted content from a committed source",
+      "S9 an admission for another content is refused: the evidence is not admitted for what is adopted",
+      "S9 an admission for another skill is refused",
+      "S9 a substituted record reference is refused: the admission must name the bound material",
+      "S9 a manipulated material digest is refused",
+      "S9 a tree that is not versioned cannot carry a committed admission",
+      "S9 material that was changed after its commit is refused",
+      "S9 an admission that was never committed is refused: an admission is a reviewed change",
+      "S9 an admission that was removed from the history is refused",
+      "S9 an admission that was changed after it was committed is refused",
+      "S9 a commit that does not exist is refused",
+      "S9 a commit outside the published history is refused",
+      "S9 the content source kind is admitted and recorded as the weaker form",
+      "S9 the full promotion chain accepts an admitted evaluation and refuses an admission for other content",
+      "S9 a forged content source identity is refused: the weaker kind must name the admitted material",
+      "S9 the weaker content kind is not admitted in a versioned tree: the source trust cannot be downgraded",
+      "S9 an admission that does not carry the digest of its own material set is refused",
+      "S9 an evaluation may only be admitted for the content it MEASURED",
+      "S9 the behavioral eval record must be the committed material, byte for byte",
+      "S9 the corpus file set must be the committed file set",
+      "S9 a corpus file that the commit does not carry is refused",
+      "S9 the admission must name the subject the bound evaluation measured",
+      "S9 the same evaluation may not be bound more than once",
+      "S9 the runtime refuses a non-canonical content digest without the contract validator",
+      "S9 the runtime refuses an unknown source kind without the contract validator",
+      "S9 a retracted published history leaves no commit the admission could name",
+      "S9 an admitted record that became a symbolic link out of the tree is refused"
+    ]
+  },
+  {
+    "id": "P10",
+    "status": "LOAD_BEARING",
+    "expected": "S9 an admission is never implied: the reference must be given",
+    "failing": [
+      "S9 an admission is never implied: the reference must be given"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P11",
+    "status": "LOAD_BEARING",
+    "expected": "S9 an admission artifact that is a symbolic link out of the tree is refused",
+    "failing": [
+      "S9 an admission artifact that is a symbolic link out of the tree is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P12",
+    "status": "LOAD_BEARING",
+    "expected": "S9 an admitted record that became a symbolic link out of the tree is refused",
+    "failing": [
+      "S9 an admitted record that became a symbolic link out of the tree is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P13",
+    "status": "LOAD_BEARING",
+    "expected": "S9 a retracted published history leaves no commit the admission could name",
+    "failing": [
+      "S9 a retracted published history leaves no commit the admission could name"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P14",
+    "status": "LOAD_BEARING",
+    "expected": "S8 the baseline record must satisfy its own content seal",
+    "failing": [
+      "S8 the baseline record must satisfy its own content seal"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P15",
+    "status": "LOAD_BEARING",
+    "expected": "S8 the baseline is re-executed too: a baseline whose measurements do not follow from the corpus is refused",
+    "failing": [
+      "S8 the baseline is re-executed too: a baseline whose measurements do not follow from the corpus is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P16",
+    "status": "LOAD_BEARING",
+    "expected": "S8 a baseline that measured another subject is refused",
+    "failing": [
+      "S8 a baseline that measured another subject is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P17",
+    "status": "LOAD_BEARING",
+    "expected": "S8 a record that names another corpus is refused",
+    "failing": [
+      "S8 a record that names another corpus is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P18",
+    "status": "LOAD_BEARING",
+    "expected": "S8 the promotion binds candidate evaluations: a baseline record in the candidate slot is refused",
+    "failing": [
+      "S8 the promotion binds candidate evaluations: a baseline record in the candidate slot is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P19",
+    "status": "LOAD_BEARING",
+    "expected": "S8 a caller's digest must be a canonical digest",
+    "failing": [
+      "S8 a caller's digest must be a canonical digest"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P20",
+    "status": "LOAD_BEARING",
+    "expected": "S8 an unusable clock is refused",
+    "failing": [
+      "S8 an unusable clock is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P21",
+    "status": "LOAD_BEARING",
+    "expected": "S8 a record reference must be given: the record is never supplied by the caller",
+    "failing": [
+      "S8 a record reference must be given: the record is never supplied by the caller"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P22",
+    "status": "LOAD_BEARING",
+    "expected": "S8 a record that is a symbolic link out of the tree is refused",
+    "failing": [
+      "S8 a record that is a symbolic link out of the tree is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P23",
+    "status": "LOAD_BEARING_WITH_CASCADE",
+    "expected": "S8 a record that is not readable JSON is refused",
+    "failing": [
+      "S8 a genuine evaluation reproduces from the corpus and its verdict follows from the baseline",
+      "S8 a forged record with a perfect seal is refused: the measurements do not follow from the corpus",
+      "S8 a forged verdict is refused: the verdict must follow from the baseline on disk",
+      "S8 a record whose own seal was broken is refused",
+      "S8 a corpus that moved under the record is refused",
+      "S8 the corpus digest follows the corpus on disk",
+      "S8 a flipped verdict is refused: the verdict is derived, never declared",
+      "S8 a record dated in the future is refused",
+      "S8 a forged evidence reference is refused: the references follow from the corpus",
+      "S8 a forged instruction revision is refused: the revision follows from the corpus",
+      "S8 a forged baseline reference is refused: it follows from the baseline on disk",
+      "S8 corpus content that leaves the tree is refused",
+      "S8 a reference that escapes the tree is refused",
+      "S8 a corpus outside the canonical corpus surface is refused",
+      "S8 a baseline that is not a baseline is refused",
+      "S8 a candidate without a baseline is refused",
+      "S8 a record of another subject is refused",
+      "S8 a record that was not produced by a replayable evaluation is refused",
+      "S8 the caller digest is checked against the record on disk, never the other way round",
+      "S8 the readback re-reads the record from the evidence surface and binds its digest",
+      "S8 the SHIPPED evidence reproduces against the shipped corpus",
+      "S8 the SUPERSEDED shipped evidence no longer reproduces and is refused",
+      "S5 the measured subject content is re-derived: content that changed after the record is refused",
+      "S8 the baseline record must satisfy its own content seal",
+      "S8 the baseline is re-executed too: a baseline whose measurements do not follow from the corpus is refused",
+      "S8 a baseline that measured another subject is refused",
+      "S8 a record that names another corpus is refused",
+      "S8 the promotion binds candidate evaluations: a baseline record in the candidate slot is refused",
+      "S8 a caller's digest must be a canonical digest",
+      "S8 an unusable clock is refused",
+      "S8 a record that is not readable JSON is refused",
+      "S8 a corpus that is not a directory is refused",
+      "S8 a record whose subject is not the subject the corpus measures is refused"
+    ],
+    "other_failures": [
+      "S8 a genuine evaluation reproduces from the corpus and its verdict follows from the baseline",
+      "S8 a forged record with a perfect seal is refused: the measurements do not follow from the corpus",
+      "S8 a forged verdict is refused: the verdict must follow from the baseline on disk",
+      "S8 a record whose own seal was broken is refused",
+      "S8 a corpus that moved under the record is refused",
+      "S8 the corpus digest follows the corpus on disk",
+      "S8 a flipped verdict is refused: the verdict is derived, never declared",
+      "S8 a record dated in the future is refused",
+      "S8 a forged evidence reference is refused: the references follow from the corpus",
+      "S8 a forged instruction revision is refused: the revision follows from the corpus",
+      "S8 a forged baseline reference is refused: it follows from the baseline on disk",
+      "S8 corpus content that leaves the tree is refused",
+      "S8 a reference that escapes the tree is refused",
+      "S8 a corpus outside the canonical corpus surface is refused",
+      "S8 a baseline that is not a baseline is refused",
+      "S8 a candidate without a baseline is refused",
+      "S8 a record of another subject is refused",
+      "S8 a record that was not produced by a replayable evaluation is refused",
+      "S8 the caller digest is checked against the record on disk, never the other way round",
+      "S8 the readback re-reads the record from the evidence surface and binds its digest",
+      "S8 the SHIPPED evidence reproduces against the shipped corpus",
+      "S8 the SUPERSEDED shipped evidence no longer reproduces and is refused",
+      "S5 the measured subject content is re-derived: content that changed after the record is refused",
+      "S8 the baseline record must satisfy its own content seal",
+      "S8 the baseline is re-executed too: a baseline whose measurements do not follow from the corpus is refused",
+      "S8 a baseline that measured another subject is refused",
+      "S8 a record that names another corpus is refused",
+      "S8 the promotion binds candidate evaluations: a baseline record in the candidate slot is refused",
+      "S8 a caller's digest must be a canonical digest",
+      "S8 an unusable clock is refused",
+      "S8 a corpus that is not a directory is refused",
+      "S8 a record whose subject is not the subject the corpus measures is refused"
+    ]
+  },
+  {
+    "id": "P24",
+    "status": "LOAD_BEARING",
+    "expected": "S8 a corpus that is not a directory is refused",
+    "failing": [
+      "S8 a corpus that is not a directory is refused"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "P25",
+    "status": "LOAD_BEARING",
+    "expected": "S8 a record whose subject is not the subject the corpus measures is refused",
+    "failing": [
+      "S8 a record whose subject is not the subject the corpus measures is refused"
+    ],
+    "other_failures": []
+  }
+]
