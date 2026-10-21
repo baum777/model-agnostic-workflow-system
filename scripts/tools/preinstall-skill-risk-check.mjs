@@ -9,7 +9,7 @@ const ALLOWED_INSTALL_TYPES = new Set(['skill', 'extension', 'theme', 'mcp', 'pa
 const DEFAULT_REPORT_FILENAME = 'skillspector-report.json';
 const DEFAULT_DECISION_FILENAME = 'install-risk-decision.md';
 
-function formatTimestamp(now = new Date()) {
+export function formatTimestamp(now = new Date()) {
   const iso = now.toISOString();
   const [datePart, timePart] = iso.split('T');
   const compactDate = datePart.replace(/-/g, '');

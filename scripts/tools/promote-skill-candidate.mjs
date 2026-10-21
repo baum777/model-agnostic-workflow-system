@@ -26,6 +26,12 @@ import { validateInstanceAgainstContract } from './validate-maws-vnext-contracts
 import { validateBehavioralEvalRecord } from './validate-behavioral-eval.mjs';
 import { verifyEvidenceProvenance } from './evidence-provenance.mjs';
 import { verifyEvidenceAdmission, EVIDENCE_ADMISSION_CONTRACT } from './evidence-admission.mjs';
+import { classifyReport, formatTimestamp } from './preinstall-skill-risk-check.mjs';
+import {
+  classifySkillEvaluator,
+  deriveSecuritySeverity,
+  normalizeSeverityCounts
+} from './skill-frontdoor-check.mjs';
 import {
   loadOwnerAuthority,
   readOwnerApproval,
@@ -116,12 +122,62 @@ export function screenedDigestOf(admission) {
   return match[0];
 }
 
-// validateFrontdoorAdmission({ admissionPath, root }) -> { record, digest }.
-// The frontdoor is a mandatory complement of behavioral evidence: the
-// admission must be schema-valid, implementation-ELIGIBLE, and must never
-// have granted authority.
-export function validateFrontdoorAdmission({ admissionPath, root = REPO_ROOT }) {
-  const { record, digest } = readAndDigestJson(admissionPath);
+// validateFrontdoorAdmission({ admissionPath, root }) -> { record, digest,
+// relative }.
+//
+// The frontdoor admission is EVIDENCE, not caller input, and it is verified
+// as such:
+//
+//   F1  the receipt is read FROM THE CANONICAL SCREENING SURFACE of the
+//       canonical tree (sandbox/runs/<run>/skill-frontdoor-admission.json)
+//       through the canonical containment proof: a caller-supplied path
+//       outside the tree, a symlinked file or a symlinked parent directory
+//       is refused;
+//   F2  the receipt is INTERNALLY CONSISTENT: its admission id re-derives
+//       from the screened content identity it records, from the run
+//       directory it lives in and from its own decision time — the same
+//       derivation the checker performs when it writes the receipt — so a
+//       relocated, retimestamped or rewritten receipt cannot pose as the
+//       checker's output;
+//   F3  the analyzer evidence is RE-DERIVED FROM THE REPORTS: both named
+//       report files are read from the SAME screening run inside the tree,
+//       and the declared statuses, severities and counts must follow from
+//       the report content under the very classifiers the checker used. The
+//       analyzer guarantees constrain the chain through their reports, not
+//       through the receipt's claims about them;
+//   F4  the admission must be schema-valid, implementation-ELIGIBLE, and
+//       must never have granted authority.
+//
+// RESIDUAL (stated, not hidden): the receipt and its reports carry no
+// signature, so this gate proves coherence, not authorship. What ties the
+// screening to a trusted decision is the owner approval: it binds the
+// admission digest in its SIGNED payload (frontdoor_admission_digest), so a
+// fabricated receipt fails the owner signature. Without a published owner
+// key the chain refuses anyway.
+export function validateFrontdoorAdmission({ admissionPath, canonicalRoot, root = REPO_ROOT }) {
+  // `canonicalRoot` is the tree the receipt must live in; `root` is the
+  // installation root the CONTRACT schemas are resolved from. They are
+  // different roots and must never be confused: the confinement attaches to
+  // the tree that is adopted into, the contract to the code that verifies.
+  const resolvedRoot = path.resolve(canonicalRoot);
+  const relative = path.relative(resolvedRoot, path.resolve(String(admissionPath))).replace(/\\/g, '/');
+  if (relative.startsWith('../') || relative === '' || path.isAbsolute(relative)) {
+    promotionError('FRONTDOOR_ADMISSION_SURFACE_INVALID', `the frontdoor admission ${String(admissionPath)} does not live inside the canonical tree`);
+  }
+  const runMatch = relative.match(/^sandbox\/runs\/([0-9]{8}T[0-9]{6}\.[0-9]{3}Z)\/skill-frontdoor-admission\.json$/);
+  if (!runMatch) {
+    promotionError('FRONTDOOR_ADMISSION_SURFACE_INVALID', `the frontdoor admission must live at sandbox/runs/<run>/skill-frontdoor-admission.json inside the canonical tree, got "${relative}"`);
+  }
+  const absolute = path.resolve(resolvedRoot, relative);
+  try {
+    assertCanonicalTarget({ root: resolvedRoot, absolutePath: absolute, label: 'frontdoor admission' });
+  } catch (error) {
+    if (error instanceof CanonicalPathError) {
+      promotionError('FRONTDOOR_ADMISSION_SURFACE_INVALID', `the frontdoor admission ${relative} is not a contained regular file of the canonical tree: ${error.message}`);
+    }
+    throw error;
+  }
+  const { record, digest } = readAndDigestJson(absolute);
   const issues = validateInstanceAgainstContract(record, FRONTDOOR_CONTRACT, root);
   if (issues.length > 0) {
     promotionError('FRONTDOOR_ADMISSION_INVALID', `frontdoor admission violates contract: ${issues.join('; ')}`);
@@ -132,7 +188,122 @@ export function validateFrontdoorAdmission({ admissionPath, root = REPO_ROOT }) 
   if (record.authority_granted !== false) {
     promotionError('FRONTDOOR_AUTHORITY_VIOLATION', 'frontdoor admission never grants authority');
   }
-  return { record, digest };
+
+  // F2: the identity re-derivation. The checker writes
+  // `sfa_<tree digest prefix>_<run timestamp>` and derives the run timestamp
+  // from the decision time; a receipt that does not reproduce that
+  // derivation is not the receipt the checker wrote at that path.
+  const idMatch = String(record.admission_id).match(/^sfa_([0-9a-f]{12})_([0-9]{8}T[0-9]{6}\.[0-9]{3}Z)$/);
+  if (!idMatch) {
+    promotionError('FRONTDOOR_ADMISSION_IDENTITY_MISMATCH', `the admission id "${String(record.admission_id)}" does not follow the canonical admission identity form sfa_<12 hex>_<run timestamp>`);
+  }
+  if (idMatch[2] !== runMatch[1]) {
+    promotionError('FRONTDOOR_ADMISSION_IDENTITY_MISMATCH', `the admission names screening run ${idMatch[2]} but lives in the run directory ${runMatch[1]}`);
+  }
+  const treeDigest = String(record.candidate?.source_revision ?? '').match(/sha256:([0-9a-f]{64})/);
+  if (!treeDigest || treeDigest[1].slice(0, 12) !== idMatch[1]) {
+    promotionError('FRONTDOOR_ADMISSION_IDENTITY_MISMATCH', 'the admission id does not re-derive from the screened content identity recorded in candidate.source_revision');
+  }
+  const decidedMs = Date.parse(String(record.decided_at ?? ''));
+  if (!Number.isFinite(decidedMs) || formatTimestamp(new Date(decidedMs)) !== idMatch[2]) {
+    promotionError('FRONTDOOR_ADMISSION_IDENTITY_MISMATCH', `the decision time ${String(record.decided_at)} does not re-derive the admission's screening run timestamp`);
+  }
+
+  // F3: the analyzer reports are opened and the declared evidence is
+  // re-derived from their content. A report outside the receipt's own
+  // screening run is refused before it is read.
+  const runPrefix = `sandbox/runs/${runMatch[1]}/`;
+  const reportChecks = [
+    ['skillspector', record.evidence?.skillspector, rederiveSkillspectorEvidence],
+    ['skillevaluator_tier1', record.evidence?.skillevaluator_tier1, rederiveSkillevaluatorEvidence]
+  ];
+  for (const [label, evidence, rederive] of reportChecks) {
+    const reportRef = String(evidence?.report_path ?? '');
+    if (!reportRef.startsWith(runPrefix)) {
+      promotionError('FRONTDOOR_REPORT_MISMATCH', `the ${label} report "${reportRef}" does not belong to the screening run ${runMatch[1]} that produced the admission`);
+    }
+    const reportPath = path.resolve(resolvedRoot, reportRef);
+    try {
+      assertCanonicalTarget({ root: resolvedRoot, absolutePath: reportPath, label: `${label} report` });
+    } catch (error) {
+      if (error instanceof CanonicalPathError) {
+        promotionError('FRONTDOOR_REPORT_MISSING', `the ${label} report ${reportRef} is not a contained regular file of the canonical tree: ${error.message}`);
+      }
+      throw error;
+    }
+    let report;
+    try {
+      report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        promotionError('FRONTDOOR_REPORT_MISSING', `the ${label} report ${reportRef} named by the admission does not exist in the screening run; analyzer evidence that is not on disk proves nothing`);
+      }
+      promotionError('FRONTDOOR_REPORT_INVALID', `the ${label} report ${reportRef} is not readable JSON: ${error.message}`);
+    }
+    const difference = rederive(evidence, report);
+    if (difference !== null) {
+      promotionError('FRONTDOOR_REPORT_MISMATCH', `the ${label} evidence declared in the admission does not follow from its report ${reportRef}: ${difference}`);
+    }
+  }
+
+  // The declared disposition needs no separate re-derivation here: F3 has
+  // pinned every derivation input (both analyzers' status, severity and
+  // counts) to the report files, the contract pins the legal disposition
+  // pairs, and the ELIGIBLE gate above pins the implementation requirement.
+  // A disposition that does not follow from the evidence therefore cannot
+  // reach this point — a separate derivation branch would be unreachable
+  // code, and unreachable guards are removed in this repository rather
+  // than kept as untestable code.
+
+  return { record, digest, relative };
+}
+
+// rederiveSkillspectorEvidence(evidence, report) -> null when the declared
+// SkillSpector evidence follows from the report under the checker's own
+// classifier, or the difference as text. Mirrors the classification the
+// checker performed when it wrote the receipt.
+function rederiveSkillspectorEvidence(evidence, report) {
+  const classification = classifyReport(report);
+  let status = 'INCOMPLETE';
+  if (evidence.version !== 'unknown' && evidence.exit_code === 0 && classification.ok === true) {
+    status = 'PASS';
+  } else if (report && classification.ok === false && classification.incomplete !== true) {
+    status = 'BLOCKED';
+  }
+  if (status !== evidence.status) {
+    return `status re-derives to ${status}, the admission declares ${evidence.status}`;
+  }
+  const severity = deriveSecuritySeverity(report, classification);
+  if (severity !== evidence.severity) {
+    return `severity re-derives to ${severity}, the admission declares ${evidence.severity}`;
+  }
+  const counts = normalizeSeverityCounts(classification?.counts);
+  if (canonicalJson(counts) !== canonicalJson(evidence.severity_counts)) {
+    return `severity counts re-derive to ${canonicalJson(counts)}, the admission declares ${canonicalJson(evidence.severity_counts)}`;
+  }
+  return null;
+}
+
+// rederiveSkillevaluatorEvidence(evidence, report) -> null when the declared
+// SkillEvaluator Tier-1 evidence follows from the report under the checker's
+// own classifier, or the difference as text.
+function rederiveSkillevaluatorEvidence(evidence, report) {
+  const derived = classifySkillEvaluator({
+    report,
+    reportPath: 'report',
+    reportError: null,
+    result: { status: evidence.exit_code }
+  }, evidence.version);
+  for (const field of ['status', 'overall_status', 'overall_passed']) {
+    if (canonicalJson(derived[field]) !== canonicalJson(evidence[field])) {
+      return `${field} re-derives to ${canonicalJson(derived[field])}, the admission declares ${canonicalJson(evidence[field])}`;
+    }
+  }
+  const counts = normalizeSeverityCounts(report?.severity_counts);
+  if (canonicalJson(counts) !== canonicalJson(evidence.severity_counts)) {
+    return `severity counts re-derive to ${canonicalJson(counts)}, the admission declares ${canonicalJson(evidence.severity_counts)}`;
+  }
+  return null;
 }
 
 // validateEvalEvidence({ evalRecords, root, evidenceRoot, skillId, now,
@@ -228,6 +399,7 @@ export function validateOwnerApproval({
   canonicalRoot,
   candidateDigest,
   skillId = null,
+  frontdoorAdmissionDigest = null,
   root = REPO_ROOT,
   now = new Date(),
   maxApprovalAgeDays = DEFAULT_MAX_APPROVAL_AGE_DAYS
@@ -262,6 +434,7 @@ export function validateOwnerApproval({
       authority,
       candidateDigest,
       skillId,
+      frontdoorAdmissionDigest,
       now,
       maxApprovalAgeDays
     });
@@ -383,11 +556,14 @@ export function semanticPromotionIssues(record) {
       issues.push(`eval_evidence: ${entry.record_ref} was not re-derived from its baseline`);
     }
   }
-  if (record.candidate?.screened_digest !== record.candidate?.candidate_digest) {
+  if (record.candidate?.content_digest !== record.candidate?.candidate_digest) {
     issues.push('candidate: the screened content digest differs from the adopted content digest');
   }
-  if (record.frontdoor_admission?.screened_digest !== record.candidate?.candidate_digest) {
+  if (record.frontdoor_admission?.content_digest !== record.candidate?.candidate_digest) {
     issues.push('frontdoor_admission: the frontdoor screened other content than the adopted content');
+  }
+  if (record.owner_approval?.frontdoor_admission_digest !== record.frontdoor_admission?.admission_digest) {
+    issues.push('frontdoor_admission: the owner approval does not bind the admission digest of this adoption');
   }
   if (record.owner_approval?.candidate_digest !== record.candidate?.candidate_digest) {
     issues.push('owner_approval: the approval does not bind the adopted content');
@@ -468,17 +644,24 @@ export async function promoteSkillCandidate({
   onExportsWritten = null
 }) {
   const paths = resolveCanonicalPaths({ canonicalRoot, skillId });
-  const admission = validateFrontdoorAdmission({ admissionPath, root });
+  const admission = validateFrontdoorAdmission({ admissionPath, canonicalRoot, root });
+  // The screened TREE identity (the whole-candidate directory digest in
+  // candidate.source_revision) is provenance: it names the exact tree the
+  // analyzers ran over and is recorded in the adoption record.
   const screenedDigest = screenedDigestOf(admission.record);
 
   // The promotion may only adopt what the frontdoor screened, for the skill
-  // the frontdoor screened: an admission for another skill or another
-  // content never authorizes this adoption.
+  // the frontdoor screened and in the CONTENT form both sides bind: an
+  // admission for another skill or another content never authorizes this
+  // adoption. The content digest is the receipt's own candidate.content_digest
+  // (the sha256 of the screened SKILL.md bytes) — the same form as the
+  // promoted content; the whole-tree source_revision digest is a different
+  // identity and is never compared against it.
   if (admission.record.candidate.skill_id !== skillId) {
     promotionError('PROMOTION_CANDIDATE_IDENTITY_MISMATCH', `the frontdoor screened skill "${admission.record.candidate.skill_id}", not "${skillId}"`);
   }
-  if (screenedDigest !== candidateDigest) {
-    promotionError('PROMOTION_CANDIDATE_CONTENT_MISMATCH', `the frontdoor screened content ${screenedDigest}, the promoted content digests to ${candidateDigest}`);
+  if (admission.record.candidate.content_digest !== candidateDigest) {
+    promotionError('PROMOTION_CANDIDATE_CONTENT_MISMATCH', `the frontdoor screened content ${admission.record.candidate.content_digest}, the promoted content digests to ${candidateDigest}`);
   }
 
   // The evidence tree is resolved ONCE: the gate and the post-adoption
@@ -494,18 +677,23 @@ export async function promoteSkillCandidate({
     maxEvidenceAgeDays
   });
   // The S8 gate proved that the bound evaluation REPRODUCES. The owner
-  // approval is the DECISION that the content may be adopted. The admission
-  // gate then proves the two bindings that stand above both: the evidence is
-  // admitted FOR the content that is being adopted, and it comes from a
-  // source whose committed identity is proved. The admission is verified
-  // against the attestation the S8 gate just produced, so a substituted path
-  // or a manipulated digest cannot be admitted.
+  // approval is the DECISION that the content may be adopted. The approval
+  // binds the frontdoor admission in its SIGNED payload: the owner decision
+  // covers exactly the screened receipt this promotion consumes, so a
+  // fabricated or substituted admission fails the owner signature. The
+  // admission gate then proves the two bindings that stand above both: the
+  // evidence is admitted FOR the content that is being adopted (and that the
+  // evaluation MEASURED that content), and it comes from a source whose
+  // committed identity is proved. The admission is verified against the
+  // attestation the S8 gate just produced, so a substituted path or a
+  // manipulated digest cannot be admitted.
   const approval = validateOwnerApproval({
     ownerApprovalRef,
     ownerAuthorityPath,
     canonicalRoot,
     candidateDigest,
     skillId,
+    frontdoorAdmissionDigest: admission.digest,
     root,
     now,
     maxApprovalAgeDays
@@ -668,13 +856,17 @@ export async function promoteSkillCandidate({
       skill_id: skillId,
       adopted_version: adoptedVersion,
       candidate_digest: candidateDigest,
-      screened_digest: screenedDigest
+      screened_digest: screenedDigest,
+      // The CONTENT digest the frontdoor screened — the same form as the
+      // candidate digest; the readback compares the two.
+      content_digest: admission.record.candidate.content_digest
     },
     frontdoor_admission: {
-      record_ref: path.relative(root, admissionPath).replace(/\\/g, '/'),
+      record_ref: admission.relative,
       admission_digest: admission.digest,
       implementation_disposition: 'ELIGIBLE',
-      screened_digest: screenedDigest
+      screened_digest: screenedDigest,
+      content_digest: admission.record.candidate.content_digest
     },
     eval_evidence: evalEvidence,
     evidence_admission: evidenceAdmission,
@@ -834,6 +1026,14 @@ export async function postAdoptionReadback({ record, canonicalRoot, evidenceRoot
       // readback receives issues, not an exception.
       issues.push(`post_adoption_readback: the adoption ledger could not be read: ${error.message}`);
     }
+  }
+  // The approval must bind exactly the admission the record consumed: a
+  // record whose approval binding and admission digest disagree does not
+  // describe a coherent chain, even when both artifacts individually
+  // verify.
+  if (record.frontdoor_admission?.admission_digest !== undefined
+    && record.owner_approval?.frontdoor_admission_digest !== record.frontdoor_admission.admission_digest) {
+    issues.push('post_adoption_readback: the owner approval does not bind the admission digest of this adoption');
   }
   // The owner approval artifact is re-read as well: the recorded approval
   // digest must still describe the artifact that vouched for the adoption.

@@ -630,10 +630,12 @@ test('the shipped corpus still loads and still proves the candidate improvement'
 });
 
 test('the current S5 eval records still validate against the current runner', () => {
-  // The 2026-10-21 set is the current evidence: the 2026-10-20 set was
-  // superseded when the corpus changed and is kept only as the historical
-  // record of the S5 slice.
-  const evidenceDir = path.join(ROOT, 'evidence', 'skill-effectiveness-evals-2026-10-21');
+  // The subject-bound set is the current evidence: it was produced by the
+  // current runner under the current record contract. The 2026-10-21 and
+  // 2026-10-20 sets are the historical record sets of the earlier S5 state;
+  // they carry schema_version 1.0.0 and no longer satisfy the current
+  // contract, which is the subject binding doing its job.
+  const evidenceDir = path.join(ROOT, 'evidence', 'skill-effectiveness-evals-subject-bound-2026-10-21');
   for (const name of ['baseline', 'candidate']) {
     const record = JSON.parse(fs.readFileSync(path.join(evidenceDir, `eval-record-bev-skill-effectiveness-${name}.json`), 'utf8'));
     assert.deepEqual(validateBehavioralEvalRecord(record, ROOT), [], `${name} record still validates`);

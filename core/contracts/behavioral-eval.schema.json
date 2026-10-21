@@ -20,7 +20,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "1.0.0"
+      "const": "1.1.0"
     },
     "eval_id": {
       "type": "string",
@@ -48,6 +48,11 @@
         "instruction_revision": {
           "type": "string",
           "minLength": 1
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "Digest of the exact subject content the evaluation measured. For a skill subject this is the sha256 of the skill file bytes the corpus carried and the runner verified at evaluation time; a record that measured a skill without this binding cannot prove what it measured."
         }
       }
     },
@@ -249,6 +254,26 @@
     }
   },
   "allOf": [
+    {
+      "if": {
+        "properties": {
+          "subject": {
+            "properties": {
+              "kind": {
+                "const": "skill"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "subject": {
+            "required": ["kind", "ref", "content_digest"]
+          }
+        }
+      }
+    },
     {
       "if": {
         "properties": {

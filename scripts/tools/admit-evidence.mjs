@@ -129,6 +129,16 @@ export function computeAdmission({
     throw new Error(`the corpus ${corpusRef} could not be loaded: ${error.message}`);
   }
   const corpusDigest = corpusTreeDigest(corpus);
+  // The subject content the corpus actually carries. The loader has verified
+  // the content bytes against the corpus' own declaration, so this digest is
+  // the measured content of the evaluation. An admission must bind exactly
+  // that content: an admission whose content diverges from the measured one
+  // could never pass the admission gate, so the calculator refuses to emit
+  // it instead of producing an artifact the chain would always refuse.
+  const measuredSubjectDigest = corpus.subject?.content_digest ?? null;
+  if (contentDigest !== measuredSubjectDigest) {
+    throw new Error(`the admission content ${contentDigest} is not the content the corpus subject carries (${String(measuredSubjectDigest)}); an evaluation may only be admitted for the content it measured`);
+  }
 
   const material = {
     record_ref: record.relative,

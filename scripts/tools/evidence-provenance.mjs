@@ -200,7 +200,7 @@ function resolveCorpus({ root, corpusRef }) {
   if (!stats.isDirectory()) {
     provenanceError('EVIDENCE_CORPUS_INVALID', `the behavioral eval corpus ${relative} is not a directory`);
   }
-  return { absolute, relative };
+  return { absolute, relative, dev: stats.dev, ino: stats.ino };
 }
 
 // corpusTreeDigest(corpus) -> the digest of the WHOLE corpus, recomputed
@@ -296,6 +296,7 @@ function assertCorpusContentInside({ corpus, corpusDir }) {
   for (const variant of corpus.variants.values()) {
     if (variant.positive_cases_file) files.push(variant.positive_cases_file);
   }
+  if (corpus.subjectContentPath) files.push(corpus.subjectContentPath);
   for (const absolute of files) {
     try {
       assertCanonicalTarget({ root: corpusDir, absolutePath: absolute, label: 'corpus content file' });
@@ -308,27 +309,25 @@ function assertCorpusContentInside({ corpus, corpusDir }) {
   }
 }
 
-// reExecute({ corpusDir, record }) -> { corpus, rederived }. The evaluation
-// is re-executed over the corpus on disk. The corpus is loaded fresh for
-// every execution: the runner mutates the positive family per variant, so a
-// shared corpus object would leak one variant into the other.
+// reExecute({ corpus, record }) -> { corpus, rederived }. The evaluation is
+// re-executed over the CORPUS OBJECT the caller loaded, never over a fresh
+// load of the directory: a second load would be a second read of the
+// filesystem, and a writer racing the verification could then let the
+// attestation describe one corpus while the measurements derive from
+// another. Every execution gets its own STRUCTURED CLONE of the one loaded
+// corpus instead — the runner mutates the positive family per variant, so
+// sharing one object between executions would leak one variant into the
+// other, but the clone derives from the same single read.
 //
 // The re-execution is seeded from the CORPUS, not from the record: the
 // instruction revision is the corpus' own declaration, and the evidence
 // references are the corpus default. A record that seeds the re-execution
 // with its own values would only ever be compared with itself.
-async function reExecute({ corpusDir, record }) {
-  let corpus = null;
-  try {
-    corpus = loadCorpus(corpusDir);
-  } catch (error) {
-    corpusLoadError(error, 'the behavioral eval corpus could not be loaded');
-  }
-  assertCorpusContentInside({ corpus, corpusDir });
+async function reExecute({ corpus, record }) {
   let rederived = null;
   try {
     rederived = await runVariant({
-      corpus,
+      corpus: structuredClone(corpus),
       variant: record.variant,
       mode: 'recorded_replay',
       evalId: record.eval_id,
@@ -443,9 +442,16 @@ export async function verifyEvidenceProvenance({
     provenanceError('EVIDENCE_SUBJECT_MISMATCH', `the behavioral eval record ${candidate.relative} measured subject "${String(record.subject?.ref)}", not the promoted skill "${skillId}"`);
   }
 
-  // E5: the evaluation is re-executed over the corpus on disk and must
-  // reproduce the record field for field.
-  const candidateRun = await reExecute({ corpusDir: corpus.absolute, record });
+  // The ONE corpus load of this verification: the containment sweep, the
+  // subject check, both re-executions and the attestation's corpus digest
+  // all derive from this single object, so a writer racing the verification
+  // cannot let the attestation describe one corpus while the measurements
+  // derive from another.
+  assertCorpusContentInside({ corpus: loadedCorpus, corpusDir: corpus.absolute });
+
+  // E5: the evaluation is re-executed over that corpus and must reproduce
+  // the record field for field.
+  const candidateRun = await reExecute({ corpus: loadedCorpus, record });
   const candidateDifferences = executionDifferences(record, candidateRun.rederived);
   if (candidateDifferences.length > 0) {
     provenanceError('EVIDENCE_EXECUTION_MISMATCH', `the behavioral eval record ${candidate.relative} does not reproduce from the corpus ${corpus.relative}: ${candidateDifferences.join('; ')}`);
@@ -470,10 +476,27 @@ export async function verifyEvidenceProvenance({
   if (baselineRecord.subject?.ref !== record.subject?.ref) {
     provenanceError('EVIDENCE_SUBJECT_MISMATCH', `the baseline ${baseline.relative} measured subject "${String(baselineRecord.subject?.ref)}", the candidate ${candidate.relative} measured "${String(record.subject?.ref)}"`);
   }
-  const baselineRun = await reExecute({ corpusDir: corpus.absolute, record: baselineRecord });
+  const baselineRun = await reExecute({ corpus: loadedCorpus, record: baselineRecord });
   const baselineDifferences = executionDifferences(baselineRecord, baselineRun.rederived);
   if (baselineDifferences.length > 0) {
     provenanceError('EVIDENCE_EXECUTION_MISMATCH', `the baseline record ${baseline.relative} does not reproduce from the corpus ${corpus.relative}: ${baselineDifferences.join('; ')}`);
+  }
+
+  // The corpus directory is re-anchored after the re-executions: a corpus
+  // that was REPLACED while it was being verified is refused before any
+  // attestation is produced. A same-inode in-place rewrite is the documented
+  // residual R1 of the confinement primitive: such a writer holds write
+  // access to the corpus and the change is visible in the digests the
+  // attestation binds (the corpus digest and the subject content digest are
+  // computed from the one loaded corpus the measurements derive from).
+  let corpusNow = null;
+  try {
+    corpusNow = fs.statSync(corpus.absolute);
+  } catch (error) {
+    provenanceError('EVIDENCE_CORPUS_CHANGED', `the behavioral eval corpus ${corpus.relative} could not be re-anchored after the re-execution: ${error.message}`);
+  }
+  if (corpusNow.dev !== corpus.dev || corpusNow.ino !== corpus.ino) {
+    provenanceError('EVIDENCE_CORPUS_CHANGED', `the behavioral eval corpus ${corpus.relative} changed while it was being verified; the measurements and the attestation would not describe the same corpus`);
   }
 
   // E6: the comparison and the verdict are re-derived from the baseline that
@@ -507,9 +530,12 @@ export async function verifyEvidenceProvenance({
   // record. The gate therefore states the bound honestly: it refuses a stale
   // declaration and a declaration from the future, and it does NOT claim to
   // authenticate the timestamp. The freshness of the MEASUREMENT is carried
-  // by the re-execution, which happens now, over the corpus on disk; the
-  // binding of the corpus to the ADOPTED CONTENT is a separate obligation
-  // that the behavioral eval contract does not carry yet.
+  // by the re-execution, which happens now, over the corpus on disk. The
+  // binding of the corpus to the MEASURED CONTENT is carried by the subject
+  // content digest: the corpus loader verified the subject content against
+  // its declared digest before any case ran, the re-execution re-derives the
+  // subject from the corpus, and the admission gate binds that digest to the
+  // adopted content.
   const nowMs = resolveNowMs(now);
   if (Number.isNaN(nowMs)) {
     provenanceError('EVIDENCE_STALE', `the behavioral eval ${candidate.relative} could not be compared against a valid clock`);
@@ -548,6 +574,7 @@ export async function verifyEvidenceProvenance({
     baseline_record_digest: baseline.digest,
     verdict: record.verdict,
     subject_ref: record.subject.ref,
+    subject_content_digest: record.subject?.content_digest ?? null,
     created_at: record.created_at,
     execution_mode: record.model_run.mode,
     execution_rederived: true,

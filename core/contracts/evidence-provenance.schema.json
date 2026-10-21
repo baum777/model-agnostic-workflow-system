@@ -6,14 +6,29 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version", "record_ref", "record_digest", "content_digest",
-    "corpus_ref", "corpus_digest", "baseline_record_ref", "baseline_record_digest",
-    "verdict", "subject_ref", "created_at", "execution_mode",
-    "execution_rederived", "comparison_rederived", "runner_ref", "runner_digest",
+    "schema_version",
+    "record_ref",
+    "record_digest",
+    "content_digest",
+    "corpus_ref",
+    "corpus_digest",
+    "baseline_record_ref",
+    "baseline_record_digest",
+    "verdict",
+    "subject_ref",
+    "subject_content_digest",
+    "created_at",
+    "execution_mode",
+    "execution_rederived",
+    "comparison_rederived",
+    "runner_ref",
+    "runner_digest",
     "verified_at"
   ],
   "properties": {
-    "schema_version": { "const": "1.0.0" },
+    "schema_version": {
+      "const": "1.0.0"
+    },
     "record_ref": {
       "type": "string",
       "pattern": "^evidence/[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*\\.json$",
@@ -50,13 +65,24 @@
       "description": "The whole-record digest of the baseline record on disk."
     },
     "verdict": {
-      "enum": ["IMPROVEMENT_PROVEN", "IMPROVEMENT_REJECTED"],
+      "enum": [
+        "IMPROVEMENT_PROVEN",
+        "IMPROVEMENT_REJECTED"
+      ],
       "description": "The re-derived verdict. A BLOCKED evaluation never reaches an attestation."
     },
     "subject_ref": {
       "type": "string",
       "minLength": 1,
       "description": "The subject the evaluation measured. It is the corpus subject AND the record subject AND the promoted skill."
+    },
+    "subject_content_digest": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "The digest of the subject content the evaluation measured, verified by the corpus loader before any case ran, re-derived by the re-execution, and bound to the adopted content by the admission gate. Null only for a subject kind that carries no content binding."
     },
     "created_at": {
       "type": "string",
@@ -85,6 +111,9 @@
       "pattern": "^sha256:[a-f0-9]{64}$",
       "description": "The digest of the canonical runner source, bound to the attestation. A runner that cannot be read is a named refusal, not an empty field."
     },
-    "verified_at": { "type": "string", "minLength": 1 }
+    "verified_at": {
+      "type": "string",
+      "minLength": 1
+    }
   }
 }

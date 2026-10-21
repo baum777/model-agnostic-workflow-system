@@ -40,6 +40,11 @@
       "pattern": "^sha256:[a-f0-9]{64}$",
       "description": "The exact candidate content this approval approves. Any content change invalidates the approval."
     },
+    "frontdoor_admission_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "The whole-record digest of the frontdoor admission this approval authorizes. The signature covers this binding: the owner decision covers exactly the screened admission the promotion consumes, so a fabricated or substituted admission cannot match a signature that binds another one. The promotion requires the binding."
+    },
     "signature": {
       "type": "object",
       "additionalProperties": false,

@@ -136,7 +136,16 @@ function corpusFiles() {
   const manifest = {
     schema_version: '1.0.0',
     corpus_id: 'admission-corpus',
-    subject: { kind: 'skill', ref: SUBJECT },
+    // The subject content binding: the corpus CARRIES the content it
+    // measures, and the loader verifies the bytes against the declared
+    // digest before any case runs. The admitted content must be exactly
+    // this content.
+    subject: {
+      kind: 'skill',
+      ref: SUBJECT,
+      content_path: 'subject/SKILL.md',
+      content_digest: sha256Prefixed(CANDIDATE_CONTENT)
+    },
     families: [
       { family: 'positive', file: 'shared', via: 'variant', blocking: true },
       { family: 'negative', file: 'negative-cases/cases.json', blocking: true }
@@ -148,6 +157,7 @@ function corpusFiles() {
   };
   return {
     'corpus.json': `${JSON.stringify(manifest, null, 2)}\n`,
+    'subject/SKILL.md': CANDIDATE_CONTENT,
     'baseline/cases.json': `${JSON.stringify({ cases: [positiveCase('Reuse decision: extend the existing shared core.')] }, null, 2)}\n`,
     'candidates/cases.json': `${JSON.stringify({ cases: [positiveCase('Reuse decision: extend the existing canonical surface.')] }, null, 2)}\n`,
     'negative-cases/cases.json': `${JSON.stringify({ cases: [negativeCase] }, null, 2)}\n`
@@ -246,6 +256,71 @@ async function attest(world) {
   });
 }
 
+// --- the frontdoor receipt ---------------------------------------------------
+
+// The analyzer reports of a CLEAN screening run, in exactly the shape the
+// checkers' classifiers re-derive.
+const SKILLSPECTOR_CLEAN_REPORT = {
+  metadata: { skillspector_version: '2.12.0' },
+  execution_successful: true,
+  analysis_completeness: { execution_successful: true, is_complete: true, status: 'complete' },
+  issues: [],
+  risk_assessment: { score: 0, severity: 'NONE', max_issue_severity: 'NONE', recommendation: 'SAFE' }
+};
+const SKILLEVALUATOR_PASSED_REPORT = {
+  overall_status: 'passed',
+  overall_passed: true,
+  severity_counts: { critical: 0, high: 0, medium: 0, low: 0 }
+};
+
+// compactRunTimestamp(iso) -> the checker's run-directory timestamp form.
+function compactRunTimestamp(iso) {
+  const [date, time] = String(iso).split('T');
+  return `${date.replace(/-/g, '')}T${time.replace(/:/g, '')}`;
+}
+
+// stageFrontdoorReceipt(canonical, options) -> { path, digest, record, runTs }.
+// Writes the screening run the way the checker does: the two analyzer reports
+// of a CLEAN run and the receipt that binds them, inside the canonical tree's
+// sandbox/runs surface, with the admission id derived exactly the way the
+// checker derives it.
+function stageFrontdoorReceipt(canonical, {
+  skillId,
+  contentDigest,
+  treeDigestHex = 'd'.repeat(64),
+  decidedAt = '2026-10-21T00:00:00.000Z'
+} = {}) {
+  const runTs = compactRunTimestamp(decidedAt);
+  const runDir = path.join(canonical, 'sandbox', 'runs', runTs);
+  fs.mkdirSync(runDir, { recursive: true });
+  fs.writeFileSync(path.join(runDir, 'skillspector-report.json'), `${JSON.stringify(SKILLSPECTOR_CLEAN_REPORT, null, 2)}\n`);
+  fs.writeFileSync(path.join(runDir, 'skillevaluator-report.json'), `${JSON.stringify(SKILLEVALUATOR_PASSED_REPORT, null, 2)}\n`);
+  const record = {
+    schema_version: '1.1.0',
+    admission_id: `sfa_${treeDigestHex.slice(0, 12)}_${runTs}`,
+    candidate: {
+      skill_id: skillId,
+      target: 'local-directory',
+      target_kind: 'local-directory',
+      source_revision: `sha256:${treeDigestHex}`,
+      content_digest: contentDigest
+    },
+    requested_action: 'implement',
+    evidence: {
+      skillspector: { analyzer: 'NVIDIA/SkillSpector', version: '2.12.0', scan_mode: 'static-no-llm', exit_code: 0, report_path: `sandbox/runs/${runTs}/skillspector-report.json`, status: 'PASS', severity: 'none', severity_counts: { critical: 0, high: 0, medium: 0, low: 0 } },
+      skillevaluator_tier1: { analyzer: 'NVIDIA/SkillEvaluator', version: '1.4.0', profile: 'external', tier_scope: '1', exit_code: 0, report_path: `sandbox/runs/${runTs}/skillevaluator-report.json`, status: 'PASS', overall_status: 'passed', overall_passed: true, severity_counts: { critical: 0, high: 0, medium: 0, low: 0 } }
+    },
+    analysis_disposition: 'CLEAN',
+    implementation_disposition: 'ELIGIBLE',
+    authority_granted: false,
+    blockers: [],
+    decided_at: decidedAt
+  };
+  const receiptPath = path.join(runDir, 'skill-frontdoor-admission.json');
+  fs.writeFileSync(receiptPath, `${JSON.stringify(record, null, 2)}\n`);
+  return { path: receiptPath, digest: sha256Prefixed(canonicalJson(record)), record, runTs };
+}
+
 test('S9 a genuine admission is verified: the evidence is admitted for the adopted content from a committed source', async () => {
   const world = await buildWorld();
   const attestation = await attest(world);
@@ -265,6 +340,9 @@ test('S9 a genuine admission is verified: the evidence is admitted for the adopt
   assert.match(result.source_commit, /^[0-9a-f]{40}$/);
   assert.match(result.source_admission_commit, /^[0-9a-f]{40}$/);
   assert.equal(result.material_digest, world.admission.material.material_digest);
+  // The attestation carries the MEASURED subject content, and it is the
+  // content the admission binds.
+  assert.equal(attestation.subject_content_digest, sha256Prefixed(CANDIDATE_CONTENT));
 });
 
 test('S9 an admission for another content is refused: the evidence is not admitted for what is adopted', async () => {
@@ -559,32 +637,24 @@ test('S9 the full promotion chain accepts an admitted evaluation and refuses an 
   const candidateArtifact = path.join(tempDir(), 'candidate-SKILL.md');
   fs.writeFileSync(candidateArtifact, CANDIDATE_CONTENT);
 
-  // The frontdoor admission for the candidate content.
-  const admissionPath = path.join(tempDir(), 'admission.json');
-  fs.writeFileSync(admissionPath, `${JSON.stringify({
-    schema_version: '1.0.0',
-    admission_id: 'sfa_s9_candidate_0001',
-    candidate: { skill_id: SKILL_ID, target: 'local-directory', target_kind: 'local-directory', source_revision: sha256Prefixed(CANDIDATE_CONTENT) },
-    requested_action: 'implement',
-    evidence: {
-      skillspector: { analyzer: 'NVIDIA/SkillSpector', version: '0.5.0', scan_mode: 'static-no-llm', exit_code: 0, report_path: 'sandbox/runs/20261021T000000Z/skillspector/skillspector-report.json', status: 'PASS', severity: 'none', severity_counts: { critical: 0, high: 0, medium: 0, low: 0 } },
-      skillevaluator_tier1: { analyzer: 'NVIDIA/SkillEvaluator', version: '0.5.0', profile: 'external', tier_scope: '1', exit_code: 0, report_path: 'sandbox/runs/20261021T000000Z/skillevaluator/skillevaluator-output.json', status: 'PASS', overall_status: 'passed', overall_passed: true, severity_counts: { critical: 0, high: 0, medium: 0, low: 0 } }
-    },
-    analysis_disposition: 'CLEAN',
-    implementation_disposition: 'ELIGIBLE',
-    authority_granted: false,
-    blockers: [],
-    decided_at: '2026-10-21T00:00:00.000Z'
-  }, null, 2)}\n`);
+  // The frontdoor screening run, staged the way the checker writes it, and
+  // the owner approval whose SIGNED payload binds that screening.
+  const frontdoor = stageFrontdoorReceipt(canonical, {
+    skillId: SKILL_ID,
+    contentDigest: sha256Prefixed(CANDIDATE_CONTENT)
+  });
+  const admissionPath = frontdoor.path;
 
-  // The owner approval for the candidate content.
+  // The owner approval for the candidate content, binding the frontdoor
+  // admission digest in its signed body.
   const approvalBody = {
     schema_version: '1.0.0',
     approver: 'canonical_owner',
     skill_id: SKILL_ID,
     decision_ref: 'owner_decision_s9_0001',
     approved_at: '2026-10-21T00:00:00Z',
-    candidate_digest: sha256Prefixed(CANDIDATE_CONTENT)
+    candidate_digest: sha256Prefixed(CANDIDATE_CONTENT),
+    frontdoor_admission_digest: frontdoor.digest
   };
   const approvalRef = 'core/authority/approvals/owner_decision_s9_0001.json';
   const approvalPath = path.join(canonical, approvalRef);
@@ -817,4 +887,50 @@ test('S9 the S8 gate is unchanged: the provenance attestation still holds for th
   const record = JSON.parse(fs.readFileSync(path.join(world.tree, RECORD_REF), 'utf8'));
   assert.equal(attestation.content_digest, record.reproducibility.content_digest);
   assert.equal(attestation.content_digest, computeContentDigest(record));
+});
+
+test('S9 an evaluation may only be admitted for the content it MEASURED', async () => {
+  // The corpus subject carries the content the loader verified. An
+  // admission that binds a DIFFERENT content is refused even though its
+  // material, digests and subject label all match: the measured content is
+  // not the admitted content.
+  const world = await buildWorld();
+  const attestation = await attest(world);
+  const admission = structuredClone(world.admission);
+  admission.content_digest = sha256Prefixed(`${CANDIDATE_CONTENT}\n<!-- a different version -->`);
+  const admissionRef = `evidence/admissions/${admission.admission_id}.json`;
+  const admissionPath = path.join(world.tree, admissionRef);
+  fs.writeFileSync(admissionPath, `${JSON.stringify(admission, null, 2)}\n`);
+  await expectAdmissionError('EVIDENCE_ADMISSION_SUBJECT_CONTENT_MISMATCH', () =>
+    verifyEvidenceAdmission({
+      root: world.tree,
+      admissionRef,
+      attestations: [attestation],
+      skillId: SKILL_ID,
+      candidateDigest: null,
+      validate: validateAdmission
+    })
+  );
+});
+
+test('S9 the calculator refuses to admit an evaluation for content the corpus does not carry', async () => {
+  const world = await buildWorld();
+  const otherContent = `${CANDIDATE_CONTENT}\n<!-- a different version -->`;
+  const otherPath = path.join(world.tree, 'evals', CORPUS_NAME, 'other-SKILL.md');
+  fs.writeFileSync(otherPath, otherContent);
+  let message = null;
+  try {
+    computeAdmission({
+      skillId: SKILL_ID,
+      recordRef: RECORD_REF,
+      baselineRef: BASELINE_REF,
+      corpusRef: CORPUS_REF,
+      evidenceRoot: world.tree,
+      contentPath: otherPath,
+      sourceKind: 'git_commit'
+    });
+  } catch (error) {
+    message = error.message;
+  }
+  assert.match(String(message), /not the content the corpus subject carries/);
 });

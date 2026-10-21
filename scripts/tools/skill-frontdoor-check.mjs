@@ -126,7 +126,7 @@ function commandVersion(command) {
   return value || 'unknown';
 }
 
-function normalizeSeverityCounts(input = {}) {
+export function normalizeSeverityCounts(input = {}) {
   return {
     critical: Number.isInteger(input.critical) ? input.critical : 0,
     high: Number.isInteger(input.high) ? input.high : 0,
@@ -135,7 +135,7 @@ function normalizeSeverityCounts(input = {}) {
   };
 }
 
-function deriveSecuritySeverity(report, classification) {
+export function deriveSecuritySeverity(report, classification) {
   const explicit = String(report?.severity || report?.risk_level || '').trim().toLowerCase();
   if (['critical', 'high', 'medium', 'low', 'none'].includes(explicit)) return explicit;
   const counts = classification?.counts || {};
@@ -210,7 +210,7 @@ function runSkillEvaluator({ target, outputDir, root }) {
   };
 }
 
-function classifySkillEvaluator(run, version) {
+export function classifySkillEvaluator(run, version) {
   const report = run.report;
   const exitCode = run.result.status;
   const overallStatus = String(report?.overall_status || 'not-run').toLowerCase();
@@ -326,6 +326,12 @@ export function runSkillFrontdoor({
   const resolvedTarget = normalizeLocalTarget(target, root);
   const candidateHash = hashLocalTarget(resolvedTarget);
   const digest = candidateHash.digest;
+  // The CONTENT digest the promotion chain binds: the sha256 of the root
+  // SKILL.md bytes. The whole-candidate directory hash above identifies the
+  // screened tree, not the adopted content — the two forms are both recorded
+  // and must never be confused, because only this one can be compared with
+  // the promoted content.
+  const contentDigest = `sha256:${createHash('sha256').update(fs.readFileSync(path.join(resolvedTarget, 'SKILL.md'))).digest('hex')}`;
   const context = createInstallRiskContext({ repoRoot: root, now });
   fs.mkdirSync(context.runDir, { recursive: true });
 
@@ -361,6 +367,17 @@ export function runSkillFrontdoor({
   });
   const evaluatorEvidence = classifySkillEvaluator(evaluatorRun, evaluatorVersion);
 
+  // Re-anchor the candidate AFTER the analyzers ran: the digests were taken
+  // BEFORE them, so a writer who swaps the staged content between the hash
+  // and the scan would otherwise get a receipt whose analyzer verdicts were
+  // earned by content the receipt does not describe. The receipt is only
+  // written when the screened identity is still the identity on disk.
+  const reHash = hashLocalTarget(resolvedTarget);
+  const reContentDigest = `sha256:${createHash('sha256').update(fs.readFileSync(path.join(resolvedTarget, 'SKILL.md'))).digest('hex')}`;
+  if (reHash.digest !== digest || reContentDigest !== contentDigest) {
+    throw new Error('the staged candidate changed while it was being screened (content or tree identity moved between the hash and the analyzer runs); the screening is refused instead of writing a receipt that describes content the analyzers never measured');
+  }
+
   if (!evaluatorEvidence.report_path) {
     const stubPath = path.join(evaluatorDir, 'skillevaluator-incomplete.json');
     writeText(
@@ -376,7 +393,7 @@ export function runSkillFrontdoor({
   const securityCounts = normalizeSeverityCounts(securityClassification?.counts);
   const decidedAt = now.toISOString();
   const record = {
-    schema_version: '1.0.0',
+    schema_version: '1.1.0',
     admission_id: 'sfa_' + digest.slice(0, 12) + '_' + context.timestamp,
     candidate: {
       skill_id: String(skillId).trim(),
@@ -384,7 +401,8 @@ export function runSkillFrontdoor({
       target_kind: targetKind(resolvedTarget),
       source_revision: sourceRevision
         ? String(sourceRevision).trim() + ';sha256:' + digest
-        : 'sha256:' + digest
+        : 'sha256:' + digest,
+      content_digest: contentDigest
     },
     requested_action: action,
     evidence: {

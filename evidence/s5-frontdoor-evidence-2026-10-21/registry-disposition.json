@@ -1,0 +1,67 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "S5/F2 - trusted subject content binding and verified frontdoor admission, executed under the owner directive of 2026-10-21 to close the remaining S5 subject-provenance and Frontdoor-admission gaps of the Skill-Promotion Trust Chain, with the standing invariants Approval != Grant, Caller Input != Authority and Receipt != Verification. This run closes the foreign gates F1 and F2 that the S9 run record named. F1: a behavioral evaluation is now bound to the MEASURED subject content instead of a subject label - the corpus manifest declares subject.content_path and subject.content_digest (mandatory for a skill subject, voluntary and equally verified otherwise), the corpus loader verifies the content bytes against the declaration through the shared confinement primitive BEFORE any case runs (CORPUS_SUBJECT_CONTENT_UNBOUND / CORPUS_SUBJECT_DIGEST_INVALID / CORPUS_SUBJECT_DIGEST_MISMATCH), the record subject carries the verified content_digest (behavioral-eval contract advanced to 1.1.0, required for kind skill), the baseline binding re-checks it, the S8 re-execution re-derives it field for field, the S8 attestation carries subject_content_digest, the S9 admission gate refuses an evaluation whose measured content is not the admitted content (EVIDENCE_ADMISSION_SUBJECT_CONTENT_MISMATCH) and the admit-evidence calculator refuses to emit such an admission; the S9 'declared binding' caveat is thereby retired for skill subjects. F2: the frontdoor admission of the promotion chain is verified as EVIDENCE instead of being a caller-supplied path - the receipt must live in the canonical screening surface sandbox/runs/<run>/skill-frontdoor-admission.json behind the containment proof, its admission identity must re-derive from the screened content identity, the run directory and its own decision time exactly the way the checker derives it, BOTH analyzer reports are opened from the same screening run and the declared statuses, severities and counts must re-derive under the very classifiers the checker uses, the receipt records candidate.content_digest (frontdoor contract advanced to 1.1.0, the sha256 of the screened SKILL.md bytes) as the form the promotion compares while the whole-tree source_revision digest stays provenance and is never compared against content, the approval payload covers frontdoor_admission_digest so the owner decision is signed over exactly the screened admission the promotion consumes (OWNER_APPROVAL_ADMISSION_UNBOUND / OWNER_APPROVAL_ADMISSION_MISMATCH - a fabricated or substituted admission fails the owner signature, and the signature-payload coverage property is itself bound by a test), the post-adoption readback cross-checks the recorded pair, and the checker re-anchors the staged candidate after the analyzers ran so a receipt cannot describe content the analyzers never measured. Independent review (0 P1 / 2 P2 / 4 P3) found two local race windows and both were repaired: the checker re-anchors after the scan, and the provenance verification loads the corpus ONCE (containment sweep, subject check, both re-executions and the attestation digest derive from that single object) and re-anchors the corpus directory after the re-executions (EVIDENCE_CORPUS_CHANGED); the approval read is confined (OWNER_APPROVAL_PATH_ESCAPE) and the readback cross-check was added. One P3 (pre-existing check-then-write canonical write path without O_NOFOLLOW) is recorded as residual R-F2-3 with the S8 lane owner and is NOT repaired here. Historical evidence record sets keep their 1.0.0 records as published history; the current shipped evidence set is evidence/skill-effectiveness-evals-subject-bound-2026-10-21. Declaring the changed surfaces moved the canonical instruction state, so the six S12 model-adaptive profile pins, their contract fixture and the test constant, the reference run spec qualification (instruction digest 7e2d8027 to 89cb772b) and the HO-01 experiment's frozen reference-spec input were re-earned and the HO-01 comparison was re-frozen by re-running the experiment - the re-run reproduced the same behavioral evals, the same decision and the same metrics (routing 0, output -0.1875, security 0), only the bindings moved. The Registry write is pending: the run change registration and the contract records for the amended surfaces are prepared and follow this source change in unitera-registry immediately; this disposition is rebound from REQUIRED_BUT_BLOCKED to UPDATED with the registry commit sha once that registration is merged and verified (the S9 precedent of the same run-day). The scope boundary is explicit: the specification stays PROPOSED, this run adopts nothing, promotes no skill, activates no runtime, qualifies no model and no executor, grants no permission and changes no authority; the canonical owner trust anchor is unchanged and still publishes no key, so the chain still refuses at OWNER_AUTHORITY_NOT_PUBLISHED and the bounded promotion acceptance remains an owner act. Hosted CI could not execute (account billing block) and is NOT presented as a gate: every verification result is a LOCAL result on the exact branch head. F4 (the unkeyed freshness seal of the S8 lane) remains open with its owner and is not touched.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/behavioral-eval.schema.json",
+      "CONTRACT_RECORD:core/contracts/skill-frontdoor-admission.schema.json",
+      "CONTRACT_RECORD:core/contracts/owner-approval.schema.json",
+      "CONTRACT_RECORD:core/contracts/skill-promotion-adoption.schema.json",
+      "CONTRACT_RECORD:core/contracts/evidence-provenance.schema.json"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "scripts/tools/run-skill-effectiveness-evals.mjs",
+      "scripts/tools/evidence-provenance.mjs",
+      "scripts/tools/evidence-admission.mjs",
+      "scripts/tools/admit-evidence.mjs",
+      "scripts/tools/promote-skill-candidate.mjs",
+      "scripts/tools/skill-frontdoor-check.mjs",
+      "runtime/skills/owner-authority.mjs",
+      "core/contracts/behavioral-eval.schema.json",
+      "core/contracts/skill-frontdoor-admission.schema.json",
+      "core/contracts/owner-approval.schema.json",
+      "core/contracts/skill-promotion-adoption.schema.json",
+      "core/contracts/evidence-provenance.schema.json",
+      "tests/vnext/skill-promotion.test.mjs",
+      "tests/vnext/evidence-admission.test.mjs",
+      "tests/vnext/evidence-provenance.test.mjs",
+      "evidence/skill-effectiveness-evals-subject-bound-2026-10-21",
+      "evidence/s5-frontdoor-evidence-2026-10-21/RUN.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/s5-frontdoor-evidence-2026-10-21/RUN.md",
+      "evidence/s5-frontdoor-evidence-2026-10-21/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "npm run test:vnext 753 of 753 pass with zero failures on the exact branch head (734 before this run, +19 tests binding the new guards)",
+      "tests/tools and tests/runtime 87 of 88 with the single failure proven pre-existing on pristine origin/main 5ed7216 by an isolated run (not a regression of this change)",
+      "npm run validate, validate-maws-vnext, validate-behavioral-eval (10 cases), validate-experiment-comparison (1 checked 0 invalid after the HO-01 re-freeze), validate-executor-model-profile (6 profiles 0 issues), validate-instruction-integrity all green; runtime:validate reports the identical pre-existing state as origin/main",
+      "eval:maws-vnext 24 of 24 PASS",
+      "mutation probes 13 of 13 BOUND: the first battery returned 9 bound and 4 findings (a weak probe pairing plus three guards unbound by their named suites: the surface-pattern guard, the identity-path guard and the signature-payload coverage of the admission binding), every one repaired with a dedicated binding test and re-probed to bound",
+      "independent review on the full diff (attack model: a writer with filesystem access to the canonical and/or evidence tree): 0 P1 / 2 P2 / 4 P3; both P2 race windows repaired (checker post-scan re-anchor; single corpus load per verification with post-execution re-anchor), P3-1 repaired (approval containment), P3-2 partially repaired (readback cross-check added and bound; the disposition re-derivation is structurally subsumed by the report check plus contract plus ELIGIBLE gate and an unreachable branch was removed per repository precedent), P3-4 repaired (honest residual wording), P3-3 recorded as residual R-F2-3 (pre-existing canonical write path, S8 lane owner)",
+      "the subject-content proof chain is end-to-end measured: corpus loader verification before any case runs, re-execution re-derivation, attestation field, admission gate and calculator refusal are each bound by a test that fails when its guard is mutated away",
+      "the HO-01 re-freeze reproduced the same behavioral evals, decision and metrics (routing 0, output -0.1875, security 0, IMPROVEMENT_REJECTED / hypothesis CONFIRMED); only the spec and instruction bindings moved",
+      "the hosted CI job could NOT execute: the account is locked due to a billing issue; every step was replicated locally on the exact head and the absence of a hosted green gate is disclosed rather than presented as one"
+    ],
+    "implementation_commit_sha": "PENDING",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/s5-frontdoor-evidence-2026-10-21/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (an added or amended canonical contract surface is CONTRACT_RECORD relevance)"
+    ],
+    "registry_baseline_sha": "57a0fc09b8b2810bb0d1b40fa714d3fc5813b555"
+  }
+}

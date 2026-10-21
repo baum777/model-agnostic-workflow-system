@@ -18,12 +18,12 @@
     "decided_at"
   ],
   "properties": {
-    "schema_version": { "type": "string", "const": "1.0.0" },
+    "schema_version": { "type": "string", "const": "1.1.0" },
     "admission_id": { "type": "string", "minLength": 1 },
     "candidate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["skill_id", "target", "target_kind", "source_revision"],
+      "required": ["skill_id", "target", "target_kind", "source_revision", "content_digest"],
       "properties": {
         "skill_id": { "type": "string", "minLength": 1 },
         "target": { "type": "string", "minLength": 1 },
@@ -35,6 +35,11 @@
           "type": "string",
           "minLength": 1,
           "description": "Immutable source identity. Local candidates use sha256:<digest>; remote candidates require an immutable revision before admission."
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "description": "sha256 of the candidate's root SKILL.md bytes, the digest form the promotion chain binds. The source_revision digest identifies the screened TREE, not the adopted content; both forms are recorded and never confused."
         }
       }
     },

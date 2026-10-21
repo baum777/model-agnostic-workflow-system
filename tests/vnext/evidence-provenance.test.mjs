@@ -44,6 +44,19 @@ function tempDir() {
 }
 
 const SUBJECT = 'provenance-subject';
+// The subject content the corpus carries: the loader verifies the bytes
+// against this digest before any case runs, so every record binds the
+// measured content.
+const SUBJECT_CONTENT = `---
+name: ${SUBJECT}
+version: 1.0.0
+---
+
+# Provenance Subject
+
+The measured content of the provenance fixture corpus.
+`;
+const SUBJECT_DIGEST = `sha256:${crypto.createHash('sha256').update(SUBJECT_CONTENT).digest('hex')}`;
 const CORPUS_NAME = 'provenance-corpus';
 const CORPUS_REF = `evals/${CORPUS_NAME}`;
 const EVIDENCE_DIR = 'evidence/provenance-fixture';
@@ -93,7 +106,12 @@ function corpusFiles({ positiveBlocking = true, candidatePositiveText = 'Reuse d
   const manifest = {
     schema_version: '1.0.0',
     corpus_id: 'provenance-corpus',
-    subject: { kind: 'skill', ref: SUBJECT },
+    subject: {
+      kind: 'skill',
+      ref: SUBJECT,
+      content_path: 'subject/SKILL.md',
+      content_digest: SUBJECT_DIGEST
+    },
     families: [
       { family: 'positive', file: 'shared', via: 'variant', blocking: positiveBlocking },
       { family: 'negative', file: 'negative-cases/cases.json', blocking: true }
@@ -105,6 +123,7 @@ function corpusFiles({ positiveBlocking = true, candidatePositiveText = 'Reuse d
   };
   return {
     'corpus.json': `${JSON.stringify(manifest, null, 2)}\n`,
+    'subject/SKILL.md': SUBJECT_CONTENT,
     'baseline/cases.json': `${JSON.stringify({ cases: [positiveCase('Reuse decision: extend the existing shared core.')] }, null, 2)}\n`,
     'candidates/cases.json': `${JSON.stringify({ cases: [positiveCase(candidatePositiveText)] }, null, 2)}\n`,
     'negative-cases/cases.json': `${JSON.stringify({ cases: [negativeCase] }, null, 2)}\n`
@@ -593,12 +612,14 @@ test('S8 the readback re-reads the record from the evidence surface and binds it
 test('S8 the SHIPPED evidence reproduces against the shipped corpus', async () => {
   // The evidence that is committed in this repository must be traceable to
   // the corpus that is committed with it. This is the shipped counterpart of
-  // the fixture tests above.
+  // the fixture tests above. The subject-bound tree is the record set the
+  // current runner produces; the 2026-10-21 tree stays as the historical
+  // 1.0.0 record set it is.
   const attestation = await verifyEvidenceProvenance({
     root,
-    recordRef: 'evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-candidate.json',
+    recordRef: 'evidence/skill-effectiveness-evals-subject-bound-2026-10-21/eval-record-bev-skill-effectiveness-candidate.json',
     corpusRef: 'evals/skill-effectiveness',
-    baselineRecordRef: 'evidence/skill-effectiveness-evals-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json',
+    baselineRecordRef: 'evidence/skill-effectiveness-evals-subject-bound-2026-10-21/eval-record-bev-skill-effectiveness-baseline.json',
     skillId: 'maws-workflow-core-router-profile',
     validate
   });
@@ -606,13 +627,18 @@ test('S8 the SHIPPED evidence reproduces against the shipped corpus', async () =
   assert.equal(attestation.comparison_rederived, true);
   assert.equal(attestation.verdict, 'IMPROVEMENT_PROVEN');
   assert.equal(attestation.subject_ref, 'maws-workflow-core-router-profile');
+  // A routing_profile subject carries no content binding: the attestation
+  // names that honestly, and such an evaluation can never be ADMITTED for
+  // a skill content.
+  assert.equal(attestation.subject_content_digest, null);
 });
 
 test('S8 the SUPERSEDED shipped evidence no longer reproduces and is refused', async () => {
-  // The evidence of 2026-10-20 was produced against a corpus that the S7
-  // slice changed afterwards. It is a stale receipt: the promotion chain
-  // must refuse it instead of trusting the verdict it carries.
-  const error = await expectProvenanceError('EVIDENCE_EXECUTION_MISMATCH', () => verifyEvidenceProvenance({
+  // The evidence of 2026-10-20 was produced by an earlier record contract.
+  // It is a stale receipt twice over: it no longer satisfies the current
+  // contract, and the current runner would not reproduce it. The promotion
+  // chain must refuse it instead of trusting the verdict it carries.
+  const error = await expectProvenanceError('EVIDENCE_RECORD_INVALID', () => verifyEvidenceProvenance({
     root,
     recordRef: 'evidence/skill-effectiveness-evals-2026-10-20/eval-record-bev-skill-effectiveness-candidate.json',
     corpusRef: 'evals/skill-effectiveness',
@@ -620,5 +646,109 @@ test('S8 the SUPERSEDED shipped evidence no longer reproduces and is refused', a
     skillId: 'maws-workflow-core-router-profile',
     validate
   }));
-  assert.match(error.message, /does not reproduce from the corpus/);
+  assert.match(error.message, /violates its contract/);
 });
+
+test('S5 a skill subject without the measured content is refused at the corpus', async () => {
+  // The subject content binding is the property that makes a skill
+  // evaluation a measurement of CONTENT: a corpus that names a skill
+  // without carrying the content it measures produces records that cannot
+  // prove what they measured.
+  const tree = tempDir();
+  const corpusDir = path.join(tree, 'evals', CORPUS_NAME);
+  for (const [relative, content] of Object.entries(corpusFiles())) {
+    if (relative === 'subject/SKILL.md') continue;
+    const absolute = path.join(corpusDir, relative);
+    fs.mkdirSync(path.dirname(absolute), { recursive: true });
+    let text = content;
+    if (relative === 'corpus.json') {
+      const manifest = JSON.parse(text);
+      delete manifest.subject.content_path;
+      delete manifest.subject.content_digest;
+      text = `${JSON.stringify(manifest, null, 2)}\n`;
+    }
+    fs.writeFileSync(absolute, text);
+  }
+  expectCorpusError('CORPUS_SUBJECT_CONTENT_UNBOUND', () => loadCorpus(corpusDir));
+});
+
+test('S5 a corpus whose subject content does not digest to its declaration is refused', async () => {
+  const tree = tempDir();
+  const corpusDir = path.join(tree, 'evals', CORPUS_NAME);
+  for (const [relative, content] of Object.entries(corpusFiles())) {
+    const absolute = path.join(corpusDir, relative);
+    fs.mkdirSync(path.dirname(absolute), { recursive: true });
+    let text = content;
+    if (relative === 'subject/SKILL.md') {
+      text = `${content}\n<!-- tampered -->\n`;
+    }
+    fs.writeFileSync(absolute, text);
+  }
+  expectCorpusError('CORPUS_SUBJECT_DIGEST_MISMATCH', () => loadCorpus(corpusDir));
+});
+
+test('S5 the measured subject content is re-derived: content that changed after the record is refused', async () => {
+  // The record binds the subject content by digest. Replacing the content
+  // AND its declared digest makes the corpus self-consistent again — but
+  // the re-execution then measures the NEW content, and the record no
+  // longer reproduces. A substituted measurement is refused, not accepted.
+  const world = await buildTree();
+  const tree = world.tree;
+  const contentPath = path.join(tree, 'evals', CORPUS_NAME, 'subject/SKILL.md');
+  const manifestPath = path.join(tree, 'evals', CORPUS_NAME, 'corpus.json');
+  const newContent = `${fs.readFileSync(contentPath, 'utf8')}\n<!-- replaced after the record was produced -->\n`;
+  fs.writeFileSync(contentPath, newContent);
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  manifest.subject.content_digest = `sha256:${crypto.createHash('sha256').update(newContent).digest('hex')}`;
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  const error = await expectProvenanceError('EVIDENCE_EXECUTION_MISMATCH', () => verifyEvidenceProvenance({
+    root: tree,
+    recordRef: RECORD_REF,
+    corpusRef: CORPUS_REF,
+    baselineRecordRef: BASELINE_REF,
+    skillId: SUBJECT,
+    validate
+  }));
+  assert.match(error.message, /subject/);
+});
+
+async function expectCorpusError(code, fn) {
+  try {
+    fn();
+  } catch (error) {
+    assert.equal(error.code, code, `expected ${code}, got ${error?.code}: ${error?.message}`);
+    return error;
+  }
+  assert.fail(`expected EvalConfigError ${code}`);
+}
+
+test('S5 a supplied baseline that measured OTHER subject content is refused', async () => {
+  // The baseline is the comparison reference. A baseline record whose
+  // subject content digest names different content than the corpus carries
+  // is a substituted measurement and must never produce IMPROVEMENT_PROVEN.
+  // The mutated record is RE-SEALED, so the refusal is the subject binding,
+  // not the broken seal.
+  const world = await buildTree();
+  const tree = world.tree;
+  const baselinePath = path.join(tree, 'stale-baseline.json');
+  const baseline = JSON.parse(fs.readFileSync(path.join(tree, BASELINE_REF), 'utf8'));
+  baseline.subject.content_digest = `sha256:${'4'.repeat(64)}`;
+  baseline.reproducibility.content_digest = computeContentDigest(baseline);
+  fs.writeFileSync(baselinePath, `${JSON.stringify(baseline, null, 2)}\n`);
+  await expectRunnerError('BASELINE_RECORD_MISMATCH', async () => await runSkillEffectivenessEval({
+    corpus: loadCorpus(path.join(tree, 'evals', CORPUS_NAME)),
+    mode: 'recorded_replay',
+    evalIdBase: 'bev_s8_provenance',
+    baselineRecordPath: baselinePath
+  }));
+});
+
+async function expectRunnerError(code, fn) {
+  try {
+    await fn();
+  } catch (error) {
+    assert.equal(error.code, code, `expected ${code}, got ${error?.code}: ${error?.message}`);
+    return error;
+  }
+  assert.fail(`expected EvalConfigError ${code}`);
+}
