@@ -5,7 +5,7 @@
   "base_ref": "main",
   "head_ref": "feature/s10-cross-model-optimization-20261022",
   "head_repository": "baum777",
-  "authorized_head_sha": "6e3c3280f596b4d4d121556dc46ed0c116578a81",
+  "authorized_head_sha": "f05c90d3222b5c784c9c90fad5236f97e3e4d58b",
   "state": "active",
   "required_checks": [],
   "required_local_gates": [
