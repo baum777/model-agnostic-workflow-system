@@ -1,0 +1,66 @@
+[
+  {
+    "case_id": "regr_candidate_improved",
+    "candidate_tree_digest_before": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "candidate_tree_digest_after": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "unchanged": true,
+    "candidate_rejected": false,
+    "verdict": "NO_REGRESSION"
+  },
+  {
+    "case_id": "regr_candidate_security_regression_beats_improvement",
+    "candidate_tree_digest_before": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "candidate_tree_digest_after": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "unchanged": true,
+    "candidate_rejected": true,
+    "verdict": "REGRESSION_DETECTED"
+  },
+  {
+    "case_id": "regr_candidate_routing_regression",
+    "candidate_tree_digest_before": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "candidate_tree_digest_after": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "unchanged": true,
+    "candidate_rejected": true,
+    "verdict": "REGRESSION_DETECTED"
+  },
+  {
+    "case_id": "regr_candidate_missing_evidence",
+    "candidate_tree_digest_before": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "candidate_tree_digest_after": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "unchanged": true,
+    "candidate_rejected": true,
+    "verdict": "BLOCKED"
+  },
+  {
+    "case_id": "regr_candidate_measured_over_another_corpus",
+    "candidate_tree_digest_before": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "candidate_tree_digest_after": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "unchanged": true,
+    "candidate_rejected": true,
+    "verdict": "BLOCKED"
+  },
+  {
+    "case_id": "regr_candidate_advisory_candidates_rose",
+    "candidate_tree_digest_before": "sha256:a3db20fb39b16680622e58de8297b56153eef914c31fd4bb7eb34e5543d59d4a",
+    "candidate_tree_digest_after": "sha256:a3db20fb39b16680622e58de8297b56153eef914c31fd4bb7eb34e5543d59d4a",
+    "unchanged": true,
+    "candidate_rejected": false,
+    "verdict": "NO_REGRESSION"
+  },
+  {
+    "case_id": "regr_candidate_still_carries_a_security_regression",
+    "candidate_tree_digest_before": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "candidate_tree_digest_after": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "unchanged": true,
+    "candidate_rejected": true,
+    "verdict": "REGRESSION_DETECTED"
+  },
+  {
+    "case_id": "regr_candidate_measures_another_subject",
+    "candidate_tree_digest_before": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "candidate_tree_digest_after": "sha256:beaef6290648e2990fed99118a763896953fb0dc6e9f07da5aa16e474cf85786",
+    "unchanged": true,
+    "candidate_rejected": true,
+    "verdict": "BLOCKED"
+  }
+]

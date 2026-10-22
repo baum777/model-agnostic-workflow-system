@@ -1,0 +1,391 @@
+[
+  {
+    "case_id": "rbk_happy_path",
+    "expectation": {
+      "verdict": "ROLLBACK_PLANNED",
+      "refusal_code": null,
+      "construction": "The candidate 1.2.0 is not qualified; the last qualified revision is 1.1.0 with its own evidence. The plan restores 1.1.0, the materiality of the restored state against the qualification is NON_MATERIAL, and the evidence inventory still hashes to the digest that was taken before the rollback. The verdict is ROLLBACK_PLANNED: the plan is admissible, and this call executed no restore."
+    },
+    "record": {
+      "schema_version": "1.0.0",
+      "rollback_id": "rbk_ef33efcc26c92110",
+      "created_at": "2026-10-22T14:41:06.729Z",
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "rolled_back_from": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "restored_to": {
+        "version": "1.1.0",
+        "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "qualification_id": "qual_s9_qualified",
+        "qualification_state": "QUALIFIED",
+        "fingerprint_id": "fp_s9_qualified"
+      },
+      "materiality_after_rollback": {
+        "decision_id": "mat_03302a213b24",
+        "overall_class": "NON_MATERIAL",
+        "deltas": []
+      },
+      "history": {
+        "inventory_digest": "sha256:182f05d13b2fdd1953e031040282a98660b942a54dbf384b1408fbe579f5f635",
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          },
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/comparison.json",
+            "digest": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          }
+        ],
+        "digest_before": "sha256:182f05d13b2fdd1953e031040282a98660b942a54dbf384b1408fbe579f5f635",
+        "digest_after": "sha256:182f05d13b2fdd1953e031040282a98660b942a54dbf384b1408fbe579f5f635",
+        "unchanged": true
+      },
+      "verdict": "ROLLBACK_PLANNED",
+      "refusal_code": null,
+      "refusal_detail": null,
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#rbk_happy_path"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "rbk_no_qualified_revision",
+    "expectation": {
+      "verdict": "BLOCKED",
+      "refusal_code": "ROLLBACK_TARGET_NOT_QUALIFIED",
+      "construction": "No revision carries a QUALIFIED qualification with its own evidence. There is nothing to restore, so the rollback refuses instead of restoring something arbitrary."
+    },
+    "record": {
+      "schema_version": "1.0.0",
+      "rollback_id": "rbk_4fa3d32ee1b7c0bd",
+      "created_at": "2026-10-22T14:41:06.730Z",
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "rolled_back_from": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "restored_to": {
+        "version": "none",
+        "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "qualification_id": "qual_unknown",
+        "qualification_state": "NOT_QUALIFIED",
+        "fingerprint_id": "fp_unknown"
+      },
+      "materiality_after_rollback": {
+        "decision_id": "mat_unknown",
+        "overall_class": "UNKNOWN",
+        "deltas": []
+      },
+      "history": {
+        "inventory_digest": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+        "digest_after": null,
+        "unchanged": false
+      },
+      "verdict": "BLOCKED",
+      "refusal_code": "ROLLBACK_TARGET_NOT_QUALIFIED",
+      "refusal_detail": "no revision of this subject carries a QUALIFIED qualification with its own evidence, so there is nothing to restore",
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#rbk_no_qualified_revision"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "rbk_requested_target_is_not_the_last_qualified",
+    "expectation": {
+      "verdict": "BLOCKED",
+      "refusal_code": "ROLLBACK_TARGET_NOT_LAST_QUALIFIED",
+      "construction": "Two revisions are qualified. The caller asks for the older one. The controlled target is the newest qualified revision, and the request for an arbitrary older revision is refused."
+    },
+    "record": {
+      "schema_version": "1.0.0",
+      "rollback_id": "rbk_5daccf6c3462b001",
+      "created_at": "2026-10-22T14:41:06.731Z",
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "rolled_back_from": {
+        "version": "1.3.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "restored_to": {
+        "version": "1.1.0",
+        "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "qualification_id": "qual_s9_qualified",
+        "qualification_state": "QUALIFIED",
+        "fingerprint_id": "fp_s9_qualified"
+      },
+      "materiality_after_rollback": {
+        "decision_id": "mat_unknown",
+        "overall_class": "UNKNOWN",
+        "deltas": []
+      },
+      "history": {
+        "inventory_digest": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+        "digest_after": null,
+        "unchanged": false
+      },
+      "verdict": "BLOCKED",
+      "refusal_code": "ROLLBACK_TARGET_NOT_LAST_QUALIFIED",
+      "refusal_detail": "the requested restore target 1.0.0 is not the last qualified revision; the controlled target is 1.1.0",
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#rbk_requested_target_is_not_the_last_qualified"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "rbk_not_a_rollback",
+    "expectation": {
+      "verdict": "BLOCKED",
+      "refusal_code": "ROLLBACK_NOT_A_ROLLBACK",
+      "construction": "The current version is the version that would be restored. Nothing goes back, so the rollback refuses: it is not a rollback of a failed improvement."
+    },
+    "record": {
+      "schema_version": "1.0.0",
+      "rollback_id": "rbk_ded19a243ad23387",
+      "created_at": "2026-10-22T14:41:06.731Z",
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "rolled_back_from": {
+        "version": "1.1.0",
+        "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+      },
+      "restored_to": {
+        "version": "none",
+        "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "qualification_id": "qual_unknown",
+        "qualification_state": "NOT_QUALIFIED",
+        "fingerprint_id": "fp_unknown"
+      },
+      "materiality_after_rollback": {
+        "decision_id": "mat_unknown",
+        "overall_class": "UNKNOWN",
+        "deltas": []
+      },
+      "history": {
+        "inventory_digest": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+        "digest_after": null,
+        "unchanged": false
+      },
+      "verdict": "BLOCKED",
+      "refusal_code": "ROLLBACK_NOT_A_ROLLBACK",
+      "refusal_detail": "the current version 1.1.0 is not newer than the restore target 1.1.0; nothing is rolled back",
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#rbk_not_a_rollback"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "rbk_history_changed",
+    "expectation": {
+      "verdict": "BLOCKED",
+      "refusal_code": "HISTORY_NOT_PRESERVED",
+      "construction": "The evidence inventory no longer hashes to the digest it had before the rollback. A rollback that eats the evidence of what went wrong is refused."
+    },
+    "record": {
+      "schema_version": "1.0.0",
+      "rollback_id": "rbk_4fa3d32ee1b7c0bd",
+      "created_at": "2026-10-22T14:41:06.731Z",
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "rolled_back_from": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "restored_to": {
+        "version": "1.1.0",
+        "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "qualification_id": "qual_s9_qualified",
+        "qualification_state": "QUALIFIED",
+        "fingerprint_id": "fp_s9_qualified"
+      },
+      "materiality_after_rollback": {
+        "decision_id": "mat_aaaaeed9247b",
+        "overall_class": "NON_MATERIAL",
+        "deltas": []
+      },
+      "history": {
+        "inventory_digest": "sha256:99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa",
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": "sha256:99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa",
+        "digest_after": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+        "unchanged": false
+      },
+      "verdict": "BLOCKED",
+      "refusal_code": "HISTORY_NOT_PRESERVED",
+      "refusal_detail": "the evidence inventory changed across the rollback (before sha256:99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa, after sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7); the history of the failed improvement must survive the rollback",
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#rbk_history_changed"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "rbk_restored_state_is_not_the_qualified_state",
+    "expectation": {
+      "verdict": "BLOCKED",
+      "refusal_code": "MATERIALITY_NOT_NON_MATERIAL",
+      "construction": "The restored revision's effective instruction digest differs from the digest the qualification was earned under. The restore does not restore the qualified state, so the qualification may not be inherited and the rollback fails closed."
+    },
+    "record": {
+      "schema_version": "1.0.0",
+      "rollback_id": "rbk_4fa3d32ee1b7c0bd",
+      "created_at": "2026-10-22T14:41:06.731Z",
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "rolled_back_from": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "restored_to": {
+        "version": "1.1.0",
+        "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "qualification_id": "qual_s9_qualified",
+        "qualification_state": "QUALIFIED",
+        "fingerprint_id": "fp_s9_drifted"
+      },
+      "materiality_after_rollback": {
+        "decision_id": "mat_c72a7f61a43e",
+        "overall_class": "MATERIAL",
+        "deltas": [
+          {
+            "component": "effective_instruction_digest",
+            "from": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef",
+            "to": "sha256:feedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedface",
+            "classification": "MATERIAL"
+          }
+        ]
+      },
+      "history": {
+        "inventory_digest": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+        "digest_after": null,
+        "unchanged": false
+      },
+      "verdict": "BLOCKED",
+      "refusal_code": "MATERIALITY_NOT_NON_MATERIAL",
+      "refusal_detail": "the restored state is MATERIAL against the qualification it would inherit, so the qualification may not be inherited after the rollback",
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#rbk_restored_state_is_not_the_qualified_state"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "rbk_history_digest_missing",
+    "expectation": {
+      "verdict": "BLOCKED",
+      "refusal_code": "HISTORY_DIGEST_MISSING",
+      "construction": "The caller supplies no digest of the evidence inventory as it stood before the rollback. Without it there is nothing to compare the current inventory against, so the history of the failed improvement cannot be proven intact. A missing digest is a refusal, never a default: a digest derived from the state under examination would make the check tautological."
+    },
+    "record": {
+      "schema_version": "1.0.0",
+      "rollback_id": "rbk_4fa3d32ee1b7c0bd",
+      "created_at": "2026-10-22T14:41:06.731Z",
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "rolled_back_from": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "restored_to": {
+        "version": "none",
+        "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "qualification_id": "qual_unknown",
+        "qualification_state": "NOT_QUALIFIED",
+        "fingerprint_id": "fp_unknown"
+      },
+      "materiality_after_rollback": {
+        "decision_id": "mat_unknown",
+        "overall_class": "UNKNOWN",
+        "deltas": []
+      },
+      "history": {
+        "inventory_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": null,
+        "digest_after": null,
+        "unchanged": false
+      },
+      "verdict": "BLOCKED",
+      "refusal_code": "HISTORY_DIGEST_MISSING",
+      "refusal_detail": "the caller supplied no digest of the evidence inventory as it stood BEFORE the rollback, so there is nothing to compare the current inventory against; the history of the failed improvement cannot be proven intact",
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#rbk_history_digest_missing"
+      ]
+    },
+    "contract_issues": []
+  }
+]

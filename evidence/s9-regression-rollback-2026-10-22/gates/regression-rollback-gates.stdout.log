@@ -1,0 +1,10 @@
+regression-comparison.contracts.json: 8 case(s)
+rollback-record.contracts.json: 7 case(s)
+S9 contracts: OK
+S9 regression eval: s9-regression-corpus-2026-10-22
+  corpus digest: sha256:0be5845919633ae9d20bf086584a761fdacd6eb92b28dfff0d7f510866a5e700
+  signal cases: 16 over 8/8 classes; TP 8, FP 0, FN 0; coverage gaps: 0
+  regression cases: 8 compared
+  rollback cases: 7 planned
+  candidate state preserved: true
+  result: every expectation met

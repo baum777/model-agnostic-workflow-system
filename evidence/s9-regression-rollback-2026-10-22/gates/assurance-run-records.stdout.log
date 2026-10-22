@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "records": 2,
+  "results": [
+    {
+      "record": "evidence/assurance-closure-2026-10-21/run-record.json",
+      "passed": true,
+      "issues": []
+    },
+    {
+      "record": "evidence/operational-safety-closure-2026-10-22/run-record.json",
+      "passed": true,
+      "issues": []
+    }
+  ]
+}

@@ -1,0 +1,813 @@
+[
+  {
+    "case_id": "regr_candidate_improved",
+    "expectation": {
+      "verdict": "NO_REGRESSION",
+      "candidate_rejected": false,
+      "construction": "The candidate routes better and asserts more, carries no security regression, and is measured over the same corpus. Nothing regressed, so the comparison answers NO_REGRESSION — and it still authorizes nothing."
+    },
+    "comparison": {
+      "schema_version": "1.0.0",
+      "comparison_id": "rgr_fbe74790bc21a1c6",
+      "created_at": "2026-10-22T14:41:06.702Z",
+      "baseline": {
+        "eval_id": "bev_s9_baseline_routing",
+        "version": "1.0.0",
+        "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "candidate": {
+        "eval_id": "bev_s9_candidate_routing",
+        "version": "1.1.0",
+        "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "criteria": [
+        {
+          "criterion": "SKILL_ROUTING_ACCURACY",
+          "blocking": true,
+          "baseline_value": 0.5,
+          "candidate_value": 1,
+          "delta": 0.5,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "OUTPUT_ASSERTION_PASS_RATE",
+          "blocking": true,
+          "baseline_value": 0.8333333333333334,
+          "candidate_value": 1,
+          "delta": 0.16666666666666663,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "SECURITY_REGRESSION_COUNT",
+          "blocking": true,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        },
+        {
+          "criterion": "INSTRUCTION_INTEGRITY_CANDIDATES",
+          "blocking": false,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        }
+      ],
+      "governance_invariants": [
+        {
+          "invariant": "EVIDENCE_COMPLETE",
+          "holds": true,
+          "detail": "baseline missing: nothing; candidate missing: nothing"
+        },
+        {
+          "invariant": "SAME_CORPUS",
+          "holds": true,
+          "detail": "both sides were measured over corpus sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e"
+        },
+        {
+          "invariant": "SAME_SUBJECT",
+          "holds": true,
+          "detail": "both sides measure the same subject (routing_profile: s9-demo-routing-profile)"
+        },
+        {
+          "invariant": "DISTINCT_REVISION",
+          "holds": true,
+          "detail": "baseline bev_s9_baseline_routing and candidate bev_s9_candidate_routing are two distinct measurements"
+        },
+        {
+          "invariant": "ADOPTION_NOT_AUTHORIZED",
+          "holds": true,
+          "detail": "this comparison grants no adoption and no authority; an improved metric authorizes nothing (spec section 13.4)"
+        }
+      ],
+      "verdict": "NO_REGRESSION",
+      "blocking_regressions": [],
+      "advisory_observations": [],
+      "candidate_rejected": false,
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#regr_candidate_improved"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "regr_candidate_security_regression_beats_improvement",
+    "expectation": {
+      "verdict": "REGRESSION_DETECTED",
+      "candidate_rejected": true,
+      "construction": "The candidate routes perfectly, asserts everything and still carries a security regression. An improved metric must not mask a governance regression, so the candidate is rejected."
+    },
+    "comparison": {
+      "schema_version": "1.0.0",
+      "comparison_id": "rgr_2373737121072b6a",
+      "created_at": "2026-10-22T14:41:06.706Z",
+      "baseline": {
+        "eval_id": "bev_s9_baseline_security",
+        "version": "1.0.0",
+        "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "candidate": {
+        "eval_id": "bev_s9_candidate_security",
+        "version": "1.1.0",
+        "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "criteria": [
+        {
+          "criterion": "SKILL_ROUTING_ACCURACY",
+          "blocking": true,
+          "baseline_value": 0.5,
+          "candidate_value": 1,
+          "delta": 0.5,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "OUTPUT_ASSERTION_PASS_RATE",
+          "blocking": true,
+          "baseline_value": 0.8333333333333334,
+          "candidate_value": 1,
+          "delta": 0.16666666666666663,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "SECURITY_REGRESSION_COUNT",
+          "blocking": true,
+          "baseline_value": 0,
+          "candidate_value": 1,
+          "delta": 1,
+          "verdict": "REGRESSED"
+        },
+        {
+          "criterion": "INSTRUCTION_INTEGRITY_CANDIDATES",
+          "blocking": false,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        }
+      ],
+      "governance_invariants": [
+        {
+          "invariant": "EVIDENCE_COMPLETE",
+          "holds": true,
+          "detail": "baseline missing: nothing; candidate missing: nothing"
+        },
+        {
+          "invariant": "SAME_CORPUS",
+          "holds": true,
+          "detail": "both sides were measured over corpus sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e"
+        },
+        {
+          "invariant": "SAME_SUBJECT",
+          "holds": true,
+          "detail": "both sides measure the same subject (routing_profile: s9-demo-routing-profile)"
+        },
+        {
+          "invariant": "DISTINCT_REVISION",
+          "holds": true,
+          "detail": "baseline bev_s9_baseline_security and candidate bev_s9_candidate_security are two distinct measurements"
+        },
+        {
+          "invariant": "ADOPTION_NOT_AUTHORIZED",
+          "holds": true,
+          "detail": "this comparison grants no adoption and no authority; an improved metric authorizes nothing (spec section 13.4)"
+        }
+      ],
+      "verdict": "REGRESSION_DETECTED",
+      "blocking_regressions": [
+        "SECURITY_REGRESSION_COUNT"
+      ],
+      "advisory_observations": [],
+      "candidate_rejected": true,
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#regr_candidate_security_regression_beats_improvement"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "regr_candidate_routing_regression",
+    "expectation": {
+      "verdict": "REGRESSION_DETECTED",
+      "candidate_rejected": true,
+      "construction": "The candidate asserts more output but routes worse. A blocking criterion that regressed rejects the candidate, whatever the other criteria say."
+    },
+    "comparison": {
+      "schema_version": "1.0.0",
+      "comparison_id": "rgr_34514dcfa1ece58c",
+      "created_at": "2026-10-22T14:41:06.709Z",
+      "baseline": {
+        "eval_id": "bev_s9_baseline_routing_regression",
+        "version": "1.0.0",
+        "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "candidate": {
+        "eval_id": "bev_s9_candidate_routing_regression",
+        "version": "1.1.0",
+        "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "criteria": [
+        {
+          "criterion": "SKILL_ROUTING_ACCURACY",
+          "blocking": true,
+          "baseline_value": 0.8333333333333334,
+          "candidate_value": 0.3333333333333333,
+          "delta": -0.5,
+          "verdict": "REGRESSED"
+        },
+        {
+          "criterion": "OUTPUT_ASSERTION_PASS_RATE",
+          "blocking": true,
+          "baseline_value": 0.6666666666666666,
+          "candidate_value": 1,
+          "delta": 0.33333333333333337,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "SECURITY_REGRESSION_COUNT",
+          "blocking": true,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        },
+        {
+          "criterion": "INSTRUCTION_INTEGRITY_CANDIDATES",
+          "blocking": false,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        }
+      ],
+      "governance_invariants": [
+        {
+          "invariant": "EVIDENCE_COMPLETE",
+          "holds": true,
+          "detail": "baseline missing: nothing; candidate missing: nothing"
+        },
+        {
+          "invariant": "SAME_CORPUS",
+          "holds": true,
+          "detail": "both sides were measured over corpus sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e"
+        },
+        {
+          "invariant": "SAME_SUBJECT",
+          "holds": true,
+          "detail": "both sides measure the same subject (routing_profile: s9-demo-routing-profile)"
+        },
+        {
+          "invariant": "DISTINCT_REVISION",
+          "holds": true,
+          "detail": "baseline bev_s9_baseline_routing_regression and candidate bev_s9_candidate_routing_regression are two distinct measurements"
+        },
+        {
+          "invariant": "ADOPTION_NOT_AUTHORIZED",
+          "holds": true,
+          "detail": "this comparison grants no adoption and no authority; an improved metric authorizes nothing (spec section 13.4)"
+        }
+      ],
+      "verdict": "REGRESSION_DETECTED",
+      "blocking_regressions": [
+        "SKILL_ROUTING_ACCURACY"
+      ],
+      "advisory_observations": [],
+      "candidate_rejected": true,
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#regr_candidate_routing_regression"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "regr_candidate_missing_evidence",
+    "expectation": {
+      "verdict": "BLOCKED",
+      "candidate_rejected": true,
+      "construction": "The candidate record does not name the content it was measured over. Missing evidence is not a pass: the comparison cannot be adjudicated and the candidate is not accepted."
+    },
+    "comparison": {
+      "schema_version": "1.0.0",
+      "comparison_id": "rgr_962f1ddf10fbfa49",
+      "created_at": "2026-10-22T14:41:06.711Z",
+      "baseline": {
+        "eval_id": "bev_s9_baseline_missing_evidence",
+        "version": "1.0.0",
+        "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "candidate": {
+        "eval_id": "bev_s9_candidate_missing_evidence",
+        "version": "1.1.0",
+        "content_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "criteria": [
+        {
+          "criterion": "SKILL_ROUTING_ACCURACY",
+          "blocking": true,
+          "baseline_value": 0.5,
+          "candidate_value": 1,
+          "delta": 0.5,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "OUTPUT_ASSERTION_PASS_RATE",
+          "blocking": true,
+          "baseline_value": 0.8333333333333334,
+          "candidate_value": 1,
+          "delta": 0.16666666666666663,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "SECURITY_REGRESSION_COUNT",
+          "blocking": true,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        },
+        {
+          "criterion": "INSTRUCTION_INTEGRITY_CANDIDATES",
+          "blocking": false,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        }
+      ],
+      "governance_invariants": [
+        {
+          "invariant": "EVIDENCE_COMPLETE",
+          "holds": false,
+          "detail": "baseline missing: nothing; candidate missing: reproducibility.content_digest"
+        },
+        {
+          "invariant": "SAME_CORPUS",
+          "holds": true,
+          "detail": "both sides were measured over corpus sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e"
+        },
+        {
+          "invariant": "SAME_SUBJECT",
+          "holds": true,
+          "detail": "both sides measure the same subject (routing_profile: s9-demo-routing-profile)"
+        },
+        {
+          "invariant": "DISTINCT_REVISION",
+          "holds": true,
+          "detail": "baseline bev_s9_baseline_missing_evidence and candidate bev_s9_candidate_missing_evidence are two distinct measurements"
+        },
+        {
+          "invariant": "ADOPTION_NOT_AUTHORIZED",
+          "holds": true,
+          "detail": "this comparison grants no adoption and no authority; an improved metric authorizes nothing (spec section 13.4)"
+        }
+      ],
+      "verdict": "BLOCKED",
+      "blocking_regressions": [],
+      "advisory_observations": [],
+      "candidate_rejected": true,
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#regr_candidate_missing_evidence"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "regr_candidate_measured_over_another_corpus",
+    "expectation": {
+      "verdict": "BLOCKED",
+      "candidate_rejected": true,
+      "construction": "The two sides were measured over different corpora. The numbers are not comparable, so the comparison refuses to answer instead of answering about nothing."
+    },
+    "comparison": {
+      "schema_version": "1.0.0",
+      "comparison_id": "rgr_f60ebee48fc497c5",
+      "created_at": "2026-10-22T14:41:06.714Z",
+      "baseline": {
+        "eval_id": "bev_s9_baseline_other_corpus",
+        "version": "1.0.0",
+        "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "candidate": {
+        "eval_id": "bev_s9_candidate_other_corpus",
+        "version": "1.1.0",
+        "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "corpus_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "criteria": [
+        {
+          "criterion": "SKILL_ROUTING_ACCURACY",
+          "blocking": true,
+          "baseline_value": 0.5,
+          "candidate_value": 1,
+          "delta": 0.5,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "OUTPUT_ASSERTION_PASS_RATE",
+          "blocking": true,
+          "baseline_value": 0.8333333333333334,
+          "candidate_value": 1,
+          "delta": 0.16666666666666663,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "SECURITY_REGRESSION_COUNT",
+          "blocking": true,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        },
+        {
+          "criterion": "INSTRUCTION_INTEGRITY_CANDIDATES",
+          "blocking": false,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        }
+      ],
+      "governance_invariants": [
+        {
+          "invariant": "EVIDENCE_COMPLETE",
+          "holds": true,
+          "detail": "baseline missing: nothing; candidate missing: nothing"
+        },
+        {
+          "invariant": "SAME_CORPUS",
+          "holds": false,
+          "detail": "the two sides name different corpora (baseline sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e, candidate sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899)"
+        },
+        {
+          "invariant": "SAME_SUBJECT",
+          "holds": true,
+          "detail": "both sides measure the same subject (routing_profile: s9-demo-routing-profile)"
+        },
+        {
+          "invariant": "DISTINCT_REVISION",
+          "holds": true,
+          "detail": "baseline bev_s9_baseline_other_corpus and candidate bev_s9_candidate_other_corpus are two distinct measurements"
+        },
+        {
+          "invariant": "ADOPTION_NOT_AUTHORIZED",
+          "holds": true,
+          "detail": "this comparison grants no adoption and no authority; an improved metric authorizes nothing (spec section 13.4)"
+        }
+      ],
+      "verdict": "BLOCKED",
+      "blocking_regressions": [],
+      "advisory_observations": [],
+      "candidate_rejected": true,
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#regr_candidate_measured_over_another_corpus"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "regr_candidate_advisory_candidates_rose",
+    "expectation": {
+      "verdict": "NO_REGRESSION",
+      "candidate_rejected": false,
+      "construction": "The candidate plants one advisory rule conflict. The S3 wave 2 candidates stay advisory: the rise is reported as an observation and it does not reject the candidate."
+    },
+    "comparison": {
+      "schema_version": "1.0.0",
+      "comparison_id": "rgr_40243f8827763cdc",
+      "created_at": "2026-10-22T14:41:06.722Z",
+      "baseline": {
+        "eval_id": "bev_s9_baseline_advisory",
+        "version": "1.0.0",
+        "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "candidate": {
+        "eval_id": "bev_s9_candidate_advisory",
+        "version": "1.1.0",
+        "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "criteria": [
+        {
+          "criterion": "SKILL_ROUTING_ACCURACY",
+          "blocking": true,
+          "baseline_value": 0.5,
+          "candidate_value": 1,
+          "delta": 0.5,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "OUTPUT_ASSERTION_PASS_RATE",
+          "blocking": true,
+          "baseline_value": 0.8333333333333334,
+          "candidate_value": 1,
+          "delta": 0.16666666666666663,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "SECURITY_REGRESSION_COUNT",
+          "blocking": true,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        },
+        {
+          "criterion": "INSTRUCTION_INTEGRITY_CANDIDATES",
+          "blocking": false,
+          "baseline_value": 0,
+          "candidate_value": 1,
+          "delta": 1,
+          "verdict": "REGRESSED"
+        }
+      ],
+      "governance_invariants": [
+        {
+          "invariant": "EVIDENCE_COMPLETE",
+          "holds": true,
+          "detail": "baseline missing: nothing; candidate missing: nothing"
+        },
+        {
+          "invariant": "SAME_CORPUS",
+          "holds": true,
+          "detail": "both sides were measured over corpus sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e"
+        },
+        {
+          "invariant": "SAME_SUBJECT",
+          "holds": true,
+          "detail": "both sides measure the same subject (routing_profile: s9-demo-routing-profile)"
+        },
+        {
+          "invariant": "DISTINCT_REVISION",
+          "holds": true,
+          "detail": "baseline bev_s9_baseline_advisory and candidate bev_s9_candidate_advisory are two distinct measurements"
+        },
+        {
+          "invariant": "ADOPTION_NOT_AUTHORIZED",
+          "holds": true,
+          "detail": "this comparison grants no adoption and no authority; an improved metric authorizes nothing (spec section 13.4)"
+        }
+      ],
+      "verdict": "NO_REGRESSION",
+      "blocking_regressions": [],
+      "advisory_observations": [
+        {
+          "observation": "INSTRUCTION_INTEGRITY_CANDIDATES",
+          "detail": "INSTRUCTION_INTEGRITY_CANDIDATES moved from 0 to 1 (1); advisory candidates stay advisory and never gate (spec section 6.5); candidate classes: AUTHORITY_LEAK=0, CONTEXT_OVERLOAD=0, MODEL_DRIFT=0, OVERCONSTRAINT=0, PRECEDENCE_CONFLICT=0, REDUNDANT_INSTRUCTION=0, RULE_CONFLICT=1, SKILL_ROUTING_AMBIGUITY=0"
+        }
+      ],
+      "candidate_rejected": false,
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#regr_candidate_advisory_candidates_rose"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "regr_candidate_still_carries_a_security_regression",
+    "expectation": {
+      "verdict": "REGRESSION_DETECTED",
+      "candidate_rejected": true,
+      "construction": "The candidate halves the security regressions of the baseline and still carries one. The security criterion is absolute: a candidate that carries any security regression regresses the criterion, however it compares with a baseline that carried more. A relative improvement must not launder an unresolved regression."
+    },
+    "comparison": {
+      "schema_version": "1.0.0",
+      "comparison_id": "rgr_f71c29ad7d4ce5f2",
+      "created_at": "2026-10-22T14:41:06.726Z",
+      "baseline": {
+        "eval_id": "bev_s9_baseline_two_regressions",
+        "version": "1.0.0",
+        "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "candidate": {
+        "eval_id": "bev_s9_candidate_one_regression",
+        "version": "1.1.0",
+        "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "criteria": [
+        {
+          "criterion": "SKILL_ROUTING_ACCURACY",
+          "blocking": true,
+          "baseline_value": 0.5,
+          "candidate_value": 1,
+          "delta": 0.5,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "OUTPUT_ASSERTION_PASS_RATE",
+          "blocking": true,
+          "baseline_value": 0.8333333333333334,
+          "candidate_value": 1,
+          "delta": 0.16666666666666663,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "SECURITY_REGRESSION_COUNT",
+          "blocking": true,
+          "baseline_value": 2,
+          "candidate_value": 1,
+          "delta": -1,
+          "verdict": "REGRESSED"
+        },
+        {
+          "criterion": "INSTRUCTION_INTEGRITY_CANDIDATES",
+          "blocking": false,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        }
+      ],
+      "governance_invariants": [
+        {
+          "invariant": "EVIDENCE_COMPLETE",
+          "holds": true,
+          "detail": "baseline missing: nothing; candidate missing: nothing"
+        },
+        {
+          "invariant": "SAME_CORPUS",
+          "holds": true,
+          "detail": "both sides were measured over corpus sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e"
+        },
+        {
+          "invariant": "SAME_SUBJECT",
+          "holds": true,
+          "detail": "both sides measure the same subject (routing_profile: s9-demo-routing-profile)"
+        },
+        {
+          "invariant": "DISTINCT_REVISION",
+          "holds": true,
+          "detail": "baseline bev_s9_baseline_two_regressions and candidate bev_s9_candidate_one_regression are two distinct measurements"
+        },
+        {
+          "invariant": "ADOPTION_NOT_AUTHORIZED",
+          "holds": true,
+          "detail": "this comparison grants no adoption and no authority; an improved metric authorizes nothing (spec section 13.4)"
+        }
+      ],
+      "verdict": "REGRESSION_DETECTED",
+      "blocking_regressions": [
+        "SECURITY_REGRESSION_COUNT"
+      ],
+      "advisory_observations": [],
+      "candidate_rejected": true,
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#regr_candidate_still_carries_a_security_regression"
+      ]
+    },
+    "contract_issues": []
+  },
+  {
+    "case_id": "regr_candidate_measures_another_subject",
+    "expectation": {
+      "verdict": "BLOCKED",
+      "candidate_rejected": true,
+      "construction": "The candidate was measured over another subject. A comparison of two subjects proves nothing about either of them, even over one corpus, so the comparison is refused before the metrics are read."
+    },
+    "comparison": {
+      "schema_version": "1.0.0",
+      "comparison_id": "rgr_a055430b62829ad5",
+      "created_at": "2026-10-22T14:41:06.728Z",
+      "baseline": {
+        "eval_id": "bev_s9_baseline_other_subject",
+        "version": "1.0.0",
+        "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "routing_profile",
+        "subject_ref": "s9-demo-routing-profile"
+      },
+      "candidate": {
+        "eval_id": "bev_s9_candidate_other_subject",
+        "version": "1.1.0",
+        "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+        "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+        "subject_kind": "skill",
+        "subject_ref": "another-skill"
+      },
+      "criteria": [
+        {
+          "criterion": "SKILL_ROUTING_ACCURACY",
+          "blocking": true,
+          "baseline_value": 0.5,
+          "candidate_value": 1,
+          "delta": 0.5,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "OUTPUT_ASSERTION_PASS_RATE",
+          "blocking": true,
+          "baseline_value": 0.8333333333333334,
+          "candidate_value": 1,
+          "delta": 0.16666666666666663,
+          "verdict": "IMPROVED"
+        },
+        {
+          "criterion": "SECURITY_REGRESSION_COUNT",
+          "blocking": true,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        },
+        {
+          "criterion": "INSTRUCTION_INTEGRITY_CANDIDATES",
+          "blocking": false,
+          "baseline_value": 0,
+          "candidate_value": 0,
+          "delta": 0,
+          "verdict": "EQUAL"
+        }
+      ],
+      "governance_invariants": [
+        {
+          "invariant": "EVIDENCE_COMPLETE",
+          "holds": true,
+          "detail": "baseline missing: nothing; candidate missing: nothing"
+        },
+        {
+          "invariant": "SAME_CORPUS",
+          "holds": true,
+          "detail": "both sides were measured over corpus sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e"
+        },
+        {
+          "invariant": "SAME_SUBJECT",
+          "holds": false,
+          "detail": "the two sides measure different subjects (baseline routing_profile: s9-demo-routing-profile, candidate skill: another-skill); a comparison of two subjects proves nothing about either"
+        },
+        {
+          "invariant": "DISTINCT_REVISION",
+          "holds": true,
+          "detail": "baseline bev_s9_baseline_other_subject and candidate bev_s9_candidate_other_subject are two distinct measurements"
+        },
+        {
+          "invariant": "ADOPTION_NOT_AUTHORIZED",
+          "holds": true,
+          "detail": "this comparison grants no adoption and no authority; an improved metric authorizes nothing (spec section 13.4)"
+        }
+      ],
+      "verdict": "BLOCKED",
+      "blocking_regressions": [],
+      "advisory_observations": [],
+      "candidate_rejected": true,
+      "adoption_authorized": false,
+      "authority_granted": false,
+      "evidence_refs": [
+        "corpus:evals/s9-regression/corpus.json#regr_candidate_measures_another_subject"
+      ]
+    },
+    "contract_issues": []
+  }
+]

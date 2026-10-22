@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "root": "/tmp/s9-run3/maws",
+  "suite": "provider-neutral-certification",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "blockingFailures": 0,
+  "filters": {
+    "kinds": [
+      "provider-export-alignment"
+    ]
+  },
+  "results": [
+    {
+      "id": "provider-export-alignment",
+      "kind": "provider-export-alignment",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    }
+  ]
+}
