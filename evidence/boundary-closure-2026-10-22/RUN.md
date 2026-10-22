@@ -149,6 +149,42 @@ The lane of this pull request demands eight local gates — `validate`,
 real S9 finding until the baseline lands with this very merge. The next
 lane can demand `merge:audit` again, and does.
 
+## 6. The platform protection is ACTIVE
+
+The preventive counterpart of the audit's detective verdicts is in force:
+repository ruleset **`default-branch-merge-path` (id 25655868)** on
+`refs/heads/main`, enforcement **active**, read back from the repository
+after creation:
+
+| Rule | State |
+|---|---|
+| `pull_request` required (0 approving reviews; the repository has one collaborator) | active |
+| allowed merge methods: **`merge` only** — squash and rebase produce one-parent commits, which the audit refuses as unattestable; the platform and the audit now express the same model | active |
+| `non_fast_forward` (no force pushes to main) | active |
+| `deletion` (main cannot be deleted) | active |
+| required status checks | **deliberately none** — the hosted CI is billing-blocked account-wide, and a check that can never pass would freeze the repository; the lane authorizations carry the verification burden locally until the billing block lifts |
+| bypass | **nobody** — `bypass_actors` is empty and the API answers `current_user_can_bypass: never` for the administrator |
+
+**The live negative probe.** A commit (`3f10046e240944f62ff6a03547bec1fae0094c3b`,
+built directly on the main tip `0fd89d99fac3cf027880dfe2b13b0140a2a0b4fd`, so
+the push would have been a clean fast-forward) was pushed directly to `main`:
+
+```text
+remote: - Changes must be made through a pull request.
+ ! [remote rejected] HEAD -> main (push declined due to repository rule violations)
+```
+
+The push was refused and **main is unchanged** (`0fd89d9…` read back after
+the probe). The direct-push class — open since the enforcement audit was
+introduced — is now closed *preventively* at the platform and *detectively*
+in the repository's own history. The probe commit never landed and exists
+nowhere but in the probe clone.
+
+The bootstrap-era statement "the repository carries no branch protection" is
+therefore history: from this activation on, a landing on `main` is a pull
+request by platform rule, and a pull request is the shape the lane-bound
+merge executor attests.
+
 ## 6. Limits — what this run does NOT claim
 
 - **The audit stays detective.** The preventive counterpart is the platform
