@@ -14,6 +14,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # The merge attestation audit reads the default branch's own merge
+          # history, so the history must be there.
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -55,7 +59,11 @@ jobs:
       - name: Merge executor lane binding (the cross-lane merge guard)
         run: |
           npm run test:merge-executor
+          npm run test:merge-attestation
           python3 -m unittest tests/tools/merge_lane_authorization_schema_test.py
+
+      - name: Merge path attestation audit (the enforcement)
+        run: npm run merge:audit
 
       - name: Runtime vNext complete unit suite
         run: npm run test:vnext

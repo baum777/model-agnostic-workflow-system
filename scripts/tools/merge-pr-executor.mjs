@@ -26,8 +26,17 @@
 //      authorization: a merge that needs no green check is exactly the
 //      precondition of the incident.
 //   1b. A local gate runs against a working tree whose HEAD is the reviewed
-//      head, so it verifies the content that is about to be merged. It is a
-//      LOCAL result and is never presented as a hosted CI result.
+//      head AND whose content is clean, so it verifies exactly the content
+//      that is about to be merged. It is a LOCAL result and is never
+//      presented as a hosted CI result.
+//   1c. The lane binds the reviewed head. A lifecycle-aware lane (contract
+//      version 1.1.0) names the EXACT head it authorizes; a lane without
+//      that binding authorizes nothing, because the reviewed head would
+//      otherwise be an operator-declared number — the very shape the
+//      incident had.
+//   1d. The lane has a lifecycle. A closed lane authorizes no further
+//      merge, and a lane that another lane supersedes authorizes nothing
+//      either: re-pointing a lane is an explicit act, never a silent edit.
 //   2. The merge target is resolved FROM the lane: the pull request whose
 //      head branch is the lane's head branch. The operator may name a
 //      target, but a named target that is not the lane's pull request is
@@ -35,11 +44,17 @@
 //   3. The observation is never caller-authored in the merge path. A merge
 //      re-reads the pull request live from GitHub; a supplied observation
 //      file is a read-only evaluation input and is refused with --apply.
-//   4. Every binding is checked fail-closed and in this order: the pull
-//      request identity, the lane membership (the head branch), the
-//      declared head sha, the base branch, the authority, the state, the
-//      mergeability, the required hosted checks and the required local
-//      gates.
+//   4. Every binding is checked fail-closed and in this order: the lane
+//      lifecycle, the head binding, the pull request identity, the lane
+//      membership (the head branch), the declared head sha, the base
+//      branch, the authority, the state, the mergeability, the required
+//      hosted checks and the required local gates.
+//
+// The DETECTIVE counterpart of this preventive path is
+// scripts/tools/verify-merge-attestations.mjs (npm merge:audit): it reads
+// the default branch's own merge history and refuses a merge that no lane
+// authorization covered. The executor binds a merge when it is used; the
+// audit proves afterwards whether EVERY merge was bound.
 //
 // Approval != Grant: a lane authorization is a gate of the merge path. It
 // grants no capability, no permission and no runtime authority, and it
@@ -70,6 +85,11 @@ export const MERGE_EXECUTOR_CODES = Object.freeze({
   HEAD_SHA_MISMATCH: 'MERGE_HEAD_SHA_MISMATCH',
   HEAD_SHA_INVALID: 'MERGE_HEAD_SHA_INVALID',
   HEAD_NOT_AUTHORIZED: 'MERGE_HEAD_NOT_AUTHORIZED',
+  HEAD_NOT_BOUND: 'MERGE_HEAD_NOT_BOUND',
+  LANE_AUTHORIZATION_OBSOLETE: 'MERGE_LANE_AUTHORIZATION_OBSOLETE',
+  LANE_CLOSED: 'MERGE_LANE_CLOSED',
+  LANE_SUPERSEDED: 'MERGE_LANE_SUPERSEDED',
+  WORKTREE_DIRTY: 'MERGE_WORKTREE_DIRTY',
   PR_NOT_OPEN: 'MERGE_PR_NOT_OPEN',
   PR_NOT_MERGEABLE: 'MERGE_PR_NOT_MERGEABLE',
   CHECK_FAILED: 'MERGE_CHECK_FAILED',
@@ -84,7 +104,17 @@ export const MERGE_EXECUTOR_CODES = Object.freeze({
 // The canonical governance surface of the repository: lane authorizations
 // live here and are read from the base commit's tree.
 export const LANE_AUTHORIZATION_DIRECTORY = 'core/authority/merge-authorizations';
+// The contract versions this executor understands. 1.0.0 is the published
+// history of the first generation and stays valid as history; 1.1.0 is the
+// lifecycle-aware version and the only one that can authorize a merge.
 export const LANE_AUTHORIZATION_SCHEMA_VERSION = '1.0.0';
+export const LANE_AUTHORIZATION_LIFECYCLE_VERSION = '1.1.0';
+export const LANE_AUTHORIZATION_SCHEMA_VERSIONS = Object.freeze([
+  LANE_AUTHORIZATION_SCHEMA_VERSION,
+  LANE_AUTHORIZATION_LIFECYCLE_VERSION
+]);
+// The lifecycle states of a lane.
+export const LANE_STATES = Object.freeze(['active', 'closed']);
 // The canonical merge authority of this repository. It matches the identity
 // of the canonical owner trust anchor (core/contracts/owner-authority.json).
 export const CANONICAL_MERGE_AUTHORITY = 'canonical_owner';
@@ -108,7 +138,10 @@ const AUTHORIZATION_FIELDS = Object.freeze([
   'required_checks',
   'required_local_gates',
   'authorized_commit',
-  'authorized_head_sha'
+  'authorized_head_sha',
+  'state',
+  'supersedes',
+  'closed_by'
 ]);
 
 export { AUTHORIZATION_FIELDS };
@@ -167,12 +200,13 @@ export function parseLaneAuthorization(text, { laneId } = {}) {
       `the lane authorization carries unknown field(s): ${unknown.join(', ')}`
     );
   }
-  if (record.schema_version !== LANE_AUTHORIZATION_SCHEMA_VERSION) {
+  if (!LANE_AUTHORIZATION_SCHEMA_VERSIONS.includes(record.schema_version)) {
     executorError(
       MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
       `unsupported lane authorization schema_version "${String(record.schema_version)}"`
     );
   }
+  const lifecycleAware = record.schema_version === LANE_AUTHORIZATION_LIFECYCLE_VERSION;
   if (!isNonEmptyString(record.lane_id) || !LANE_ID_PATTERN.test(record.lane_id)) {
     executorError(MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID, 'the lane authorization must carry a well-formed lane_id');
   }
@@ -223,6 +257,88 @@ export function parseLaneAuthorization(text, { laneId } = {}) {
       'the lane authorization carries a malformed authorized_head_sha'
     );
   }
+  if (record.state !== undefined && !LANE_STATES.includes(record.state)) {
+    executorError(
+      MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+      `the lane authorization carries an unknown state "${String(record.state)}"`
+    );
+  }
+  if (record.supersedes !== undefined && !LANE_ID_PATTERN.test(String(record.supersedes))) {
+    executorError(
+      MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+      'the lane authorization carries a malformed supersedes lane id'
+    );
+  }
+  if (record.closed_by !== undefined) {
+    const closedBy = record.closed_by;
+    if (!isPlainObject(closedBy)) {
+      executorError(
+        MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+        'the lane authorization carries a malformed closed_by record'
+      );
+    }
+    const unknownClosedBy = Object.keys(closedBy).filter((key) => !['pull_request', 'merge_commit', 'head_sha', 'closed_at'].includes(key));
+    if (unknownClosedBy.length > 0) {
+      executorError(
+        MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+        `the closed_by record carries unknown field(s): ${unknownClosedBy.join(', ')}`
+      );
+    }
+    const pullRequest = Number(closedBy.pull_request);
+    if (!Number.isInteger(pullRequest) || pullRequest <= 0) {
+      executorError(
+        MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+        'the closed_by record carries a malformed pull_request'
+      );
+    }
+    if (!COMMIT_PATTERN.test(String(closedBy.merge_commit)) || !COMMIT_PATTERN.test(String(closedBy.head_sha))) {
+      executorError(
+        MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+        'the closed_by record carries a malformed merge_commit or head_sha'
+      );
+    }
+    if (!isNonEmptyString(closedBy.closed_at)) {
+      executorError(
+        MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+        'the closed_by record carries a malformed closed_at'
+      );
+    }
+  }
+  if (!lifecycleAware && (record.state !== undefined || record.supersedes !== undefined || record.closed_by !== undefined)) {
+    executorError(
+      MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+      `a lane authorization of schema_version ${record.schema_version} must not carry lifecycle fields; the lifecycle belongs to schema_version ${LANE_AUTHORIZATION_LIFECYCLE_VERSION}`
+    );
+  }
+  if (record.state === 'closed' && record.closed_by === undefined) {
+    executorError(
+      MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+      'a closed lane authorization must carry the merge it was closed by'
+    );
+  }
+  if (record.closed_by !== undefined && record.state !== 'closed') {
+    executorError(
+      MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+      'a lane authorization with a closed_by record must be closed'
+    );
+  }
+  if (lifecycleAware) {
+    // A lifecycle-aware lane that does not bind a head or does not carry a
+    // state is malformed, not merely unbound: the two states are never
+    // merged into one.
+    if (!isNonEmptyString(record.state)) {
+      executorError(
+        MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+        `a lane authorization of schema_version ${LANE_AUTHORIZATION_LIFECYCLE_VERSION} must carry a state`
+      );
+    }
+    if (!isNonEmptyString(record.authorized_head_sha)) {
+      executorError(
+        MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
+        `a lane authorization of schema_version ${LANE_AUTHORIZATION_LIFECYCLE_VERSION} must bind the reviewed head it authorizes`
+      );
+    }
+  }
   if (record.head_repository !== undefined && !isNonEmptyString(record.head_repository)) {
     executorError(
       MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_INVALID,
@@ -245,7 +361,11 @@ export function parseLaneAuthorization(text, { laneId } = {}) {
     required_checks: [...requiredChecks],
     required_local_gates: [...requiredLocalGates],
     authorized_commit: record.authorized_commit ?? null,
-    authorized_head_sha: record.authorized_head_sha ?? null
+    authorized_head_sha: record.authorized_head_sha ?? null,
+    state: record.state ?? null,
+    supersedes: record.supersedes ?? null,
+    closed_by: record.closed_by ?? null,
+    lifecycle_aware: lifecycleAware
   };
 }
 
@@ -306,6 +426,108 @@ export function loadLaneAuthorization({ root, baseCommit, laneId }) {
   const text = readFileFromCommit({ root, commit: baseCommit, relativePath });
   const authorization = parseLaneAuthorization(text, { laneId });
   return { authorization, commit: baseCommit, relativePath };
+}
+
+// gitLines() -> the lines of a git command's standard output, without the
+// shell.
+function gitLines(root, args) {
+  try {
+    return execFileSync('git', args, {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    }).split('\n').map((line) => line.trim()).filter((line) => line.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+// readLaneSurface() -> every lane authorization the BASE COMMIT carries.
+// The surface is read from the base commit and never from the working tree:
+// a pull request that introduces the lane that supersedes it cannot
+// supersede it, because the branch it merges into does not carry it yet.
+export function readLaneSurface({ root, baseCommit }) {
+  if (!COMMIT_PATTERN.test(String(baseCommit))) {
+    executorError(
+      MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_ABSENT,
+      `the base commit "${String(baseCommit)}" is not a commit identity`
+    );
+  }
+  const records = [];
+  const malformed = [];
+  const listing = gitLines(root, [
+    'ls-tree', '-r', '--name-only', baseCommit, '--', LANE_AUTHORIZATION_DIRECTORY
+  ]);
+  for (const relativePath of listing) {
+    const laneId = path.basename(relativePath, '.json');
+    if (!LANE_ID_PATTERN.test(laneId) || path.dirname(relativePath) !== LANE_AUTHORIZATION_DIRECTORY) {
+      malformed.push({ path: relativePath, reason: 'the file name is not a lane id' });
+      continue;
+    }
+    let text;
+    try {
+      text = readFileFromCommit({ root, commit: baseCommit, relativePath });
+    } catch (error) {
+      malformed.push({ path: relativePath, reason: error.message });
+      continue;
+    }
+    try {
+      records.push({ path: relativePath, authorization: parseLaneAuthorization(text, { laneId }) });
+    } catch (error) {
+      malformed.push({ path: relativePath, reason: error.message });
+    }
+  }
+  return { records, malformed };
+}
+
+// evaluateLaneLifecycle() -> the decision about the lane's own place in
+// its lifecycle. It is pure: the lane's record and the surface of the base
+// commit. A lane that is closed authorizes nothing, a lane that another
+// active lane supersedes authorizes nothing, and a lane that does not bind
+// the reviewed head authorizes nothing — without that binding the reviewed
+// head would be an operator-declared number, which is the shape the merge
+// incident of 2026-10-21 had.
+export function evaluateLaneLifecycle({ authorization, surface = { records: [] } }) {
+  const refuse = (code, message) => ({ allowed: false, code, message });
+  if (String(authorization.schema_version) !== LANE_AUTHORIZATION_LIFECYCLE_VERSION) {
+    // The published history of the first generation of lane authorizations
+    // authorizes nothing: it binds no reviewed head, and a merge it
+    // authorized could not be recognized afterwards either. The executor
+    // and the attestation audit agree on that rule, so the two surfaces
+    // never contradict each other.
+    return refuse(
+      MERGE_EXECUTOR_CODES.LANE_AUTHORIZATION_OBSOLETE,
+      `the lane "${authorization.lane_id}" is a schema_version ${String(authorization.schema_version)} authorization; only the lifecycle-aware generation (${LANE_AUTHORIZATION_LIFECYCLE_VERSION}) authorizes a merge`
+    );
+  }
+  if (authorization.state === 'closed') {
+    return refuse(
+      MERGE_EXECUTOR_CODES.LANE_CLOSED,
+      `the lane "${authorization.lane_id}" is closed and authorizes no further merge`
+    );
+  }
+  const superseding = (surface.records ?? []).find((entry) => (
+    entry.authorization.lane_id !== authorization.lane_id
+    && entry.authorization.supersedes === authorization.lane_id
+    && entry.authorization.state !== 'closed'
+  ));
+  if (superseding) {
+    return refuse(
+      MERGE_EXECUTOR_CODES.LANE_SUPERSEDED,
+      `the lane "${authorization.lane_id}" is superseded by the active lane "${superseding.authorization.lane_id}" and authorizes no further merge`
+    );
+  }
+  if (!isNonEmptyString(authorization.authorized_head_sha)) {
+    return refuse(
+      MERGE_EXECUTOR_CODES.HEAD_NOT_BOUND,
+      `the lane "${authorization.lane_id}" does not bind the reviewed head it authorizes; without that binding the reviewed head would be an operator-declared number`
+    );
+  }
+  return {
+    allowed: true,
+    code: null,
+    message: 'the lane is active, is not superseded and binds the reviewed head it authorizes'
+  };
 }
 
 // --- observation ------------------------------------------------------------
@@ -418,7 +640,8 @@ export function evaluateMergeAuthorization({
   authorization,
   observation,
   target = {},
-  headAuthorized = null
+  headAuthorized = null,
+  surface = { records: [] }
 }) {
   const refuse = (code, message, detail = {}) => ({
     ...detail,
@@ -426,6 +649,14 @@ export function evaluateMergeAuthorization({
     code,
     message
   });
+
+  // The lane's own lifecycle comes first: a closed lane, a superseded
+  // lane and a lane that does not bind its reviewed head authorize
+  // nothing, and no pull request can talk them out of it.
+  const lifecycle = evaluateLaneLifecycle({ authorization, surface });
+  if (!lifecycle.allowed) {
+    return refuse(lifecycle.code, lifecycle.message);
+  }
 
   let lanePullRequest;
   try {
@@ -549,6 +780,30 @@ export function observedCheckReport(pullRequest) {
 // verifies exactly the content that is about to be merged. The tool does
 // NOT claim the result as a hosted CI result: a local PASS is a local PASS.
 
+// assertCleanWorktree() -> the working tree carries no uncommitted change.
+// The HEAD check alone is not enough: a tree whose HEAD is the reviewed head
+// but whose files on disk differ from it would pass the HEAD check and
+// still make the gate attest to something other than the content that is
+// about to be merged.
+export function assertCleanWorktree({ root }) {
+  const status = execFileSync('git', ['status', '--porcelain'], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+  const dirty = status
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  if (dirty.length > 0) {
+    executorError(
+      MERGE_EXECUTOR_CODES.WORKTREE_DIRTY,
+      `the working tree carries ${dirty.length} uncommitted change(s) (${dirty.slice(0, 3).join(' | ')}); a local gate would not attest to the content that is about to be merged`
+    );
+  }
+  return true;
+}
+
 export function runLocalGates({ root, headSha, gates }) {
   const head = resolveCommit({ root, ref: 'HEAD' });
   if (head !== headSha) {
@@ -557,6 +812,7 @@ export function runLocalGates({ root, headSha, gates }) {
       `the working tree is at ${head} but the reviewed head is ${headSha}; the local gates would not verify the merged content`
     );
   }
+  assertCleanWorktree({ root });
   const results = [];
   for (const gate of gates) {
     let ok = true;
@@ -761,6 +1017,7 @@ export function runMergeExecutor({ args, root, deps = {} }) {
     fetchObservation: deps.fetchObservation ?? fetchObservation,
     observationFromFile: deps.observationFromFile ?? observationFromFile,
     loadLaneAuthorization: deps.loadLaneAuthorization ?? loadLaneAuthorization,
+    readLaneSurface: deps.readLaneSurface ?? readLaneSurface,
     resolveLanePullRequest: deps.resolveLanePullRequest ?? resolveLanePullRequest,
     evaluateMergeAuthorization: deps.evaluateMergeAuthorization ?? evaluateMergeAuthorization,
     isDescendantCommit: deps.isDescendantCommit ?? isDescendantCommit,
@@ -785,6 +1042,12 @@ export function runMergeExecutor({ args, root, deps = {} }) {
     merged: false,
     checks: [],
     local_gates: [],
+    lane_schema_version: null,
+    lane_state: null,
+    authorized_head_sha: null,
+    lane_surface: [],
+    lane_surface_malformed: 0,
+    worktree_clean: false,
     warnings: []
   };
   try {
@@ -845,6 +1108,16 @@ export function runMergeExecutor({ args, root, deps = {} }) {
     receipt.lane_head_ref = authorization.head_ref;
     receipt.required_checks = authorization.required_checks;
     receipt.required_local_gates = authorization.required_local_gates;
+    receipt.lane_schema_version = authorization.schema_version;
+    receipt.lane_state = authorization.state;
+    receipt.authorized_head_sha = authorization.authorized_head_sha;
+
+    // The lifecycle surface of the base commit: every lane the base
+    // carries. It is read from the base commit, so a pull request cannot
+    // introduce the lane that would supersede it.
+    const surface = use.readLaneSurface({ root, baseCommit });
+    receipt.lane_surface = surface.records.map((entry) => entry.authorization.lane_id);
+    receipt.lane_surface_malformed = surface.malformed.length;
 
     if (defaultBranch !== null && authorization.base_ref !== defaultBranch) {
       executorError(
@@ -884,7 +1157,13 @@ export function runMergeExecutor({ args, root, deps = {} }) {
       })
       : null;
 
-    const decision = use.evaluateMergeAuthorization({ authorization, observation, target, headAuthorized });
+    const decision = use.evaluateMergeAuthorization({
+      authorization,
+      observation,
+      target,
+      headAuthorized,
+      surface
+    });
     if (!decision.allowed) {
       receipt.code = decision.code;
       receipt.message = decision.message;
@@ -909,6 +1188,7 @@ export function runMergeExecutor({ args, root, deps = {} }) {
         headSha: pullRequest.head_sha,
         gates: authorization.required_local_gates
       });
+      receipt.worktree_clean = true;
     }
     if (args.apply) {
       const merged = use.mergePullRequest({
