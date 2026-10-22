@@ -168,7 +168,12 @@ export const ASSURANCE_ARTIFACTS = Object.freeze([
   'tests/tools/assurance-residual-matrix.test.mjs',
   'evidence/assurance-closure-2026-10-21/residual-matrix.json',
   'evidence/assurance-closure-2026-10-21/mutation-probes.json',
-  'evidence/assurance-closure-2026-10-21/baseline-qualification.md'
+  'evidence/assurance-closure-2026-10-21/baseline-qualification.md',
+  'scripts/tools/safe-remove.mjs',
+  'scripts/tools/validate-evidence-content.mjs',
+  'tests/tools/safe-remove.test.mjs',
+  'tests/tools/evidence-content-validation.test.mjs',
+  'evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json'
 ]);
 
 function sha256(buffer) {

@@ -13,7 +13,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -23,33 +22,40 @@ import {
   loadBaseline,
   scanSourceSecurity
 } from '../../scripts/tools/scan-source-security.mjs';
+import { createScratchRoot, removeScratchRoot } from '../../scripts/tools/safe-remove.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SCANNER = path.join(ROOT, 'scripts', 'tools', 'scan-source-security.mjs');
 
 function buildTree(files) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'source-security-'));
+  // The scratch state is created in ONE shape, so that it is removed in one
+  // shape: a marked scratch root with the tree inside it. The removal goes
+  // through the safe primitive, which refuses a target that is not inside
+  // the boundary it was given.
+  const { root: scratch, marker } = createScratchRoot({ prefix: 'source-security-' });
+  const root = path.join(scratch, 'tree');
+  fs.mkdirSync(root, { recursive: true });
   for (const [relative, content] of Object.entries(files)) {
     const absolute = path.join(root, relative);
     fs.mkdirSync(path.dirname(absolute), { recursive: true });
     fs.writeFileSync(absolute, content);
   }
-  return root;
+  return { root, cleanup: () => removeScratchRoot({ root: scratch, marker }) };
 }
 
 test('a clean tree passes with its files counted', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/ok.mjs': 'export const answer = 42;\n'
   });
   const report = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
   assert.equal(report.ok, true);
   assert.equal(report.coverage.files_analysed, 1);
   assert.equal(report.unbaselined.length, 0);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('every rule fires on its defect class with code and line', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/bad.mjs': [
       'export function run(input) {',
       '  return eval(input);',
@@ -62,11 +68,11 @@ test('every rule fires on its defect class with code and line', () => {
   const evalFinding = report.unbaselined.find((finding) => finding.excerpt.includes('eval(input)'));
   assert.ok(evalFinding, 'the eval finding is the eval line');
   assert.equal(evalFinding.line, 2);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('the other defect classes are each reported', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/shell.mjs': 'import { execSync } from "node:child_process";\nexport const out = execSync(cmd);\n',
     'app/net.mjs': 'export async function go(url) { return fetch(url); }\n',
     'app/dyn.mjs': 'export async function load(name) { return import(name); }\n'
@@ -76,11 +82,11 @@ test('the other defect classes are each reported', () => {
   assert.equal(byFile.get('app/shell.mjs'), SOURCE_SECURITY_CODES.SHELL_INTERPOLATION);
   assert.equal(byFile.get('app/net.mjs'), SOURCE_SECURITY_CODES.UNPINNED_NETWORK_EGRESS);
   assert.equal(byFile.get('app/dyn.mjs'), SOURCE_SECURITY_CODES.DYNAMIC_IMPORT_SPECIFIER);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('a rule does not fire on its own benign shape: a literal import and a method call are not findings', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/benign.mjs': [
       'const mod = await import("./literal.mjs");',
       'const parts = /a(b)c/.exec("abc");',
@@ -89,11 +95,11 @@ test('a rule does not fire on its own benign shape: a literal import and a metho
   });
   const report = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
   assert.equal(report.unbaselined.length, 0, JSON.stringify(report.unbaselined));
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('a baselined finding passes with its justification surfaced, and a stale entry fails', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/bad.mjs': 'export function run(input) {\n  return eval(input);\n}\n'
   });
   const first = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
@@ -119,11 +125,11 @@ test('a baselined finding passes with its justification surfaced, and a stale en
   });
   assert.equal(stale.ok, false);
   assert.equal(stale.stale_baseline_entries.length, 1);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('a disclosure survives another writer moving the code to a different line', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/bad.mjs': 'export function run(input) {\n  return eval(input);\n}\n'
   });
   const first = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
@@ -150,21 +156,21 @@ test('a disclosure survives another writer moving the code to a different line',
   assert.equal(doubled.ok, false);
   assert.equal(doubled.baselined.length, 1);
   assert.equal(doubled.unbaselined.length, 1);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('an unparseable file is a failure, never a skip', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/broken.mjs': 'function {{{ nope\n'
   });
   const report = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
   assert.equal(report.ok, false);
   assert.equal(report.coverage.parse_failures.length, 1);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('required coverage that falls out of the analysed set fails the gate', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/ok.mjs': 'export const answer = 42;\n'
   });
   const report = scanSourceSecurity({
@@ -174,18 +180,18 @@ test('required coverage that falls out of the analysed set fails the gate', () =
   });
   assert.equal(report.ok, false);
   assert.deepEqual(report.coverage.required_coverage_missing, ['app/ghost.mjs']);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('the scan is deterministic', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/a.mjs': 'export const x = eval(input);\n',
     'app/b.mjs': 'export const y = fetch(url);\n'
   });
   const one = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
   const two = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
   assert.deepEqual(one, two);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('the scanner scans this repository without triggering on itself and covers the required material', () => {
@@ -200,7 +206,7 @@ test('the scanner scans this repository without triggering on itself and covers 
 test('the CLI answers 0 on the repository and 1 on an offending tree', () => {
   const pass = execFileSync(process.execPath, [SCANNER, '--root', ROOT], { encoding: 'utf8', cwd: ROOT });
   assert.match(pass, /source security scan: PASS/);
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     // the CLI scans the DEFAULT governed roots, so the offending file sits
     // under scripts/ of the fixture tree
     'scripts/bad.mjs': 'export const x = eval(input);\n'
@@ -214,7 +220,7 @@ test('the CLI answers 0 on the repository and 1 on an offending tree', () => {
     assert.equal(error.status, 1);
   }
   assert.equal(failed, true, 'the CLI exits nonzero on an unbaselined finding');
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 // ---------------------------------------------------------------------------
@@ -226,7 +232,7 @@ test('the CLI answers 0 on the repository and 1 on an offending tree', () => {
 // ---------------------------------------------------------------------------
 
 test('a disclosure without a justification does not cover its finding', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/bad.mjs': 'export function run(input) {\n  return eval(input);\n}\n'
   });
   const first = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [] });
@@ -255,11 +261,11 @@ test('a disclosure without a justification does not cover its finding', () => {
   const blankReport = scanSourceSecurity({ root, governedRoots: ['app'], requiredCoverage: [], baseline: blank });
   assert.equal(blankReport.ok, false);
   assert.equal(blankReport.baseline_entries_without_justification.length, 1);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('the member form of a call is the defect class its rule names', () => {
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/member.mjs': [
       'export const a = globalThis.eval(input);',
       'export const b = globalThis.fetch(url);',
@@ -281,14 +287,14 @@ test('the member form of a call is the defect class its rule names', () => {
   assert.ok(codes.includes(`6:${SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION}`), 'new globalThis.Function is dynamic code execution');
   assert.ok(codes.includes(`7:${SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION}`), 'a bare Function call is dynamic code execution');
   assert.ok(codes.includes(`8:${SOURCE_SECURITY_CODES.SHELL_INTERPOLATION}`), 'spawn with shell:true is shell interpolation');
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('an unbalanced comment marker inside a string literal cannot hide a trigger', () => {
   // The blind stripper opened a "comment" at the first /* it saw, wherever
   // that was. One unbalanced marker in a string literal therefore swallowed
   // the rest of the file and hid EVERY rule at once.
-  const root = buildTree({
+  const { root, cleanup } = buildTree({
     'app/marker.mjs': [
       'const marker = "/*";',
       'export function run(input) {',
@@ -301,7 +307,7 @@ test('an unbalanced comment marker inside a string literal cannot hide a trigger
   assert.equal(report.unbaselined.length, 1, JSON.stringify(report.unbaselined));
   assert.equal(report.unbaselined[0].line, 3, 'the trigger is reported on its own line');
   assert.equal(report.unbaselined[0].code, SOURCE_SECURITY_CODES.DYNAMIC_CODE_EXECUTION);
-  fs.rmSync(root, { recursive: true, force: true });
+  cleanup();
 });
 
 test('the gate sees the network egress of this repository, not only the bare form', () => {

@@ -13,6 +13,7 @@ import { executeWorkRun } from '../../runtime/orchestrator/run-engine.mjs';
 import { computeEligibility } from '../../runtime/qualification/eligibility.mjs';
 import { buildRoutingRequest, route } from '../../runtime/routing/routing-engine.mjs';
 import { createJevClient } from '../../runtime/decision-engine/jev/client.mjs';
+import { safeRemove } from '../../scripts/tools/safe-remove.mjs';
 import { buildPreferredExecutorQuestion } from '../../runtime/decision-engine/jev/questions/registry.mjs';
 import { loadThresholdPolicy, evaluateThreshold } from '../../runtime/decision-engine/jev/threshold-policy.mjs';
 import { evaluateCompletion } from '../../runtime/completion/completion-engine.mjs';
@@ -214,7 +215,7 @@ async function runReferenceScenario(sessionModel, { runId = 'run_e2e_0001', arti
 
 test('reference run completes with typed Jev preference, per-stage routing, and full evidence', async () => {
   const artifactDir = path.join(root, 'artifacts/runtime-runs/run_e2e_0001');
-  fs.rmSync(artifactDir, { recursive: true, force: true });
+  safeRemove({ target: artifactDir, boundary: root, recursive: true });
   const outcome = await runReferenceScenario('glm-5.3', { artifactDir });
 
   assert.equal(outcome.status, 'COMPLETED');

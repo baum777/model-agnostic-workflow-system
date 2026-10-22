@@ -13,10 +13,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+
+import { createScratchRoot, removeScratchRoot } from '../../scripts/tools/safe-remove.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const ADAPTER = path.join(ROOT, 'scripts', 'tools', 'baum-loop-repo.mjs');
@@ -46,7 +47,7 @@ function runAdapter(targetPath, cwd) {
 }
 
 test('a repository path that carries a shell payload cannot escape the git call', () => {
-  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'loop-repo-injection-'));
+  const workspace = createScratchRoot({ prefix: 'loop-repo-injection-' }).root;
   try {
     const marker = path.join(workspace, 'INJECTED');
     // The directory NAME carries the payload: a double quote closes the
@@ -59,12 +60,12 @@ test('a repository path that carries a shell payload cannot escape the git call'
       'the payload in the repository path did not run'
     );
   } finally {
-    fs.rmSync(workspace, { recursive: true, force: true });
+    removeScratchRoot({ root: workspace });
   }
 });
 
 test('a repository path that carries a command substitution cannot escape the git call', () => {
-  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'loop-repo-substitution-'));
+  const workspace = createScratchRoot({ prefix: 'loop-repo-substitution-' }).root;
   try {
     const marker = path.join(workspace, 'SUBSTITUTED');
     // Inside double quotes a command substitution still runs.
@@ -76,12 +77,12 @@ test('a repository path that carries a command substitution cannot escape the gi
       'the command substitution in the repository path did not run'
     );
   } finally {
-    fs.rmSync(workspace, { recursive: true, force: true });
+    removeScratchRoot({ root: workspace });
   }
 });
 
 test('a plain repository path is still read as a repository state', () => {
-  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'loop-repo-plain-'));
+  const workspace = createScratchRoot({ prefix: 'loop-repo-plain-' }).root;
   try {
     const target = makeReadableTarget(path.join(workspace, 'target'));
     const output = execFileSync(
@@ -97,6 +98,6 @@ test('a plain repository path is still read as a repository state', () => {
     // adapter is not. The state that matters is that no shell was involved.
     assert.ok(error.status !== undefined, 'the adapter exited normally');
   } finally {
-    fs.rmSync(workspace, { recursive: true, force: true });
+    removeScratchRoot({ root: workspace });
   }
 });

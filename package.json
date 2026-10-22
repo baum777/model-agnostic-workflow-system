@@ -18,6 +18,8 @@
     "scan:source-security": "node scripts/tools/scan-source-security.mjs",
     "capture:assurance-run": "node scripts/tools/capture-assurance-run.mjs",
     "validate:assurance-run": "node scripts/tools/validate-assurance-run-record.mjs",
+    "safe-remove": "node scripts/tools/safe-remove.mjs",
+    "validate:evidence-content": "node scripts/tools/validate-evidence-content.mjs",
     "merge:pr": "node scripts/tools/merge-pr-executor.mjs",
     "preinstall-risk-check": "node scripts/tools/preinstall-skill-risk-check.mjs",
     "skill:frontdoor": "node scripts/tools/skill-frontdoor-check.mjs",

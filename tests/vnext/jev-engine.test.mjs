@@ -2,7 +2,6 @@
 // node:test + node:assert/strict; node builtins only.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +25,7 @@ import {
 } from '../../runtime/decision-engine/jev/decision-receipt.mjs';
 import { recordResolution } from '../../runtime/decision-engine/jev/model-resolution.mjs';
 import { createJevClient } from '../../runtime/decision-engine/jev/client.mjs';
+import { safeRemove, createScratchRoot, removeScratchRoot } from '../../scripts/tools/safe-remove.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const POLICY_PATH = path.join(repoRoot, 'policies', 'decision-thresholds.yaml');
@@ -399,7 +399,9 @@ test('fixture mode: error fixture yields a typed unavailable outcome', async () 
 });
 
 test('fixture mode: missing resolved_model in the fixture is JEV_BAD_RESPONSE', async () => {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'jev-fixtures-'));
+  const { root: scratchRoot, marker } = createScratchRoot({ prefix: 'jev-fixtures-' });
+  const tmpDir = path.join(scratchRoot, 'fixtures');
+  fs.mkdirSync(tmpDir);
   try {
     fs.writeFileSync(
       path.join(tmpDir, 'missing-model.json'),
@@ -413,7 +415,8 @@ test('fixture mode: missing resolved_model in the fixture is JEV_BAD_RESPONSE', 
       { ok: false, disposition: 'BLOCKED', error_class: 'JEV_BAD_RESPONSE' }
     );
   } finally {
-    fs.rmSync(tmpDir, { recursive: true, force: true });
+    safeRemove({ target: tmpDir, boundary: scratchRoot, recursive: true });
+    removeScratchRoot({ root: scratchRoot, marker });
   }
 });
 
