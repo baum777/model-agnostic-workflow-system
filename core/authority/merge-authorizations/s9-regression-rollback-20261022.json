@@ -5,7 +5,7 @@
   "base_ref": "main",
   "head_ref": "feature/s9-regression-rollback-20261022",
   "head_repository": "baum777",
-  "authorized_head_sha": "fff00e267a4ea94ea37a82824b39f1ee1a4bee26",
+  "authorized_head_sha": "fff00e20fc2619ab411d28042e4cfa4f303eec15",
   "state": "active",
   "required_checks": [],
   "required_local_gates": [
