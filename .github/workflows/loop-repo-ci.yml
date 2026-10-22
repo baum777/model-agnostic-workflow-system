@@ -99,5 +99,8 @@ jobs:
       - name: Validate the merge executor hardening disposition
         run: node scripts/tools/validate-registry-disposition.mjs evidence/merge-executor-hardening-2026-10-21/registry-disposition.json
 
+      - name: Validate the boundary closure disposition
+        run: node scripts/tools/validate-registry-disposition.mjs evidence/boundary-closure-2026-10-22/registry-disposition.json
+
       - name: Loop repo CI gate
         run: node scripts/tools/ci-gate.mjs

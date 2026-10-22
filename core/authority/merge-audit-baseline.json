@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "known_findings": [
+    {
+      "code": "MERGE_NOT_COVERED",
+      "commit": "b902130701bc5d784506a4044cb2880e0a86320a",
+      "reason": "The merge of pull request 90 (the S9 disposition rebind, head 5813a26fab045fad0325dc184ceae00ea8cd58ce, base 10de67a0bd5d2deb6abe510d2f53ec2d92025f5e, merged 2026-10-22T15:16:54Z) landed without a lane authorization that bound its head. The base tree carried the lane s9-regression-rollback-20261022, but that lane binds the closure head fff00e20fc2619ab411d28042e4cfa4f303eec15 and was already consumed by the merge of pull request 78, so it could not cover the rebind. The rebind was executed under the first generation's practice (one lane, several merges of the same branch) instead of the one-lane-one-merge lifecycle that contract 1.1.0 established. The finding is real and stands in the history; the formal acceptance of the landing belongs to the owner of the S9 lane.",
+      "disposition": "RECORDED_AS_REAL_FINDING",
+      "recorded_at": "2026-10-22T16:30:00Z"
+    }
+  ]
+}
