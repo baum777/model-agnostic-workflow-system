@@ -6,7 +6,13 @@
   "head_ref": "feature/s9-regression-rollback-20261022",
   "head_repository": "baum777",
   "authorized_head_sha": "fff00e20fc2619ab411d28042e4cfa4f303eec15",
-  "state": "active",
+  "state": "closed",
+  "closed_by": {
+    "pull_request": 78,
+    "merge_commit": "2965a3bde04d5c2f63fc8240e297a964ec0e5b25",
+    "head_sha": "fff00e20fc2619ab411d28042e4cfa4f303eec15",
+    "closed_at": "2026-10-22T15:06:35Z"
+  },
   "required_checks": [],
   "required_local_gates": [
     "validate",
