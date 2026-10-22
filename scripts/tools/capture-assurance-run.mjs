@@ -173,7 +173,8 @@ export const ASSURANCE_ARTIFACTS = Object.freeze([
   'scripts/tools/validate-evidence-content.mjs',
   'tests/tools/safe-remove.test.mjs',
   'tests/tools/evidence-content-validation.test.mjs',
-  'evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json'
+  'evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json',
+  'evidence/operational-safety-closure-2026-10-22/mutation-probes.json'
 ]);
 
 function sha256(buffer) {

@@ -1,0 +1,104 @@
+[
+  {
+    "id": "O01",
+    "status": "LOAD_BEARING_WITH_CASCADE",
+    "expected": "THE INCIDENT: a target that CONTAINS the boundary is refused",
+    "failing": [
+      "THE INCIDENT: a target that CONTAINS the boundary is refused",
+      "the CLI answers 0 on a removal, 1 on a refusal and 2 on a usage error"
+    ],
+    "other_failures": [
+      "the CLI answers 0 on a removal, 1 on a refusal and 2 on a usage error"
+    ]
+  },
+  {
+    "id": "O02",
+    "status": "LOAD_BEARING",
+    "expected": "a removal without a boundary is refused, not defaulted",
+    "failing": [
+      "a removal without a boundary is refused, not defaulted"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "O03",
+    "status": "LOAD_BEARING",
+    "expected": "a symbolic link that points outside the boundary is refused and not followed",
+    "failing": [
+      "a symbolic link that points outside the boundary is refused and not followed"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "O04",
+    "status": "LOAD_BEARING_WITH_CASCADE",
+    "expected": "state without the ownership marker is refused",
+    "failing": [
+      "state without the ownership marker is refused",
+      "a scratch root without the marker is not removable, and a marked one is"
+    ],
+    "other_failures": [
+      "a scratch root without the marker is not removable, and a marked one is"
+    ]
+  },
+  {
+    "id": "O05",
+    "status": "LOAD_BEARING",
+    "expected": "a non-empty directory is only removed when the removal of its content is asked for",
+    "failing": [
+      "a non-empty directory is only removed when the removal of its content is asked for"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "O07",
+    "status": "LOAD_BEARING",
+    "expected": "a file in the evidence that nobody declared is reported",
+    "failing": [
+      "a file in the evidence that nobody declared is reported"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "O08",
+    "status": "LOAD_BEARING_WITH_CASCADE",
+    "expected": "a narrative that drifted from the machine it describes is reported",
+    "failing": [
+      "a gate output that lost its verdict line is reported",
+      "a narrative that drifted from the machine it describes is reported",
+      "an empty file where the manifest requires content is reported",
+      "a file that is not readable JSON is reported",
+      "a field that carries a different value than the manifest requires is reported",
+      "an array item that does not match the manifest is reported",
+      "a manifest that names a check this module does not implement is reported, not ignored",
+      "the CLI answers 0 on a passing manifest and 1 on a failing one"
+    ],
+    "other_failures": [
+      "a gate output that lost its verdict line is reported",
+      "an empty file where the manifest requires content is reported",
+      "a file that is not readable JSON is reported",
+      "a field that carries a different value than the manifest requires is reported",
+      "an array item that does not match the manifest is reported",
+      "a manifest that names a check this module does not implement is reported, not ignored",
+      "the CLI answers 0 on a passing manifest and 1 on a failing one"
+    ]
+  },
+  {
+    "id": "O09",
+    "status": "LOAD_BEARING",
+    "expected": "a file the manifest declares but the evidence does not carry is reported",
+    "failing": [
+      "a file the manifest declares but the evidence does not carry is reported"
+    ],
+    "other_failures": []
+  },
+  {
+    "id": "O06",
+    "status": "LOAD_BEARING",
+    "expected": "the harness surface removes no tree without a boundary check",
+    "failing": [
+      "the harness surface removes no tree without a boundary check"
+    ],
+    "other_failures": []
+  }
+]
