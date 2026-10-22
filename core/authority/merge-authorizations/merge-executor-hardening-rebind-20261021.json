@@ -17,5 +17,11 @@
   "authorized_commit": "b912981146bd17c10aa9803b9252c78a5e1291b7",
   "authorized_head_sha": "8e262d921008dcec0b667870dc575aeba15738a6",
   "supersedes": "merge-executor-hardening-20261021",
-  "state": "active"
+  "state": "closed",
+  "closed_by": {
+    "pull_request": 83,
+    "merge_commit": "a46bb60eb883df058c0e9962a7a6666c2b3cbea4",
+    "head_sha": "8e262d921008dcec0b667870dc575aeba15738a6",
+    "closed_at": "2026-10-22T13:57:38Z"
+  }
 }
