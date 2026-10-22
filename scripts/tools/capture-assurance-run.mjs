@@ -182,6 +182,13 @@ export const ASSURANCE_GATES = Object.freeze([
     timeoutMs: 600000
   },
   {
+    id: 'cross-model-comparison-gates',
+    description: 'the S10 cross-model comparison gates: the contract validation and the independent case corpus evaluation',
+    command: 'npm run --silent validate-cross-model-comparison && npm run --silent eval:cross-model',
+    kind: 'tool',
+    timeoutMs: 600000
+  },
+  {
     id: 'ci-gate',
     description: 'the loop repo CI gate',
     command: 'npm run --silent baum:ci-gate',
@@ -227,7 +234,14 @@ export const ASSURANCE_ARTIFACTS = Object.freeze([
   'evals/s9-regression/corpus.json',
   'evals/fixtures/maws-vnext/regression-comparison.contracts.json',
   'evals/fixtures/maws-vnext/rollback-record.contracts.json',
-  'tests/vnext/regression-eval.test.mjs'
+  'tests/vnext/regression-eval.test.mjs',
+  'core/contracts/cross-model-comparison.schema.json',
+  'runtime/optimization/cross-model-comparison.mjs',
+  'scripts/tools/validate-cross-model-comparison.mjs',
+  'scripts/tools/run-cross-model-eval.mjs',
+  'evals/s10-cross-model/corpus.json',
+  'evals/fixtures/maws-vnext/cross-model-comparison.contracts.json',
+  'tests/vnext/cross-model-eval.test.mjs'
 ]);
 
 function sha256(buffer) {

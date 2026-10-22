@@ -1303,13 +1303,56 @@ adoptiert nichts: der S8-Promotion-Pfad bleibt der einzige Weg zu einer
 
 ### S10 — Cross-Model Optimization
 
-- [ ] Qualifizierte Executor-Konfigurationen vergleichen.
-- [ ] Instruction-Overhead pro Modell messen.
-- [ ] Provider- und Harness-Unterschiede klassifizieren.
-- [ ] Modellspezifische Optimierungen an Adaptergrenzen halten.
-- [ ] Qualität/Kosten/Latency-Pareto-Vergleiche erstellen.
+- [x] Qualifizierte Executor-Konfigurationen vergleichen.
+- [x] Instruction-Overhead pro Modell messen.
+- [x] Provider- und Harness-Unterschiede klassifizieren.
+- [x] Modellspezifische Optimierungen an Adaptergrenzen halten.
+- [x] Qualität/Kosten/Latency-Pareto-Vergleiche erstellen.
 
 **DoD:** Modellübergreifende Portabilität und Effizienz sind anhand vergleichbarer Runs nachgewiesen.
+
+**Umsetzung.** Der Vertrag `core/contracts/cross-model-comparison.schema.json`
+(CrossModelComparison v1.0.0) und die Engine
+`runtime/optimization/cross-model-comparison.mjs` vergleichen qualifizierte
+Executor-Kandidaten unter einer gebundenen Task-Set-, Korpus- und
+Success-Contract-Basis und einer deklarierten Evidenzklasse. Die Engine läuft
+eine feste, fail-closed Gate-Sequenz: Adaptergrenzen →
+Evidenz-Vollständigkeit (fehlende Qualität-/Token-/Latenz-Evidence oder ein
+ausgefallener Provider-Lauf ⇒ `BLOCKED` mit typisiertem Grund) →
+Vergleichbarkeit (abweichende Basis ⇒ `INCOMPARABLE`, nie still
+normalisiert) → Capability → Qualifikation (nur `QUALIFIED` mit getragener
+Evidence ist gewinnerfähig) → S9-Regression-Gate (`NO_REGRESSION` erforderlich;
+`REGRESSION_DETECTED` schließt aus; ein fehlender S9-Record ist fehlende
+Evidence, nicht Sauberkeit) → Security absolut (jede Security-Regression
+schließt einen Kandidaten aus; kein Qualität-, Kosten- oder Latenzgewinn
+kompensiert sie) → Stabilität → Pareto (Kosten-/Token-Optimierung nur unter
+den Überlebenden; eine Präferenz verlangt Dominanz über jeden anderen
+gewinnerfähigen Kandidaten; es gibt keine implizite Erfolgsschwelle). Jeder
+Kandidat trägt Capability- und Qualifikations-Evidence getrennt, explizite
+Executor-/Provider-/Modell-Versionen, die tatsächlich gemessene Basis, den
+Instruction-Overhead (`instruction_tokens`, `task_tokens`, abgeleitete
+`overhead_ratio`) sowie Stabilität und Ausführungsstatus. Provider- und
+Harness-Unterschiede werden klassifiziert abgeleitet (MODEL/PROVIDER/
+EXECUTOR/HARNESS), nicht behauptet. Der Record adoptiert nichts, reroutet
+nichts und erteilt keine Authority: Modellwechsel, Qualifikation und
+Authority-Grant bleiben drei getrennte Entscheidungen in drei getrennten
+Verträgen. Live-Provider-Evidenz verlangt eine Owner-Budget-Autorisierung;
+dieser Slice nutzt ausschließlich Offline-Replay-/Fixture-Evidenz als
+eigenständig gekennzeichnete Evidenzklasse.
+
+**Messung.** Der unabhängige Fall-Korpus `evals/s10-cross-model/corpus.json`
+trägt die zehn geordneten Fallklassen des S10-Auftrags (gleiche Qualität bei
+unterschiedlichen Kosten; billig bei schlechterer Qualität;
+Security-Regression trotz Performancegewinn; inkompatible Capability; fehlende
+Qualifikation; Korpus-/Contract-Mismatch; instabile Wiederholungen; Provider-/
+Executor-Ausfall; fehlende Token-/Latenz-Evidence; ein den S9-Gate nicht
+bestehender Kandidat) plus Ergänzungsfälle (volle und reine
+Qualitätsdominanz, rein unqualifizierte Felder, Adaptergrenzen-Verletzung,
+durchgehend fehlende S9-Evidence): 17 Fälle, alle mit vor dem Lauf
+festgelegten Erwartungen, 17/17 wie erwartet, deterministisch. Die Labels
+sind konstruiert, nicht owner-geprüft; alle Messwerte sind synthetische
+Offline-Replay-/Fixture-Evidenz über synthetische Executor-Identitäten; die
+`live_provider`-Klasse wird nicht exercised.
 
 ### S11 — Harness Context Separation
 
@@ -1569,9 +1612,9 @@ Stattdessen soll es:
 **Target Status:** ADOPTED — TARGET SPECIFICATION (owner act of 2026-10-21)  
 **Specification Version:** 0.2.0  
 **Canonical Adoption:** ADOPTED AS THE SHARED-CORE DEVELOPMENT TARGET — owner act of 2026-10-21, recorded as OD-20 in `docs/maws-vnext-owner-decisions.md`. The act names this document and this version as the governing target of the MAWS-SII development lane, and it takes up the standing owner dispositions OA-04 (specification adoption) and OA-05 (instruction audit capability implementation) together with the resumption of that lane. The adoption grants no authority, qualification, permission or runtime activation, it replaces no approval decision, and it does not discharge the owner review of the advisory candidates the auditor names. The document surface keeps its path under `docs/proposals/`: eighteen evidence records of 2026-10-20/21 reference that path, and the evidence path contract makes those records immutable. The promotion of the document into the canonical docs surface is a separate slice and remains the next gate of the document placement.  
-**Implementation Status:** APPLIED IN PART, BY SLICE — die Slices S0–S8 und S11–S13 sind an ihren Owner-Surfaces gemergt; die Welle 2 des S3-Auditors (deterministische Advisory-Signallayer für die acht semantischen Klassen) ist mit gepflanzten Fixtures implementiert und gegen den aktuellen Korpus gemessen; der Slice S9 (Regression and Rollback) ist als versionierter Baseline/Candidate-Vergleich und kontrollierter Rollback implementiert und gegen einen unabhängigen Fall-Korpus gemessen (16 Signal-Fälle über 8/8 Klassen mit 0 Falsch-Positiven und 0 Falsch-Negativen, 6 Vergleichs- und 6 Rollback-Fälle); der Slice S10 (Cross-Model Optimization) ist offen  
+**Implementation Status:** APPLIED IN PART, BY SLICE — die Slices S0–S13 sind an ihren Owner-Surfaces gemergt; die Welle 2 des S3-Auditors (deterministische Advisory-Signallayer für die acht semantischen Klassen) ist mit gepflanzten Fixtures implementiert und gegen den aktuellen Korpus gemessen; der Slice S9 (Regression and Rollback) ist als versionierter Baseline/Candidate-Vergleich und kontrollierter Rollback implementiert und gegen einen unabhängigen Fall-Korpus gemessen (16 Signal-Fälle über 8/8 Klassen mit 0 Falsch-Positiven und 0 Falsch-Negativen, 6 Vergleichs- und 6 Rollback-Fälle); der Slice S10 (Cross-Model Optimization) ist als qualifikationsgebundener Cross-Model-Vergleich mit typisierten INCOMPARABLE-/BLOCKED-Verweigerungen, absoluter Security-Exclusion, integriertem S9-Regression-Gate, Instruction-Overhead-Messfeld und einem unabhängigen 17-Fall-Korpus (17/17 wie erwartet, deterministisch, ausschließlich Offline-Evidenzklassen) implementiert und gemessen  
 **Runtime Activation:** NONE  
-**Next Gate:** ausstehende Registry-`CONTRACT_RECORD`-Schreibung zu S1 → S4 Skill Improvement Analyzer → S5 Behavioral Evaluation Baseline → S11 Harness Context Separation, der offene Slice S10, die owner-geprüfte Analyse der Advisory-Kandidaten aus Welle 2, sowie die dokumentbezogene Platzierung dieses Dokuments in der kanonischen Docs-Fläche
+**Next Gate:** ausstehende Registry-`CONTRACT_RECORD`-Schreibung zu S1 → S4 Skill Improvement Analyzer → S5 Behavioral Evaluation Baseline → S11 Harness Context Separation, die owner-geprüfte Analyse der Advisory-Kandidaten aus Welle 2 und aus S10, sowie die dokumentbezogene Platzierung dieses Dokuments in der kanonischen Docs-Fläche
 
 ---
 
