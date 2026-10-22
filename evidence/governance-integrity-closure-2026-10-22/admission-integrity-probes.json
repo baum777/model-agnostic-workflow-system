@@ -1,0 +1,25 @@
+{
+  "probed_at": "2026-10-22T17:55:00Z",
+  "mode": "dry-run only \u2014 no --apply, nothing merged",
+  "executor_and_contract_unchanged": {
+    "range": "870d7abb..9d009cc",
+    "evidence": "git diff empty over scripts/tools/merge-pr-executor.mjs and core/contracts/merge-lane-authorization.schema.json"
+  },
+  "probes": [
+    {
+      "name": "nonexistent lane",
+      "command": "merge-pr-executor.mjs --lane nonexistent-lane-probe-20261022 --pr 107",
+      "decision": "REFUSE",
+      "code": "MERGE_LANE_AUTHORIZATION_ABSENT"
+    },
+    {
+      "name": "foreign lane of a different pull request (the exact bypass class of pull request 107)",
+      "command": "merge-pr-executor.mjs --lane s10-cross-model-optimization-20261022 --pr 107",
+      "decision": "REFUSE",
+      "code": "MERGE_PR_IDENTITY_MISMATCH",
+      "message_prefix": "the merge target is pull request 107 but the lane owns pull request 100"
+    }
+  ],
+  "covered_merges_observed": 9,
+  "conclusion": "current merge admission still requires prior exact-head lane authorization; the enforcement that pull request 107 bypassed by merging directly is live and refusing"
+}

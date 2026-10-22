@@ -1,0 +1,2096 @@
+{
+  "status": "PASS",
+  "base_ref": "main",
+  "base_commit": "9d009cca0eca39585557b6f0e0c299dd2e32afdc",
+  "base_commit_source": "refs/remotes/origin/main",
+  "baseline_present": true,
+  "merges_total": 105,
+  "landings_total": 273,
+  "counts": {
+    "ROOT": 1,
+    "HISTORICAL_OBSERVATION": 242,
+    "GOVERNANCE_ACT": 19,
+    "COVERED": 9,
+    "UNCOVERED": 2
+  },
+  "findings": [
+    {
+      "code": "MERGE_NOT_COVERED",
+      "merge_commit": "b902130701bc5d784506a4044cb2880e0a86320a",
+      "detail": "the merge b902130701bc5d784506a4044cb2880e0a86320a landed the head 5813a26fab045fad0325dc184ceae00ea8cd58ce without a lane authorization that bound it on the base branch 10de67a0bd5d2deb6abe510d2f53ec2d92025f5e"
+    },
+    {
+      "code": "MERGE_NOT_COVERED",
+      "merge_commit": "71655312a21901972a569406997389293304e4ed",
+      "detail": "the merge 71655312a21901972a569406997389293304e4ed landed the head 1f68c47ceed80b787bbeb55cd2cfed2f048bb41f without a lane authorization that bound it on the base branch 05b0f80ce2ff64c38cd1edc28a40f2de799cfe43"
+    }
+  ],
+  "disposed_findings": [
+    {
+      "code": "MERGE_NOT_COVERED",
+      "merge_commit": "b902130701bc5d784506a4044cb2880e0a86320a",
+      "detail": "the merge b902130701bc5d784506a4044cb2880e0a86320a landed the head 5813a26fab045fad0325dc184ceae00ea8cd58ce without a lane authorization that bound it on the base branch 10de67a0bd5d2deb6abe510d2f53ec2d92025f5e"
+    },
+    {
+      "code": "MERGE_NOT_COVERED",
+      "merge_commit": "71655312a21901972a569406997389293304e4ed",
+      "detail": "the merge 71655312a21901972a569406997389293304e4ed landed the head 1f68c47ceed80b787bbeb55cd2cfed2f048bb41f without a lane authorization that bound it on the base branch 05b0f80ce2ff64c38cd1edc28a40f2de799cfe43"
+    }
+  ],
+  "lanes": [
+    {
+      "lane_id": "assurance-reconciliation-20261022",
+      "schema_version": "1.1.0",
+      "state": "closed",
+      "bound_head": "eacb100f32dbccb562a3674aacd8d98a3bce893f",
+      "closed_by": {
+        "pull_request": 87,
+        "merge_commit": "bd2237bcccadea3a1af86c080b7e16028a8b7c02",
+        "head_sha": "eacb100f32dbccb562a3674aacd8d98a3bce893f",
+        "closed_at": "2026-10-22T15:12:01Z"
+      },
+      "consumed": true,
+      "superseded_by": [],
+      "covers": [
+        "bd2237bcccadea3a1af86c080b7e16028a8b7c02"
+      ]
+    },
+    {
+      "lane_id": "assurance-reconciliation-maintenance-20261022",
+      "schema_version": "1.1.0",
+      "state": "closed",
+      "bound_head": "c7a4127b769ca2ba2944885d449a6c6c767a674b",
+      "closed_by": {
+        "pull_request": 91,
+        "merge_commit": "41fa8e5fcc0ef8f059e3da19b5bd813f13d69d70",
+        "head_sha": "c7a4127b769ca2ba2944885d449a6c6c767a674b",
+        "closed_at": "2026-10-22T15:32:09Z"
+      },
+      "consumed": true,
+      "superseded_by": [],
+      "covers": [
+        "41fa8e5fcc0ef8f059e3da19b5bd813f13d69d70"
+      ]
+    },
+    {
+      "lane_id": "boundary-closure-20261022",
+      "schema_version": "1.1.0",
+      "state": "active",
+      "bound_head": "f39739a14787aa940b146897304e74d7ef10a64a",
+      "closed_by": null,
+      "consumed": true,
+      "superseded_by": [],
+      "covers": [
+        "0fd89d99fac3cf027880dfe2b13b0140a2a0b4fd"
+      ]
+    },
+    {
+      "lane_id": "governance-integrity-20261022",
+      "schema_version": "1.1.0",
+      "state": "closed",
+      "bound_head": "4de318ca41ff16c9604f2fbeedd5b77382e10749",
+      "closed_by": {
+        "pull_request": 95,
+        "merge_commit": "dd174d25d120902aa30847662ee2d83cbbcbcee7",
+        "head_sha": "4de318ca41ff16c9604f2fbeedd5b77382e10749",
+        "closed_at": "2026-10-22T18:02:48+02:00"
+      },
+      "consumed": true,
+      "superseded_by": [],
+      "covers": [
+        "dd174d25d120902aa30847662ee2d83cbbcbcee7"
+      ]
+    },
+    {
+      "lane_id": "merge-executor-hardening-20261021",
+      "schema_version": "1.1.0",
+      "state": "closed",
+      "bound_head": "55a4bf22019884c013033f866ea4707c3b527c7a",
+      "closed_by": {
+        "pull_request": 80,
+        "merge_commit": "001396a2917d3f56194a1382c478f9c1ccff970e",
+        "head_sha": "55a4bf22019884c013033f866ea4707c3b527c7a",
+        "closed_at": "2026-10-22T04:04:13Z"
+      },
+      "consumed": true,
+      "superseded_by": [],
+      "covers": [
+        "001396a2917d3f56194a1382c478f9c1ccff970e"
+      ]
+    },
+    {
+      "lane_id": "merge-executor-hardening-rebind-20261021",
+      "schema_version": "1.1.0",
+      "state": "closed",
+      "bound_head": "8e262d921008dcec0b667870dc575aeba15738a6",
+      "closed_by": {
+        "pull_request": 83,
+        "merge_commit": "a46bb60eb883df058c0e9962a7a6666c2b3cbea4",
+        "head_sha": "8e262d921008dcec0b667870dc575aeba15738a6",
+        "closed_at": "2026-10-22T13:57:38Z"
+      },
+      "consumed": true,
+      "superseded_by": [],
+      "covers": [
+        "a46bb60eb883df058c0e9962a7a6666c2b3cbea4"
+      ]
+    },
+    {
+      "lane_id": "merge-incident-closure-20261021",
+      "schema_version": "1.0.0",
+      "state": null,
+      "bound_head": null,
+      "closed_by": null,
+      "consumed": false,
+      "superseded_by": [],
+      "covers": []
+    },
+    {
+      "lane_id": "platform-protection-20261022",
+      "schema_version": "1.1.0",
+      "state": "closed",
+      "bound_head": "bc26e27ee365cd04615259e051fce22dbe38e53a",
+      "closed_by": {
+        "pull_request": 101,
+        "merge_commit": "4a751e515afad1268750abdb60feed4314cdf519",
+        "head_sha": "bc26e27ee365cd04615259e051fce22dbe38e53a",
+        "closed_at": "2026-10-22T16:30:15Z"
+      },
+      "consumed": true,
+      "superseded_by": [],
+      "covers": [
+        "4a751e515afad1268750abdb60feed4314cdf519"
+      ]
+    },
+    {
+      "lane_id": "s10-cross-model-optimization-20261022",
+      "schema_version": "1.1.0",
+      "state": "active",
+      "bound_head": "61609ccfe5a46dd5e30163c7b27c3f2cb485a4c4",
+      "closed_by": null,
+      "consumed": true,
+      "superseded_by": [],
+      "covers": [
+        "05b0f80ce2ff64c38cd1edc28a40f2de799cfe43"
+      ]
+    },
+    {
+      "lane_id": "s9-regression-rollback-20261022",
+      "schema_version": "1.1.0",
+      "state": "closed",
+      "bound_head": "fff00e20fc2619ab411d28042e4cfa4f303eec15",
+      "closed_by": {
+        "pull_request": 78,
+        "merge_commit": "2965a3bde04d5c2f63fc8240e297a964ec0e5b25",
+        "head_sha": "fff00e20fc2619ab411d28042e4cfa4f303eec15",
+        "closed_at": "2026-10-22T15:06:35Z"
+      },
+      "consumed": true,
+      "superseded_by": [],
+      "covers": [
+        "2965a3bde04d5c2f63fc8240e297a964ec0e5b25"
+      ]
+    }
+  ],
+  "merges": [
+    {
+      "merge_commit": "25567666ea488e9c0b67a7f8911c84cf883ca556",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "911a0f1ddd2ebc11dac402c1db018406f001ba6d",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "129da34d3b4c5aff6f27099d10232213c509fe9e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "5320e5c13419328066ee9dea95c3de02c0fae695",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "93d3bc980360bacdc08a8f613d5fece9afc135d5",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "a84aa7d44ab900201233b7ee104671e6a1ff136e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "ff89ad78ab36b7b711972f477c128013453c1795",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "32f6a5267bb9151770a141119dbb1f7eda65235a",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "f481c2f2908fe18751b33c3470e1d57397d05add",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "ddddbb0be29c1a500c9cbea90d12d0f475c315d1",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "0301a98c8f3673b5469a713cfcd29a0c41a9891c",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "6d399d62357952f8b0550211dacc35896e042e47",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "4212b594ad2fca77f7a0f78bb57c504365a1f590",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "d7c84914ea3ba339a0a96454dd06fa18904527d0",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "29fafcbea79ce220d252e54e5d33f8e5b0a2361b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "dbbea2683aac0ab80638fd33a2f775d75ed23592",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "f66212514483fc39770e8db4615731d736b379ef",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "d59fc9c6b811283deebbec3ed7d02373222445f0",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "dcd95bf2d1d5a811bfd81026e943e3c2d0e7a072",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "982bc548e8b43c3ce1b09474d118740e1c6df372",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "739b9c80a394c40639cb3d9043db757aca6df5d4",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "87a86d54971ee43ff967c2c336a81d2bf1f38812",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "2eff613f924c7a8e20cdc3a946971bed919d23d6",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "1bce44401b878032729d865d164a1d7f18fcd81e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "6df22a8f205c27a6ede42cfc350dce6f927a3115",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "ee7f094b2676963b20161f093ed5a9a01e0c018b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "f571139c646168cca3f2dac11f716014b54be25b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "271e1d08ab93502136005dcf6c59bc6e9346d860",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "36354cba0c870adafc58e17cb91d9c18780a6ba7",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "9fc2ae80604aad33a4acbb1308523e9c35c5b2ff",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "1d466511691156082a428d0f180a9d7cd51c4767",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "87c58609ae8138122b81762f35757192006bdffb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "53d70771ee86ae6401bb22d5aed1998ab4218865",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "a2d1eb6c8bcb6334ec9df5a3f86481784109a705",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "8a0c746652e1e97b9e446711b631bfe26344f4f2",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "5751fd4ea029587feaf9174da816da080f281270",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "3add8ab2a81f971d0702fef810a94b78ed8df9c0",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "8e205cea10a3bb98712a5abcda8346f15bb77e89",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "1cfc6e5ef0acb3c73cce981f077bc8bd471e6bf7",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "9daab77b658d1039eeca3cfd5710b3a96476d3c6",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "7a56a972bb388abe70c6a6e35c91b16955e7e468",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "dcaa4b4a97250425f3ae7f8eee1166419eb401e3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "2cd0edcc2f538d1aa9ad1a810dd828515eac0a98",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "eb8d423212b35fcb2311bf8c8fb24fb980dd5e08",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "7fb6a5a2ad166cbac0ab43e3c1bb3dfdc1cdd255",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "27b17b62800d5d37e14bfe48ecd210603c4e1cb6",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "8a5d138c8b5b545440e1ebddaedbce03206050dc",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "bc1d3e2abe34b065b2b6ebe18819f921c6893776",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "bfa56ec17306ab709be3d492f02ac27150b4661a",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "30ebb7dd974049842ecac158c7d255aa32f6b12f",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "0b49f6522cd262f6e007534a43e780bd4805fc2e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "10d8577382a0e51090404f063012bf1eefb745a2",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "a15aa757cabda685b24902d54a309123686e8880",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "ce2f2df7ade74cafc0490620db07b29a6477eb60",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "2f94f8c5eab6ae3216b9dd0551a03624a88fd55c",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "a01bf1a78fa7636823fcd8a07736b1930e7eb8d4",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "808bfb09175084a90f1eb264fb18e72e9bda0f82",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "d44002cf5f7d6997c3c75fc4b8a0ecc478157f8f",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "d15c96565379d081800f1ca3c0646c968235fe0e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "e12d0f8fd1d63df1d1913fca677d6eba79a048ed",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "d0899cbdb1542dc58b047d8820e8c6e586955b4e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "5ed72165608070072c0f52884aa3213cf48eeb83",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "afbd68e06d91fd3e2a84cc0c1995d93454634bef",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "0daaa48367b0882c2ea628b1af20c1f753ce42b3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "df8c683e557a711562bc6cc61ac8504120825161",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "563c1db46c592a604ea53b95936ec82dd09732eb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "bae2b2d8fc248656a182a8b5d725fe38d9857be9",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "b1c035681d6f2a9aaee3fcb5ccb3dc1fcd396846",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "08d9d3918d9efeb0b46b5ce13690027834cdd64e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "a89e5e294fcbcbb1f55cf906dc41bea22647e943",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "3931fe772f4c077c8e232a3adb6c9f70faa90546",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "05475009a972d48368caef2f92de0799274f365a",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "4c9ac42cddcff2c975dc3d069b6b6916e636d072",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "381bc44f83e428aead915d55bb56d24d00a90694",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "37a9f75b0abc770afda63780d5f1d6b8205503e3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "merge_commit": "691d66cacd92485c5dfab7fa2bea69409b1748c8",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/merge-executor-hardening-20261021.json"
+      ]
+    },
+    {
+      "merge_commit": "001396a2917d3f56194a1382c478f9c1ccff970e",
+      "classification": "COVERED",
+      "head": "55a4bf22019884c013033f866ea4707c3b527c7a",
+      "base": "691d66cacd92485c5dfab7fa2bea69409b1748c8",
+      "lanes": [
+        "merge-executor-hardening-20261021"
+      ],
+      "paths": [
+        ".github/workflows/loop-repo-ci.yml",
+        "evidence/merge-executor-hardening-2026-10-21/RUN.md",
+        "evidence/merge-executor-hardening-2026-10-21/registry-disposition.json"
+      ]
+    },
+    {
+      "merge_commit": "434e643313d0f250d17979a0a61341e719638d93",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/merge-executor-hardening-rebind-20261021.json"
+      ]
+    },
+    {
+      "merge_commit": "a46bb60eb883df058c0e9962a7a6666c2b3cbea4",
+      "classification": "COVERED",
+      "head": "8e262d921008dcec0b667870dc575aeba15738a6",
+      "base": "434e643313d0f250d17979a0a61341e719638d93",
+      "lanes": [
+        "merge-executor-hardening-rebind-20261021"
+      ],
+      "paths": [
+        "core/authority/merge-authorizations/merge-executor-hardening-20261021.json",
+        "evidence/merge-executor-hardening-2026-10-21/RUN.md",
+        "evidence/merge-executor-hardening-2026-10-21/registry-disposition.json"
+      ]
+    },
+    {
+      "merge_commit": "0566390d59d0abcd9133fd04aa3443642f185b24",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/merge-executor-hardening-rebind-20261021.json"
+      ]
+    },
+    {
+      "merge_commit": "05bd7d095699fa652c29fef1e4e1220e28599cf0",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/s9-regression-rollback-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "cd24a744e33c611c55e8467403f2358053199dd7",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/s9-regression-rollback-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "2965a3bde04d5c2f63fc8240e297a964ec0e5b25",
+      "classification": "COVERED",
+      "head": "fff00e20fc2619ab411d28042e4cfa4f303eec15",
+      "base": "cd24a744e33c611c55e8467403f2358053199dd7",
+      "lanes": [
+        "s9-regression-rollback-20261022"
+      ],
+      "paths": [
+        ".github/workflows/loop-repo-ci.yml",
+        "CHANGELOG.md",
+        "core/contracts/regression-comparison.schema.json",
+        "core/contracts/rollback-record.schema.json",
+        "docs/proposals/skill-intelligence-target-spec.md",
+        "evals/README.md",
+        "evals/catalog.json",
+        "evals/fixtures/maws-vnext/regression-comparison.contracts.json",
+        "evals/fixtures/maws-vnext/rollback-record.contracts.json",
+        "evals/s9-regression/corpus.json",
+        "evidence/s9-regression-rollback-2026-10-22/RUN.md",
+        "evidence/s9-regression-rollback-2026-10-22/gates/assurance-run-records.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/assurance-run-records.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/assurance-run-records.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/ci-gate.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/ci-gate.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/ci-gate.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/eval-maws-vnext.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/eval-maws-vnext.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/eval-maws-vnext.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/eval-provider-export-alignment.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/eval-provider-export-alignment.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/eval-provider-export-alignment.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/eval-secret-boundary.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/eval-secret-boundary.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/eval-secret-boundary.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/evidence-content-check.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/evidence-content-check.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/evidence-content-check.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/merge-executor-lane.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/merge-executor-lane.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/merge-executor-lane.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/provider-adapter-import.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/provider-adapter-import.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/provider-adapter-import.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/provider-neutral.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/provider-neutral.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/provider-neutral.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/registry-disposition-merge-incident.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/registry-disposition-merge-incident.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/registry-disposition-merge-incident.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/registry-disposition-repair.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/registry-disposition-repair.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/registry-disposition-repair.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/regression-rollback-gates.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/regression-rollback-gates.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/regression-rollback-gates.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/scan-secrets.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/scan-secrets.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/scan-secrets.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/security-regression-tests.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/security-regression-tests.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/security-regression-tests.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/skill-frontdoor-regression.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/skill-frontdoor-regression.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/skill-frontdoor-regression.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/source-security-scan.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/source-security-scan.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/source-security-scan.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/syntax-core.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/syntax-core.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/syntax-core.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/syntax-sweep.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/syntax-sweep.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/syntax-sweep.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/validate-maws-vnext.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/validate-maws-vnext.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/validate-maws-vnext.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/validate-secrets.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/validate-secrets.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/validate-secrets.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/vnext-unit-suite.exit",
+        "evidence/s9-regression-rollback-2026-10-22/gates/vnext-unit-suite.stderr.log",
+        "evidence/s9-regression-rollback-2026-10-22/gates/vnext-unit-suite.stdout.log",
+        "evidence/s9-regression-rollback-2026-10-22/registry-disposition.json",
+        "evidence/s9-regression-rollback-2026-10-22/regression-comparisons.json",
+        "evidence/s9-regression-rollback-2026-10-22/rollback-records.json",
+        "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+        "evidence/s9-regression-rollback-2026-10-22/signal-evaluation.json",
+        "evidence/s9-regression-rollback-2026-10-22/state-preservation.json",
+        "package.json",
+        "runtime/regression/regression-gate.mjs",
+        "runtime/regression/rollback.mjs",
+        "runtime/regression/signal-evaluation.mjs",
+        "scripts/tools/capture-assurance-run.mjs",
+        "scripts/tools/run-regression-eval.mjs",
+        "scripts/tools/validate-regression-comparison.mjs",
+        "tests/vnext/regression-eval.test.mjs"
+      ]
+    },
+    {
+      "merge_commit": "c30d17a1b8a14801c793f54eefa0ea497a370a60",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/assurance-reconciliation-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "bd2237bcccadea3a1af86c080b7e16028a8b7c02",
+      "classification": "COVERED",
+      "head": "eacb100f32dbccb562a3674aacd8d98a3bce893f",
+      "base": "c30d17a1b8a14801c793f54eefa0ea497a370a60",
+      "lanes": [
+        "assurance-reconciliation-20261022"
+      ],
+      "paths": [
+        ".github/workflows/loop-repo-ci.yml",
+        "docs/harness/cleanup-boundary-and-the-tmp-incident.md",
+        "evidence/assurance-reconciliation-2026-10-22/RUN.md",
+        "evidence/assurance-reconciliation-2026-10-22/incident-consequence-record.md",
+        "evidence/assurance-reconciliation-2026-10-22/registry-disposition.json",
+        "evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.exit",
+        "evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.json",
+        "evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.stderr.log",
+        "evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.stdout.log",
+        "evidence/assurance-reconciliation-2026-10-22/sensitive-content-scan.exit",
+        "evidence/assurance-reconciliation-2026-10-22/sensitive-content-scan.json",
+        "evidence/assurance-reconciliation-2026-10-22/sensitive-content-scan.stderr.log",
+        "evidence/assurance-reconciliation-2026-10-22/sensitive-content-scan.stdout.log",
+        "evidence/assurance-reconciliation-2026-10-22/test-count-reconciliation.exit",
+        "evidence/assurance-reconciliation-2026-10-22/test-count-reconciliation.json",
+        "evidence/assurance-reconciliation-2026-10-22/test-count-reconciliation.stderr.log",
+        "evidence/assurance-reconciliation-2026-10-22/test-count-reconciliation.stdout.log",
+        "scripts/tools/capture-assurance-run.mjs",
+        "scripts/tools/inventory-removal-calls.mjs",
+        "scripts/tools/reconcile-test-counts.mjs",
+        "scripts/tools/scan-secrets.mjs",
+        "scripts/tools/scan-sensitive-content.mjs",
+        "security/evidence-sensitive-content-baseline.json",
+        "tests/tools/assurance-reconciliation.test.mjs"
+      ]
+    },
+    {
+      "merge_commit": "10de67a0bd5d2deb6abe510d2f53ec2d92025f5e",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/assurance-reconciliation-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "b902130701bc5d784506a4044cb2880e0a86320a",
+      "classification": "UNCOVERED",
+      "head": "5813a26fab045fad0325dc184ceae00ea8cd58ce",
+      "base": "10de67a0bd5d2deb6abe510d2f53ec2d92025f5e",
+      "paths": [
+        "evidence/s9-regression-rollback-2026-10-22/registry-disposition.json"
+      ]
+    },
+    {
+      "merge_commit": "886e81d15e1e445aaac0dd53f8daf9bbc08f54a9",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/assurance-reconciliation-maintenance-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "41fa8e5fcc0ef8f059e3da19b5bd813f13d69d70",
+      "classification": "COVERED",
+      "head": "c7a4127b769ca2ba2944885d449a6c6c767a674b",
+      "base": "886e81d15e1e445aaac0dd53f8daf9bbc08f54a9",
+      "lanes": [
+        "assurance-reconciliation-maintenance-20261022"
+      ],
+      "paths": [
+        "docs/harness/cleanup-boundary-and-the-tmp-incident.md",
+        "evidence/assurance-reconciliation-2026-10-22/RUN.md",
+        "evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.json",
+        "evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.stdout.log"
+      ]
+    },
+    {
+      "merge_commit": "86aa13b98c0d5738ab7008230144f080690c9177",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/assurance-reconciliation-maintenance-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "b98fa2046381c58b7d783570396644243451bafa",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/s9-regression-rollback-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "63ce34ccb1233612656a3147c5abf86b91a56492",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/governance-integrity-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "dd174d25d120902aa30847662ee2d83cbbcbcee7",
+      "classification": "COVERED",
+      "head": "4de318ca41ff16c9604f2fbeedd5b77382e10749",
+      "base": "63ce34ccb1233612656a3147c5abf86b91a56492",
+      "lanes": [
+        "governance-integrity-20261022"
+      ],
+      "paths": [
+        "evidence/governance-integrity-2026-10-22/RUN.md"
+      ]
+    },
+    {
+      "merge_commit": "870d7abbe498c3ff0d679407d0ff575f52271826",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/governance-integrity-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "aa909750d9d20bbe464bcc73dec730d6aa20e368",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/boundary-closure-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "0fd89d99fac3cf027880dfe2b13b0140a2a0b4fd",
+      "classification": "COVERED",
+      "head": "f39739a14787aa940b146897304e74d7ef10a64a",
+      "base": "aa909750d9d20bbe464bcc73dec730d6aa20e368",
+      "lanes": [
+        "boundary-closure-20261022"
+      ],
+      "paths": [
+        ".github/workflows/loop-repo-ci.yml",
+        "CHANGELOG.md",
+        "core/authority/merge-audit-baseline.json",
+        "docs/authority-matrix.md",
+        "evals/experiments/ho01-local-optimization/experiment.json",
+        "evals/fixtures/maws-vnext/executor-model-profile.contracts.json",
+        "evidence/boundary-closure-2026-10-22/RUN.md",
+        "evidence/boundary-closure-2026-10-22/registry-disposition.json",
+        "evidence/local-optimization-comparison-2026-10-21/comparison-record.json",
+        "evidence/local-optimization-comparison-2026-10-21/evals/bev_ho01_local_optimization_baseline.json",
+        "evidence/local-optimization-comparison-2026-10-21/evals/bev_ho01_local_optimization_candidate.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_baseline/completion-decision.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_baseline/eligibility-decisions.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_baseline/execution-results.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_baseline/graph-v1.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_baseline/instruction-binding.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_baseline/intent-bindings.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_baseline/routing-decisions.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_baseline/run-events.jsonl",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_baseline/verification-receipts.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_candidate/completion-decision.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_candidate/eligibility-decisions.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_candidate/execution-results.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_candidate/graph-v1.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_candidate/instruction-binding.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_candidate/intent-bindings.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_candidate/routing-decisions.json",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_candidate/run-events.jsonl",
+        "evidence/local-optimization-comparison-2026-10-21/runs/run_ho01_cfg_candidate/verification-receipts.json",
+        "evidence/local-optimization-comparison-2026-10-21/specs/run_ho01_cfg_baseline.json",
+        "evidence/local-optimization-comparison-2026-10-21/specs/run_ho01_cfg_candidate.json",
+        "evidence/loop-runs/2026-10-22-maws-boundary-closure-pass/classification.md",
+        "evidence/loop-runs/2026-10-22-maws-boundary-closure-pass/closure.md",
+        "evidence/loop-runs/2026-10-22-maws-boundary-closure-pass/generated-workblock.md",
+        "evidence/loop-runs/2026-10-22-maws-boundary-closure-pass/input.md",
+        "evidence/loop-runs/2026-10-22-maws-boundary-closure-pass/repo-scan.md",
+        "runtime/cli/specs/reference-audit-v1.json",
+        "runtime/harness-context/profiles/model-adaptive/profiles/emp_anthropic_claude_sonnet__v1_0_0.json",
+        "runtime/harness-context/profiles/model-adaptive/profiles/emp_kimi_k2_5_kimi__v1_0_0.json",
+        "runtime/harness-context/profiles/model-adaptive/profiles/emp_minimax_text__v1_0_0.json",
+        "runtime/harness-context/profiles/model-adaptive/profiles/emp_openai_codex_gpt5_codex__v1_0_0.json",
+        "runtime/harness-context/profiles/model-adaptive/profiles/emp_openai_codex_gpt5_codex__v1_1_0.json",
+        "runtime/harness-context/profiles/model-adaptive/profiles/emp_qwen_code_qwen3_max__v1_0_0.json",
+        "scripts/tools/verify-merge-attestations.mjs",
+        "tests/tools/merge-attestation-audit.test.mjs",
+        "tests/vnext/executor-model-profile.test.mjs"
+      ]
+    },
+    {
+      "merge_commit": "e2a705d4baac2af173a17a2eb4f8d889ff999c68",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/s10-cross-model-optimization-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "7c6e34c567f8b4b2b1ead977f5e197a8e09c71bb",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/platform-protection-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "4a751e515afad1268750abdb60feed4314cdf519",
+      "classification": "COVERED",
+      "head": "bc26e27ee365cd04615259e051fce22dbe38e53a",
+      "base": "7c6e34c567f8b4b2b1ead977f5e197a8e09c71bb",
+      "lanes": [
+        "platform-protection-20261022"
+      ],
+      "paths": [
+        "CHANGELOG.md",
+        "evidence/boundary-closure-2026-10-22/RUN.md",
+        "evidence/boundary-closure-2026-10-22/registry-disposition.json"
+      ]
+    },
+    {
+      "merge_commit": "85fad3782a3b3deb58835757cbd7642471aab10b",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/platform-protection-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "4ef95fa0f537f382e4850cd35a770a6786006a4f",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/s10-cross-model-optimization-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "484bc8c7501a45d1fa408dbd548125a5ebec6856",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-authorizations/s10-cross-model-optimization-20261022.json"
+      ]
+    },
+    {
+      "merge_commit": "05b0f80ce2ff64c38cd1edc28a40f2de799cfe43",
+      "classification": "COVERED",
+      "head": "61609ccfe5a46dd5e30163c7b27c3f2cb485a4c4",
+      "base": "484bc8c7501a45d1fa408dbd548125a5ebec6856",
+      "lanes": [
+        "s10-cross-model-optimization-20261022"
+      ],
+      "paths": [
+        ".github/workflows/loop-repo-ci.yml",
+        "CHANGELOG.md",
+        "core/contracts/cross-model-comparison.schema.json",
+        "docs/proposals/skill-intelligence-target-spec.md",
+        "evals/catalog.json",
+        "evals/fixtures/maws-vnext/cross-model-comparison.contracts.json",
+        "evals/s10-cross-model/corpus.json",
+        "evidence/s10-cross-model-optimization-2026-10-22/RUN.md",
+        "evidence/s10-cross-model-optimization-2026-10-22/cross-model-comparisons.json",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/assurance-run-records.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/assurance-run-records.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/assurance-run-records.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/ci-gate.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/ci-gate.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/ci-gate.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/cross-model-comparison-gates.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/cross-model-comparison-gates.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/cross-model-comparison-gates.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/eval-maws-vnext.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/eval-maws-vnext.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/eval-maws-vnext.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/eval-provider-export-alignment.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/eval-provider-export-alignment.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/eval-provider-export-alignment.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/eval-secret-boundary.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/eval-secret-boundary.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/eval-secret-boundary.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/evidence-content-check.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/evidence-content-check.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/evidence-content-check.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/merge-executor-lane.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/merge-executor-lane.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/merge-executor-lane.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/provider-adapter-import.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/provider-adapter-import.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/provider-adapter-import.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/provider-neutral.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/provider-neutral.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/provider-neutral.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/registry-disposition-merge-incident.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/registry-disposition-merge-incident.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/registry-disposition-merge-incident.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/registry-disposition-repair.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/registry-disposition-repair.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/registry-disposition-repair.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/regression-rollback-gates.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/regression-rollback-gates.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/regression-rollback-gates.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/scan-secrets.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/scan-secrets.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/scan-secrets.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/security-regression-tests.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/security-regression-tests.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/security-regression-tests.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/skill-frontdoor-regression.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/skill-frontdoor-regression.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/skill-frontdoor-regression.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/source-security-scan.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/source-security-scan.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/source-security-scan.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/syntax-core.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/syntax-core.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/syntax-core.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/syntax-sweep.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/syntax-sweep.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/syntax-sweep.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/validate-maws-vnext.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/validate-maws-vnext.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/validate-maws-vnext.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/validate-secrets.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/validate-secrets.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/validate-secrets.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/vnext-unit-suite.exit",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/vnext-unit-suite.stderr.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/gates/vnext-unit-suite.stdout.log",
+        "evidence/s10-cross-model-optimization-2026-10-22/registry-disposition.json",
+        "evidence/s10-cross-model-optimization-2026-10-22/run-record.json",
+        "package.json",
+        "runtime/optimization/cross-model-comparison.mjs",
+        "scripts/tools/capture-assurance-run.mjs",
+        "scripts/tools/run-cross-model-eval.mjs",
+        "scripts/tools/validate-cross-model-comparison.mjs",
+        "tests/vnext/cross-model-eval.test.mjs"
+      ]
+    },
+    {
+      "merge_commit": "71655312a21901972a569406997389293304e4ed",
+      "classification": "UNCOVERED",
+      "head": "1f68c47ceed80b787bbeb55cd2cfed2f048bb41f",
+      "base": "05b0f80ce2ff64c38cd1edc28a40f2de799cfe43",
+      "paths": [
+        "evidence/s10-cross-model-optimization-2026-10-22/registry-disposition.json"
+      ]
+    },
+    {
+      "merge_commit": "9d009cca0eca39585557b6f0e0c299dd2e32afdc",
+      "classification": "GOVERNANCE_ACT",
+      "paths": [
+        "core/authority/merge-audit-baseline.json"
+      ]
+    }
+  ],
+  "landings": [
+    {
+      "commit": "544a48fbc12d9a0eb681acc8e707983c7082c6fe",
+      "classification": "ROOT"
+    },
+    {
+      "commit": "243fa9217d759083c4ddfac8017cd19151589f81",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d6fef0fda278304b3ea36341a792dd701a2634f4",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "298593ae0658fea6b249a7d65b0e2ffcc95d1044",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "af73b25d01c8de1f0ef8f9e4a111b3f83e2e6a02",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "eb79c141398fc7fb8aead9b3998cf16452088c82",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "70aca0a612b0f5b7d4dbe03a9785bc81b414c276",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "a4b308f99bf10590ff698139e56e8168286fe520",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ccd7af2b0006d6fb4cfb865bf10f7b5b2ae5bfa9",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "07c8e2269de78d53112dd593230a5ff6e4b35261",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "edfef23039ce93a60fa185f1f7625e0c0850c386",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "5e8caceeae72b79ff2dc35ad9ae1460f890d2b10",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "91326ac2a241cb4eccbe2fed06773fb066df6a93",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "1981ce7f94f5e531a1254c6eeb7cbd6f66cd5fdc",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "cb2c22f952926cc9518d275735cc98e34145f254",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d612fdda52303280ed210e2ac99eaa078ca9eba9",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "0f6825d08a6faf4020da3da1ce631fbd0fc6691e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "e292cb376029aec9e17c2a7fc18c171d7efda8eb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "1f2dde05f3fb4a1fd38fea92b0626314867d2fd7",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "53fe16a4823569f0796414afaf5bfba533b42cbf",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4501c59a84c2da78443297e443c4050ccfb01616",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "09800f052b00d7683054b36d2f216ac329300758",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ea9007fb1d77c09bdc07565be968077af65ce8ef",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "689f578459e15b7b2593805ceae46f8cfcf82245",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "6c842c5dd04de1f153831ba067852ed70c977fb9",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "08bacc38aed08c1938d0c6630dab8832a88e9461",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "49a071d85c2d5bed296c06b26a5839c337768208",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4516dc2f1425959d2c1a4cb9a7dee2974015ebfc",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "80ee38c95c2a517f4bade17bed96b71d24acbf37",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "b27a80c8e2273699f3bd9b2c38bfdaf510e4ec71",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4ac387e253b470e6c1d30b6706c9ecef81c7f70f",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "c36654b188458b052afe96ea8f4490b5c285a7d1",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "475e581fd904f8b2ef952a67795b67ef47540dee",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "bc60ff93b169aa084e0744c0846829da7b9f81c6",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "db45a43ad6addb7e1a98ea0ec15c7d3456977592",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4605f053a87cf7137442217e7daf1f675abdf775",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "2366cf5c9fecd974b055822aca2a83ac6a8eb935",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "08a8a4cb01f03cf9fe6a43fbfb810bee9c887f8b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "5b849100a00acfa8271519dabb46e9def449cc76",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4bf9bbfcb61b26395e53fcfe0ca81434308d38c9",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ec77ce151ffa6e8eea6d0ed4e3c616a70bb0b019",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "170966084f3b54c0acaa8a34bfad1b7354a51dea",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "a884d9992687985c15d97a4ba2936ecd3c552dfe",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "6f5a49e49ee98752decefe8b58f4a5de205717f0",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "f766bc6cd0e25648e88b385ef01543e1bd0cbff6",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "081a8caec2d1662a0a175dd0bf852406ec0826fc",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "31e02a07f583c795c818553f6406c7f678c2cbed",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "a3b0817f6176acedf5d4596305af29fc3cb968d4",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "25567666ea488e9c0b67a7f8911c84cf883ca556",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4a054bbe02577cbfefcf454f16e48a3779255cc4",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "911a0f1ddd2ebc11dac402c1db018406f001ba6d",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "7a7e4d321fe70f8a62ab38e19e979089d0bfc42b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d853701cfa026ddd2e7eb99a061daa476119b879",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "25e41a5f8fd569541d89996907d2d8f7488e160e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "94ba5d9f9f66cdaa64298ce3124ac0f329e0a773",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d4624b703e20bb9864bb43b12cef733d6f52c434",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "fa9c0d3adf53c42a3d836b12cd90cd1158860bef",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "9ae9dc2dbc19b6ae78cacc5ed57b026c3b7fb3c9",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "12abfb5913eaae0c2d54dd1e351287e6561581fc",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "3e04b33d32a8b3bc5da3f202a2b394018e22c492",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "6c94d174ee1b10018ad1e6961c73540df7fe1815",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "f21042b31754ddd638c54df4a1a751f00f914819",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "7942ec269175888275db50953fb81244ced3f056",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ce898a671abec8133f56c0f42e88b134adb5827c",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "71989db876cbdfc821a518e53b254004f326aab6",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "09381b2dd3a36d773cc4aed1ff28481ef5c88d00",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "f85f29b24dc879d6beacf809a8d04c28394c03b3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "170c20f3c3f49022a514e425cbfc44af3f77b0fc",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "c14bc52f1e61be3fb404b59050e7f9b2ec89e9a2",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "44c52f6b79b4732e7872e7d448e36a34248780a2",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "8c54da8ffc75db3ea801f9df8d320a795d7cdaf2",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "6575eb49f84bd7573a705c37c74935813ffef85f",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "79efe52d0b52d9a13f6c01b1ed451f6add26a063",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "69545f08a3c7d2117d67d3df24041e32611e648b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "32a99bc790b131f22c75a68407ff4be27df66bdf",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "68c9b294e99de581d2852001d37c735f2fce147c",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "13c928f0f2c38f184c1357003fed86de56bb16cb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "9f58a40e74378369b874bb25458619e22070b780",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "9997814220c44d55ae0c1ef64d14bc6ab31bf5c3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "b3e12950ce495bf5cbde858aa576b332f6ad6378",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "7b4af313e57885872f815cd09a3744f098ea35de",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "94bbb0d5b1d6827407262b405a49fa14bfcdbcc7",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "3aa93e1497f6fafb6bed3582ffddee1f9be1b424",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "e4b2278139e5d7f33676880ca0ab8723492f1999",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "08e8b460e40dca0b0cfe472625d87c80964970ea",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ef2882332c2acd18fc08693cd52816f3ace97a2d",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "bdcc4b58e751dd342138a2e63f83d05d0a4f05c0",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "dc5e4780953e929b37a4dfb6e51685092da1874b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "e30970b2b92cb1c71fd53436bdcbc4b3722941f2",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "43b68b5240bb1eadf58c1fb82bde5106331a1607",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "08e3fbade7ccca81118b0179522edba06f6aa7ed",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "880a3d4efcdce783c823d7228129f6407f5727c9",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "bd4ff8c10abd49c5b4d07efa5bf68c769e6bff21",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "dc48afb6e87eec4039ade89acac0c2b34dc6d089",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "980152169ef5e1aa9e205cb962b13066598d1ad3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "b16cc903b92c5280cfc2219f6eab3d8d69375a98",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "490c5921f4c91cece40a3c66927e95b8ecc640ca",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "1506d439f851a0ac0735a09d8fbf1ceb95b35c3f",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "acd8f2866e1c9cc538ad7f1d06efa21bbb8c5536",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "c1e05e2bba6633ebcc3c692d4095f084671c3347",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "663e91323e914aba2893cb318cf041fef9c5a96d",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "396f41b7188c965b156477aa203966a2b9ba94bf",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "caa278f80eae4031a6bc05e35ac20fdcad9b025c",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "fbfc346a3f3f0617e2ac66e932994ca944a33472",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "7e17c5a22865834854a2e61e1a9bdc3bd1f514d3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "b7f5e4c75ab593a276064d74b7d501669b0111c4",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ae8de04c91d19a88680106cb734e73b1b055050e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "b697e8592aa52ad7518a062b2f8a8083c4bde789",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "23367c1f04c4e72293da0dc438fd3aa0f67ce9ac",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "8f53ff12a179113eac9b0e5352c5fd1a5776cac7",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "37d116c2964f9d60bb66d35542ce187ec9113854",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "21d262301942c0e119e1d99b470c6d9ad83c309c",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4dafaf6f079ed2035988a0dde97b2ecccc12f577",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "00d5bc4377f0a14f5848b4fd8880c20255601475",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "b687edfa41e37c0f6ef8ebb456a0b33937183c29",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "1243c16505eb5ff4b93d4e0439be294c236f3d23",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "94153f0997d51848f19e6562cc3653c2c5710ebd",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "cbd0ffe8094c34f111d2811596c59860e6c0f161",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "fab6add76a26fa456925d8ad646cd3b5c88e1934",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "18bbe970bf9243a7ae8814722d2c18da688b0417",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "217ffbe9f460ab2e83c589b75625c4ba0221af00",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d9e96d822cb65b92d87a8d135de5cfc31b80f6d5",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "993b70291521179e361351ed74b8902187fc9eef",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "5d7a83603fa16a8762eb6a76215d241035da92e5",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "7ffa98f05f5565057db04c5b95e1a90169ef8714",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "3f2f3e5f7dc9d9721f713e4003b4287c130c1b79",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "2182db58fb2667c10d2c947389b55a4aaf9dc791",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4871e73bc718f1410ffed6a26345bab91ab62ced",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ccc72962b73f93e4e4401d8d95007f1afaaa88e3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "37ea5280a2103a10d4ed2b1a79ac46d808fff527",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "611ae3abfbc89660f0859b03d13cc8bd8b5763e7",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "84116f84f6cdf64c5924148de197e9d5afe687ab",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "98147f3fb010d8c387d7fae784c7bd4dff9e91a5",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "0e6b579229e072d13c125dbfeda87843e92a6944",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "3a954c8a1e4f62b8c7b1f7bd9bb491036c891709",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "44353e8679ed426ffacb8db8d6d3b30d68e6b0f9",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d66d47d6d439df8ee495d5e79897bd0d85f9df7a",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4f90ff6a3d050f73b887857016904c8174509ce1",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "23ddb73026a8bfc0fc426307382f087c8141e318",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d334dbbaf241b5e4658766c195022267f5b126ff",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4a37f46368b100cc4ac8cfb17cae46bc7be1951e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "89d193ed7262f4e60881ceac6135c00e02cf67c1",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "00c34146d5002479c97f085cae24ee5ed47cb584",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "f8f93187b305fd40cb27be4ddaf30b9a96ba25a3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "96961c357974724982834c4f30624d2bb3c7fee4",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "670460eb6e92861badef3378059aa4d99d929cfb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "1019f8db126877f997431544a671e7777be23674",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "0e820ff56e1e812f7bbca467a1e0237d9287ceeb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "8e44db9bf7e84d16b44ca5374da3c9f4560338eb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "cc01b0d94be856fd66b6996a33df8d0e73016469",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "18d04e2e1a78f1303d1ade5490f1028cd999e29b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "704c72a3ea3377048688ba0851f627e010446749",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "1fd985500657d6f153f5fc0774e55fae4d9e7fd7",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "8ebc4ecaeeb0cb9789446dc094501bc97b186da2",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d44416e7d16eb64f92ad1f37a3bfed291a93062c",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "31a197e541d65b21a53911f3aa6842f0aca49577",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "63785da25f82b53fdb1509c233bc624058f0cec1",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "778af1d0cd76a16e9d45658ab3982d1c24e14c51",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "40435946d6a99c1b233fb4b5fed715ea13a921cb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "095fce624a2987d7056e77e224c10125f9497e84",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "27d256815e24590ebc7f51c7951e7fdb9cc42847",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "381d362e824da0b3a923439327e7459f7f0541e0",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d5b03ce95ad91d1ad3a565c35865104c23943408",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "b964276b2444e9a67f6f911493b0a27d47a84df5",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "80cf29a4f5a61f74e11c749a725c6d15583a8c3d",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "129da34d3b4c5aff6f27099d10232213c509fe9e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "5320e5c13419328066ee9dea95c3de02c0fae695",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "93d3bc980360bacdc08a8f613d5fece9afc135d5",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "a84aa7d44ab900201233b7ee104671e6a1ff136e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ff89ad78ab36b7b711972f477c128013453c1795",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "32f6a5267bb9151770a141119dbb1f7eda65235a",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "f481c2f2908fe18751b33c3470e1d57397d05add",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "fe3a3973a87b5e76bb5f6efab6d3e82201ccca6b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4eb0ae23645961b06758717d0a291f1992d06785",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "89b067700efd2c304ffae9b5f97f06d17211e28d",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "19bd2a89c8be24ecddd46ac4a68030da9bc66425",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ddddbb0be29c1a500c9cbea90d12d0f475c315d1",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "0301a98c8f3673b5469a713cfcd29a0c41a9891c",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d6a8fdd0563500d49dfb96b2068d8a7cd737bc47",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "6d399d62357952f8b0550211dacc35896e042e47",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4212b594ad2fca77f7a0f78bb57c504365a1f590",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d7c84914ea3ba339a0a96454dd06fa18904527d0",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "29fafcbea79ce220d252e54e5d33f8e5b0a2361b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "dbbea2683aac0ab80638fd33a2f775d75ed23592",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "f66212514483fc39770e8db4615731d736b379ef",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d59fc9c6b811283deebbec3ed7d02373222445f0",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "dcd95bf2d1d5a811bfd81026e943e3c2d0e7a072",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "982bc548e8b43c3ce1b09474d118740e1c6df372",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "739b9c80a394c40639cb3d9043db757aca6df5d4",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "87a86d54971ee43ff967c2c336a81d2bf1f38812",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "2eff613f924c7a8e20cdc3a946971bed919d23d6",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "1bce44401b878032729d865d164a1d7f18fcd81e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "6df22a8f205c27a6ede42cfc350dce6f927a3115",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ee7f094b2676963b20161f093ed5a9a01e0c018b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "f571139c646168cca3f2dac11f716014b54be25b",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "271e1d08ab93502136005dcf6c59bc6e9346d860",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "36354cba0c870adafc58e17cb91d9c18780a6ba7",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "9fc2ae80604aad33a4acbb1308523e9c35c5b2ff",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "1d466511691156082a428d0f180a9d7cd51c4767",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "87c58609ae8138122b81762f35757192006bdffb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "53d70771ee86ae6401bb22d5aed1998ab4218865",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "a2d1eb6c8bcb6334ec9df5a3f86481784109a705",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "8a0c746652e1e97b9e446711b631bfe26344f4f2",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "5751fd4ea029587feaf9174da816da080f281270",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "3add8ab2a81f971d0702fef810a94b78ed8df9c0",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "8e205cea10a3bb98712a5abcda8346f15bb77e89",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "1cfc6e5ef0acb3c73cce981f077bc8bd471e6bf7",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "9daab77b658d1039eeca3cfd5710b3a96476d3c6",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "7a56a972bb388abe70c6a6e35c91b16955e7e468",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "dcaa4b4a97250425f3ae7f8eee1166419eb401e3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "2cd0edcc2f538d1aa9ad1a810dd828515eac0a98",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "eb8d423212b35fcb2311bf8c8fb24fb980dd5e08",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "7fb6a5a2ad166cbac0ab43e3c1bb3dfdc1cdd255",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "27b17b62800d5d37e14bfe48ecd210603c4e1cb6",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "8a5d138c8b5b545440e1ebddaedbce03206050dc",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "bc1d3e2abe34b065b2b6ebe18819f921c6893776",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "bfa56ec17306ab709be3d492f02ac27150b4661a",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "30ebb7dd974049842ecac158c7d255aa32f6b12f",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "0b49f6522cd262f6e007534a43e780bd4805fc2e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "10d8577382a0e51090404f063012bf1eefb745a2",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "a15aa757cabda685b24902d54a309123686e8880",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "ce2f2df7ade74cafc0490620db07b29a6477eb60",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "2f94f8c5eab6ae3216b9dd0551a03624a88fd55c",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "a01bf1a78fa7636823fcd8a07736b1930e7eb8d4",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "808bfb09175084a90f1eb264fb18e72e9bda0f82",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d44002cf5f7d6997c3c75fc4b8a0ecc478157f8f",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d15c96565379d081800f1ca3c0646c968235fe0e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "e12d0f8fd1d63df1d1913fca677d6eba79a048ed",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "d0899cbdb1542dc58b047d8820e8c6e586955b4e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "5ed72165608070072c0f52884aa3213cf48eeb83",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "afbd68e06d91fd3e2a84cc0c1995d93454634bef",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "0daaa48367b0882c2ea628b1af20c1f753ce42b3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "df8c683e557a711562bc6cc61ac8504120825161",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "563c1db46c592a604ea53b95936ec82dd09732eb",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "bae2b2d8fc248656a182a8b5d725fe38d9857be9",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "b1c035681d6f2a9aaee3fcb5ccb3dc1fcd396846",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "08d9d3918d9efeb0b46b5ce13690027834cdd64e",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "a89e5e294fcbcbb1f55cf906dc41bea22647e943",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "3931fe772f4c077c8e232a3adb6c9f70faa90546",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "05475009a972d48368caef2f92de0799274f365a",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "4c9ac42cddcff2c975dc3d069b6b6916e636d072",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "381bc44f83e428aead915d55bb56d24d00a90694",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "37a9f75b0abc770afda63780d5f1d6b8205503e3",
+      "classification": "HISTORICAL_OBSERVATION"
+    },
+    {
+      "commit": "691d66cacd92485c5dfab7fa2bea69409b1748c8",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "001396a2917d3f56194a1382c478f9c1ccff970e",
+      "classification": "COVERED"
+    },
+    {
+      "commit": "434e643313d0f250d17979a0a61341e719638d93",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "a46bb60eb883df058c0e9962a7a6666c2b3cbea4",
+      "classification": "COVERED"
+    },
+    {
+      "commit": "0566390d59d0abcd9133fd04aa3443642f185b24",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "05bd7d095699fa652c29fef1e4e1220e28599cf0",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "cd24a744e33c611c55e8467403f2358053199dd7",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "2965a3bde04d5c2f63fc8240e297a964ec0e5b25",
+      "classification": "COVERED"
+    },
+    {
+      "commit": "c30d17a1b8a14801c793f54eefa0ea497a370a60",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "bd2237bcccadea3a1af86c080b7e16028a8b7c02",
+      "classification": "COVERED"
+    },
+    {
+      "commit": "10de67a0bd5d2deb6abe510d2f53ec2d92025f5e",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "b902130701bc5d784506a4044cb2880e0a86320a",
+      "classification": "UNCOVERED"
+    },
+    {
+      "commit": "886e81d15e1e445aaac0dd53f8daf9bbc08f54a9",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "41fa8e5fcc0ef8f059e3da19b5bd813f13d69d70",
+      "classification": "COVERED"
+    },
+    {
+      "commit": "86aa13b98c0d5738ab7008230144f080690c9177",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "b98fa2046381c58b7d783570396644243451bafa",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "63ce34ccb1233612656a3147c5abf86b91a56492",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "dd174d25d120902aa30847662ee2d83cbbcbcee7",
+      "classification": "COVERED"
+    },
+    {
+      "commit": "870d7abbe498c3ff0d679407d0ff575f52271826",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "aa909750d9d20bbe464bcc73dec730d6aa20e368",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "0fd89d99fac3cf027880dfe2b13b0140a2a0b4fd",
+      "classification": "COVERED"
+    },
+    {
+      "commit": "e2a705d4baac2af173a17a2eb4f8d889ff999c68",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "7c6e34c567f8b4b2b1ead977f5e197a8e09c71bb",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "4a751e515afad1268750abdb60feed4314cdf519",
+      "classification": "COVERED"
+    },
+    {
+      "commit": "85fad3782a3b3deb58835757cbd7642471aab10b",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "4ef95fa0f537f382e4850cd35a770a6786006a4f",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "484bc8c7501a45d1fa408dbd548125a5ebec6856",
+      "classification": "GOVERNANCE_ACT"
+    },
+    {
+      "commit": "05b0f80ce2ff64c38cd1edc28a40f2de799cfe43",
+      "classification": "COVERED"
+    },
+    {
+      "commit": "71655312a21901972a569406997389293304e4ed",
+      "classification": "UNCOVERED"
+    },
+    {
+      "commit": "9d009cca0eca39585557b6f0e0c299dd2e32afdc",
+      "classification": "GOVERNANCE_ACT"
+    }
+  ]
+}
