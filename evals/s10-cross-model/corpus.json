@@ -1,0 +1,2921 @@
+{
+  "corpus_id": "s10-cross-model-comparison-r1",
+  "kind": "s10-cross-model-comparison",
+  "description": "Independent case corpus for the S10 cross-model comparison engine. Each case fixes its expected verdict, reason, preference and exclusions BEFORE the engine runs; the runner checks the engine against these expectations. The ten case classes ordered-1..ordered-10 are the owner-ordered classes of the S10 run instruction; the supplementary cases cover the remaining rule branches (full and pure-quality dominance, unqualified-only fields, adapter-boundary refusal, missing S9 evidence).",
+  "limits": [
+    "Labels and expectations are constructed, not owner-reviewed; they fix what the engine must do, not what any real executor did.",
+    "All measurements are synthetic offline replay/fixture evidence; no provider was called, no credentials exist in this corpus, and the live_provider class is never exercised.",
+    "The corpus uses synthetic executor, provider and model identities; no statement about any real model or provider is derivable from it.",
+    "Instruction overhead numbers are constructed to exercise the derived-ratio invariant, not measured tokenizations.",
+    "A CANDIDATE_PREFERRED verdict in this corpus adopts nothing: it is a measured statement over synthetic material."
+  ],
+  "cases": [
+    {
+      "case_id": "xmc_case01_same_quality_different_cost",
+      "case_class": "ordered-1-same-quality-different-cost",
+      "expectation": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "COST_DOMINANCE",
+        "preferred_candidate_id": "cand_b",
+        "excluded": [],
+        "construction": "Both candidates pass every gate with identical quality (0.90); cand_b is strictly cheaper on cost units, total tokens and tail latency, so it dominates on the cost dimensions alone — a cost preference between sufficiently qualified, regression-free candidates."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1050.0,
+                "p95": 2100.0
+              },
+              "tokens": {
+                "input": 70000.0,
+                "output": 8000.0,
+                "total": 78000.0,
+                "cost_units": 96.4
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 15000.0,
+                "task_tokens": 55000.0,
+                "overhead_ratio": 0.21428571428571427
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case01_same_quality_different_cost"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case02_cheaper_but_worse",
+      "case_class": "ordered-2-lower-cost-worse-quality",
+      "expectation": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "PARETO_NONDOMINANCE",
+        "preferred_candidate_id": null,
+        "excluded": [],
+        "construction": "cand_b is cheaper and faster but measures a lower task success rate (0.85 vs 0.92); neither candidate dominates and the record invents no weighting — quality/cost trade-offs stay INCOMPARABLE."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.92
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.85
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1050.0,
+                "p95": 2100.0
+              },
+              "tokens": {
+                "input": 70000.0,
+                "output": 8000.0,
+                "total": 78000.0,
+                "cost_units": 96.4
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 15000.0,
+                "task_tokens": 55000.0,
+                "overhead_ratio": 0.21428571428571427
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case02_cheaper_but_worse"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case03_security_regression_despite_gain",
+      "case_class": "ordered-3-security-regression-despite-gain",
+      "expectation": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "NO_WINNER_CAPABLE_CANDIDATE",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "SECURITY_REGRESSION"
+          }
+        ],
+        "construction": "cand_b dominates cand_a on every measured dimension (quality 0.95, half the cost, faster tail latency) AND carries a security regression count of 2. Security is absolute: b is excluded, its gains compensate nothing, and a alone is not a comparison result."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.95
+              },
+              "security": {
+                "regression_count": 2
+              },
+              "latency_ms": {
+                "p50": 800.0,
+                "p95": 1500.0
+              },
+              "tokens": {
+                "input": 45000.0,
+                "output": 6000.0,
+                "total": 51000.0,
+                "cost_units": 60.2
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 9000.0,
+                "task_tokens": 36000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case03_security_regression_despite_gain"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case04_incompatible_capability",
+      "case_class": "ordered-4-incompatible-capability",
+      "expectation": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "CAPABILITY_INCOMPATIBLE",
+        "preferred_candidate_id": null,
+        "excluded": [],
+        "construction": "cand_b lacks the structured-output capability the task set requires; a different capability class is a different task class, so the field is incomparable rather than one candidate worse."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": false,
+              "missing": [
+                "cap_structured_output"
+              ]
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case04_incompatible_capability"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case05_qualification_evidence_missing",
+      "case_class": "ordered-5-missing-qualification",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "QUALIFICATION_EVIDENCE_MISSING",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING"
+          }
+        ],
+        "construction": "Neither candidate carries a qualification state beyond UNKNOWN or any qualification evidence; there is nothing qualified to optimize between, and missing evidence fails closed instead of comparing the unproven."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_x",
+              "state": "UNKNOWN",
+              "fingerprint_ref": "fp_s10_cand_x",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": []
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_x",
+              "state": "UNKNOWN",
+              "fingerprint_ref": "fp_s10_cand_x",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": []
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case05_qualification_evidence_missing"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case06_corpus_mismatch",
+      "case_class": "ordered-6-corpus-or-contract-mismatch",
+      "expectation": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "CORPUS_MISMATCH",
+        "preferred_candidate_id": null,
+        "excluded": [],
+        "construction": "cand_b was measured against a different corpus revision (digest differs); candidates measured against different material are never silently normalized into one comparison."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:2627efbeb8f383644dbe3470ed8e7b1585cca04b31b216d6c9162664e579ac5e",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case06_corpus_mismatch"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case06b_success_contract_mismatch",
+      "case_class": "ordered-6-corpus-or-contract-mismatch",
+      "expectation": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "SUCCESS_CONTRACT_MISMATCH",
+        "preferred_candidate_id": null,
+        "excluded": [],
+        "construction": "cand_b was measured against a different success contract; identical-looking numbers over different success definitions are not comparable."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:3796ac440a23246110b68dfac14baa429fbade57555d7e5f64c4e120064357d3",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case06b_success_contract_mismatch"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case06c_evidence_class_mismatch",
+      "case_class": "ordered-6-corpus-or-contract-mismatch",
+      "expectation": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "EVIDENCE_CLASS_MISMATCH",
+        "preferred_candidate_id": null,
+        "excluded": [],
+        "construction": "cand_b was measured under the fixture_replay class while the declared basis is offline_replay; measurements of different evidence classes do not mix into one record."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "fixture_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case06c_evidence_class_mismatch"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case07_unstable_repetitions",
+      "case_class": "ordered-7-unstable-repeated-results",
+      "expectation": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "UNSTABLE_RESULTS",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "UNSTABLE"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "UNSTABLE"
+          }
+        ],
+        "construction": "Both candidates report repeated runs that disagreed (quality spread across runs); the evidence exists but cannot support a preference, which is INCOMPARABLE, not missing. The stability gate excludes both candidates before the field-level INCOMPARABLE is declared; the exclusions are part of the record."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": false,
+              "spread": "task_success_rate 0.62..0.94 across 3 runs"
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1050.0,
+                "p95": 2100.0
+              },
+              "tokens": {
+                "input": 70000.0,
+                "output": 8000.0,
+                "total": 78000.0,
+                "cost_units": 96.4
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 15000.0,
+                "task_tokens": 55000.0,
+                "overhead_ratio": 0.21428571428571427
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": false,
+              "spread": "task_success_rate 0.58..0.90 across 3 runs"
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case07_unstable_repetitions"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case08_provider_failure",
+      "case_class": "ordered-8-provider-executor-failure",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "PROVIDER_EXECUTION_FAILURE",
+        "preferred_candidate_id": null,
+        "excluded": [],
+        "construction": "cand_b's measured runs failed with a provider outage; a failed execution is missing evidence for the whole comparison, so the record blocks instead of preferring the survivor on incomplete material."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "FAILED",
+              "failure_class": "provider_outage"
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case08_provider_failure"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case09_missing_token_evidence",
+      "case_class": "ordered-9-missing-token-or-latency-evidence",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "TOKEN_EVIDENCE_MISSING",
+        "preferred_candidate_id": null,
+        "excluded": [],
+        "construction": "cand_b carries no token totals and no cost units; the comparison metrics it would be preferred on are exactly the ones missing, and missing evidence fails closed."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 70000.0,
+                "output": 8000.0,
+                "total": null,
+                "cost_units": null
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case09_missing_token_evidence"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case10_s9_regression_failed",
+      "case_class": "ordered-10-s9-regression-failed",
+      "expectation": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "COST_DOMINANCE",
+        "preferred_candidate_id": "cand_c",
+        "excluded": [
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "REGRESSION_DETECTED"
+          }
+        ],
+        "construction": "cand_b's S9 comparison detected a regression (rgr_s10_cand_b=REGRESSION_DETECTED) even though its metrics dominate; it is excluded at the regression gate. cand_c, regression-free and cheaper than cand_a at equal quality, is preferred — optimization happens only among regression-free candidates."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "REGRESSION_DETECTED"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.95
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 800.0,
+                "p95": 1500.0
+              },
+              "tokens": {
+                "input": 45000.0,
+                "output": 6000.0,
+                "total": 51000.0,
+                "cost_units": 60.2
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 9000.0,
+                "task_tokens": 36000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_c",
+            "executor_id": "exec_codex",
+            "executor_version": "3.0.2",
+            "provider_id": "codex",
+            "model_id": "model-z-flash",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_c-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_c",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_c",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_c-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_c",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1000.0,
+                "p95": 2050.0
+              },
+              "tokens": {
+                "input": 74000.0,
+                "output": 8000.0,
+                "total": 82000.0,
+                "cost_units": 100.0
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 16000.0,
+                "task_tokens": 58000.0,
+                "overhead_ratio": 0.21621621621621623
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case10_s9_regression_failed"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case11_full_dominance",
+      "case_class": "supplementary-full-dominance",
+      "expectation": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "FULL_DOMINANCE",
+        "preferred_candidate_id": "cand_a",
+        "excluded": [],
+        "construction": "cand_a is strictly better in quality AND strictly cheaper and faster; the preference reason is full dominance."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.95
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 900.0,
+                "p95": 1800.0
+              },
+              "tokens": {
+                "input": 60000.0,
+                "output": 7000.0,
+                "total": 67000.0,
+                "cost_units": 84.0
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 12000.0,
+                "task_tokens": 48000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case11_full_dominance"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case12_unqualified_states_only",
+      "case_class": "supplementary-unqualified-never-wins",
+      "expectation": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "NO_WINNER_CAPABLE_CANDIDATE",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "NOT_QUALIFIED"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "NOT_QUALIFIED"
+          }
+        ],
+        "construction": "Both candidates carry qualification evidence but sit in DISQUALIFIED / QUALIFICATION_PENDING states; an unqualified executor never receives winner status, and with no winner-capable candidate there is no comparison result."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_x",
+              "state": "DISQUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_x",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-revoked-a"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_x",
+              "state": "QUALIFICATION_PENDING",
+              "fingerprint_ref": "fp_s10_cand_x",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-pending-b"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case12_unqualified_states_only"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case13_adapter_boundary_violation",
+      "case_class": "supplementary-adapter-boundary",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "OPTIMIZATION_BOUNDARY_VIOLATION",
+        "preferred_candidate_id": null,
+        "excluded": [],
+        "construction": "The declared optimization targets model-specific prompt shaping without binding it to an adapter boundary; model-specific optimization must stay at adapter boundaries, so the whole comparison refuses."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "optimization_boundaries": [
+          {
+            "scope": "MODEL",
+            "model_specific": true,
+            "adapter_bound": false,
+            "detail": "model-specific prompt tuning applied inside the shared core instead of at the executor adapter"
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case13_adapter_boundary_violation"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case14_quality_dominance",
+      "case_class": "supplementary-quality-dominance",
+      "expectation": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "QUALITY_DOMINANCE",
+        "preferred_candidate_id": "cand_a",
+        "excluded": [],
+        "construction": "cand_a measures a strictly higher success rate at byte-identical cost and latency; the preference reason is quality dominance alone."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.95
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case14_quality_dominance"
+        ]
+      }
+    },
+    {
+      "case_id": "xmc_case15_missing_regression_evidence",
+      "case_class": "supplementary-regression-evidence-missing",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "REGRESSION_EVIDENCE_MISSING",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "REGRESSION_EVIDENCE_MISSING"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "REGRESSION_EVIDENCE_MISSING"
+          }
+        ],
+        "construction": "Neither candidate carries an S9 regression verdict at all; absence of a regression record is not cleanliness, and optimization without regression evidence is out of scope."
+      },
+      "input": {
+        "basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": null,
+              "verdict": null
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": null,
+              "verdict": null
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200.0,
+                "p95": 2400.0
+              },
+              "tokens": {
+                "input": 90000.0,
+                "output": 8000.0,
+                "total": 98000.0,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000.0,
+                "task_tokens": 72000.0,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "evidence_refs": [
+          "corpus:xmc_case15_missing_regression_evidence"
+        ]
+      }
+    }
+  ]
+}

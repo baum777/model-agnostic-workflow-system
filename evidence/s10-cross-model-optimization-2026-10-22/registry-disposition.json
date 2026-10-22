@@ -1,0 +1,52 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "Scope is the S10 implementation slice of the MAWS-SII development lane: the qualification-bound cross-model comparison contract and engine with typed INCOMPARABLE/BLOCKED refusals, the absolute security exclusion, the integrated S9 regression gate, the instruction-overhead measurement field, the derived provider/harness difference classification, the adapter-boundary rule for model-specific optimizations, the independent 17-case corpus with its runner and validator, the contract fixtures, the test suite, the specification section, the changelog and the workflow wiring. material_change is true: durable repository artifacts changed (a new canonical contract under core/contracts/, a new runtime module, two new tools, the independent case corpus, a new contract fixture family, the test suite, the specification section, the changelog and the workflow). registry_relevant_change is true because the slice creates one canonical contract under core/contracts/ - core/contracts/cross-model-comparison.schema.json - whose CONTRACT_RECORD projection the Registry must carry, and because the run itself requires a change registration. The status is REQUIRED_BUT_BLOCKED at the evidence commit by sequencing, not by obstacle: the Registry is a read-only projection over owner-repository truth, so the CONTRACT_RECORD binds the observed owner merge state and the registry write can only follow the owner merge. The rebind commit on the lane binds registry_commit_sha and flips the status to UPDATED once the registration is merged and observed. No part of the registration is skipped or postponed as cleanup: owner merge, Registry projection, Atlas representation and cross-surface verification form one change set.",
+    "registry_baseline_sha": "4b2cd187a7aa9e9d642d1512cbe05c017acdf008",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/cross-model-comparison.schema.json"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/maws-vnext-owner-decisions.md",
+      "docs/proposals/skill-intelligence-target-spec.md"
+    ],
+    "source_refs": [
+      "core/contracts/cross-model-comparison.schema.json",
+      "runtime/optimization/cross-model-comparison.mjs",
+      "scripts/tools/validate-cross-model-comparison.mjs",
+      "scripts/tools/run-cross-model-eval.mjs",
+      "evals/s10-cross-model/corpus.json",
+      "evals/fixtures/maws-vnext/cross-model-comparison.contracts.json",
+      "tests/vnext/cross-model-eval.test.mjs"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/s10-cross-model-optimization-2026-10-22/RUN.md",
+      "evidence/s10-cross-model-optimization-2026-10-22/run-record.json"
+    ],
+    "evidence_refs": [
+      "evidence/s10-cross-model-optimization-2026-10-22/RUN.md",
+      "evidence/s10-cross-model-optimization-2026-10-22/run-record.json",
+      "npm run test:vnext",
+      "npm run validate",
+      "npm run validate-maws-vnext",
+      "npm run validate-cross-model-comparison",
+      "npm run eval:cross-model"
+    ],
+    "implementation_commit_sha": "8f69d155b0b280efbb802775efda25f2f521e62c",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/s10-cross-model-optimization-2026-10-22/registry-disposition.json",
+      "node scripts/tools/validate-assurance-run-record.mjs evidence/s10-cross-model-optimization-2026-10-22/run-record.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/cross-model-comparison.schema.json",
+      "evidence/s10-cross-model-optimization-2026-10-22/run-record.json"
+    ]
+  }
+}

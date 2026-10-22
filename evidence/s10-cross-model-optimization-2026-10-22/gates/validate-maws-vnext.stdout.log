@@ -1,0 +1,63 @@
+{
+  "ok": true,
+  "root": "/home/baum/workspace/.unitera-s10/capture-clone",
+  "sections": [
+    {
+      "section": "contract-fixtures",
+      "fixtures": 28,
+      "cases": 299,
+      "issues": []
+    },
+    {
+      "section": "od-coverage",
+      "covered": [
+        "HO01-R1",
+        "HO01-R2",
+        "HO01-R3",
+        "OD-01",
+        "OD-02",
+        "OD-03",
+        "OD-04",
+        "OD-05",
+        "OD-06",
+        "OD-07",
+        "OD-08",
+        "OD-09",
+        "OD-10",
+        "OD-11",
+        "OD-12",
+        "OD-13",
+        "OD-14",
+        "OD-15",
+        "OD-16",
+        "OD-17",
+        "OD-18",
+        "S11-R1",
+        "S11-R2",
+        "S11-R3",
+        "S11-R5",
+        "S11-R6",
+        "S12-R1",
+        "S12-R2",
+        "S12-R3",
+        "S12-R4",
+        "S12-R6",
+        "S12-R7",
+        "S12-R8",
+        "S13",
+        "S7",
+        "S8"
+      ],
+      "issues": []
+    },
+    {
+      "section": "od-protection",
+      "issues": []
+    },
+    {
+      "section": "maturity-drift",
+      "issues": []
+    }
+  ],
+  "issues": []
+}

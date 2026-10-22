@@ -1,0 +1,2295 @@
+{
+  "id": "maws-vnext-cross-model-comparison-contracts",
+  "kind": "maws-vnext",
+  "target": {
+    "name": "cross-model-comparison"
+  },
+  "blocking": true,
+  "description": "Schema-decidable cases for the cross-model comparison contract (S10). The semantic invariants the minimal JSON schema engine cannot express (verdict/reason consistency, winner-capability of the preferred candidate, the absolute security exclusion, re-derived comparability flags, the supported instruction-overhead ratio, the authority-free posture, the live-evidence authorization rule, the closed gate sequence, the adapter-boundary rule) are enforced by semanticComparisonIssues in scripts/tools/validate-cross-model-comparison.mjs and covered in tests/vnext/cross-model-eval.test.mjs. Valid cases are honest engine outputs across all three verdict classes; invalid cases are tampered variants, each failing for a named reason. Each case names the contract schema for the generic fixture validator; the S10-specific fail-closed semantics are enforced by scripts/tools/validate-cross-model-comparison.mjs. Only schema-decidable negative cases live in this shared file; the fail-closed semantic invariants (winner capability, dominance, the absolute security exclusion, comparability flags, the overhead ratio, the gate sequence, the adapter boundary) are exercised as tamper cases in tests/vnext/cross-model-eval.test.mjs and by scripts/tools/validate-cross-model-comparison.mjs.",
+  "cases": [
+    {
+      "case_id": "xmcfx_valid_01-same-quality-different-cost",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_3410568d2c26c9de",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1050,
+                "p95": 2100
+              },
+              "tokens": {
+                "input": 70000,
+                "output": 8000,
+                "total": 78000,
+                "cost_units": 96.4
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 15000,
+                "task_tokens": 55000,
+                "overhead_ratio": 0.21428571428571427
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "PASS",
+            "detail": "no declared optimization boundaries"
+          },
+          {
+            "gate": "EVIDENCE_COMPLETENESS_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate completed its runs and carries quality, token and tail-latency measurements"
+          },
+          {
+            "gate": "COMPARABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates measured against ts_s10_cross_model_r1 (sha256:0ce94370e…) under success contract sc_s10_shared_success_v1, evidence class offline_replay"
+          },
+          {
+            "gate": "CAPABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries the capabilities the task set requires"
+          },
+          {
+            "gate": "QUALIFICATION_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates qualified with carried evidence: cand_a, cand_b"
+          },
+          {
+            "gate": "REGRESSION_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries an S9 NO_REGRESSION verdict: rgr_s10_cand_a, rgr_s10_cand_b"
+          },
+          {
+            "gate": "SECURITY_ABSOLUTE_GATE",
+            "outcome": "PASS",
+            "detail": "no security regression on any measured candidate: cand_a, cand_b"
+          },
+          {
+            "gate": "STABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "stable repeated measurements across the field: cand_a, cand_b"
+          },
+          {
+            "gate": "PARETO_GATE",
+            "outcome": "PASS",
+            "detail": "cand_b dominates cand_a on the measured quality/token/latency dimensions (COST_DOMINANCE)"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "MODEL",
+            "detail": "distinct models: cand_a=model-x-large, cand_b=model-y-pro"
+          },
+          {
+            "dimension": "PROVIDER",
+            "detail": "distinct providers: cand_a=openrouter, cand_b=zcode-router"
+          },
+          {
+            "dimension": "EXECUTOR",
+            "detail": "distinct executors: cand_a=exec_openrouter@1.4.0, cand_b=exec_zcode_router@2.1.0"
+          }
+        ],
+        "optimization_boundaries": [],
+        "excluded_candidates": [],
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "COST_DOMINANCE",
+        "outcome_detail": "cand_b dominates cand_a on the same task set, corpus and success contract (cost_dominance); this preference is a measured statement — it adopts nothing, reroutes nothing and grants no authority",
+        "preferred_candidate_id": "cand_b",
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case01_same_quality_different_cost"
+        ]
+      }
+    },
+    {
+      "case_id": "xmcfx_valid_02-cheaper-but-worse",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_bae58105885d3c95",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.92
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.85
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1050,
+                "p95": 2100
+              },
+              "tokens": {
+                "input": 70000,
+                "output": 8000,
+                "total": 78000,
+                "cost_units": 96.4
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 15000,
+                "task_tokens": 55000,
+                "overhead_ratio": 0.21428571428571427
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "PASS",
+            "detail": "no declared optimization boundaries"
+          },
+          {
+            "gate": "EVIDENCE_COMPLETENESS_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate completed its runs and carries quality, token and tail-latency measurements"
+          },
+          {
+            "gate": "COMPARABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates measured against ts_s10_cross_model_r1 (sha256:0ce94370e…) under success contract sc_s10_shared_success_v1, evidence class offline_replay"
+          },
+          {
+            "gate": "CAPABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries the capabilities the task set requires"
+          },
+          {
+            "gate": "QUALIFICATION_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates qualified with carried evidence: cand_a, cand_b"
+          },
+          {
+            "gate": "REGRESSION_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries an S9 NO_REGRESSION verdict: rgr_s10_cand_a, rgr_s10_cand_b"
+          },
+          {
+            "gate": "SECURITY_ABSOLUTE_GATE",
+            "outcome": "PASS",
+            "detail": "no security regression on any measured candidate: cand_a, cand_b"
+          },
+          {
+            "gate": "STABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "stable repeated measurements across the field: cand_a, cand_b"
+          },
+          {
+            "gate": "PARETO_GATE",
+            "outcome": "INCOMPARABLE",
+            "detail": "no winner-capable candidate dominates every other (cand_a vs cand_b); quality, cost and latency trade off without a declared weighting, and the record does not invent one"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "MODEL",
+            "detail": "distinct models: cand_a=model-x-large, cand_b=model-y-pro"
+          },
+          {
+            "dimension": "PROVIDER",
+            "detail": "distinct providers: cand_a=openrouter, cand_b=zcode-router"
+          },
+          {
+            "dimension": "EXECUTOR",
+            "detail": "distinct executors: cand_a=exec_openrouter@1.4.0, cand_b=exec_zcode_router@2.1.0"
+          }
+        ],
+        "optimization_boundaries": [],
+        "excluded_candidates": [],
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "PARETO_NONDOMINANCE",
+        "outcome_detail": "no winner-capable candidate dominates every other (cand_a vs cand_b); quality, cost and latency trade off without a declared weighting, and the record does not invent one",
+        "preferred_candidate_id": null,
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case02_cheaper_but_worse"
+        ]
+      }
+    },
+    {
+      "case_id": "xmcfx_valid_05-qualification-evidence-missing",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_e8fb1610182effba",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_x",
+              "state": "UNKNOWN",
+              "fingerprint_ref": "fp_s10_cand_x",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": []
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_x",
+              "state": "UNKNOWN",
+              "fingerprint_ref": "fp_s10_cand_x",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": []
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "PASS",
+            "detail": "no declared optimization boundaries"
+          },
+          {
+            "gate": "EVIDENCE_COMPLETENESS_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate completed its runs and carries quality, token and tail-latency measurements"
+          },
+          {
+            "gate": "COMPARABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates measured against ts_s10_cross_model_r1 (sha256:0ce94370e…) under success contract sc_s10_shared_success_v1, evidence class offline_replay"
+          },
+          {
+            "gate": "CAPABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries the capabilities the task set requires"
+          },
+          {
+            "gate": "QUALIFICATION_GATE",
+            "outcome": "BLOCKED",
+            "detail": "every candidate lacks qualification evidence (state UNKNOWN or QUALIFIED without carried evidence); cost or quality optimization between unproven executors is out of scope"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "NONE",
+            "detail": "empty candidate field; no difference to classify"
+          }
+        ],
+        "optimization_boundaries": [],
+        "excluded_candidates": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING",
+            "detail": "qualification state UNKNOWN with no carried qualification evidence"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING",
+            "detail": "qualification state UNKNOWN with no carried qualification evidence"
+          }
+        ],
+        "verdict": "BLOCKED",
+        "outcome_reason": "QUALIFICATION_EVIDENCE_MISSING",
+        "outcome_detail": "every candidate lacks qualification evidence (state UNKNOWN or QUALIFIED without carried evidence); cost or quality optimization between unproven executors is out of scope",
+        "preferred_candidate_id": null,
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case05_qualification_evidence_missing"
+        ]
+      }
+    },
+    {
+      "case_id": "xmcfx_valid_08-provider-failure",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_2edb75c0d19e4604",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "FAILED",
+              "failure_class": "provider_outage"
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "PASS",
+            "detail": "no declared optimization boundaries"
+          },
+          {
+            "gate": "EVIDENCE_COMPLETENESS_GATE",
+            "outcome": "BLOCKED",
+            "detail": "candidate cand_b did not complete its measured runs (provider_outage); a failed execution is missing evidence for the whole comparison"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "MODEL",
+            "detail": "distinct models: cand_a=model-x-large, cand_b=model-y-pro"
+          },
+          {
+            "dimension": "PROVIDER",
+            "detail": "distinct providers: cand_a=openrouter, cand_b=zcode-router"
+          },
+          {
+            "dimension": "EXECUTOR",
+            "detail": "distinct executors: cand_a=exec_openrouter@1.4.0, cand_b=exec_zcode_router@2.1.0"
+          }
+        ],
+        "optimization_boundaries": [],
+        "excluded_candidates": [],
+        "verdict": "BLOCKED",
+        "outcome_reason": "PROVIDER_EXECUTION_FAILURE",
+        "outcome_detail": "candidate cand_b did not complete its measured runs (provider_outage); a failed execution is missing evidence for the whole comparison",
+        "preferred_candidate_id": null,
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case08_provider_failure"
+        ]
+      }
+    },
+    {
+      "case_id": "xmcfx_valid_11-full-dominance",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_76b309ad3cc84a5a",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.95
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 900,
+                "p95": 1800
+              },
+              "tokens": {
+                "input": 60000,
+                "output": 7000,
+                "total": 67000,
+                "cost_units": 84
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 12000,
+                "task_tokens": 48000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "PASS",
+            "detail": "no declared optimization boundaries"
+          },
+          {
+            "gate": "EVIDENCE_COMPLETENESS_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate completed its runs and carries quality, token and tail-latency measurements"
+          },
+          {
+            "gate": "COMPARABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates measured against ts_s10_cross_model_r1 (sha256:0ce94370e…) under success contract sc_s10_shared_success_v1, evidence class offline_replay"
+          },
+          {
+            "gate": "CAPABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries the capabilities the task set requires"
+          },
+          {
+            "gate": "QUALIFICATION_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates qualified with carried evidence: cand_a, cand_b"
+          },
+          {
+            "gate": "REGRESSION_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries an S9 NO_REGRESSION verdict: rgr_s10_cand_a, rgr_s10_cand_b"
+          },
+          {
+            "gate": "SECURITY_ABSOLUTE_GATE",
+            "outcome": "PASS",
+            "detail": "no security regression on any measured candidate: cand_a, cand_b"
+          },
+          {
+            "gate": "STABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "stable repeated measurements across the field: cand_a, cand_b"
+          },
+          {
+            "gate": "PARETO_GATE",
+            "outcome": "PASS",
+            "detail": "cand_a dominates cand_b on the measured quality/token/latency dimensions (FULL_DOMINANCE)"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "MODEL",
+            "detail": "distinct models: cand_a=model-x-large, cand_b=model-y-pro"
+          },
+          {
+            "dimension": "PROVIDER",
+            "detail": "distinct providers: cand_a=openrouter, cand_b=zcode-router"
+          },
+          {
+            "dimension": "EXECUTOR",
+            "detail": "distinct executors: cand_a=exec_openrouter@1.4.0, cand_b=exec_zcode_router@2.1.0"
+          }
+        ],
+        "optimization_boundaries": [],
+        "excluded_candidates": [],
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "FULL_DOMINANCE",
+        "outcome_detail": "cand_a dominates cand_b on the same task set, corpus and success contract (full_dominance); this preference is a measured statement — it adopts nothing, reroutes nothing and grants no authority",
+        "preferred_candidate_id": "cand_a",
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case11_full_dominance"
+        ]
+      }
+    },
+    {
+      "case_id": "xmcfx_valid_13-adapter-boundary-violation",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_b7f26dd5806adcfa",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "BLOCKED",
+            "detail": "model-specific optimization entries without an adapter boundary: model-specific prompt tuning applied inside the shared core instead of at the executor adapter — model-specific optimization stays at adapter boundaries (spec S10)"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "MODEL",
+            "detail": "distinct models: cand_a=model-x-large, cand_b=model-y-pro"
+          },
+          {
+            "dimension": "PROVIDER",
+            "detail": "distinct providers: cand_a=openrouter, cand_b=zcode-router"
+          },
+          {
+            "dimension": "EXECUTOR",
+            "detail": "distinct executors: cand_a=exec_openrouter@1.4.0, cand_b=exec_zcode_router@2.1.0"
+          }
+        ],
+        "optimization_boundaries": [
+          {
+            "scope": "MODEL",
+            "model_specific": true,
+            "adapter_bound": false,
+            "detail": "model-specific prompt tuning applied inside the shared core instead of at the executor adapter"
+          }
+        ],
+        "excluded_candidates": [],
+        "verdict": "BLOCKED",
+        "outcome_reason": "OPTIMIZATION_BOUNDARY_VIOLATION",
+        "outcome_detail": "model-specific optimization entries without an adapter boundary: model-specific prompt tuning applied inside the shared core instead of at the executor adapter — model-specific optimization stays at adapter boundaries (spec S10)",
+        "preferred_candidate_id": null,
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case13_adapter_boundary_violation"
+        ]
+      }
+    },
+    {
+      "case_id": "xmcfx-invalid-blocked-without-reason",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_e8fb1610182effba",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_x",
+              "state": "UNKNOWN",
+              "fingerprint_ref": "fp_s10_cand_x",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": []
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_x",
+              "state": "UNKNOWN",
+              "fingerprint_ref": "fp_s10_cand_x",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": []
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "PASS",
+            "detail": "no declared optimization boundaries"
+          },
+          {
+            "gate": "EVIDENCE_COMPLETENESS_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate completed its runs and carries quality, token and tail-latency measurements"
+          },
+          {
+            "gate": "COMPARABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates measured against ts_s10_cross_model_r1 (sha256:0ce94370e…) under success contract sc_s10_shared_success_v1, evidence class offline_replay"
+          },
+          {
+            "gate": "CAPABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries the capabilities the task set requires"
+          },
+          {
+            "gate": "QUALIFICATION_GATE",
+            "outcome": "BLOCKED",
+            "detail": "every candidate lacks qualification evidence (state UNKNOWN or QUALIFIED without carried evidence); cost or quality optimization between unproven executors is out of scope"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "NONE",
+            "detail": "empty candidate field; no difference to classify"
+          }
+        ],
+        "optimization_boundaries": [],
+        "excluded_candidates": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING",
+            "detail": "qualification state UNKNOWN with no carried qualification evidence"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING",
+            "detail": "qualification state UNKNOWN with no carried qualification evidence"
+          }
+        ],
+        "verdict": "BLOCKED",
+        "outcome_reason": null,
+        "outcome_detail": "every candidate lacks qualification evidence (state UNKNOWN or QUALIFIED without carried evidence); cost or quality optimization between unproven executors is out of scope",
+        "preferred_candidate_id": null,
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case05_qualification_evidence_missing"
+        ]
+      },
+      "expectation_note": "X2: BLOCKED needs a typed missing-evidence reason"
+    },
+    {
+      "case_id": "xmcfx-invalid-incomparable-with-preferred",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_bae58105885d3c95",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.92
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.85
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1050,
+                "p95": 2100
+              },
+              "tokens": {
+                "input": 70000,
+                "output": 8000,
+                "total": 78000,
+                "cost_units": 96.4
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 15000,
+                "task_tokens": 55000,
+                "overhead_ratio": 0.21428571428571427
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "PASS",
+            "detail": "no declared optimization boundaries"
+          },
+          {
+            "gate": "EVIDENCE_COMPLETENESS_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate completed its runs and carries quality, token and tail-latency measurements"
+          },
+          {
+            "gate": "COMPARABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates measured against ts_s10_cross_model_r1 (sha256:0ce94370e…) under success contract sc_s10_shared_success_v1, evidence class offline_replay"
+          },
+          {
+            "gate": "CAPABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries the capabilities the task set requires"
+          },
+          {
+            "gate": "QUALIFICATION_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates qualified with carried evidence: cand_a, cand_b"
+          },
+          {
+            "gate": "REGRESSION_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries an S9 NO_REGRESSION verdict: rgr_s10_cand_a, rgr_s10_cand_b"
+          },
+          {
+            "gate": "SECURITY_ABSOLUTE_GATE",
+            "outcome": "PASS",
+            "detail": "no security regression on any measured candidate: cand_a, cand_b"
+          },
+          {
+            "gate": "STABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "stable repeated measurements across the field: cand_a, cand_b"
+          },
+          {
+            "gate": "PARETO_GATE",
+            "outcome": "INCOMPARABLE",
+            "detail": "no winner-capable candidate dominates every other (cand_a vs cand_b); quality, cost and latency trade off without a declared weighting, and the record does not invent one"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "MODEL",
+            "detail": "distinct models: cand_a=model-x-large, cand_b=model-y-pro"
+          },
+          {
+            "dimension": "PROVIDER",
+            "detail": "distinct providers: cand_a=openrouter, cand_b=zcode-router"
+          },
+          {
+            "dimension": "EXECUTOR",
+            "detail": "distinct executors: cand_a=exec_openrouter@1.4.0, cand_b=exec_zcode_router@2.1.0"
+          }
+        ],
+        "optimization_boundaries": [],
+        "excluded_candidates": [],
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "PARETO_NONDOMINANCE",
+        "outcome_detail": "no winner-capable candidate dominates every other (cand_a vs cand_b); quality, cost and latency trade off without a declared weighting, and the record does not invent one",
+        "preferred_candidate_id": "cand_a",
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case02_cheaper_but_worse"
+        ]
+      },
+      "expectation_note": "X2: an INCOMPARABLE comparison names no preferred candidate"
+    },
+    {
+      "case_id": "xmcfx-invalid-live-without-authorization",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_3410568d2c26c9de",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "live_provider",
+          "live_authorization_ref": null,
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1050,
+                "p95": 2100
+              },
+              "tokens": {
+                "input": 70000,
+                "output": 8000,
+                "total": 78000,
+                "cost_units": 96.4
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 15000,
+                "task_tokens": 55000,
+                "overhead_ratio": 0.21428571428571427
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "PASS",
+            "detail": "no declared optimization boundaries"
+          },
+          {
+            "gate": "EVIDENCE_COMPLETENESS_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate completed its runs and carries quality, token and tail-latency measurements"
+          },
+          {
+            "gate": "COMPARABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates measured against ts_s10_cross_model_r1 (sha256:0ce94370e…) under success contract sc_s10_shared_success_v1, evidence class offline_replay"
+          },
+          {
+            "gate": "CAPABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries the capabilities the task set requires"
+          },
+          {
+            "gate": "QUALIFICATION_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates qualified with carried evidence: cand_a, cand_b"
+          },
+          {
+            "gate": "REGRESSION_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries an S9 NO_REGRESSION verdict: rgr_s10_cand_a, rgr_s10_cand_b"
+          },
+          {
+            "gate": "SECURITY_ABSOLUTE_GATE",
+            "outcome": "PASS",
+            "detail": "no security regression on any measured candidate: cand_a, cand_b"
+          },
+          {
+            "gate": "STABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "stable repeated measurements across the field: cand_a, cand_b"
+          },
+          {
+            "gate": "PARETO_GATE",
+            "outcome": "PASS",
+            "detail": "cand_b dominates cand_a on the measured quality/token/latency dimensions (COST_DOMINANCE)"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "MODEL",
+            "detail": "distinct models: cand_a=model-x-large, cand_b=model-y-pro"
+          },
+          {
+            "dimension": "PROVIDER",
+            "detail": "distinct providers: cand_a=openrouter, cand_b=zcode-router"
+          },
+          {
+            "dimension": "EXECUTOR",
+            "detail": "distinct executors: cand_a=exec_openrouter@1.4.0, cand_b=exec_zcode_router@2.1.0"
+          }
+        ],
+        "optimization_boundaries": [],
+        "excluded_candidates": [],
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "COST_DOMINANCE",
+        "outcome_detail": "cand_b dominates cand_a on the same task set, corpus and success contract (cost_dominance); this preference is a measured statement — it adopts nothing, reroutes nothing and grants no authority",
+        "preferred_candidate_id": "cand_b",
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case01_same_quality_different_cost"
+        ]
+      },
+      "expectation_note": "X8: live_provider evidence requires an owner budget/authorization reference"
+    },
+    {
+      "case_id": "xmcfx-invalid-offline-with-authorization",
+      "schema": "core/contracts/cross-model-comparison.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "comparison_id": "xmc_3410568d2c26c9de",
+        "created_at": "2026-10-22T10:00:00.000Z",
+        "evaluation_basis": {
+          "task_set_id": "ts_s10_cross_model_r1",
+          "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+          "success_contract_id": "sc_s10_shared_success_v1",
+          "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+          "evidence_class": "offline_replay",
+          "live_authorization_ref": "auth:owner-budget-2026-10-22",
+          "repetition": {
+            "runs_per_candidate": 3,
+            "aggregation": "median"
+          }
+        },
+        "candidates": [
+          {
+            "candidate_id": "cand_a",
+            "executor_id": "exec_openrouter",
+            "executor_version": "1.4.0",
+            "provider_id": "openrouter",
+            "model_id": "model-x-large",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_a-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_a",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_a",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_a-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_a",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1200,
+                "p95": 2400
+              },
+              "tokens": {
+                "input": 90000,
+                "output": 8000,
+                "total": 98000,
+                "cost_units": 120.5
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 18000,
+                "task_tokens": 72000,
+                "overhead_ratio": 0.2
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          },
+          {
+            "candidate_id": "cand_b",
+            "executor_id": "exec_zcode_router",
+            "executor_version": "2.1.0",
+            "provider_id": "zcode-router",
+            "model_id": "model-y-pro",
+            "harness_context_ref": "hctx_development",
+            "measured_basis": {
+              "task_set_id": "ts_s10_cross_model_r1",
+              "corpus_digest": "sha256:0ce94370e16dcb16762196d69e677a705a009a12e205e30ce571c479f7261e15",
+              "success_contract_id": "sc_s10_shared_success_v1",
+              "success_contract_digest": "sha256:efb1ca9bbedaea6ea8ead0d601a152767a8883923a5acedac3b2a1118bed2661",
+              "evidence_class": "offline_replay"
+            },
+            "capability": {
+              "compatible": true,
+              "missing": []
+            },
+            "capability_evidence_refs": [
+              "evidence:capability/s10-cand_b-2026-10-20"
+            ],
+            "qualification": {
+              "qualification_id": "qual_s10_cand_b",
+              "state": "QUALIFIED",
+              "fingerprint_ref": "fp_s10_cand_b",
+              "decided_at": "2026-10-20T08:00:00Z",
+              "qualification_evidence_refs": [
+                "evidence:qualification/s10-cand_b-2026-10-20"
+              ]
+            },
+            "regression": {
+              "regression_comparison_id": "rgr_s10_cand_b",
+              "verdict": "NO_REGRESSION"
+            },
+            "measurements": {
+              "quality": {
+                "task_success_rate": 0.9
+              },
+              "security": {
+                "regression_count": 0
+              },
+              "latency_ms": {
+                "p50": 1050,
+                "p95": 2100
+              },
+              "tokens": {
+                "input": 70000,
+                "output": 8000,
+                "total": 78000,
+                "cost_units": 96.4
+              },
+              "instruction_overhead": {
+                "instruction_tokens": 15000,
+                "task_tokens": 55000,
+                "overhead_ratio": 0.21428571428571427
+              }
+            },
+            "stability": {
+              "runs_reported": 3,
+              "stable": true,
+              "spread": null
+            },
+            "execution": {
+              "status": "COMPLETED",
+              "failure_class": null
+            }
+          }
+        ],
+        "applied_gates": [
+          {
+            "gate": "ADAPTER_BOUNDARY_GATE",
+            "outcome": "PASS",
+            "detail": "no declared optimization boundaries"
+          },
+          {
+            "gate": "EVIDENCE_COMPLETENESS_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate completed its runs and carries quality, token and tail-latency measurements"
+          },
+          {
+            "gate": "COMPARABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates measured against ts_s10_cross_model_r1 (sha256:0ce94370e…) under success contract sc_s10_shared_success_v1, evidence class offline_replay"
+          },
+          {
+            "gate": "CAPABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries the capabilities the task set requires"
+          },
+          {
+            "gate": "QUALIFICATION_GATE",
+            "outcome": "PASS",
+            "detail": "all candidates qualified with carried evidence: cand_a, cand_b"
+          },
+          {
+            "gate": "REGRESSION_GATE",
+            "outcome": "PASS",
+            "detail": "every candidate carries an S9 NO_REGRESSION verdict: rgr_s10_cand_a, rgr_s10_cand_b"
+          },
+          {
+            "gate": "SECURITY_ABSOLUTE_GATE",
+            "outcome": "PASS",
+            "detail": "no security regression on any measured candidate: cand_a, cand_b"
+          },
+          {
+            "gate": "STABILITY_GATE",
+            "outcome": "PASS",
+            "detail": "stable repeated measurements across the field: cand_a, cand_b"
+          },
+          {
+            "gate": "PARETO_GATE",
+            "outcome": "PASS",
+            "detail": "cand_b dominates cand_a on the measured quality/token/latency dimensions (COST_DOMINANCE)"
+          }
+        ],
+        "comparability": {
+          "same_task_set": true,
+          "same_corpus_digest": true,
+          "same_success_contract": true,
+          "same_evidence_class": true,
+          "capability_compatible": true
+        },
+        "difference_classification": [
+          {
+            "dimension": "MODEL",
+            "detail": "distinct models: cand_a=model-x-large, cand_b=model-y-pro"
+          },
+          {
+            "dimension": "PROVIDER",
+            "detail": "distinct providers: cand_a=openrouter, cand_b=zcode-router"
+          },
+          {
+            "dimension": "EXECUTOR",
+            "detail": "distinct executors: cand_a=exec_openrouter@1.4.0, cand_b=exec_zcode_router@2.1.0"
+          }
+        ],
+        "optimization_boundaries": [],
+        "excluded_candidates": [],
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "COST_DOMINANCE",
+        "outcome_detail": "cand_b dominates cand_a on the same task set, corpus and success contract (cost_dominance); this preference is a measured statement — it adopts nothing, reroutes nothing and grants no authority",
+        "preferred_candidate_id": "cand_b",
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "routing_changed": false,
+        "runtime_activation": "NONE",
+        "evidence_refs": [
+          "corpus:xmc_case01_same_quality_different_cost"
+        ]
+      },
+      "expectation_note": "X8: offline evidence classes carry no live authorization reference"
+    }
+  ]
+}

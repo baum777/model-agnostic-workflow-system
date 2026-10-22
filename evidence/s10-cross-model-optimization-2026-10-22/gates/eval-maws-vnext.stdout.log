@@ -1,0 +1,205 @@
+{
+  "ok": true,
+  "root": "/home/baum/workspace/.unitera-s10/capture-clone",
+  "suite": "provider-neutral-certification",
+  "total": 27,
+  "passed": 27,
+  "failed": 0,
+  "blockingFailures": 0,
+  "filters": {
+    "kinds": [
+      "maws-vnext"
+    ]
+  },
+  "results": [
+    {
+      "id": "maws-vnext-work-unit-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-capability-profile-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-executor-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-qualification-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-planning-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-revision-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-routing-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-completion-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-decision-engine-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-interaction-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-skill-feedback-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-skill-improvement-proposal-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-skill-selection-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-instruction-audit-finding-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-behavioral-eval-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-instruction-bundle-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-harness-context-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-benchmark-record-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-skill-promotion-adoption-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-executor-model-profile-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-owner-authority-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-evidence-admission-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-experiment-definition-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-experiment-comparison-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-regression-comparison-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-rollback-record-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    },
+    {
+      "id": "maws-vnext-cross-model-comparison-contracts",
+      "kind": "maws-vnext",
+      "blocking": true,
+      "passed": true,
+      "issues": []
+    }
+  ]
+}

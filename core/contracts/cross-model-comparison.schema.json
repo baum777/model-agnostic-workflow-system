@@ -1,0 +1,454 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "core/contracts/cross-model-comparison.schema.json",
+  "title": "CrossModelComparison Contract",
+  "description": "MAWS vNext slice S10 (MAWS-SII-TARGET-SPEC-001 v0.2.0, section 15 S10 - Cross-Model Optimization). A cross-model comparison is an EVALUATION RECORD over qualified executor candidates measured against one bound task set and one bound success contract under one declared evidence class. It is never authority: a preference names which measured candidate dominated which, grants no adoption, no capability, no routing change, no provider activation and no authority. Model switch, qualification and authority grant are three separate decisions that live in three separate contracts; this record is none of them. Missing evidence fails closed (BLOCKED with a typed reason); results whose bases do not match are INCOMPARABLE, never silently normalized; a candidate with a security regression or a failed S9 regression gate can never be preferred, regardless of quality, cost or latency gains; cost and token optimization happens only among candidates that passed the qualification and regression gates; a model-specific optimization entry is only legal at an adapter boundary.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "comparison_id",
+    "created_at",
+    "evaluation_basis",
+    "candidates",
+    "applied_gates",
+    "comparability",
+    "difference_classification",
+    "optimization_boundaries",
+    "excluded_candidates",
+    "verdict",
+    "outcome_reason",
+    "outcome_detail",
+    "preferred_candidate_id",
+    "adoption_authorized",
+    "authority_granted",
+    "routing_changed",
+    "runtime_activation",
+    "evidence_refs"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "comparison_id": {
+      "type": "string",
+      "pattern": "^xmc_[a-z0-9]+$",
+      "description": "Deterministic identity over the canonical JSON of the comparison inputs; re-derivable by scripts/tools/validate-cross-model-comparison.mjs."
+    },
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "evaluation_basis": { "$ref": "#/$defs/evaluationBasis" },
+    "candidates": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/candidate" }
+    },
+    "applied_gates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gateEntry" },
+      "description": "The deterministic gate sequence of runtime/optimization/cross-model-comparison.mjs, in its fixed order. A validator recomputes the sequence; a gate log that skips, reorders or invents gates is invalid."
+    },
+    "comparability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["same_task_set", "same_corpus_digest", "same_success_contract", "same_evidence_class", "capability_compatible"],
+      "properties": {
+        "same_task_set": { "type": "boolean" },
+        "same_corpus_digest": { "type": "boolean" },
+        "same_success_contract": { "type": "boolean" },
+        "same_evidence_class": { "type": "boolean" },
+        "capability_compatible": { "type": "boolean" }
+      }
+    },
+    "difference_classification": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/differenceEntry" },
+      "description": "Which dimensions actually differ across the compared field (spec S10 bullet 3): model, provider, executor, harness - or NONE when the field is uniform or empty. Derived, never asserted by the caller."
+    },
+    "optimization_boundaries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/boundaryEntry" },
+      "description": "Declared optimization targets of the comparison (spec S10 bullet 4). An entry that is model_specific must be adapter_bound: model-specific optimization stays at adapter boundaries. A violation fails the whole comparison closed."
+    },
+    "excluded_candidates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/exclusionEntry" },
+      "description": "Candidates removed from winner eligibility by a gate, with the typed reason. An excluded candidate can never be the preferred candidate."
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["CANDIDATE_PREFERRED", "INCOMPARABLE", "BLOCKED"]
+    },
+    "outcome_reason": {
+      "type": ["string", "null"],
+      "enum": [
+        null,
+        "FULL_DOMINANCE",
+        "QUALITY_DOMINANCE",
+        "COST_DOMINANCE",
+        "PARETO_NONDOMINANCE",
+        "CORPUS_MISMATCH",
+        "SUCCESS_CONTRACT_MISMATCH",
+        "EVIDENCE_CLASS_MISMATCH",
+        "CAPABILITY_INCOMPATIBLE",
+        "UNSTABLE_RESULTS",
+        "NO_WINNER_CAPABLE_CANDIDATE",
+        "PROVIDER_EXECUTION_FAILURE",
+        "TOKEN_EVIDENCE_MISSING",
+        "LATENCY_EVIDENCE_MISSING",
+        "QUALITY_EVIDENCE_MISSING",
+        "QUALIFICATION_EVIDENCE_MISSING",
+        "REGRESSION_EVIDENCE_MISSING",
+        "OPTIMIZATION_BOUNDARY_VIOLATION"
+      ]
+    },
+    "outcome_detail": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable, machine-comparable summary of why the verdict is what it is; names candidates, metrics and gates."
+    },
+    "preferred_candidate_id": {
+      "type": ["string", "null"],
+      "description": "Only set for verdict CANDIDATE_PREFERRED, and only naming a winner-capable candidate (qualified, regression-free, security-clean, stable, completed) that dominates every other winner-capable candidate."
+    },
+    "adoption_authorized": { "const": false },
+    "authority_granted": { "const": false },
+    "routing_changed": { "const": false },
+    "runtime_activation": { "const": "NONE" },
+    "evidence_refs": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "verdict": { "const": "BLOCKED" } }, "required": ["verdict"] },
+      "then": {
+        "properties": {
+          "outcome_reason": { "enum": ["PROVIDER_EXECUTION_FAILURE", "TOKEN_EVIDENCE_MISSING", "LATENCY_EVIDENCE_MISSING", "QUALITY_EVIDENCE_MISSING", "QUALIFICATION_EVIDENCE_MISSING", "REGRESSION_EVIDENCE_MISSING", "OPTIMIZATION_BOUNDARY_VIOLATION"] },
+          "preferred_candidate_id": { "type": "null" }
+        },
+        "required": ["outcome_reason", "preferred_candidate_id"]
+      }
+    },
+    {
+      "if": { "properties": { "verdict": { "const": "INCOMPARABLE" } }, "required": ["verdict"] },
+      "then": {
+        "properties": {
+          "outcome_reason": { "enum": ["PARETO_NONDOMINANCE", "CORPUS_MISMATCH", "SUCCESS_CONTRACT_MISMATCH", "EVIDENCE_CLASS_MISMATCH", "CAPABILITY_INCOMPATIBLE", "UNSTABLE_RESULTS", "NO_WINNER_CAPABLE_CANDIDATE"] },
+          "preferred_candidate_id": { "type": "null" }
+        },
+        "required": ["outcome_reason", "preferred_candidate_id"]
+      }
+    },
+    {
+      "if": { "properties": { "verdict": { "const": "CANDIDATE_PREFERRED" } }, "required": ["verdict"] },
+      "then": {
+        "properties": {
+          "outcome_reason": { "enum": ["FULL_DOMINANCE", "QUALITY_DOMINANCE", "COST_DOMINANCE"] },
+          "preferred_candidate_id": { "type": "string", "minLength": 1 }
+        },
+        "required": ["outcome_reason", "preferred_candidate_id"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "evaluation_basis": { "properties": { "evidence_class": { "const": "live_provider" } }, "required": ["evidence_class"] } },
+        "required": ["evaluation_basis"]
+      },
+      "then": {
+        "properties": { "evaluation_basis": { "properties": { "live_authorization_ref": { "type": "string", "minLength": 1 } }, "required": ["live_authorization_ref"] } }
+      },
+      "else": {
+        "properties": { "evaluation_basis": { "properties": { "live_authorization_ref": { "type": "null" } }, "required": ["live_authorization_ref"] } }
+      }
+    }
+  ],
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "dateTime": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "evidenceClass": { "enum": ["offline_replay", "fixture_replay", "live_provider"] },
+    "measuredBasis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_set_id", "corpus_digest", "success_contract_id", "success_contract_digest", "evidence_class"],
+      "properties": {
+        "task_set_id": { "type": "string", "minLength": 1 },
+        "corpus_digest": { "$ref": "#/$defs/digest" },
+        "success_contract_id": { "type": "string", "minLength": 1 },
+        "success_contract_digest": { "$ref": "#/$defs/digest" },
+        "evidence_class": { "$ref": "#/$defs/evidenceClass" }
+      }
+    },
+    "evaluationBasis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_set_id",
+        "corpus_digest",
+        "success_contract_id",
+        "success_contract_digest",
+        "evidence_class",
+        "live_authorization_ref",
+        "repetition"
+      ],
+      "properties": {
+        "task_set_id": { "type": "string", "minLength": 1 },
+        "corpus_digest": { "$ref": "#/$defs/digest" },
+        "success_contract_id": { "type": "string", "minLength": 1 },
+        "success_contract_digest": { "$ref": "#/$defs/digest" },
+        "evidence_class": { "$ref": "#/$defs/evidenceClass" },
+        "live_authorization_ref": {
+          "type": ["string", "null"],
+          "description": "Mandatory non-null reference to the owner budget/authorization record when evidence_class is live_provider; mandatory null for the offline classes, which carry their own fixture provenance instead."
+        },
+        "repetition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["runs_per_candidate", "aggregation"],
+          "properties": {
+            "runs_per_candidate": { "type": "integer", "minimum": 1 },
+            "aggregation": { "enum": ["median", "mean", "all_runs_reported"] }
+          }
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "executor_id",
+        "executor_version",
+        "provider_id",
+        "model_id",
+        "harness_context_ref",
+        "measured_basis",
+        "capability",
+        "capability_evidence_refs",
+        "qualification",
+        "regression",
+        "measurements",
+        "stability",
+        "execution"
+      ],
+      "properties": {
+        "candidate_id": { "type": "string", "minLength": 1 },
+        "executor_id": { "$ref": "maws-vnext-common.schema.json#/$defs/executorId" },
+        "executor_version": { "type": "string", "minLength": 1 },
+        "provider_id": { "type": "string", "minLength": 1 },
+        "model_id": { "type": "string", "minLength": 1 },
+        "harness_context_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The harness context binding of the measured run (the S11 contract surface); differing contexts are classified as a harness difference and never silently merged."
+        },
+        "measured_basis": {
+          "$ref": "#/$defs/measuredBasis",
+          "description": "What this candidate was ACTUALLY measured against. The comparison derives its comparability flags from these blocks against the declared evaluation basis; a candidate measured against anything else makes the record INCOMPARABLE, never quietly normalized."
+        },
+        "capability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["compatible", "missing"],
+          "properties": {
+            "compatible": { "type": "boolean" },
+            "missing": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "uniqueItems": true
+            }
+          }
+        },
+        "capability_evidence_refs": {
+          "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs",
+          "description": "Capability evidence is carried SEPARATELY from qualification evidence: what a candidate can do and whether an owner-qualified record says so are two different facts."
+        },
+        "qualification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["qualification_id", "state", "fingerprint_ref", "decided_at", "qualification_evidence_refs"],
+          "properties": {
+            "qualification_id": { "type": "string", "minLength": 1 },
+            "state": { "$ref": "maws-vnext-common.schema.json#/$defs/qualificationState" },
+            "fingerprint_ref": { "type": "string", "minLength": 1 },
+            "decided_at": { "$ref": "#/$defs/dateTime" },
+            "qualification_evidence_refs": { "$ref": "maws-vnext-common.schema.json#/$defs/stringRefs" }
+          }
+        },
+        "regression": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["regression_comparison_id", "verdict"],
+          "properties": {
+            "regression_comparison_id": {
+              "type": ["string", "null"],
+              "description": "Reference to the S9 regression comparison record (rgr_...) this candidate's measurement was gated by; null when no S9 comparison was performed."
+            },
+            "verdict": {
+              "type": ["string", "null"],
+              "enum": [null, "NO_REGRESSION", "REGRESSION_DETECTED", "BLOCKED"]
+            }
+          },
+          "description": "The S9 regression gate integration. NO_REGRESSION keeps the candidate winner-capable; REGRESSION_DETECTED excludes it; a null record or a BLOCKED comparison is missing evidence and excludes the candidate too (fail-closed, never silently treated as clean)."
+        },
+        "measurements": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["quality", "security", "latency_ms", "tokens", "instruction_overhead"],
+          "properties": {
+            "quality": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["task_success_rate"],
+              "properties": {
+                "task_success_rate": {
+                  "type": ["number", "null"],
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
+            },
+            "security": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["regression_count"],
+              "properties": {
+                "regression_count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "ABSOLUTE: any count > 0 excludes the candidate from winner status. No quality, cost or latency gain compensates a security regression."
+                }
+              }
+            },
+            "latency_ms": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["p50", "p95"],
+              "properties": {
+                "p50": { "type": ["number", "null"], "minimum": 0 },
+                "p95": { "type": ["number", "null"], "minimum": 0 }
+              }
+            },
+            "tokens": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["input", "output", "total", "cost_units"],
+              "properties": {
+                "input": { "type": ["number", "null"], "minimum": 0 },
+                "output": { "type": ["number", "null"], "minimum": 0 },
+                "total": { "type": ["number", "null"], "minimum": 0 },
+                "cost_units": { "type": ["number", "null"], "minimum": 0 }
+              }
+            },
+            "instruction_overhead": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["instruction_tokens", "task_tokens", "overhead_ratio"],
+              "properties": {
+                "instruction_tokens": { "type": ["number", "null"], "minimum": 0 },
+                "task_tokens": { "type": ["number", "null"], "minimum": 0 },
+                "overhead_ratio": {
+                  "type": ["number", "null"],
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "Derived: instruction_tokens / (instruction_tokens + task_tokens), 0 when nothing was measured. The validator recomputes it; an asserted ratio that the components do not support is invalid."
+                }
+              },
+              "description": "Spec S10 bullet 2: the instruction overhead of THIS model on THIS task set - how much of the measured input is instruction material rather than task material."
+            }
+          }
+        },
+        "stability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["runs_reported", "stable", "spread"],
+          "properties": {
+            "runs_reported": { "type": "integer", "minimum": 1 },
+            "stable": { "type": "boolean" },
+            "spread": {
+              "type": ["string", "null"],
+              "description": "How the repeated runs disagreed, when they did."
+            }
+          }
+        },
+        "execution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "failure_class"],
+          "properties": {
+            "status": { "enum": ["COMPLETED", "FAILED"] },
+            "failure_class": {
+              "type": ["string", "null"],
+              "description": "Typed failure class when status is FAILED (provider outage, executor crash, timeout); null when COMPLETED."
+            }
+          }
+        }
+      }
+    },
+    "gateEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate", "outcome", "detail"],
+      "properties": {
+        "gate": {
+          "enum": [
+            "ADAPTER_BOUNDARY_GATE",
+            "EVIDENCE_COMPLETENESS_GATE",
+            "COMPARABILITY_GATE",
+            "CAPABILITY_GATE",
+            "QUALIFICATION_GATE",
+            "REGRESSION_GATE",
+            "SECURITY_ABSOLUTE_GATE",
+            "STABILITY_GATE",
+            "PARETO_GATE"
+          ]
+        },
+        "outcome": { "enum": ["PASS", "EXCLUSIONS_APPLIED", "INCOMPARABLE", "BLOCKED"] },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    },
+    "exclusionEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_id", "exclusion_reason", "detail"],
+      "properties": {
+        "candidate_id": { "type": "string", "minLength": 1 },
+        "exclusion_reason": {
+          "enum": [
+            "NOT_QUALIFIED",
+            "QUALIFICATION_EVIDENCE_MISSING",
+            "REGRESSION_DETECTED",
+            "REGRESSION_EVIDENCE_MISSING",
+            "SECURITY_REGRESSION",
+            "UNSTABLE"
+          ]
+        },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    },
+    "differenceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dimension", "detail"],
+      "properties": {
+        "dimension": { "enum": ["MODEL", "PROVIDER", "EXECUTOR", "HARNESS", "NONE"] },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    },
+    "boundaryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "model_specific", "adapter_bound", "detail"],
+      "properties": {
+        "scope": { "enum": ["ADAPTER", "PROVIDER", "MODEL", "HARNESS"] },
+        "model_specific": { "type": "boolean" },
+        "adapter_bound": {
+          "type": "boolean",
+          "description": "True only when the optimization is expressed at an adapter boundary. model_specific && !adapter_bound fails the comparison closed (OPTIMIZATION_BOUNDARY_VIOLATION)."
+        },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

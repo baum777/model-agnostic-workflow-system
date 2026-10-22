@@ -87,6 +87,11 @@ jobs:
           npm run validate-regression-comparison
           npm run eval:regression
 
+      - name: Cross-model comparison gates (S10)
+        run: |
+          npm run validate-cross-model-comparison
+          npm run eval:cross-model
+
       - name: Skill frontdoor regression tests
         run: npm run test:skill-frontdoor
 
