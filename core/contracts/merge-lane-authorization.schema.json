@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://unitera.systems/contracts/merge-lane-authorization.schema.json",
   "title": "MAWS merge lane authorization",
-  "description": "The authorization of one merge work lane. The record is committed in the canonical governance surface of the repository (core/authority/merge-authorizations/<lane_id>.json) and is read from the tip of the repository's default branch, so a pull request can never authorize itself. It names the lane's head branch, its base branch, the canonical merge authority, the hosted checks the lane requires, the local gates it requires, and optionally the commit whose lineage the lane authorized (the merged head must DESCEND from it — it is an ancestry pin, not an equality pin on the content) and the exact head the lane authorized.",
+  "description": "The authorization of one merge work lane, with its lifecycle. The record is committed in the canonical governance surface of the repository (core/authority/merge-authorizations/<lane_id>.json) and is read from the tip of the repository's default branch, so a pull request can never authorize itself. It names the lane's head branch, its base branch, the canonical merge authority, the hosted checks the lane requires, the local gates it requires, and optionally the commit whose lineage the lane authorized (the merged head must DESCEND from it — it is an ancestry pin, not an equality pin on the content). Version 1.1.0 adds the LIFECYCLE: a lane binds the EXACT reviewed head it authorizes (authorized_head_sha — without that binding a lane authorizes no merge at all, because the reviewed head would be an operator-declared number), it carries its state (active or closed — a closed lane authorizes nothing further), it may name the lane it supersedes (a superseded lane authorizes nothing further, so re-pointing a lane is an explicit act and never a silent edit), and a closed lane carries the merge it was closed by.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -14,7 +14,11 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "1.0.0"
+      "description": "1.0.0 is the published history of the first generation of lane authorizations and stays valid as history; 1.1.0 is the lifecycle-aware version and is the only one that can authorize a merge.",
+      "enum": [
+        "1.0.0",
+        "1.1.0"
+      ]
     },
     "lane_id": {
       "type": "string",
@@ -52,17 +56,151 @@
       "uniqueItems": true
     },
     "authorized_commit": {
+      "description": "An ANCESTRY pin: the merged head must descend from this commit. It is not a content pin.",
       "type": "string",
       "pattern": "^[0-9a-f]{40}$"
     },
     "authorized_head_sha": {
+      "description": "The EXACT reviewed head the lane authorizes. The merge path requires it: without it the reviewed head would be an operator-declared number.",
       "type": "string",
       "pattern": "^[0-9a-f]{40}$"
+    },
+    "state": {
+      "description": "The lifecycle state of the lane. A closed lane authorizes no further merge.",
+      "enum": [
+        "active",
+        "closed"
+      ]
+    },
+    "supersedes": {
+      "description": "The lane this lane replaces. While the superseding lane is active, the superseded lane authorizes nothing further.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "closed_by": {
+      "description": "The merge the lane was closed by. It is the consumption record of the lane: one lane authorizes one merge.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pull_request",
+        "merge_commit",
+        "head_sha",
+        "closed_at"
+      ],
+      "properties": {
+        "pull_request": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "merge_commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "head_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "closed_at": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": {
+            "const": "1.1.0"
+          }
+        },
+        "required": [
+          "schema_version"
+        ]
+      },
+      "then": {
+        "required": [
+          "state",
+          "authorized_head_sha"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {
+            "const": "1.0.0"
+          }
+        },
+        "required": [
+          "schema_version"
+        ]
+      },
+      "then": {
+        "description": "The published history of the first generation carries no lifecycle fields: a 1.0.0 record that claims a state would be a record of two generations at once.",
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "state"
+              ]
+            },
+            {
+              "required": [
+                "supersedes"
+              ]
+            },
+            {
+              "required": [
+                "closed_by"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "closed"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "description": "A closed lane carries the merge it was closed by: the consumption record of the lane.",
+        "required": [
+          "closed_by"
+        ]
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "closed_by"
+        ]
+      },
+      "then": {
+        "properties": {
+          "state": {
+            "const": "closed"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      }
+    }
+  ],
   "anyOf": [
     {
-      "required": ["required_checks"],
+      "required": [
+        "required_checks"
+      ],
       "properties": {
         "required_checks": {
           "minItems": 1
@@ -70,7 +208,9 @@
       }
     },
     {
-      "required": ["required_local_gates"],
+      "required": [
+        "required_local_gates"
+      ],
       "properties": {
         "required_local_gates": {
           "minItems": 1
