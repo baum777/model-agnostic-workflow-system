@@ -16,5 +16,11 @@
   ],
   "authorized_commit": "0fd89d99fac3cf027880dfe2b13b0140a2a0b4fd",
   "authorized_head_sha": "bc26e27ee365cd04615259e051fce22dbe38e53a",
-  "state": "active"
+  "state": "closed",
+  "closed_by": {
+    "pull_request": 101,
+    "merge_commit": "4a751e515afad1268750abdb60feed4314cdf519",
+    "head_sha": "bc26e27ee365cd04615259e051fce22dbe38e53a",
+    "closed_at": "2026-10-22T16:30:15Z"
+  }
 }
