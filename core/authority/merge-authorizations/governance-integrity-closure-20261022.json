@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.1.0",
+  "lane_id": "governance-integrity-closure-20261022",
+  "authority": "canonical_owner",
+  "base_ref": "main",
+  "head_ref": "evidence/governance-integrity-closure-20261022",
+  "head_repository": "baum777",
+  "authorized_commit": "1145aaa12248ee6cbc53656713230789edc862c8",
+  "authorized_head_sha": "1145aaa12248ee6cbc53656713230789edc862c8",
+  "state": "active",
+  "required_checks": [],
+  "required_local_gates": [
+    "validate",
+    "test:vnext",
+    "test:merge-executor",
+    "test:merge-attestation",
+    "test:merge-lane-contract",
+    "merge:audit"
+  ]
+}
