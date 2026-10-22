@@ -145,6 +145,49 @@ therefore have contradicted each other. The executor now refuses the first
 generation outright (`MERGE_LANE_AUTHORIZATION_OBSOLETE`), and both surfaces
 apply the same rule.
 
+## 3a. The live proof: the closure pull request was merged BY the hardened executor
+
+The closure pull request (80) was merged through
+`scripts/tools/merge-pr-executor.mjs` under the lane authorization
+`core/authority/merge-authorizations/merge-executor-hardening-20261021.json`,
+which pull request 81 committed on the default branch. The executor:
+
+1. read the lane authorization from the tip of the default branch
+   `691d66cacd92485c5dfab7fa2bea69409b1748c8` — the source is GitHub's own
+   record of the branch, not a ref the operator named;
+2. derived the target from the lane's head branch (pull request 80), with no
+   asserted number in play;
+3. verified that the live head of the pull request is the head the lane
+   **binds** (`55a4bf22019884c013033f866ea4707c3b527c7a`) — the reviewed
+   head is no longer an operator-declared number;
+4. verified that the working tree is clean, so the local gates attest the
+   content that is about to be merged (`worktree_clean: true`);
+5. ran the lane's six local gates against the reviewed head — `validate`,
+   `test:vnext`, `test:merge-executor`, `test:merge-attestation`,
+   `test:merge-lane-contract` and `merge:audit` — all PASS;
+6. issued the merge with that head sha;
+7. read the merge back: the merge commit
+   `001396a2917d3f56194a1382c478f9c1ccff970e` carries the parents
+   `691d66cacd92485c5dfab7fa2bea69409b1748c8` and
+   `55a4bf22019884c013033f866ea4707c3b527c7a`.
+
+**One live refusal preceded that merge, and it merged nothing.** The first
+attempt found the pull request not mergeable — GitHub still reported its
+mergeability as unknown after the push — and the receipt answered
+`"ok": false` and `"merged": false`. The hosted check `loop-repo-ci` was
+reported as a **warning** and not as a gate, because the hosted CI is
+blocked account-wide and a required check that can never pass would block
+every merge; the lane demanded six local verifications instead.
+
+**The enforcement then read the merge out of the repository's own history.**
+`npm run merge:audit` on the merged default branch answers PASS with 77
+merges examined: 75 historical observations (the enforcement entered the
+default branch with the merge of pull request 79), **1 governance act**
+(pull request 81, the lane binding, whose diff is confined to
+`core/authority/`) and **1 covered merge** (pull request 80, covered by the
+lane that bound its head). The lane is reported as active, bound to
+`55a4bf22019884c013033f866ea4707c3b527c7a` and consumed.
+
 ## 4. The bootstrap: this merge is an owner act
 
 Pull request 79 (the implementation) was merged as
@@ -162,11 +205,9 @@ by the audit's own rule. This is a structural property, not an oversight of
 this run, and it is the reason the audit's scope rule reads the base tree
 rather than a date.
 
-Every merge after that one is expected to be lane-covered, and the audit is
-expected to say so. The live proof — the closure pull request merged **by
-the hardened executor** under a lane whose binding names its exact head —
-is published with the rebind pull request, which carries this pull request's
-merge commit and the Registry commit.
+Every merge after that one is lane-covered, and the audit says so: the
+closure pull request merged **by the hardened executor** under a lane whose
+binding names its exact head is reported as COVERED (see §3a).
 
 ## 5. The registration surfaces
 
@@ -176,11 +217,21 @@ merge commit and the Registry commit.
   from 1.0.0 to 1.1.0) and a `PROVENANCE` (the run record), so it is
   registry-relevant.
 - The Registry change registration and the contract record are published in
-  the Unitera Registry with the merge of this pull request; the disposition
-  is rebound from `REQUIRED_BUT_BLOCKED` to `UPDATED` with the Registry
-  commit sha in the rebind pull request.
+  the Unitera Registry (pull request 273, merged as
+  `0e01184ca7ef686e7012698aeadeaef7b2c64c86` on 2026-10-22T04:15:18Z). The
+  owner's own gates on that Registry change answered: `validate_registry.py`
+  **PASS**, the git-backed reachability check **PASS** against a complete
+  mirror basis (712 verified current claims, 31 historical, 0 mismatch), and
+  the digest inventory **PASS** (325 assertions, 0 errors). The disposition
+  is rebound from `REQUIRED_BUT_BLOCKED` to `UPDATED` with that commit sha
+  in the rebind pull request.
 - The Atlas representation is the claim of the same run, pinned to the merge
   event of the publication and of the rebind.
+
+**The lane is closed by this rebind.** The lane authorization of the closure
+lane carries `state: closed` and the merge it was closed by, so the surface
+of lane authorizations records the consumption: one lane authorized one
+merge, and the record says so.
 
 ## 6. Limits — what this run does NOT claim
 
