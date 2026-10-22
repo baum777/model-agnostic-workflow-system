@@ -43,7 +43,7 @@ jobs:
         run: |
           npm run validate-secrets
           npm run scan-secrets
-          node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs tests/tools/safe-remove.test.mjs tests/tools/evidence-content-validation.test.mjs
+          node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs tests/tools/safe-remove.test.mjs tests/tools/evidence-content-validation.test.mjs tests/tools/assurance-reconciliation.test.mjs tests/tools/assurance-residual-matrix.test.mjs tests/tools/contract-only-skill-directory.test.mjs tests/tools/loop-repo-command-injection.test.mjs tests/tools/registry-disposition.test.mjs tests/tools/source-security-scan.test.mjs
 
       - name: Source security scan (the .mjs-capable static gate)
         run: npm run scan:source-security

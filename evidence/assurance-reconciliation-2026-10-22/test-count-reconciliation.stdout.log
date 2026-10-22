@@ -1,0 +1,10 @@
+test count reconciliation: IDENTITY_HOLDS
+record operational-safety-closure-2026-10-22 (bound dde7db26) totals 910 tests
+naive sum 934 = suite gate + full tools suite (147)
+difference 24 = 30 ungated tools tests (5 files) − 6 intra-record overlap
+  ungated: tests/tools/assurance-residual-matrix.test.mjs (6)
+  ungated: tests/tools/contract-only-skill-directory.test.mjs (3)
+  ungated: tests/tools/loop-repo-command-injection.test.mjs (3)
+  ungated: tests/tools/registry-disposition.test.mjs (3)
+  ungated: tests/tools/source-security-scan.test.mjs (15)
+  overlap: tests/vnext/skill-frontdoor.test.mjs (6, gates: vnext-unit-suite, skill-frontdoor-regression)

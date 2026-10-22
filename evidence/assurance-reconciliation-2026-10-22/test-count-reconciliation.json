@@ -1,0 +1,259 @@
+{
+  "ok": true,
+  "run_id": "operational-safety-closure-2026-10-22",
+  "bound_commit": "dde7db268472e3feae72864690bb309ffdbbe3a0",
+  "counting_mode": {
+    "record": "sum of per-gate node --test TAP executions; non-TAP parts of a gate command (python unittest) run but are not counted",
+    "naive": "one suite gate total plus the full tools suite total, as stated in the run report"
+  },
+  "gates": [
+    {
+      "id": "security-regression-tests",
+      "command": "node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs tests/tools/safe-remove.test.mjs tests/tools/evidence-content-validation.test.mjs",
+      "files": [
+        "tests/tools/preinstall-skill-risk-check.test.mjs",
+        "tests/tools/security-repair-regressions.test.mjs",
+        "tests/tools/assurance-run-record.test.mjs",
+        "tests/tools/safe-remove.test.mjs",
+        "tests/tools/evidence-content-validation.test.mjs"
+      ],
+      "globbed": false,
+      "measured": [
+        {
+          "file": "tests/tools/preinstall-skill-risk-check.test.mjs",
+          "tests": 4
+        },
+        {
+          "file": "tests/tools/security-repair-regressions.test.mjs",
+          "tests": 10
+        },
+        {
+          "file": "tests/tools/assurance-run-record.test.mjs",
+          "tests": 13
+        },
+        {
+          "file": "tests/tools/safe-remove.test.mjs",
+          "tests": 13
+        },
+        {
+          "file": "tests/tools/evidence-content-validation.test.mjs",
+          "tests": 12
+        }
+      ],
+      "measured_total": 52,
+      "record_tests": 52,
+      "matches_record": true
+    },
+    {
+      "id": "merge-executor-lane",
+      "command": "npm run --silent test:merge-executor && python3 -m unittest tests/tools/merge_lane_authorization_schema_test.py",
+      "files": [
+        "tests/tools/merge-pr-executor.test.mjs"
+      ],
+      "globbed": false,
+      "measured": [
+        {
+          "file": "tests/tools/merge-pr-executor.test.mjs",
+          "tests": 64
+        }
+      ],
+      "measured_total": 64,
+      "record_tests": 64,
+      "matches_record": true
+    },
+    {
+      "id": "vnext-unit-suite",
+      "command": "npm run --silent test:vnext",
+      "files": [
+        "tests/vnext/behavioral-eval.test.mjs",
+        "tests/vnext/benchmark-comparison.test.mjs",
+        "tests/vnext/codex-chatgpt-auth.test.mjs",
+        "tests/vnext/codex-jsonl-live-boundary.test.mjs",
+        "tests/vnext/completion.test.mjs",
+        "tests/vnext/context-assembly.test.mjs",
+        "tests/vnext/e2e-reference-run.test.mjs",
+        "tests/vnext/evidence-admission.test.mjs",
+        "tests/vnext/evidence-provenance.test.mjs",
+        "tests/vnext/executor-model-profile.test.mjs",
+        "tests/vnext/executors.test.mjs",
+        "tests/vnext/experiment-comparison.test.mjs",
+        "tests/vnext/failure-matrix.test.mjs",
+        "tests/vnext/harness-context.test.mjs",
+        "tests/vnext/instruction-auditor.test.mjs",
+        "tests/vnext/instruction-binding.test.mjs",
+        "tests/vnext/instruction-bundle.test.mjs",
+        "tests/vnext/instruction-inventory.test.mjs",
+        "tests/vnext/instruction-resolver.test.mjs",
+        "tests/vnext/instruction-semantic-signals.test.mjs",
+        "tests/vnext/jev-engine.test.mjs",
+        "tests/vnext/jev-frontdoor.test.mjs",
+        "tests/vnext/live-activation.test.mjs",
+        "tests/vnext/openrouter-decisions.test.mjs",
+        "tests/vnext/planner.test.mjs",
+        "tests/vnext/qualification.test.mjs",
+        "tests/vnext/registry-disposition-evidence.test.mjs",
+        "tests/vnext/routing.test.mjs",
+        "tests/vnext/run-skill-effectiveness.test.mjs",
+        "tests/vnext/runtime-run-cli.test.mjs",
+        "tests/vnext/runtime-run-context-budget.test.mjs",
+        "tests/vnext/runtime-run-intake.test.mjs",
+        "tests/vnext/s5-path-confinement.test.mjs",
+        "tests/vnext/skill-feedback.test.mjs",
+        "tests/vnext/skill-frontdoor.test.mjs",
+        "tests/vnext/skill-improvement.test.mjs",
+        "tests/vnext/skill-promotion.test.mjs",
+        "tests/vnext/skill-selection.test.mjs",
+        "tests/vnext/zcode.test.mjs",
+        "tests/vnext/zen-systemone.test.mjs"
+      ],
+      "globbed": true,
+      "measured": [],
+      "measured_total": null,
+      "record_tests": 787,
+      "matches_record": null
+    },
+    {
+      "id": "provider-adapter-import",
+      "command": "node --test tests/tools/provider-adapter-import.test.mjs",
+      "files": [
+        "tests/tools/provider-adapter-import.test.mjs"
+      ],
+      "globbed": false,
+      "measured": [
+        {
+          "file": "tests/tools/provider-adapter-import.test.mjs",
+          "tests": 1
+        }
+      ],
+      "measured_total": 1,
+      "record_tests": 1,
+      "matches_record": true
+    },
+    {
+      "id": "skill-frontdoor-regression",
+      "command": "npm run --silent test:skill-frontdoor",
+      "files": [
+        "tests/vnext/skill-frontdoor.test.mjs"
+      ],
+      "globbed": false,
+      "measured": [
+        {
+          "file": "tests/vnext/skill-frontdoor.test.mjs",
+          "tests": 6
+        }
+      ],
+      "measured_total": 6,
+      "record_tests": 6,
+      "matches_record": true
+    }
+  ],
+  "tools_full_suite": {
+    "files": [
+      {
+        "file": "tests/tools/assurance-residual-matrix.test.mjs",
+        "tests": 6
+      },
+      {
+        "file": "tests/tools/assurance-run-record.test.mjs",
+        "tests": 13
+      },
+      {
+        "file": "tests/tools/contract-only-skill-directory.test.mjs",
+        "tests": 3
+      },
+      {
+        "file": "tests/tools/evidence-content-validation.test.mjs",
+        "tests": 12
+      },
+      {
+        "file": "tests/tools/loop-repo-command-injection.test.mjs",
+        "tests": 3
+      },
+      {
+        "file": "tests/tools/merge-pr-executor.test.mjs",
+        "tests": 64
+      },
+      {
+        "file": "tests/tools/preinstall-skill-risk-check.test.mjs",
+        "tests": 4
+      },
+      {
+        "file": "tests/tools/provider-adapter-import.test.mjs",
+        "tests": 1
+      },
+      {
+        "file": "tests/tools/registry-disposition.test.mjs",
+        "tests": 3
+      },
+      {
+        "file": "tests/tools/safe-remove.test.mjs",
+        "tests": 13
+      },
+      {
+        "file": "tests/tools/security-repair-regressions.test.mjs",
+        "tests": 10
+      },
+      {
+        "file": "tests/tools/source-security-scan.test.mjs",
+        "tests": 15
+      }
+    ],
+    "total": 147
+  },
+  "committed_log_evidence": [
+    {
+      "file": "tests/vnext/skill-frontdoor.test.mjs",
+      "suite_gate_log": "vnext-unit-suite.stdout.log",
+      "test_names_in_log": 6,
+      "test_names_measured": 6
+    }
+  ],
+  "decomposition": {
+    "record_total_tests": 910,
+    "naive_sum": 934,
+    "difference": 24,
+    "ungated_tools_tests": 30,
+    "ungated_tools_files": [
+      {
+        "file": "tests/tools/assurance-residual-matrix.test.mjs",
+        "tests": 6
+      },
+      {
+        "file": "tests/tools/contract-only-skill-directory.test.mjs",
+        "tests": 3
+      },
+      {
+        "file": "tests/tools/loop-repo-command-injection.test.mjs",
+        "tests": 3
+      },
+      {
+        "file": "tests/tools/registry-disposition.test.mjs",
+        "tests": 3
+      },
+      {
+        "file": "tests/tools/source-security-scan.test.mjs",
+        "tests": 15
+      }
+    ],
+    "intra_record_overlap_tests": 6,
+    "intra_record_overlap_files": [
+      {
+        "file": "tests/vnext/skill-frontdoor.test.mjs",
+        "gates": [
+          "vnext-unit-suite",
+          "skill-frontdoor-regression"
+        ],
+        "tests": 6
+      }
+    ],
+    "identity": "naive_sum == record_total + ungated_tools_tests − intra_record_overlap",
+    "holds": true
+  },
+  "record_totals": {
+    "gates": 20,
+    "gates_passed": 20,
+    "gates_failed": 0,
+    "tests_passed": 910,
+    "tests_failed": 0
+  }
+}

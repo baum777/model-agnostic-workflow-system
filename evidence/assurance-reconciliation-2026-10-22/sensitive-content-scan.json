@@ -1,0 +1,225 @@
+{
+  "ok": true,
+  "target": "evidence/assurance-closure-2026-10-21",
+  "files_scanned": 51,
+  "scanned": [
+    {
+      "file": "evidence/assurance-closure-2026-10-21/baseline-qualification.md",
+      "sha256": "52a76a60ed2802da56dde980540afb8c884fce23b700f6079495e68c9efd4fba"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/ci-gate.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/ci-gate.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/ci-gate.stdout.log",
+      "sha256": "6176bf1b9b72e57dcaf091fac8cff85cb163293781a25b0bb426b135d29246b7"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/eval-maws-vnext.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/eval-maws-vnext.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/eval-maws-vnext.stdout.log",
+      "sha256": "ba375284e3e0d2e644e36cc529aa368258a2e7ed26997c75f07273838851ce12"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/eval-provider-export-alignment.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/eval-provider-export-alignment.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/eval-provider-export-alignment.stdout.log",
+      "sha256": "90316bea33aa5d139ae22b76d2100e4136f2d3d144df9464cf364f5f0294e79b"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/eval-secret-boundary.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/eval-secret-boundary.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/eval-secret-boundary.stdout.log",
+      "sha256": "fc5cbc2293b9e937bc6b2c0624e395e644f66719bc7ac0b18f48b9380a577062"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/provider-adapter-import.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/provider-adapter-import.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/provider-adapter-import.stdout.log",
+      "sha256": "2f9716fe2965cc1c619042d866f8d7cb6f663ad0b24c8b9202bc31b897f6f4f2"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/provider-neutral.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/provider-neutral.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/provider-neutral.stdout.log",
+      "sha256": "c0479604cf458a67bbcb441095442ad87aab9851bb29e7b4de062428780a64ec"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/scan-secrets.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/scan-secrets.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/scan-secrets.stdout.log",
+      "sha256": "8add3385d58a478fcc5ced2422607825e67f2d9346038427b5476b9a343ffe19"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/security-regression-tests.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/security-regression-tests.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/security-regression-tests.stdout.log",
+      "sha256": "3b14a2783b5fb1017b57012fbd8be3096559605f87596d3139482268d525add3"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/skill-frontdoor-regression.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/skill-frontdoor-regression.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/skill-frontdoor-regression.stdout.log",
+      "sha256": "86f8615c96932c155a63e7199f4e2f183571b41f36d52b8eb06c10496e926450"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/source-security-scan.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/source-security-scan.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/source-security-scan.stdout.log",
+      "sha256": "f7be07d4d686a4b2775a889f6d86d5fd5c7940b8dc8c86c3bb052e42c4a5a2cd"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/syntax-core.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/syntax-core.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/syntax-core.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/syntax-sweep.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/syntax-sweep.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/syntax-sweep.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/validate-maws-vnext.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/validate-maws-vnext.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/validate-maws-vnext.stdout.log",
+      "sha256": "169237c0383b4734462475e34c31068843ae84c733c15da69a3157c2052ed292"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/validate-secrets.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/validate-secrets.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/validate-secrets.stdout.log",
+      "sha256": "c0479604cf458a67bbcb441095442ad87aab9851bb29e7b4de062428780a64ec"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/vnext-unit-suite.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/vnext-unit-suite.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/gates/vnext-unit-suite.stdout.log",
+      "sha256": "9af5f50bbb912555c76591754082112d5451ef9a50981feecc9c6cd94f58991b"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/mutation-probes.json",
+      "sha256": "737a5b9b5dfdeb0fc0b0ef9e2289318509690a175fe11eec14b44e643d9a675f"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/registry-disposition.json",
+      "sha256": "b2032df67f9edbe2f15549897d7677bbbc4d1a622f355a752c0c3ed1c7324bec"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/residual-matrix.json",
+      "sha256": "0f5250f6582510dd8b1fbdab7247d70ce66a033566597f54a3ba8f78d1a3cccf"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/run-record.json",
+      "sha256": "7393709c14b556c3a50341ddc1e0ba9fe033de2fe8c1bc11ef80535faa839172"
+    },
+    {
+      "file": "evidence/assurance-closure-2026-10-21/RUN.md",
+      "sha256": "c867704f719249c04279416eb33a35990c1db9296876297e8c5368342cabd47d"
+    }
+  ],
+  "finding_count": 0,
+  "baselined_count": 0,
+  "unbaselined": [],
+  "stale_baseline_entries": [],
+  "pattern_classes": [
+    "secret:generic-api-key",
+    "secret:authorization-bearer",
+    "secret:secret-assignment",
+    "secret:github-token",
+    "secret:slack-token",
+    "pii-heuristic:email-address",
+    "pii-heuristic:private-key-header"
+  ],
+  "claim_note": "a pass is a scan result over the named pattern classes, not a proof that no sensitive content can exist"
+}

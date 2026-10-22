@@ -164,4 +164,4 @@ if (isMain) {
   process.exit(result.ok ? 0 : 1);
 }
 
-export { scanSecrets };
+export { scanSecrets, SECRET_PATTERNS };
