@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.1.0",
+  "lane_id": "governance-integrity-20261022",
+  "authority": "canonical_owner",
+  "base_ref": "main",
+  "head_ref": "evidence/governance-integrity-20261022",
+  "head_repository": "baum777",
+  "authorized_commit": "4de318ca41ff16c9604f2fbeedd5b77382e10749",
+  "authorized_head_sha": "4de318ca41ff16c9604f2fbeedd5b77382e10749",
+  "state": "active",
+  "required_checks": [],
+  "required_local_gates": [
+    "validate",
+    "test:vnext",
+    "test:merge-executor",
+    "test:merge-attestation",
+    "test:merge-lane-contract"
+  ]
+}
