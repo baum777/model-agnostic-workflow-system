@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.1.0",
+  "lane_id": "assurance-reconciliation-20261022",
+  "authority": "canonical_owner",
+  "base_ref": "main",
+  "head_ref": "assurance/reconciliation-2026-10-22",
+  "head_repository": "baum777",
+  "authorized_commit": "b805e63b0d7765033f38a390ba06d040a061bc38",
+  "authorized_head_sha": "eacb100f32dbccb562a3674aacd8d98a3bce893f",
+  "state": "active",
+  "required_checks": [],
+  "required_local_gates": [
+    "validate",
+    "test:vnext",
+    "test:merge-executor",
+    "test:merge-attestation",
+    "test:merge-lane-contract",
+    "merge:audit"
+  ]
+}
