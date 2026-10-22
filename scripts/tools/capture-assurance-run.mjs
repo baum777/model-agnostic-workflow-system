@@ -72,7 +72,7 @@ export const ASSURANCE_GATES = Object.freeze([
   {
     id: 'security-regression-tests',
     description: 'the security boundary regression tests the workflow runs in its security step',
-    command: 'node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs tests/tools/safe-remove.test.mjs tests/tools/evidence-content-validation.test.mjs',
+    command: 'node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs tests/tools/safe-remove.test.mjs tests/tools/evidence-content-validation.test.mjs tests/tools/assurance-reconciliation.test.mjs tests/tools/assurance-residual-matrix.test.mjs tests/tools/contract-only-skill-directory.test.mjs tests/tools/loop-repo-command-injection.test.mjs tests/tools/registry-disposition.test.mjs tests/tools/source-security-scan.test.mjs',
     kind: 'test',
     timeoutMs: 600000
   },

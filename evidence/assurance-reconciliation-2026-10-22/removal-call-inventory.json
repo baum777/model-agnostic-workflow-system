@@ -1,0 +1,405 @@
+{
+  "ok": true,
+  "scanned_files": 260,
+  "direct_recursive_removals": 64,
+  "by_area": {
+    "vnext-tests": 64
+  },
+  "by_file": {
+    "tests/vnext/instruction-auditor.test.mjs": 6,
+    "tests/vnext/instruction-bundle.test.mjs": 7,
+    "tests/vnext/instruction-inventory.test.mjs": 3,
+    "tests/vnext/instruction-resolver.test.mjs": 5,
+    "tests/vnext/instruction-semantic-signals.test.mjs": 1,
+    "tests/vnext/run-skill-effectiveness.test.mjs": 6,
+    "tests/vnext/s5-path-confinement.test.mjs": 36
+  },
+  "calls": [
+    {
+      "file": "tests/vnext/instruction-auditor.test.mjs",
+      "area": "vnext-tests",
+      "line": 130,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-auditor.test.mjs",
+      "area": "vnext-tests",
+      "line": 158,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-auditor.test.mjs",
+      "area": "vnext-tests",
+      "line": 185,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-auditor.test.mjs",
+      "area": "vnext-tests",
+      "line": 217,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-auditor.test.mjs",
+      "area": "vnext-tests",
+      "line": 290,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-auditor.test.mjs",
+      "area": "vnext-tests",
+      "line": 334,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-bundle.test.mjs",
+      "area": "vnext-tests",
+      "line": 108,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-bundle.test.mjs",
+      "area": "vnext-tests",
+      "line": 123,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-bundle.test.mjs",
+      "area": "vnext-tests",
+      "line": 139,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-bundle.test.mjs",
+      "area": "vnext-tests",
+      "line": 151,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-bundle.test.mjs",
+      "area": "vnext-tests",
+      "line": 167,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-bundle.test.mjs",
+      "area": "vnext-tests",
+      "line": 222,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-bundle.test.mjs",
+      "area": "vnext-tests",
+      "line": 247,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-inventory.test.mjs",
+      "area": "vnext-tests",
+      "line": 132,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-inventory.test.mjs",
+      "area": "vnext-tests",
+      "line": 148,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-inventory.test.mjs",
+      "area": "vnext-tests",
+      "line": 161,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-resolver.test.mjs",
+      "area": "vnext-tests",
+      "line": 199,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-resolver.test.mjs",
+      "area": "vnext-tests",
+      "line": 266,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-resolver.test.mjs",
+      "area": "vnext-tests",
+      "line": 279,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-resolver.test.mjs",
+      "area": "vnext-tests",
+      "line": 299,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-resolver.test.mjs",
+      "area": "vnext-tests",
+      "line": 316,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/instruction-semantic-signals.test.mjs",
+      "area": "vnext-tests",
+      "line": 149,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/run-skill-effectiveness.test.mjs",
+      "area": "vnext-tests",
+      "line": 90,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/run-skill-effectiveness.test.mjs",
+      "area": "vnext-tests",
+      "line": 225,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/run-skill-effectiveness.test.mjs",
+      "area": "vnext-tests",
+      "line": 271,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/run-skill-effectiveness.test.mjs",
+      "area": "vnext-tests",
+      "line": 289,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/run-skill-effectiveness.test.mjs",
+      "area": "vnext-tests",
+      "line": 304,
+      "excerpt": "rmSync(first, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/run-skill-effectiveness.test.mjs",
+      "area": "vnext-tests",
+      "line": 305,
+      "excerpt": "rmSync(second, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 109,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 110,
+      "excerpt": "rmSync(outside, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 127,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 128,
+      "excerpt": "rmSync(outside, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 148,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 149,
+      "excerpt": "rmSync(outside, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 172,
+      "excerpt": "rmSync(linked, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 173,
+      "excerpt": "rmSync(direct, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 189,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 205,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 221,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 245,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 265,
+      "excerpt": "rmSync(dir, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 312,
+      "excerpt": "rmSync(dir, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 334,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 335,
+      "excerpt": "rmSync(outside, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 363,
+      "excerpt": "rmSync(dir, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 400,
+      "excerpt": "rmSync(dir, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 427,
+      "excerpt": "rmSync(dir, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 443,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 459,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 483,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 495,
+      "excerpt": "rmSync(outside, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 513,
+      "excerpt": "rmSync(fakeRoot, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 514,
+      "excerpt": "rmSync(outside, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 545,
+      "excerpt": "rmSync(corpusDir, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 552,
+      "excerpt": "rmSync(fakeRoot, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 553,
+      "excerpt": "rmSync(outside, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 567,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 583,
+      "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 618,
+      "excerpt": "rmSync(holder, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 619,
+      "excerpt": "rmSync(outside, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 655,
+      "excerpt": "rmSync(dir, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 668,
+      "excerpt": "rmSync(dir, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 699,
+      "excerpt": "rmSync(dir, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/s5-path-confinement.test.mjs",
+      "area": "vnext-tests",
+      "line": 700,
+      "excerpt": "rmSync(outside, { recursive: true, force: true })"
+    }
+  ],
+  "harness_surface_offenders": [],
+  "scope_note": "Guarded surface: scripts/tools/ and tests/tools/ (zero direct recursive removals is enforced by tests/tools/safe-remove.test.mjs). Calls outside that surface are inventory findings, not failures: the closed S5/S8/S9 lane tests and product code keep their own cleanup until a later run widens the surface."
+}

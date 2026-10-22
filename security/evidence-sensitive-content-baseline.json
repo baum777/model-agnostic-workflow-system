@@ -1,0 +1,5 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Disclosures for findings the sensitive content scan of persisted evidence legitimately contains. Every entry needs a justification; an entry that stops matching is stale and fails the gate, and so does any finding not disclosed here.",
+  "entries": []
+}

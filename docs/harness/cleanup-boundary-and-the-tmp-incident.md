@@ -125,3 +125,27 @@ deliberately in a later run. The count is the number to watch.
   correctly declared boundary still removes the wrong thing.
 - **It does not re-open the closed lanes.** The S5, S8 and S9 lane tests
   are untouched by this run and keep their own scratch handling.
+
+## 7. Bounded scope, inventoried (reconciliation 2026-10-22)
+
+The deletion protection is a claim about the **harness surface** —
+`scripts/tools/` and `tests/tools/` — and only about it. That scope
+boundary is now a durable artifact instead of a printed count:
+`scripts/tools/inventory-removal-calls.mjs` re-derives the inventory with
+the same per-call semantics as the guard, and the result is committed as
+[`evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.json`](../../evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.json).
+
+At the reconciliation commit the inventory holds: harness surface clean;
+**64 direct recursive removal calls in 7 closed-lane vnext test files**
+(instruction-auditor 6, instruction-bundle 7, instruction-inventory 3,
+instruction-resolver 5, instruction-semantic-signals 1,
+run-skill-effectiveness 6, s5-path-confinement 36). These files belong to
+closed lanes; widening the surface to them is a later run's decision, made
+against this inventory rather than against a guess. The anti-rot test
+`tests/tools/assurance-reconciliation.test.mjs` fails whenever the live
+inventory drifts from the committed artifact, so the boundary can only
+change deliberately.
+
+The separation between the closed technical fix and the incomplete
+consequence accounting of the incident itself is recorded in
+[`evidence/assurance-reconciliation-2026-10-22/incident-consequence-record.md`](../../evidence/assurance-reconciliation-2026-10-22/incident-consequence-record.md).
