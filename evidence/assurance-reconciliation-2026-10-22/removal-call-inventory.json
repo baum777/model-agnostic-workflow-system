@@ -1,9 +1,9 @@
 {
   "ok": true,
-  "scanned_files": 260,
-  "direct_recursive_removals": 64,
+  "scanned_files": 266,
+  "direct_recursive_removals": 65,
   "by_area": {
-    "vnext-tests": 64
+    "vnext-tests": 65
   },
   "by_file": {
     "tests/vnext/instruction-auditor.test.mjs": 6,
@@ -11,6 +11,7 @@
     "tests/vnext/instruction-inventory.test.mjs": 3,
     "tests/vnext/instruction-resolver.test.mjs": 5,
     "tests/vnext/instruction-semantic-signals.test.mjs": 1,
+    "tests/vnext/regression-eval.test.mjs": 1,
     "tests/vnext/run-skill-effectiveness.test.mjs": 6,
     "tests/vnext/s5-path-confinement.test.mjs": 36
   },
@@ -146,6 +147,12 @@
       "area": "vnext-tests",
       "line": 149,
       "excerpt": "rmSync(tmp, { recursive: true, force: true })"
+    },
+    {
+      "file": "tests/vnext/regression-eval.test.mjs",
+      "area": "vnext-tests",
+      "line": 198,
+      "excerpt": "rmSync(root, { recursive: true, force: true })"
     },
     {
       "file": "tests/vnext/run-skill-effectiveness.test.mjs",

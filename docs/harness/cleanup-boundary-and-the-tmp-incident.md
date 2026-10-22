@@ -135,16 +135,22 @@ boundary is now a durable artifact instead of a printed count:
 the same per-call semantics as the guard, and the result is committed as
 [`evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.json`](../../evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.json).
 
-At the reconciliation commit the inventory holds: harness surface clean;
-**64 direct recursive removal calls in 7 closed-lane vnext test files**
-(instruction-auditor 6, instruction-bundle 7, instruction-inventory 3,
-instruction-resolver 5, instruction-semantic-signals 1,
+The inventory is a LIVING artifact. At the reconciliation commit it held:
+harness surface clean; **64 direct recursive removal calls in 7
+closed-lane vnext test files**. The first regeneration became necessary
+the same day, when the S9 lane landed `tests/vnext/regression-eval.test.mjs`
+with one direct recursive removal: the committed inventory now holds the
+harness surface clean with **65 direct recursive removal calls in 8 vnext
+test files** (instruction-auditor 6, instruction-bundle 7,
+instruction-inventory 3, instruction-resolver 5,
+instruction-semantic-signals 1, regression-eval 1,
 run-skill-effectiveness 6, s5-path-confinement 36). These files belong to
-closed lanes; widening the surface to them is a later run's decision, made
-against this inventory rather than against a guess. The anti-rot test
-`tests/tools/assurance-reconciliation.test.mjs` fails whenever the live
-inventory drifts from the committed artifact, so the boundary can only
-change deliberately.
+closed or foreign lanes; widening the surface to them is a later run's
+decision, made against this inventory rather than against a guess. The
+anti-rot test `tests/tools/assurance-reconciliation.test.mjs` fails
+whenever the live inventory drifts from the committed artifact — the
+first regeneration exists precisely because it did — so the boundary can
+only change deliberately.
 
 The separation between the closed technical fix and the incomplete
 consequence accounting of the incident itself is recorded in

@@ -14,10 +14,17 @@ Scope documented as bounded, remainder inventoried.
 
 - `scripts/tools/inventory-removal-calls.mjs` re-derives the inventory with
   the exact per-call semantics of the safe-remove guard.
-- `removal-call-inventory.json`: harness surface clean; **64 direct
-  recursive removal calls in 7 closed-lane vnext test files**
-  (instruction-auditor 6, instruction-bundle 7, instruction-inventory 3,
-  instruction-resolver 5, instruction-semantic-signals 1,
+- `removal-call-inventory.json` is a LIVING artifact: the anti-rot tests
+  fail whenever the live tree drifts from it, so the inventory is
+  regenerated deliberately whenever a change moves a direct removal. At the
+  reconciliation commit it held the harness surface clean with **64 calls
+  in 7 closed-lane vnext test files**; the first regeneration became
+  necessary the same day, when the S9 lane landed
+  `tests/vnext/regression-eval.test.mjs` with one direct recursive removal
+  — the current artifact holds the harness surface clean with **65 calls
+  in 8 files** (instruction-auditor 6, instruction-bundle 7,
+  instruction-inventory 3, instruction-resolver 5,
+  instruction-semantic-signals 1, regression-eval 1,
   run-skill-effectiveness 6, s5-path-confinement 36).
 - `docs/harness/cleanup-boundary-and-the-tmp-incident.md` §7 states the
   scope boundary against this inventory; widening it is a later run's
