@@ -31,7 +31,7 @@
       "evidence/governance-integrity-closure-2026-10-22/probe-identity-mismatch.receipt.json",
       "evidence/governance-integrity-closure-2026-10-22/owner-decision.md"
     ],
-    "implementation_commit_sha": "",
+    "implementation_commit_sha": "c6d11646257035349ad550200d77718b1bd51e27",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/governance-integrity-closure-2026-10-22/registry-disposition.json (PASS)",
