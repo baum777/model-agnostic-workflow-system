@@ -1,0 +1,21 @@
+merge attestation audit — base main at 9d009cca0eca39585557b6f0e0c299dd2e32afdc (refs/remotes/origin/main)
+merges examined: 105
+  ROOT: 1
+  HISTORICAL_OBSERVATION: 242
+  GOVERNANCE_ACT: 19
+  COVERED: 9
+  UNCOVERED: 2
+  lane assurance-reconciliation-20261022: state=closed bound_head=eacb100f32dbccb562a3674aacd8d98a3bce893f consumed=true
+  lane assurance-reconciliation-maintenance-20261022: state=closed bound_head=c7a4127b769ca2ba2944885d449a6c6c767a674b consumed=true
+  lane boundary-closure-20261022: state=active bound_head=f39739a14787aa940b146897304e74d7ef10a64a consumed=true
+  lane governance-integrity-20261022: state=closed bound_head=4de318ca41ff16c9604f2fbeedd5b77382e10749 consumed=true
+  lane merge-executor-hardening-20261021: state=closed bound_head=55a4bf22019884c013033f866ea4707c3b527c7a consumed=true
+  lane merge-executor-hardening-rebind-20261021: state=closed bound_head=8e262d921008dcec0b667870dc575aeba15738a6 consumed=true
+  lane merge-incident-closure-20261021: state=none bound_head=none consumed=false
+  lane platform-protection-20261022: state=closed bound_head=bc26e27ee365cd04615259e051fce22dbe38e53a consumed=true
+  lane s10-cross-model-optimization-20261022: state=active bound_head=61609ccfe5a46dd5e30163c7b27c3f2cb485a4c4 consumed=true
+  lane s9-regression-rollback-20261022: state=closed bound_head=fff00e20fc2619ab411d28042e4cfa4f303eec15 consumed=true
+findings: 2
+  MERGE_NOT_COVERED: the merge b902130701bc5d784506a4044cb2880e0a86320a landed the head 5813a26fab045fad0325dc184ceae00ea8cd58ce without a lane authorization that bound it on the base branch 10de67a0bd5d2deb6abe510d2f53ec2d92025f5e
+  MERGE_NOT_COVERED: the merge 71655312a21901972a569406997389293304e4ed landed the head 1f68c47ceed80b787bbeb55cd2cfed2f048bb41f without a lane authorization that bound it on the base branch 05b0f80ce2ff64c38cd1edc28a40f2de799cfe43
+status: PASS

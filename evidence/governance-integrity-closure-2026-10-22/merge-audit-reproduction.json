@@ -1,0 +1,68 @@
+{
+  "reproduced_at_commit": "9d009cca0eca39585557b6f0e0c299dd2e32afdc",
+  "status": "PASS",
+  "baseline_present": true,
+  "findings_reported": 2,
+  "disposed_findings": [
+    {
+      "code": "MERGE_NOT_COVERED",
+      "commit": "b902130701bc5d784506a4044cb2880e0a86320a"
+    },
+    {
+      "code": "MERGE_NOT_COVERED",
+      "commit": "71655312a21901972a569406997389293304e4ed"
+    }
+  ],
+  "lane_states": [
+    {
+      "lane": "assurance-reconciliation-20261022",
+      "state": "closed",
+      "consumed": true
+    },
+    {
+      "lane": "assurance-reconciliation-maintenance-20261022",
+      "state": "closed",
+      "consumed": true
+    },
+    {
+      "lane": "boundary-closure-20261022",
+      "state": "active",
+      "consumed": true
+    },
+    {
+      "lane": "governance-integrity-20261022",
+      "state": "closed",
+      "consumed": true
+    },
+    {
+      "lane": "merge-executor-hardening-20261021",
+      "state": "closed",
+      "consumed": true
+    },
+    {
+      "lane": "merge-executor-hardening-rebind-20261021",
+      "state": "closed",
+      "consumed": true
+    },
+    {
+      "lane": "merge-incident-closure-20261021",
+      "state": null,
+      "consumed": false
+    },
+    {
+      "lane": "platform-protection-20261022",
+      "state": "closed",
+      "consumed": true
+    },
+    {
+      "lane": "s10-cross-model-optimization-20261022",
+      "state": "active",
+      "consumed": true
+    },
+    {
+      "lane": "s9-regression-rollback-20261022",
+      "state": "closed",
+      "consumed": true
+    }
+  ]
+}

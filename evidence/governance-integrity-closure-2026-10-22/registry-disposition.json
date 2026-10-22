@@ -1,0 +1,45 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "The change adds the governance integrity closure evidence: the audit reproduction with its raw output and exit code, the live admission-integrity refusal receipts, the governance separation examination, and a PREPARED (undecided, unimplemented) owner decision over the foreign-implemented merge-audit disposition baseline. No adopted registered binding moves: no SOURCE_RECORD, CONTRACT_RECORD, AUTHORITY_MAPPING, DEPENDENCY_BINDING, LIFECYCLE_BINDING, SUPERSESSION, PROVENANCE or REGISTERED_IMPLEMENTATION_BINDING of any registered object changes. The baseline, the audit tool, the lane authorization contract and every foreign lane are untouched. The change registration in the Unitera Registry and the representation in the Unitera Atlas are made outside this repository; this artifact is the owner-side classification that accompanies them. The run grants no permission, promotes no skill, activates no runtime and creates no authority, and it implements no policy disposition.",
+    "registry_baseline_sha": "9d009cca0eca39585557b6f0e0c299dd2e32afdc",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "evidence/governance-integrity-2026-10-22/RUN.md"
+    ],
+    "source_refs": [
+      "evidence/governance-integrity-closure-2026-10-22/RUN.md",
+      "evidence/governance-integrity-closure-2026-10-22/governance-separation-examination.md",
+      "evidence/governance-integrity-closure-2026-10-22/owner-decision.md",
+      "evidence/governance-integrity-closure-2026-10-22/merge-audit-reproduction.json",
+      "evidence/governance-integrity-closure-2026-10-22/admission-integrity-probes.json"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/governance-integrity-2026-10-22/RUN.md",
+      "evidence/governance-integrity-2026-10-22/governance-separation-examination.md"
+    ],
+    "evidence_refs": [
+      "evidence/governance-integrity-closure-2026-10-22/RUN.md",
+      "evidence/governance-integrity-closure-2026-10-22/merge-audit-reproduction.stdout.log",
+      "evidence/governance-integrity-closure-2026-10-22/merge-audit-full-report.json",
+      "evidence/governance-integrity-closure-2026-10-22/probe-absent.receipt.json",
+      "evidence/governance-integrity-closure-2026-10-22/probe-identity-mismatch.receipt.json",
+      "evidence/governance-integrity-closure-2026-10-22/owner-decision.md"
+    ],
+    "implementation_commit_sha": "",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/governance-integrity-closure-2026-10-22/registry-disposition.json (PASS)",
+      "merge:audit reproduced at 9d009cc: 2 UNCOVERED findings visible, both disposed by the baseline, status PASS under the new semantics (LOCAL_REPLICATION)",
+      "2 live dry-run admission refusals (MERGE_LANE_AUTHORIZATION_ABSENT, MERGE_PR_IDENTITY_MISMATCH), nothing merged",
+      "executor and lane contract unchanged over 870d7abb..9d009cc (git-diff empty)"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}
