@@ -1,0 +1,51 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "The change answers the four residual findings of the assurance file with repository-local tool surfaces, evidence artifacts, tests and documentation: a removal-call inventory, a test-count reconciliation, a sensitive-content scan over persisted evidence, an incident consequence record, and the wiring of five previously ungated tools test files into the CI security step. No adopted registered binding moves: no SOURCE_RECORD, CONTRACT_RECORD, AUTHORITY_MAPPING, DEPENDENCY_BINDING, LIFECYCLE_BINDING, SUPERSESSION, PROVENANCE or REGISTERED_IMPLEMENTATION_BINDING of any registered object changes. The reconciliation explains the counting mode of the closed operational safety run record without re-deriving or altering it, inventories the scope boundary of the closed deletion protection without widening it, and separates the incident's technical fix from its incomplete consequence accounting without closing the latter. The change registration in the Unitera Registry and the representation in the Unitera Atlas are required for every change by the project routing layer and are made outside this repository; this artifact is the owner-side classification that accompanies them. The run grants no permission, promotes no skill, activates no runtime and creates no authority.",
+    "registry_baseline_sha": "0566390d59d0abcd9133fd04aa3443642f185b24",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/harness/cleanup-boundary-and-the-tmp-incident.md",
+      "evidence/assurance-reconciliation-2026-10-22/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/inventory-removal-calls.mjs",
+      "scripts/tools/reconcile-test-counts.mjs",
+      "scripts/tools/scan-sensitive-content.mjs",
+      "scripts/tools/scan-secrets.mjs",
+      "scripts/tools/capture-assurance-run.mjs",
+      "tests/tools/assurance-reconciliation.test.mjs",
+      "security/evidence-sensitive-content-baseline.json",
+      "docs/harness/cleanup-boundary-and-the-tmp-incident.md",
+      ".github/workflows/loop-repo-ci.yml"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/assurance-reconciliation-2026-10-22/RUN.md",
+      "evidence/assurance-reconciliation-2026-10-22/incident-consequence-record.md"
+    ],
+    "evidence_refs": [
+      "evidence/assurance-reconciliation-2026-10-22/RUN.md",
+      "evidence/assurance-reconciliation-2026-10-22/removal-call-inventory.json",
+      "evidence/assurance-reconciliation-2026-10-22/test-count-reconciliation.json",
+      "evidence/assurance-reconciliation-2026-10-22/sensitive-content-scan.json",
+      "evidence/assurance-reconciliation-2026-10-22/incident-consequence-record.md"
+    ],
+    "implementation_commit_sha": "b805e63b0d7765033f38a390ba06d040a061bc38",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/assurance-reconciliation-2026-10-22/registry-disposition.json (PASS)",
+      "node --test tests/tools/assurance-reconciliation.test.mjs (6 pass / 0 fail)",
+      "local CI replication of the workflow steps (22 steps PASS incl. the extended security step; ci-gate PASS at the committed tree; LOCAL_REPLICATION, hosted CI remains account-locked)",
+      "node scripts/tools/reconcile-test-counts.mjs --record evidence/operational-safety-closure-2026-10-22/run-record.json --root <tree at dde7db26> (IDENTITY_HOLDS: 934 = 910 + 30 - 6)",
+      "node scripts/tools/scan-sensitive-content.mjs --target evidence/assurance-closure-2026-10-21 (PASS, 51 files, 0 findings, negative control fires on both pattern classes)",
+      "node scripts/tools/inventory-removal-calls.mjs (HARNESS_SURFACE_CLEAN, 64 direct recursive removals in 7 closed-lane vnext files)"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}
