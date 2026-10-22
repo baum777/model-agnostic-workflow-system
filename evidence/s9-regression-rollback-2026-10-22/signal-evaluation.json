@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_digest": "b9e3c8f4396ddf7cfbcdad526a8e799396df378024b23c937d1b9a6ab10c0754",
+  "classes": [
+    {
+      "finding_class": "RULE_CONFLICT",
+      "cases_present": 1,
+      "cases_absent": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 1,
+      "precision": 1,
+      "recall": 1,
+      "coverage_gap": false,
+      "missed_cases": [],
+      "overfired_cases": []
+    },
+    {
+      "finding_class": "PRECEDENCE_CONFLICT",
+      "cases_present": 1,
+      "cases_absent": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 1,
+      "precision": 1,
+      "recall": 1,
+      "coverage_gap": false,
+      "missed_cases": [],
+      "overfired_cases": []
+    },
+    {
+      "finding_class": "OVERCONSTRAINT",
+      "cases_present": 1,
+      "cases_absent": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 1,
+      "precision": 1,
+      "recall": 1,
+      "coverage_gap": false,
+      "missed_cases": [],
+      "overfired_cases": []
+    },
+    {
+      "finding_class": "REDUNDANT_INSTRUCTION",
+      "cases_present": 1,
+      "cases_absent": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 1,
+      "precision": 1,
+      "recall": 1,
+      "coverage_gap": false,
+      "missed_cases": [],
+      "overfired_cases": []
+    },
+    {
+      "finding_class": "CONTEXT_OVERLOAD",
+      "cases_present": 1,
+      "cases_absent": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 1,
+      "precision": 1,
+      "recall": 1,
+      "coverage_gap": false,
+      "missed_cases": [],
+      "overfired_cases": []
+    },
+    {
+      "finding_class": "AUTHORITY_LEAK",
+      "cases_present": 1,
+      "cases_absent": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 1,
+      "precision": 1,
+      "recall": 1,
+      "coverage_gap": false,
+      "missed_cases": [],
+      "overfired_cases": []
+    },
+    {
+      "finding_class": "MODEL_DRIFT",
+      "cases_present": 1,
+      "cases_absent": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 1,
+      "precision": 1,
+      "recall": 1,
+      "coverage_gap": false,
+      "missed_cases": [],
+      "overfired_cases": []
+    },
+    {
+      "finding_class": "SKILL_ROUTING_AMBIGUITY",
+      "cases_present": 1,
+      "cases_absent": 1,
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 1,
+      "precision": 1,
+      "recall": 1,
+      "coverage_gap": false,
+      "missed_cases": [],
+      "overfired_cases": []
+    }
+  ],
+  "coverage": {
+    "classes_with_cases": [
+      "RULE_CONFLICT",
+      "PRECEDENCE_CONFLICT",
+      "OVERCONSTRAINT",
+      "REDUNDANT_INSTRUCTION",
+      "CONTEXT_OVERLOAD",
+      "AUTHORITY_LEAK",
+      "MODEL_DRIFT",
+      "SKILL_ROUTING_AMBIGUITY"
+    ],
+    "classes_without_cases": [],
+    "case_count": 16
+  },
+  "case_results": [
+    {
+      "case_id": "sig_rule_conflict_present",
+      "finding_class": "RULE_CONFLICT",
+      "expectation": "PRESENT",
+      "construction": "Two sources bind the same dotted key to different values. The class holds by construction: the two bindings cannot both be right.",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "source_path": "AGENTS.md",
+          "line": 3,
+          "observed_problem": "the key `runtime.budget` is bound to 2 different values (4096, 8192) across 2 instruction sources"
+        }
+      ],
+      "detected": true
+    },
+    {
+      "case_id": "sig_rule_conflict_absent",
+      "finding_class": "RULE_CONFLICT",
+      "expectation": "ABSENT",
+      "construction": "Two sources bind the same dotted key to the SAME value. There is no conflict to point at, so a correct detector stays silent.",
+      "candidate_count": 0,
+      "candidates": [],
+      "detected": false
+    },
+    {
+      "case_id": "sig_precedence_conflict_present",
+      "finding_class": "PRECEDENCE_CONFLICT",
+      "expectation": "PRESENT",
+      "construction": "The canonical source prohibits a subject, a repository-local source obligates the same subject. Two authority levels govern one subject in opposite directions.",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "source_path": "AGENTS.md",
+          "line": 3,
+          "observed_problem": "`docs/owner-decisions.md` is governed in opposite directions (1 prohibition(s), 1 obligation(s)) by instruction sources of different authority"
+        }
+      ],
+      "detected": true
+    },
+    {
+      "case_id": "sig_precedence_conflict_absent",
+      "finding_class": "PRECEDENCE_CONFLICT",
+      "expectation": "ABSENT",
+      "construction": "Two sources of the SAME authority class prohibit the same subject. A contradiction between equals is a rule conflict, not a precedence conflict; the precedence class needs two authority levels.",
+      "candidate_count": 0,
+      "candidates": [],
+      "detected": false
+    },
+    {
+      "case_id": "sig_overconstraint_present",
+      "finding_class": "OVERCONSTRAINT",
+      "expectation": "PRESENT",
+      "construction": "A prohibition that quantifies over everything and names no scope it stops at. The class holds by construction: the rule reaches further than any rule can be applied.",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "source_path": "AGENTS.md",
+          "line": 3,
+          "observed_problem": "the prohibition quantifies over everything (\"Never rely on any global cache of results.\") without a scope it stops at"
+        }
+      ],
+      "detected": true
+    },
+    {
+      "case_id": "sig_overconstraint_absent",
+      "finding_class": "OVERCONSTRAINT",
+      "expectation": "ABSENT",
+      "construction": "The same shape of prohibition, but it names the scope it stops at. A rule with a scope is not over-constrained.",
+      "candidate_count": 0,
+      "candidates": [],
+      "detected": false
+    },
+    {
+      "case_id": "sig_redundant_instruction_present",
+      "finding_class": "REDUNDANT_INSTRUCTION",
+      "expectation": "PRESENT",
+      "construction": "The same rule is stated in two sources of the same authority. The repetition is the signal; whether it carries an independent function is the owner's judgement.",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "source_path": "AGENTS.md",
+          "line": 3,
+          "observed_problem": "the same instruction is stated in 2 sources (AGENTS.md, docs/authority-matrix.md): \"every change in this repository must be registered in the unitera registry\""
+        }
+      ],
+      "detected": true
+    },
+    {
+      "case_id": "sig_redundant_instruction_absent",
+      "finding_class": "REDUNDANT_INSTRUCTION",
+      "expectation": "ABSENT",
+      "construction": "Two sources state rules that are similar but not the same. Nothing is repeated, so there is no repetition to point at.",
+      "candidate_count": 0,
+      "candidates": [],
+      "detected": false
+    },
+    {
+      "case_id": "sig_context_overload_present",
+      "finding_class": "CONTEXT_OVERLOAD",
+      "expectation": "PRESENT",
+      "construction": "A repository-local source whose every instruction is already stated by a source of higher authority. Loading it adds no independent instruction.",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "source_path": ".agents/skills/local-notes/SKILL.md",
+          "line": 6,
+          "observed_problem": "every instruction of this source (1) is already stated by a source of higher authority, so loading it adds no independent instruction"
+        }
+      ],
+      "detected": true
+    },
+    {
+      "case_id": "sig_context_overload_absent",
+      "finding_class": "CONTEXT_OVERLOAD",
+      "expectation": "ABSENT",
+      "construction": "A repository-local source that adds one instruction the higher-authority source does not state. The source is not redundant, so it is not overload.",
+      "candidate_count": 0,
+      "candidates": [],
+      "detected": false
+    },
+    {
+      "case_id": "sig_authority_leak_present",
+      "finding_class": "AUTHORITY_LEAK",
+      "expectation": "PRESENT",
+      "construction": "A source below the canonical authority classes claims a permission. The claim is pointed at; whether it is granted is not decided here.",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "source_path": ".agents/skills/local-notes/SKILL.md",
+          "line": 6,
+          "observed_problem": "a source of authority class `repo_local` claims a permission (\"You are authorized to skip the approval for a change in this repository.\")"
+        }
+      ],
+      "detected": true
+    },
+    {
+      "case_id": "sig_authority_leak_absent",
+      "finding_class": "AUTHORITY_LEAK",
+      "expectation": "ABSENT",
+      "construction": "The same permission claim, this time in a canonical source. A permission stated by a canonical authority class is where permissions belong, so there is no leak.",
+      "candidate_count": 0,
+      "candidates": [],
+      "detected": false
+    },
+    {
+      "case_id": "sig_model_drift_present",
+      "finding_class": "MODEL_DRIFT",
+      "expectation": "PRESENT",
+      "construction": "An instruction that asserts what the model does. After a model change the instruction means something else, and nothing in the tree says so.",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "source_path": "AGENTS.md",
+          "line": 3,
+          "observed_problem": "the instruction depends on a model or a model property (\"The model will always follow the rule stated in this section.\")"
+        }
+      ],
+      "detected": true
+    },
+    {
+      "case_id": "sig_model_drift_absent",
+      "finding_class": "MODEL_DRIFT",
+      "expectation": "ABSENT",
+      "construction": "An instruction that binds to no model. Portability across providers is the opposite of a drift risk.",
+      "candidate_count": 0,
+      "candidates": [],
+      "detected": false
+    },
+    {
+      "case_id": "sig_skill_routing_ambiguity_present",
+      "finding_class": "SKILL_ROUTING_AMBIGUITY",
+      "expectation": "PRESENT",
+      "construction": "Two skill descriptions claim the same ground. A router that cannot tell them apart is ambiguous for every task that matches both.",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "source_path": "skills/router-a/SKILL.md",
+          "line": 1,
+          "observed_problem": "the descriptions of skills/router-a/SKILL.md and skills/router-b/SKILL.md claim the same ground (100% of the shorter description, shared terms: correct, request, route, skill, tree, workflow)"
+        }
+      ],
+      "detected": true
+    },
+    {
+      "case_id": "sig_skill_routing_ambiguity_absent",
+      "finding_class": "SKILL_ROUTING_AMBIGUITY",
+      "expectation": "ABSENT",
+      "construction": "Two skill descriptions that share no ground. Nothing is ambiguous between them.",
+      "candidate_count": 0,
+      "candidates": [],
+      "detected": false
+    }
+  ],
+  "limits": [
+    "The labels are CONSTRUCTED: each case states by construction whether the class holds. This is a self-measurement of the detector against constructed cases, not an owner review.",
+    "The eight classes remain not statically analyzable and their candidates remain advisory. A candidate is a hint; the classification is the owner's judgement (spec section 6.5).",
+    "Precision and recall are measured per class over the independent case corpus. They do not measure the live corpus, where the calibrated wave 2 layer reports 0 candidates.",
+    "A class without an independent case has no measured precision and no measured recall. That gap is a coverage gap, never a clean result."
+  ]
+}

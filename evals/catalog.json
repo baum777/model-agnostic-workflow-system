@@ -55,6 +55,8 @@
     "fixtures/maws-vnext/owner-authority.contracts.json",
     "fixtures/maws-vnext/evidence-admission.contracts.json",
     "fixtures/maws-vnext/experiment-definition.contracts.json",
-    "fixtures/maws-vnext/experiment-comparison.contracts.json"
+    "fixtures/maws-vnext/experiment-comparison.contracts.json",
+    "fixtures/maws-vnext/regression-comparison.contracts.json",
+    "fixtures/maws-vnext/rollback-record.contracts.json"
   ]
 }

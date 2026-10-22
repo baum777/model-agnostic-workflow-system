@@ -1,0 +1,616 @@
+{
+  "assurance_run_record": {
+    "schema_version": "1.0.0",
+    "run_id": "s9-regression-rollback-2026-10-22",
+    "created_at": "2026-10-22T14:36:18.325Z",
+    "repository": "github.com/baum777/model-agnostic-workflow-system",
+    "implementation_commit_sha": "5b5319e82a6e161dbf7fc02b6e5bab97e6e30ce1",
+    "environment": {
+      "node_version": "v24.19.0",
+      "platform": "linux",
+      "arch": "x64",
+      "ci_parity": "LOCAL_REPLICATION",
+      "hosted_ci_executed": false
+    },
+    "gates": [
+      {
+        "id": "syntax-core",
+        "description": "node --check on the five modules the workflow names explicitly",
+        "command": "node --check scripts/tools/baum-loop-repo.mjs && node --check scripts/tools/validate-loop-run.mjs && node --check scripts/tools/ci-gate.mjs && node --check scripts/tools/skill-frontdoor-check.mjs && node --check runtime/skills/frontdoor.mjs",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 158,
+        "stdout": {
+          "file": "gates/syntax-core.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "file": "gates/syntax-core.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "syntax-sweep",
+        "description": "node --check over every .mjs file under runtime, scripts/tools and providers",
+        "command": "find runtime scripts/tools providers -type f -name '*.mjs' -print0 | xargs -0 -n1 node --check",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 5437,
+        "stdout": {
+          "file": "gates/syntax-sweep.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "file": "gates/syntax-sweep.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "validate-secrets",
+        "description": "secret boundary validation",
+        "command": "npm run --silent validate-secrets",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 186,
+        "stdout": {
+          "file": "gates/validate-secrets.stdout.log",
+          "bytes": 83,
+          "sha256": "bdbee7eecd578bd2655b7c41b806e124321317a335d0b1ace3ee463833e0bf0f"
+        },
+        "stderr": {
+          "file": "gates/validate-secrets.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "scan-secrets",
+        "description": "secret scan",
+        "command": "npm run --silent scan-secrets",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 177,
+        "stdout": {
+          "file": "gates/scan-secrets.stdout.log",
+          "bytes": 87,
+          "sha256": "d23d9636832e4ea26e26e5488d454d6b8db935363ddc36736c7029284c280b5c"
+        },
+        "stderr": {
+          "file": "gates/scan-secrets.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "security-regression-tests",
+        "description": "the security boundary regression tests the workflow runs in its security step",
+        "command": "node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs tests/tools/safe-remove.test.mjs tests/tools/evidence-content-validation.test.mjs",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 3923,
+        "stdout": {
+          "file": "gates/security-regression-tests.stdout.log",
+          "bytes": 4261,
+          "sha256": "a554b01e4042d060c22dd47854327a65fa0ee9b1042b4a869c2e4818c2aafb40"
+        },
+        "stderr": {
+          "file": "gates/security-regression-tests.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "counts": {
+          "tests": 52,
+          "pass": 52,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "id": "source-security-scan",
+        "description": "the repository-owned .mjs static security gate",
+        "command": "npm run --silent scan:source-security",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 7887,
+        "stdout": {
+          "file": "gates/source-security-scan.stdout.log",
+          "bytes": 137,
+          "sha256": "981347191e053e0faf578a5e9930e9444cd9f2c65b253b9f60a119385233941e"
+        },
+        "stderr": {
+          "file": "gates/source-security-scan.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "assurance-run-records",
+        "description": "every committed assurance run record is re-derived from its material",
+        "command": "npm run --silent validate:assurance-run -- --all",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 408,
+        "stdout": {
+          "file": "gates/assurance-run-records.stdout.log",
+          "bytes": 319,
+          "sha256": "763e312777ee34ba8a9ef28e6ceda1a85bf9bd24c7a424b20117fdb26cc2b8e8"
+        },
+        "stderr": {
+          "file": "gates/assurance-run-records.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "evidence-content-check",
+        "description": "the persisted evidence must say what the content manifest requires",
+        "command": "npm run --silent validate:evidence-content -- --root . evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 157,
+        "stdout": {
+          "file": "gates/evidence-content-check.stdout.log",
+          "bytes": 15307,
+          "sha256": "d8fc99e3d3cb27a4e8be526d9312e001784dd6dd9a08f3a164b6f276ac62ddb4"
+        },
+        "stderr": {
+          "file": "gates/evidence-content-check.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "merge-executor-lane",
+        "description": "the cross-lane merge guard the workflow runs",
+        "command": "npm run --silent test:merge-executor && python3 -m unittest tests/tools/merge_lane_authorization_schema_test.py",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 14388,
+        "stdout": {
+          "file": "gates/merge-executor-lane.stdout.log",
+          "bytes": 7112,
+          "sha256": "38f997f9d0631e88e37797d23e10346f8a417479f0edcae1b9097af5673d5c39"
+        },
+        "stderr": {
+          "file": "gates/merge-executor-lane.stderr.log",
+          "bytes": 120,
+          "sha256": "2b390ad0ecc0187ae4c9907c4b66fcd5cf984adc11b10becfdaa3a91cfef8ccd"
+        },
+        "counts": {
+          "tests": 89,
+          "pass": 89,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "id": "vnext-unit-suite",
+        "description": "the complete runtime vNext unit suite",
+        "command": "npm run --silent test:vnext",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 5394,
+        "stdout": {
+          "file": "gates/vnext-unit-suite.stdout.log",
+          "bytes": 75318,
+          "sha256": "bb38ee86a36e996b620b4c41b4cf0e12739266ce3a1c376ce1d7ad131498f983"
+        },
+        "stderr": {
+          "file": "gates/vnext-unit-suite.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "counts": {
+          "tests": 825,
+          "pass": 825,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "id": "provider-neutral",
+        "description": "provider neutral core validation",
+        "command": "npm run --silent validate-neutral",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 198,
+        "stdout": {
+          "file": "gates/provider-neutral.stdout.log",
+          "bytes": 83,
+          "sha256": "bdbee7eecd578bd2655b7c41b806e124321317a335d0b1ace3ee463833e0bf0f"
+        },
+        "stderr": {
+          "file": "gates/provider-neutral.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "provider-adapter-import",
+        "description": "provider adapter import tests",
+        "command": "node --test tests/tools/provider-adapter-import.test.mjs",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 87,
+        "stdout": {
+          "file": "gates/provider-adapter-import.stdout.log",
+          "bytes": 215,
+          "sha256": "0bc266a44391b5a496eaa0218948bc2e3c58370f7d803c383dec786034e0b464"
+        },
+        "stderr": {
+          "file": "gates/provider-adapter-import.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "counts": {
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "id": "eval-maws-vnext",
+        "description": "the maws-vnext certification eval",
+        "command": "npm run --silent eval:maws-vnext",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 842,
+        "stdout": {
+          "file": "gates/eval-maws-vnext.stdout.log",
+          "bytes": 4369,
+          "sha256": "80c29abc513ac22ef4101e1328568f8c86c2da0a512e3783ca4ec87ec3405aeb"
+        },
+        "stderr": {
+          "file": "gates/eval-maws-vnext.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "eval-secret-boundary",
+        "description": "the secret-boundary certification eval",
+        "command": "npm run --silent eval:secret-boundary",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 776,
+        "stdout": {
+          "file": "gates/eval-secret-boundary.stdout.log",
+          "bytes": 1012,
+          "sha256": "0528b0bbdd905a8c41f1425447e95c1efb496492a6f327efa7e6eaff1ea0e68d"
+        },
+        "stderr": {
+          "file": "gates/eval-secret-boundary.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "eval-provider-export-alignment",
+        "description": "the provider export alignment eval",
+        "command": "npm run --silent eval:provider-export-alignment",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 758,
+        "stdout": {
+          "file": "gates/eval-provider-export-alignment.stdout.log",
+          "bytes": 418,
+          "sha256": "5ad0632b7e0649583f6bda2c97669e63f29c68c40d1d5245850fbae18bbdb4f0"
+        },
+        "stderr": {
+          "file": "gates/eval-provider-export-alignment.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "validate-maws-vnext",
+        "description": "MAWS vNext contract validation",
+        "command": "npm run --silent validate-maws-vnext",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 188,
+        "stdout": {
+          "file": "gates/validate-maws-vnext.stdout.log",
+          "bytes": 1042,
+          "sha256": "481a1a91306d6f03b122f50219b9215fbbf0427e57121f31d791a12e448aba97"
+        },
+        "stderr": {
+          "file": "gates/validate-maws-vnext.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "skill-frontdoor-regression",
+        "description": "the skill frontdoor regression suite",
+        "command": "npm run --silent test:skill-frontdoor",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 220,
+        "stdout": {
+          "file": "gates/skill-frontdoor-regression.stdout.log",
+          "bytes": 633,
+          "sha256": "6b90978efd653c0b3b2ce1c7e9f67089db6118a1679e488a9a9880d40f2f816f"
+        },
+        "stderr": {
+          "file": "gates/skill-frontdoor-regression.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "counts": {
+          "tests": 6,
+          "pass": 6,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        }
+      },
+      {
+        "id": "registry-disposition-repair",
+        "description": "the repair registry disposition the workflow validates",
+        "command": "node scripts/tools/validate-registry-disposition.mjs evidence/maws-security-repair-2026-10-20/registry-disposition.json",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 31,
+        "stdout": {
+          "file": "gates/registry-disposition-repair.stdout.log",
+          "bytes": 37,
+          "sha256": "87db755d6939e208105ccd7234f036194bc3863b229a943c547ff4fa9171010a"
+        },
+        "stderr": {
+          "file": "gates/registry-disposition-repair.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "registry-disposition-merge-incident",
+        "description": "the merge incident closure registry disposition the workflow validates",
+        "command": "node scripts/tools/validate-registry-disposition.mjs evidence/merge-pr-incident-closure-2026-10-21/registry-disposition.json",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 30,
+        "stdout": {
+          "file": "gates/registry-disposition-merge-incident.stdout.log",
+          "bytes": 37,
+          "sha256": "87db755d6939e208105ccd7234f036194bc3863b229a943c547ff4fa9171010a"
+        },
+        "stderr": {
+          "file": "gates/registry-disposition-merge-incident.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "regression-rollback-gates",
+        "description": "the S9 regression and rollback gates: the contract validation and the independent case corpus evaluation",
+        "command": "npm run --silent validate-regression-comparison && npm run --silent eval:regression",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 315,
+        "stdout": {
+          "file": "gates/regression-rollback-gates.stdout.log",
+          "bytes": 445,
+          "sha256": "45b3764b2bfb266b2bf7ce3bdc90172777ced8b2d9ee79438a795eb3337541e6"
+        },
+        "stderr": {
+          "file": "gates/regression-rollback-gates.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "ci-gate",
+        "description": "the loop repo CI gate",
+        "command": "npm run --silent baum:ci-gate",
+        "status": "PASS",
+        "exit_code": 0,
+        "duration_ms": 316,
+        "stdout": {
+          "file": "gates/ci-gate.stdout.log",
+          "bytes": 1242,
+          "sha256": "616f9dfa34dd60383ab7d4899de4ace277af8b3d47adb39e50ca628a21ad15d2"
+        },
+        "stderr": {
+          "file": "gates/ci-gate.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "totals": {
+      "gates": 21,
+      "gates_passed": 21,
+      "gates_failed": 0,
+      "tests_passed": 973,
+      "tests_failed": 0
+    },
+    "artifacts": [
+      {
+        "path": "scripts/tools/path-confinement.mjs",
+        "bytes": 21540,
+        "sha256": "fb8e699b346dd610df00bc057f61ffe39a50392a7dbf3ac1b6798458522e5bc1"
+      },
+      {
+        "path": "scripts/tools/evidence-admission.mjs",
+        "bytes": 28634,
+        "sha256": "bd6db29820dd390a102cc9269fbd0067ce2cc2457ebac588b600b8f3cfb856a9"
+      },
+      {
+        "path": "scripts/tools/evidence-provenance.mjs",
+        "bytes": 28734,
+        "sha256": "c30a5f68199a13072f3ae2fa1a241e88495b61532565705a282e70aad05713c3"
+      },
+      {
+        "path": "scripts/tools/scan-source-security.mjs",
+        "bytes": 20579,
+        "sha256": "a9a685487dc30867dee903063f52635d08ade7f006d714a0906e1a15fbf59c15"
+      },
+      {
+        "path": "scripts/tools/capture-assurance-run.mjs",
+        "bytes": 16608,
+        "sha256": "5992101c88c4c901acb83f836c3e367a2aa9e8c5b97fbc42c5c6c26f896945cd"
+      },
+      {
+        "path": "scripts/tools/validate-assurance-run-record.mjs",
+        "bytes": 10426,
+        "sha256": "a67bdddb04afbe2e417d9e48fc1c03bd94d14f41d162e2ad4f2c3c724191dc9a"
+      },
+      {
+        "path": "core/contracts/assurance-run-record.schema.json",
+        "bytes": 5289,
+        "sha256": "1c9139c94d31099344f7e8da4ea25e938d7b16c46d3a9091a981608f20ee8e01"
+      },
+      {
+        "path": "security/source-security-baseline.json",
+        "bytes": 17862,
+        "sha256": "0277bd7290378ea678bb58b566313c4a98bfb415fd6497fd6d479ff1ee81fe3e"
+      },
+      {
+        "path": "tests/vnext/evidence-admission.test.mjs",
+        "bytes": 51497,
+        "sha256": "382a5d32f7bc8c31655f4eb428a29ffaf9d7b1a24576c6e052aa950318db5e5e"
+      },
+      {
+        "path": "tests/vnext/evidence-provenance.test.mjs",
+        "bytes": 39424,
+        "sha256": "506ddb621503906aacc437c4eb86e44c7a5f27cd8fb77fa1a1b965036ed1925e"
+      },
+      {
+        "path": "tests/tools/assurance-run-record.test.mjs",
+        "bytes": 11977,
+        "sha256": "8978ea0fcda324d206578b5a6a300328ba9fae9b473810d8733809c5dd90d210"
+      },
+      {
+        "path": "tests/tools/assurance-residual-matrix.test.mjs",
+        "bytes": 5777,
+        "sha256": "312d02c3f1e71920565a4c4a8e45a25dc6191be9eb32185eb16357c0d3c5e1bf"
+      },
+      {
+        "path": "evidence/assurance-closure-2026-10-21/residual-matrix.json",
+        "bytes": 21644,
+        "sha256": "0f5250f6582510dd8b1fbdab7247d70ce66a033566597f54a3ba8f78d1a3cccf"
+      },
+      {
+        "path": "evidence/assurance-closure-2026-10-21/mutation-probes.json",
+        "bytes": 15848,
+        "sha256": "737a5b9b5dfdeb0fc0b0ef9e2289318509690a175fe11eec14b44e643d9a675f"
+      },
+      {
+        "path": "evidence/assurance-closure-2026-10-21/baseline-qualification.md",
+        "bytes": 12967,
+        "sha256": "52a76a60ed2802da56dde980540afb8c884fce23b700f6079495e68c9efd4fba"
+      },
+      {
+        "path": "scripts/tools/safe-remove.mjs",
+        "bytes": 10305,
+        "sha256": "26ff04cd036d25048c6fbc51c8ffea6be5e49a0971b098f49e12e4c91c17b373"
+      },
+      {
+        "path": "scripts/tools/validate-evidence-content.mjs",
+        "bytes": 10880,
+        "sha256": "a5343ca0e4c9b70a45bbd43cf0325e1f873773cb3d79d5d9165835ef9324ae94"
+      },
+      {
+        "path": "tests/tools/safe-remove.test.mjs",
+        "bytes": 11469,
+        "sha256": "ad6eb14154f9ceb024dde98333392342ed585378a8fb6c2b91bdf89849996a1b"
+      },
+      {
+        "path": "tests/tools/evidence-content-validation.test.mjs",
+        "bytes": 9081,
+        "sha256": "5b486ad3c20c490899547fdffd5f847c5c7e8513c0713b9c24f3d7bee87dcd76"
+      },
+      {
+        "path": "evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json",
+        "bytes": 4910,
+        "sha256": "f7f7054d940dc0e034306dea16b4ce42bbfbfa05c06291e8dab0e9929af16378"
+      },
+      {
+        "path": "evidence/operational-safety-closure-2026-10-22/mutation-probes.json",
+        "bytes": 3737,
+        "sha256": "94b22231994cb95aaa1aae54b4d56531ad223faf481ddbcc75322414e9da386e"
+      },
+      {
+        "path": "core/contracts/regression-comparison.schema.json",
+        "bytes": 9793,
+        "sha256": "5e012b4e93ad2c5bd38f294dd86e8d2d919d7409e70147b44b944960e61f1592"
+      },
+      {
+        "path": "core/contracts/rollback-record.schema.json",
+        "bytes": 10100,
+        "sha256": "40c5737cffb162c296b390f7371eb83e3d992279030e624979cb58aa98f6be92"
+      },
+      {
+        "path": "runtime/regression/regression-gate.mjs",
+        "bytes": 15744,
+        "sha256": "045f8ffd45eea960a761952349eae7f74df8ba63b7a7b8f1d4e7d44baa9bf6ff"
+      },
+      {
+        "path": "runtime/regression/signal-evaluation.mjs",
+        "bytes": 10431,
+        "sha256": "0967177688b776623a4512af3ccf0cf1bba50aa1f2043fd7c533979cc39fa936"
+      },
+      {
+        "path": "runtime/regression/rollback.mjs",
+        "bytes": 14321,
+        "sha256": "c3a932cb90f5e50c9c81a6e2738919ab753ae40c0e640f88b2f8bd19fc76e1f0"
+      },
+      {
+        "path": "scripts/tools/validate-regression-comparison.mjs",
+        "bytes": 19802,
+        "sha256": "75607e602c97e3656d1a4806374ede3c84b98b676b45b1daca1f27a79e82c889"
+      },
+      {
+        "path": "scripts/tools/run-regression-eval.mjs",
+        "bytes": 16905,
+        "sha256": "8934f083973049a1e0d889bca177c3d9a690118f5719df809fda610e1959e10d"
+      },
+      {
+        "path": "evals/s9-regression/corpus.json",
+        "bytes": 74094,
+        "sha256": "0be5845919633ae9d20bf086584a761fdacd6eb92b28dfff0d7f510866a5e700"
+      },
+      {
+        "path": "evals/fixtures/maws-vnext/regression-comparison.contracts.json",
+        "bytes": 25099,
+        "sha256": "ece79275561ef1e23a781c508200d37d757b42b7df92a5abade753c8cf48f935"
+      },
+      {
+        "path": "evals/fixtures/maws-vnext/rollback-record.contracts.json",
+        "bytes": 13983,
+        "sha256": "12f1b91cc2b058e9f4c37ab0dcd5ea11060158780bbbccf83f7a2f44d850838a"
+      },
+      {
+        "path": "tests/vnext/regression-eval.test.mjs",
+        "bytes": 21938,
+        "sha256": "a93a4a33df3f882c56415972ccf01e58e8eda0e569918900548d2d1c0493a741"
+      }
+    ],
+    "limits": [
+      "A LOCAL_REPLICATION of the hosted workflow's steps under the workflow's pinned Node major, not a hosted CI run: the account's GitHub Actions admission is closed by a billing lock (registry finding F-09, owner-gated), so the wired CI steps are PUBLISHED but have NOT run there, and no hosted result is claimed here.",
+      "No independent HUMAN approval is claimed: the verification is tool-based (the unit suites, the independent case corpus, a self-validating run record). The slice was implemented under the adopted development target (OD-20) and creates no owner decision, no adoption and no activation.",
+      "Every case in the S9 corpus is a CONSTRUCTED fixture. The run measures the decision logic of the regression gate and the controlled rollback plan, and the detectors of the eight advisory signals against cases whose answer was fixed independently of the detectors. It measures no model behaviour and no real skill.",
+      "The signal labels are constructed, not owner-reviewed: the eight classes remain not statically analyzable, their candidates remain advisory, and the owner review of the advisory candidates stays open.",
+      "No security claim is derived from the external deep scan: the session's pre-commit scan returned an inconclusive result (scanner_enobufs), and the repository-owned .mjs static gate covers only the governed roots with a bounded rule set.",
+      "The S9 surface is not registered as a family in evals/fixtures/maws-vnext-baseline.json: the authority matrix that table requires is a pinned instruction source, and a row there changes the effective instruction digest that the reference run spec and the frozen HO-01 experiment evidence pin, so both suites then fail closed. The registration is deferred to the lane that owns the instruction-digest re-pin, as the earlier slices S3, S5, S11, S12 and S13 are registered without a family row.",
+      "Two independent review rounds found eight real defects in total; all eight are repaired in the bound commit, and each repair is bound by a corpus case or a unit test. The reviews were made by the review connector, not by a human owner."
+    ],
+    "validator_command": "node scripts/tools/validate-assurance-run-record.mjs evidence/s9-regression-rollback-2026-10-22/run-record.json",
+    "contract_version": "assurance-run-record.v1"
+  }
+}

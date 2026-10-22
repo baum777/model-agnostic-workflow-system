@@ -1249,6 +1249,58 @@ Tasks:
 
 **DoD:** Fehlgeschlagene Verbesserungen können ohne Verlust der Ausführungshistorie zurückgenommen werden.
 
+#### S9 — Implementierungsstand (Slice, 2026-10-22)
+
+Der Slice S9 ist implementiert. Er besteht aus zwei Teilen, die getrennt
+entscheiden: der **versionierte Vergleich** von Baseline und Candidate und
+der **kontrollierte Rollback** auf die letzte qualifizierte Revision.
+
+**Vergleich (`core/contracts/regression-comparison.schema.json`,
+`runtime/regression/regression-gate.mjs`).** Beide Seiten tragen ihre
+Version, ihren Inhalts-Digest, ihren Subject-Bezug und den Corpus-Digest, über
+dem sie gemessen wurden. Die Kriterien (Skill-Routing, Output-Assertions,
+Security-Regressions, advisory Instruction-Integrity-Kandidaten) und die
+Zulässigkeits-Invarianten (Evidence vollständig, ein Corpus, derselbe
+Subject, zwei verschiedene Revisionen, keine Adoption) werden getrennt
+ausgewiesen. Das Security-Kriterium ist **absolut**: ein Candidate, der auch
+nur eine Security-Regression trägt, regressiert das Kriterium, egal wie er
+sich zum Baseline verhält — eine relative Verbesserung darf keine offene
+Regression laundering. Die advisory Instruction-Integrity-Kandidaten bleiben
+nicht blockierend und werden als Beobachtung geführt. Fehlende Evidence, ein
+anderer Corpus, ein anderer Subject, ein Vergleich einer Revision mit sich
+selbst und ein nicht gemessenes blockierendes Kriterium führen zu
+`BLOCKED`, niemals zu `NO_REGRESSION`. Der Vergleich autorisiert nichts:
+`adoption_authorized` und `authority_granted` sind Konstanten.
+
+**Rollback-Plan (`core/contracts/rollback-record.schema.json`,
+`runtime/regression/rollback.mjs`).** Das Restore-Ziel wird **abgeleitet**,
+nicht gewählt: es ist die neueste Revision mit einer `QUALIFIED`-Qualifikation
+und eigenem Nachweis. Nach dem Restore wird die Materialität des
+zurückgesetzten Zustands gegen die geerbte Qualifikation neu abgeleitet; ein
+Restore, der den qualifizierten Zustand nicht wiederherstellt, schließt
+fail-closed. Die Ausführungshistorie wird über einen **unabhängigen**
+Evidence-Inventar-Digest geprüft: der Digest, der VOR dem Rollback
+genommen wurde, wird gegen den aktuell berechneten Digest gehalten; ein
+fehlender Digest ist eine Verweigerung, kein Default, weil ein aus dem
+geprüften Zustand abgeleiteter Digest den Vergleich tautologisch machen
+würde. Der Record ist ein **Plan**, keine Ausführung: das Verdikt ist
+`ROLLBACK_PLANNED`, niemals `ROLLED_BACK` — Plan ist nicht Apply, und ein
+Record, der eine Rollback-Ausführung behauptete, ohne dass eine stattgefunden
+hätte, wäre eine falsche Ausführungsaussage. Die Ausführung selbst gehört
+in den owner-governierten Promotion-Pfad; ein Record einer **durchgeführten**
+Rollback mit Readback ist ein eigener Vertrag.
+
+**Messung.** Der unabhängige Fall-Korpus `evals/s9-regression/corpus.json`
+trägt je Klasse der acht semantischen Signale einen Fall, in dem sie ZUTRIFFT,
+und einen, in dem sie NICHT zutrifft — die Antwort jedes Falls steht fest,
+bevor der Detektor läuft. Gemessen: 16 Fälle über 8/8 Klassen, 8 Treffer, 0
+Falsch-Positive, 0 Falsch-Negative, 0 Coverage-Lücken; 8 Vergleichsfälle und
+7 Rollback-Fälle mit erwarteten Verdicts und typisierten Refusal-Codes. Die
+Labels sind **konstruiert** und nicht owner-geprüft; die acht Klassen bleiben
+nicht statisch analysierbar, ihre Kandidaten bleiben advisory. Der Vergleich
+adoptiert nichts: der S8-Promotion-Pfad bleibt der einzige Weg zu einer
+Übernahme.
+
 ### S10 — Cross-Model Optimization
 
 - [ ] Qualifizierte Executor-Konfigurationen vergleichen.
@@ -1517,9 +1569,9 @@ Stattdessen soll es:
 **Target Status:** ADOPTED — TARGET SPECIFICATION (owner act of 2026-10-21)  
 **Specification Version:** 0.2.0  
 **Canonical Adoption:** ADOPTED AS THE SHARED-CORE DEVELOPMENT TARGET — owner act of 2026-10-21, recorded as OD-20 in `docs/maws-vnext-owner-decisions.md`. The act names this document and this version as the governing target of the MAWS-SII development lane, and it takes up the standing owner dispositions OA-04 (specification adoption) and OA-05 (instruction audit capability implementation) together with the resumption of that lane. The adoption grants no authority, qualification, permission or runtime activation, it replaces no approval decision, and it does not discharge the owner review of the advisory candidates the auditor names. The document surface keeps its path under `docs/proposals/`: eighteen evidence records of 2026-10-20/21 reference that path, and the evidence path contract makes those records immutable. The promotion of the document into the canonical docs surface is a separate slice and remains the next gate of the document placement.  
-**Implementation Status:** APPLIED IN PART, BY SLICE — die Slices S0–S8 und S11–S13 sind an ihren Owner-Surfaces gemergt; die Welle 2 des S3-Auditors (deterministische Advisory-Signallayer für die acht semantischen Klassen) ist mit gepflanzten Fixtures implementiert und gegen den aktuellen Korpus gemessen; die Slices S9 (Regression and Rollback) und S10 (Cross-Model Optimization) sind offen  
+**Implementation Status:** APPLIED IN PART, BY SLICE — die Slices S0–S8 und S11–S13 sind an ihren Owner-Surfaces gemergt; die Welle 2 des S3-Auditors (deterministische Advisory-Signallayer für die acht semantischen Klassen) ist mit gepflanzten Fixtures implementiert und gegen den aktuellen Korpus gemessen; der Slice S9 (Regression and Rollback) ist als versionierter Baseline/Candidate-Vergleich und kontrollierter Rollback implementiert und gegen einen unabhängigen Fall-Korpus gemessen (16 Signal-Fälle über 8/8 Klassen mit 0 Falsch-Positiven und 0 Falsch-Negativen, 6 Vergleichs- und 6 Rollback-Fälle); der Slice S10 (Cross-Model Optimization) ist offen  
 **Runtime Activation:** NONE  
-**Next Gate:** ausstehende Registry-`CONTRACT_RECORD`-Schreibung zu S1 → S4 Skill Improvement Analyzer → S5 Behavioral Evaluation Baseline → S11 Harness Context Separation, die offenen Slices S9 und S10, die owner-geprüfte Analyse der Advisory-Kandidaten aus Welle 2, sowie die dokumentbezogene Platzierung dieses Dokuments in der kanonischen Docs-Fläche
+**Next Gate:** ausstehende Registry-`CONTRACT_RECORD`-Schreibung zu S1 → S4 Skill Improvement Analyzer → S5 Behavioral Evaluation Baseline → S11 Harness Context Separation, der offene Slice S10, die owner-geprüfte Analyse der Advisory-Kandidaten aus Welle 2, sowie die dokumentbezogene Platzierung dieses Dokuments in der kanonischen Docs-Fläche
 
 ---
 

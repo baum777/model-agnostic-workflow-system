@@ -1,0 +1,361 @@
+{
+  "id": "maws-vnext-rollback-record-contracts",
+  "kind": "maws-vnext",
+  "target": {
+    "name": "rollback-record"
+  },
+  "blocking": true,
+  "description": "Schema-decidable cases for the rollback PLAN record contract (S9). The semantic invariants that the minimal JSON schema engine cannot express (a planned rollback restores a QUALIFIED revision, re-derives NON_MATERIAL and shows the history intact against an INDEPENDENT pre-rollback digest, a blocked plan carries a typed refusal code and a reason, neither grants authority) are enforced by semanticRollbackIssues in scripts/tools/validate-regression-comparison.mjs and covered in tests/vnext/regression-eval.test.mjs.",
+  "cases": [
+    {
+      "case_id": "rbk_pos_rollback_planned",
+      "schema": "core/contracts/rollback-record.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "rollback_id": "rbk_fixture_rollback_planned",
+        "created_at": "2026-10-22T10:00:00Z",
+        "subject": {
+          "kind": "skill",
+          "ref": "s9-demo-skill"
+        },
+        "rolled_back_from": {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+        },
+        "restored_to": {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "fingerprint_id": "fp_s9_qualified"
+        },
+        "materiality_after_rollback": {
+          "decision_id": "mat_s9_qualified",
+          "overall_class": "NON_MATERIAL",
+          "deltas": []
+        },
+        "history": {
+          "inventory_digest": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "entries": [
+            {
+              "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+              "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+            }
+          ],
+          "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "digest_after": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "unchanged": true
+        },
+        "verdict": "ROLLBACK_PLANNED",
+        "refusal_code": null,
+        "refusal_detail": null,
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "evidence_refs": [
+          "evals/s9-regression/corpus.json"
+        ]
+      }
+    },
+    {
+      "case_id": "rbk_pos_blocked",
+      "schema": "core/contracts/rollback-record.schema.json",
+      "valid": true,
+      "instance": {
+        "schema_version": "1.0.0",
+        "rollback_id": "rbk_fixture_blocked",
+        "created_at": "2026-10-22T10:00:00Z",
+        "subject": {
+          "kind": "skill",
+          "ref": "s9-demo-skill"
+        },
+        "rolled_back_from": {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+        },
+        "restored_to": {
+          "version": "none",
+          "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+          "qualification_id": "qual_unknown",
+          "qualification_state": "NOT_QUALIFIED",
+          "fingerprint_id": "fp_unknown"
+        },
+        "materiality_after_rollback": {
+          "decision_id": "mat_unknown",
+          "overall_class": "UNKNOWN",
+          "deltas": []
+        },
+        "history": {
+          "inventory_digest": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "entries": [
+            {
+              "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+              "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+            }
+          ],
+          "digest_before": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "digest_after": null,
+          "unchanged": false
+        },
+        "verdict": "BLOCKED",
+        "refusal_code": "ROLLBACK_TARGET_NOT_QUALIFIED",
+        "refusal_detail": "no revision of this subject carries a QUALIFIED qualification with its own evidence, so there is nothing to restore",
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "evidence_refs": [
+          "evals/s9-regression/corpus.json"
+        ]
+      }
+    },
+    {
+      "case_id": "rbk_neg_planned_to_unqualified_revision",
+      "schema": "core/contracts/rollback-record.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "rollback_id": "rbk_fixture_unqualified_restore",
+        "created_at": "2026-10-22T10:00:00Z",
+        "subject": {
+          "kind": "skill",
+          "ref": "s9-demo-skill"
+        },
+        "rolled_back_from": {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+        },
+        "restored_to": {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_candidate",
+          "qualification_state": "NOT_QUALIFIED",
+          "fingerprint_id": "fp_s9_candidate"
+        },
+        "materiality_after_rollback": {
+          "decision_id": "mat_s9_qualified",
+          "overall_class": "NON_MATERIAL",
+          "deltas": []
+        },
+        "history": {
+          "inventory_digest": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "entries": [
+            {
+              "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+              "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+            }
+          ],
+          "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "digest_after": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "unchanged": true
+        },
+        "verdict": "ROLLBACK_PLANNED",
+        "refusal_code": null,
+        "refusal_detail": null,
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "evidence_refs": [
+          "evals/s9-regression/corpus.json"
+        ]
+      }
+    },
+    {
+      "case_id": "rbk_neg_blocked_without_refusal_code",
+      "schema": "core/contracts/rollback-record.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "rollback_id": "rbk_fixture_blocked_without_code",
+        "created_at": "2026-10-22T10:00:00Z",
+        "subject": {
+          "kind": "skill",
+          "ref": "s9-demo-skill"
+        },
+        "rolled_back_from": {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+        },
+        "restored_to": {
+          "version": "none",
+          "digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+          "qualification_id": "qual_unknown",
+          "qualification_state": "NOT_QUALIFIED",
+          "fingerprint_id": "fp_unknown"
+        },
+        "materiality_after_rollback": {
+          "decision_id": "mat_unknown",
+          "overall_class": "UNKNOWN",
+          "deltas": []
+        },
+        "history": {
+          "inventory_digest": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "entries": [
+            {
+              "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+              "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+            }
+          ],
+          "digest_before": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          "digest_after": null,
+          "unchanged": false
+        },
+        "verdict": "BLOCKED",
+        "refusal_code": null,
+        "refusal_detail": "the refusal names no code",
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "evidence_refs": [
+          "evals/s9-regression/corpus.json"
+        ]
+      }
+    },
+    {
+      "case_id": "rbk_neg_planned_with_lost_history",
+      "schema": "core/contracts/rollback-record.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "rollback_id": "rbk_fixture_lost_history",
+        "created_at": "2026-10-22T10:00:00Z",
+        "subject": {
+          "kind": "skill",
+          "ref": "s9-demo-skill"
+        },
+        "rolled_back_from": {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+        },
+        "restored_to": {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "fingerprint_id": "fp_s9_qualified"
+        },
+        "materiality_after_rollback": {
+          "decision_id": "mat_s9_qualified",
+          "overall_class": "NON_MATERIAL",
+          "deltas": []
+        },
+        "history": {
+          "inventory_digest": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "entries": [
+            {
+              "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+              "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+            }
+          ],
+          "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "digest_after": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "unchanged": false
+        },
+        "verdict": "ROLLBACK_PLANNED",
+        "refusal_code": null,
+        "refusal_detail": null,
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "evidence_refs": [
+          "evals/s9-regression/corpus.json"
+        ]
+      }
+    },
+    {
+      "case_id": "rbk_neg_authority_granted",
+      "schema": "core/contracts/rollback-record.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "rollback_id": "rbk_fixture_authority",
+        "created_at": "2026-10-22T10:00:00Z",
+        "subject": {
+          "kind": "skill",
+          "ref": "s9-demo-skill"
+        },
+        "rolled_back_from": {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+        },
+        "restored_to": {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "fingerprint_id": "fp_s9_qualified"
+        },
+        "materiality_after_rollback": {
+          "decision_id": "mat_s9_qualified",
+          "overall_class": "NON_MATERIAL",
+          "deltas": []
+        },
+        "history": {
+          "inventory_digest": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "entries": [
+            {
+              "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+              "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+            }
+          ],
+          "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "digest_after": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "unchanged": true
+        },
+        "verdict": "ROLLBACK_PLANNED",
+        "refusal_code": null,
+        "refusal_detail": null,
+        "adoption_authorized": false,
+        "authority_granted": true,
+        "evidence_refs": [
+          "evals/s9-regression/corpus.json"
+        ]
+      }
+    },
+    {
+      "case_id": "rbk_neg_claims_a_performed_rollback",
+      "schema": "core/contracts/rollback-record.schema.json",
+      "valid": false,
+      "instance": {
+        "schema_version": "1.0.0",
+        "rollback_id": "rbk_fixture_claims_execution",
+        "created_at": "2026-10-22T10:00:00Z",
+        "subject": {
+          "kind": "skill",
+          "ref": "s9-demo-skill"
+        },
+        "rolled_back_from": {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+        },
+        "restored_to": {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "fingerprint_id": "fp_s9_qualified"
+        },
+        "materiality_after_rollback": {
+          "decision_id": "mat_s9_qualified",
+          "overall_class": "NON_MATERIAL",
+          "deltas": []
+        },
+        "history": {
+          "inventory_digest": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "entries": [
+            {
+              "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+              "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+            }
+          ],
+          "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "digest_after": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7",
+          "unchanged": true
+        },
+        "verdict": "ROLLED_BACK",
+        "refusal_code": null,
+        "refusal_detail": null,
+        "adoption_authorized": false,
+        "authority_granted": false,
+        "evidence_refs": [
+          "evals/s9-regression/corpus.json"
+        ]
+      }
+    }
+  ]
+}

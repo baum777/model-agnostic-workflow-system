@@ -82,6 +82,11 @@ jobs:
       - name: Validate MAWS vNext contracts
         run: npm run validate-maws-vnext
 
+      - name: Regression and rollback gates (S9)
+        run: |
+          npm run validate-regression-comparison
+          npm run eval:regression
+
       - name: Skill frontdoor regression tests
         run: npm run test:skill-frontdoor
 

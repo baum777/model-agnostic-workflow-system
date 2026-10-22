@@ -1,0 +1,1935 @@
+{
+  "corpus_id": "s9-regression-corpus-2026-10-22",
+  "kind": "maws-s9-regression",
+  "description": "The independent case corpus of the S9 slice (MAWS-SII-TARGET-SPEC-001 v0.2.0, slice S9 Regression and Rollback). It holds three sections. (1) SIGNAL_CASES: for each of the eight semantic classes of the section 6.2 taxonomy, one case in which the class HOLDS and one case in which it does NOT hold, stated by construction. The answer of every case is fixed when the case is written, so the measurement of the detectors does not depend on the detectors. (2) REGRESSION_CASES: a baseline revision and a candidate revision with their behavioral evaluation records, the expected verdict of the regression gate and the reason. The records are CONSTRUCTED FIXTURES, not the output of a model run: they exercise the gate's decision logic, they do not measure the behavioural quality of any real skill. (3) ROLLBACK_CASES: a version chain with its qualifications, the expected verdict of the controlled rollback and the typed refusal code. Where a rollback case does not state history.digest_before, the digest of the evidence inventory is derived from its entries; the case that tampers with the history states the stale digest explicitly.",
+  "limits": [
+    "Every case in this corpus is constructed. The corpus measures the DECISION LOGIC of the regression gate and the controlled rollback, and it measures the detectors of the eight advisory signals against cases whose answer is known independently. It measures no model behaviour and no real skill.",
+    "The signal labels are constructed, not owner-reviewed. The eight classes remain not statically analyzable and their candidates remain advisory.",
+    "A case that violates the S5 behavioral evaluation contract (a missing content digest) does so deliberately: it is the fail-closed probe for missing evidence."
+  ],
+  "signal_cases": [
+    {
+      "case_id": "sig_rule_conflict_present",
+      "finding_class": "RULE_CONFLICT",
+      "expectation": "PRESENT",
+      "construction": "Two sources bind the same dotted key to different values. The class holds by construction: the two bindings cannot both be right.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        },
+        {
+          "path": "docs/authority-matrix.md",
+          "role": "authority_matrix",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nThe `runtime.budget` must be 4096 tokens for every run of the harness.\n",
+        "docs/authority-matrix.md": "# Fixture authority matrix\n\nThe `runtime.budget` must be 8192 tokens for every run of the harness.\n"
+      }
+    },
+    {
+      "case_id": "sig_rule_conflict_absent",
+      "finding_class": "RULE_CONFLICT",
+      "expectation": "ABSENT",
+      "construction": "Two sources bind the same dotted key to the SAME value. There is no conflict to point at, so a correct detector stays silent.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        },
+        {
+          "path": "docs/authority-matrix.md",
+          "role": "authority_matrix",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nThe `runtime.budget` must be 4096 tokens for every run of the harness.\n",
+        "docs/authority-matrix.md": "# Fixture authority matrix\n\nThe `runtime.budget` must be 4096 tokens for every run of the harness.\n"
+      }
+    },
+    {
+      "case_id": "sig_precedence_conflict_present",
+      "finding_class": "PRECEDENCE_CONFLICT",
+      "expectation": "PRESENT",
+      "construction": "The canonical source prohibits a subject, a repository-local source obligates the same subject. Two authority levels govern one subject in opposite directions.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        },
+        {
+          "path": ".agents/skills/local-notes/SKILL.md",
+          "role": "local_skill_instruction",
+          "authority_class": "repo_local"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nNever edit `docs/owner-decisions.md` by hand; the owner decision record is append-only.\n",
+        ".agents/skills/local-notes/SKILL.md": "---\nname: local-notes\ndescription: Local helper notes for this repository.\n---\n\nYou must append every new decision to `docs/owner-decisions.md` instead of editing it.\n"
+      }
+    },
+    {
+      "case_id": "sig_precedence_conflict_absent",
+      "finding_class": "PRECEDENCE_CONFLICT",
+      "expectation": "ABSENT",
+      "construction": "Two sources of the SAME authority class prohibit the same subject. A contradiction between equals is a rule conflict, not a precedence conflict; the precedence class needs two authority levels.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        },
+        {
+          "path": "docs/authority-matrix.md",
+          "role": "authority_matrix",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nNever edit `docs/owner-decisions.md` by hand; the owner decision record is append-only.\n",
+        "docs/authority-matrix.md": "# Fixture authority matrix\n\nNever rewrite `docs/owner-decisions.md`; the owner decision record is append-only.\n"
+      }
+    },
+    {
+      "case_id": "sig_overconstraint_present",
+      "finding_class": "OVERCONSTRAINT",
+      "expectation": "PRESENT",
+      "construction": "A prohibition that quantifies over everything and names no scope it stops at. The class holds by construction: the rule reaches further than any rule can be applied.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nNever rely on any global cache of results.\n"
+      }
+    },
+    {
+      "case_id": "sig_overconstraint_absent",
+      "finding_class": "OVERCONSTRAINT",
+      "expectation": "ABSENT",
+      "construction": "The same shape of prohibition, but it names the scope it stops at. A rule with a scope is not over-constrained.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nNever rely on any global cache in `runtime/cache.mjs`.\n"
+      }
+    },
+    {
+      "case_id": "sig_redundant_instruction_present",
+      "finding_class": "REDUNDANT_INSTRUCTION",
+      "expectation": "PRESENT",
+      "construction": "The same rule is stated in two sources of the same authority. The repetition is the signal; whether it carries an independent function is the owner's judgement.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        },
+        {
+          "path": "docs/authority-matrix.md",
+          "role": "authority_matrix",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n",
+        "docs/authority-matrix.md": "# Fixture authority matrix\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+      }
+    },
+    {
+      "case_id": "sig_redundant_instruction_absent",
+      "finding_class": "REDUNDANT_INSTRUCTION",
+      "expectation": "ABSENT",
+      "construction": "Two sources state rules that are similar but not the same. Nothing is repeated, so there is no repetition to point at.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        },
+        {
+          "path": "docs/authority-matrix.md",
+          "role": "authority_matrix",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n",
+        "docs/authority-matrix.md": "# Fixture authority matrix\n\nEvery change in this repository must be registered in the Unitera Registry and in the Unitera Atlas.\n"
+      }
+    },
+    {
+      "case_id": "sig_context_overload_present",
+      "finding_class": "CONTEXT_OVERLOAD",
+      "expectation": "PRESENT",
+      "construction": "A repository-local source whose every instruction is already stated by a source of higher authority. Loading it adds no independent instruction.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        },
+        {
+          "path": ".agents/skills/local-notes/SKILL.md",
+          "role": "local_skill_instruction",
+          "authority_class": "repo_local"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n",
+        ".agents/skills/local-notes/SKILL.md": "---\nname: local-notes\ndescription: Local helper notes for this repository.\n---\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+      }
+    },
+    {
+      "case_id": "sig_context_overload_absent",
+      "finding_class": "CONTEXT_OVERLOAD",
+      "expectation": "ABSENT",
+      "construction": "A repository-local source that adds one instruction the higher-authority source does not state. The source is not redundant, so it is not overload.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        },
+        {
+          "path": ".agents/skills/local-notes/SKILL.md",
+          "role": "local_skill_instruction",
+          "authority_class": "repo_local"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n",
+        ".agents/skills/local-notes/SKILL.md": "---\nname: local-notes\ndescription: Local helper notes for this repository.\n---\n\nLocal notes must record the reasoning of a change without repeating the governance rule.\n"
+      }
+    },
+    {
+      "case_id": "sig_authority_leak_present",
+      "finding_class": "AUTHORITY_LEAK",
+      "expectation": "PRESENT",
+      "construction": "A source below the canonical authority classes claims a permission. The claim is pointed at; whether it is granted is not decided here.",
+      "sources": [
+        {
+          "path": ".agents/skills/local-notes/SKILL.md",
+          "role": "local_skill_instruction",
+          "authority_class": "repo_local"
+        }
+      ],
+      "files": {
+        ".agents/skills/local-notes/SKILL.md": "---\nname: local-notes\ndescription: Local helper notes for this repository.\n---\n\nYou are authorized to skip the approval for a change in this repository.\n"
+      }
+    },
+    {
+      "case_id": "sig_authority_leak_absent",
+      "finding_class": "AUTHORITY_LEAK",
+      "expectation": "ABSENT",
+      "construction": "The same permission claim, this time in a canonical source. A permission stated by a canonical authority class is where permissions belong, so there is no leak.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nYou are authorized to skip the approval for a change in this repository.\n"
+      }
+    },
+    {
+      "case_id": "sig_model_drift_present",
+      "finding_class": "MODEL_DRIFT",
+      "expectation": "PRESENT",
+      "construction": "An instruction that asserts what the model does. After a model change the instruction means something else, and nothing in the tree says so.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nThe model will always follow the rule stated in this section.\n"
+      }
+    },
+    {
+      "case_id": "sig_model_drift_absent",
+      "finding_class": "MODEL_DRIFT",
+      "expectation": "ABSENT",
+      "construction": "An instruction that binds to no model. Portability across providers is the opposite of a drift risk.",
+      "sources": [
+        {
+          "path": "AGENTS.md",
+          "role": "root_governance",
+          "authority_class": "canonical"
+        }
+      ],
+      "files": {
+        "AGENTS.md": "# Fixture governance\n\nPortability across Qwen, GPT and Claude must hold for every provider.\n"
+      }
+    },
+    {
+      "case_id": "sig_skill_routing_ambiguity_present",
+      "finding_class": "SKILL_ROUTING_AMBIGUITY",
+      "expectation": "PRESENT",
+      "construction": "Two skill descriptions claim the same ground. A router that cannot tell them apart is ambiguous for every task that matches both.",
+      "sources": [
+        {
+          "path": "skills/router-a/SKILL.md",
+          "role": "shared_exported_skill_instruction",
+          "authority_class": "shared_exported_skill"
+        },
+        {
+          "path": "skills/router-b/SKILL.md",
+          "role": "shared_exported_skill_instruction",
+          "authority_class": "shared_exported_skill"
+        }
+      ],
+      "files": {
+        "skills/router-a/SKILL.md": "---\nname: router-a\ndescription: route a request to the correct workflow skill tree\n---\n\nRoute the request to the matching workflow skill.\n",
+        "skills/router-b/SKILL.md": "---\nname: router-b\ndescription: route a request to the correct workflow skill tree\n---\n\nRoute the request to the matching workflow skill.\n"
+      }
+    },
+    {
+      "case_id": "sig_skill_routing_ambiguity_absent",
+      "finding_class": "SKILL_ROUTING_AMBIGUITY",
+      "expectation": "ABSENT",
+      "construction": "Two skill descriptions that share no ground. Nothing is ambiguous between them.",
+      "sources": [
+        {
+          "path": "skills/router-a/SKILL.md",
+          "role": "shared_exported_skill_instruction",
+          "authority_class": "shared_exported_skill"
+        },
+        {
+          "path": "skills/router-b/SKILL.md",
+          "role": "shared_exported_skill_instruction",
+          "authority_class": "shared_exported_skill"
+        }
+      ],
+      "files": {
+        "skills/router-a/SKILL.md": "---\nname: router-a\ndescription: route a request to the correct workflow skill tree\n---\n\nRoute the request to the matching workflow skill.\n",
+        "skills/router-b/SKILL.md": "---\nname: router-b\ndescription: draft a release note for the changelog of a published package\n---\n\nDraft the release note from the collected changes.\n"
+      }
+    }
+  ],
+  "regression_cases": [
+    {
+      "case_id": "regr_candidate_improved",
+      "expectation": {
+        "verdict": "NO_REGRESSION",
+        "candidate_rejected": false,
+        "construction": "The candidate routes better and asserts more, carries no security regression, and is measured over the same corpus. Nothing regressed, so the comparison answers NO_REGRESSION \u2014 and it still authorizes nothing."
+      },
+      "baseline": {
+        "version": "1.0.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_baseline_routing",
+          "created_at": "2026-10-22T09:00:00Z",
+          "variant": "BASELINE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.0.0",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 3,
+              "cases_failed": 3
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 3
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 5
+            },
+            "cost": {
+              "tokens_in": 1200,
+              "tokens_out": 480,
+              "cost_units": 0.004
+            },
+            "latency": {
+              "latency_ms_max": 900
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BASELINE_RECORDED",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "candidate": {
+        "version": "1.1.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_candidate_routing",
+          "created_at": "2026-10-22T09:30:00Z",
+          "variant": "CANDIDATE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.1.0",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 6,
+              "cases_failed": 0
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 6
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 6
+            },
+            "cost": {
+              "tokens_in": 1300,
+              "tokens_out": 500,
+              "cost_units": 0.005
+            },
+            "latency": {
+              "latency_ms_max": 950
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "IMPROVEMENT_PROVEN",
+          "baseline_ref": "bev_s9_baseline_routing",
+          "comparison": {
+            "baseline_eval_id": "bev_s9_baseline_routing",
+            "routing_accuracy_delta": 0.5,
+            "output_assertion_pass_delta": 0.16666666666666663,
+            "security_regressions": 0
+          },
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "trees": {
+        "baseline": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        },
+        "candidate": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        }
+      }
+    },
+    {
+      "case_id": "regr_candidate_security_regression_beats_improvement",
+      "expectation": {
+        "verdict": "REGRESSION_DETECTED",
+        "candidate_rejected": true,
+        "construction": "The candidate routes perfectly, asserts everything and still carries a security regression. An improved metric must not mask a governance regression, so the candidate is rejected."
+      },
+      "baseline": {
+        "version": "1.0.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_baseline_security",
+          "created_at": "2026-10-22T09:00:00Z",
+          "variant": "BASELINE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.0.0",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 3,
+              "cases_failed": 3
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 3
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 5
+            },
+            "cost": {
+              "tokens_in": 1200,
+              "tokens_out": 480,
+              "cost_units": 0.004
+            },
+            "latency": {
+              "latency_ms_max": 900
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BASELINE_RECORDED",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "candidate": {
+        "version": "1.1.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_candidate_security",
+          "created_at": "2026-10-22T09:30:00Z",
+          "variant": "CANDIDATE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.1.0",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 6,
+              "cases_failed": 0
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 6
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 6
+            },
+            "cost": {
+              "tokens_in": 1300,
+              "tokens_out": 500,
+              "cost_units": 0.005
+            },
+            "latency": {
+              "latency_ms_max": 950
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 1,
+            "gate": "BLOCK"
+          },
+          "verdict": "BLOCKED",
+          "baseline_ref": "bev_s9_baseline_security",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "trees": {
+        "baseline": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        },
+        "candidate": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        }
+      }
+    },
+    {
+      "case_id": "regr_candidate_routing_regression",
+      "expectation": {
+        "verdict": "REGRESSION_DETECTED",
+        "candidate_rejected": true,
+        "construction": "The candidate asserts more output but routes worse. A blocking criterion that regressed rejects the candidate, whatever the other criteria say."
+      },
+      "baseline": {
+        "version": "1.0.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_baseline_routing_regression",
+          "created_at": "2026-10-22T09:00:00Z",
+          "variant": "BASELINE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.0.0",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 3,
+              "cases_failed": 3
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 5
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 4
+            },
+            "cost": {
+              "tokens_in": 1200,
+              "tokens_out": 480,
+              "cost_units": 0.004
+            },
+            "latency": {
+              "latency_ms_max": 900
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BASELINE_RECORDED",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "candidate": {
+        "version": "1.1.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_candidate_routing_regression",
+          "created_at": "2026-10-22T09:30:00Z",
+          "variant": "CANDIDATE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.1.0",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 6,
+              "cases_failed": 0
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 2
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 6
+            },
+            "cost": {
+              "tokens_in": 1300,
+              "tokens_out": 500,
+              "cost_units": 0.005
+            },
+            "latency": {
+              "latency_ms_max": 950
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BLOCKED",
+          "baseline_ref": "bev_s9_baseline_routing_regression",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "trees": {
+        "baseline": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        },
+        "candidate": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        }
+      }
+    },
+    {
+      "case_id": "regr_candidate_missing_evidence",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "candidate_rejected": true,
+        "construction": "The candidate record does not name the content it was measured over. Missing evidence is not a pass: the comparison cannot be adjudicated and the candidate is not accepted."
+      },
+      "baseline": {
+        "version": "1.0.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_baseline_missing_evidence",
+          "created_at": "2026-10-22T09:00:00Z",
+          "variant": "BASELINE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.0.0",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 3,
+              "cases_failed": 3
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 3
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 5
+            },
+            "cost": {
+              "tokens_in": 1200,
+              "tokens_out": 480,
+              "cost_units": 0.004
+            },
+            "latency": {
+              "latency_ms_max": 900
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BASELINE_RECORDED",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "candidate": {
+        "version": "1.1.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_candidate_missing_evidence",
+          "created_at": "2026-10-22T09:30:00Z",
+          "variant": "CANDIDATE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.1.0",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 6,
+              "cases_failed": 0
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 6
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 6
+            },
+            "cost": {
+              "tokens_in": 1300,
+              "tokens_out": 500,
+              "cost_units": 0.005
+            },
+            "latency": {
+              "latency_ms_max": 950
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BLOCKED",
+          "baseline_ref": "bev_s9_baseline_missing_evidence",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "trees": {
+        "baseline": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        },
+        "candidate": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        }
+      }
+    },
+    {
+      "case_id": "regr_candidate_measured_over_another_corpus",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "candidate_rejected": true,
+        "construction": "The two sides were measured over different corpora. The numbers are not comparable, so the comparison refuses to answer instead of answering about nothing."
+      },
+      "baseline": {
+        "version": "1.0.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_baseline_other_corpus",
+          "created_at": "2026-10-22T09:00:00Z",
+          "variant": "BASELINE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.0.0",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 3,
+              "cases_failed": 3
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 3
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 5
+            },
+            "cost": {
+              "tokens_in": 1200,
+              "tokens_out": 480,
+              "cost_units": 0.004
+            },
+            "latency": {
+              "latency_ms_max": 900
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BASELINE_RECORDED",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "candidate": {
+        "version": "1.1.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_candidate_other_corpus",
+          "created_at": "2026-10-22T09:30:00Z",
+          "variant": "CANDIDATE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.1.0",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+              "cases_total": 6,
+              "cases_passed": 6,
+              "cases_failed": 0
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 6
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 6
+            },
+            "cost": {
+              "tokens_in": 1300,
+              "tokens_out": 500,
+              "cost_units": 0.005
+            },
+            "latency": {
+              "latency_ms_max": 950
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BLOCKED",
+          "baseline_ref": "bev_s9_baseline_other_corpus",
+          "reproducibility": {
+            "corpus_ref": "evals/skill-effectiveness/corpus.json",
+            "corpus_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "trees": {
+        "baseline": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        },
+        "candidate": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        }
+      }
+    },
+    {
+      "case_id": "regr_candidate_advisory_candidates_rose",
+      "expectation": {
+        "verdict": "NO_REGRESSION",
+        "candidate_rejected": false,
+        "construction": "The candidate plants one advisory rule conflict. The S3 wave 2 candidates stay advisory: the rise is reported as an observation and it does not reject the candidate."
+      },
+      "baseline": {
+        "version": "1.0.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_baseline_advisory",
+          "created_at": "2026-10-22T09:00:00Z",
+          "variant": "BASELINE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.0.0",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 3,
+              "cases_failed": 3
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 3
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 5
+            },
+            "cost": {
+              "tokens_in": 1200,
+              "tokens_out": 480,
+              "cost_units": 0.004
+            },
+            "latency": {
+              "latency_ms_max": 900
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BASELINE_RECORDED",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "candidate": {
+        "version": "1.1.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_candidate_advisory",
+          "created_at": "2026-10-22T09:30:00Z",
+          "variant": "CANDIDATE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.1.0",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 6,
+              "cases_failed": 0
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 6
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 6
+            },
+            "cost": {
+              "tokens_in": 1300,
+              "tokens_out": 500,
+              "cost_units": 0.005
+            },
+            "latency": {
+              "latency_ms_max": 950
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BLOCKED",
+          "baseline_ref": "bev_s9_baseline_advisory",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "trees": {
+        "baseline": {
+          "AGENTS.md": "# Fixture governance\n\nThe `runtime.budget` must be 4096 tokens for every run of the harness.\n"
+        },
+        "candidate": {
+          "AGENTS.md": "# Fixture governance\n\nThe `runtime.budget` must be 4096 tokens for every run of the harness.\n",
+          "docs/authority-matrix.md": "# Fixture authority matrix\n\nThe `runtime.budget` must be 8192 tokens for every run of the harness.\n"
+        }
+      }
+    },
+    {
+      "case_id": "regr_candidate_still_carries_a_security_regression",
+      "expectation": {
+        "verdict": "REGRESSION_DETECTED",
+        "candidate_rejected": true,
+        "construction": "The candidate halves the security regressions of the baseline and still carries one. The security criterion is absolute: a candidate that carries any security regression regresses the criterion, however it compares with a baseline that carried more. A relative improvement must not launder an unresolved regression."
+      },
+      "baseline": {
+        "version": "1.0.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_baseline_two_regressions",
+          "created_at": "2026-10-22T09:00:00Z",
+          "variant": "BASELINE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.0.0",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 3,
+              "cases_failed": 3
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 3
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 5
+            },
+            "cost": {
+              "tokens_in": 1200,
+              "tokens_out": 480,
+              "cost_units": 0.004
+            },
+            "latency": {
+              "latency_ms_max": 900
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 2,
+            "gate": "BLOCK"
+          },
+          "verdict": "BLOCKED",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "candidate": {
+        "version": "1.1.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_candidate_one_regression",
+          "created_at": "2026-10-22T09:30:00Z",
+          "variant": "CANDIDATE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.1.0",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 6,
+              "cases_failed": 0
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 6
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 6
+            },
+            "cost": {
+              "tokens_in": 1300,
+              "tokens_out": 500,
+              "cost_units": 0.005
+            },
+            "latency": {
+              "latency_ms_max": 950
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 1,
+            "gate": "BLOCK"
+          },
+          "verdict": "BLOCKED",
+          "baseline_ref": "bev_s9_baseline_two_regressions",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "trees": {
+        "baseline": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        },
+        "candidate": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        }
+      }
+    },
+    {
+      "case_id": "regr_candidate_measures_another_subject",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "candidate_rejected": true,
+        "construction": "The candidate was measured over another subject. A comparison of two subjects proves nothing about either of them, even over one corpus, so the comparison is refused before the metrics are read."
+      },
+      "baseline": {
+        "version": "1.0.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_baseline_other_subject",
+          "created_at": "2026-10-22T09:00:00Z",
+          "variant": "BASELINE",
+          "subject": {
+            "kind": "routing_profile",
+            "ref": "s9-demo-routing-profile",
+            "instruction_revision": "1.0.0",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 3,
+              "cases_failed": 3
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 3
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 5
+            },
+            "cost": {
+              "tokens_in": 1200,
+              "tokens_out": 480,
+              "cost_units": 0.004
+            },
+            "latency": {
+              "latency_ms_max": 900
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BASELINE_RECORDED",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "candidate": {
+        "version": "1.1.0",
+        "record": {
+          "schema_version": "1.1.0",
+          "eval_id": "bev_s9_candidate_other_subject",
+          "created_at": "2026-10-22T09:30:00Z",
+          "variant": "CANDIDATE",
+          "subject": {
+            "kind": "skill",
+            "ref": "another-skill",
+            "instruction_revision": "1.1.0",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "model_run": {
+            "mode": "recorded_replay",
+            "isolated": true,
+            "executor_ref": "recorded_corpus_transcripts",
+            "isolation_envelope": {
+              "workspace_write": "none",
+              "network": "deny",
+              "inherited_qualification": "none",
+              "allowed_effects": []
+            }
+          },
+          "case_families": [
+            {
+              "family": "positive",
+              "blocking": true,
+              "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+              "cases_total": 6,
+              "cases_passed": 6,
+              "cases_failed": 0
+            }
+          ],
+          "metrics": {
+            "routing": {
+              "decisions_expected": 6,
+              "decisions_matched": 6
+            },
+            "output": {
+              "assertions_total": 6,
+              "assertions_passed": 6
+            },
+            "cost": {
+              "tokens_in": 1300,
+              "tokens_out": 500,
+              "cost_units": 0.005
+            },
+            "latency": {
+              "latency_ms_max": 950
+            }
+          },
+          "security_gate": {
+            "security_cases_total": 4,
+            "security_regressions": 0,
+            "gate": "PASS"
+          },
+          "verdict": "BLOCKED",
+          "baseline_ref": "bev_s9_baseline_other_subject",
+          "reproducibility": {
+            "corpus_ref": "evals/s9-regression/corpus.json",
+            "corpus_digest": "sha256:5b1f0c2d3e4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e",
+            "runner": "run-regression-eval.mjs",
+            "content_digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+          },
+          "evidence_refs": [
+            "evals/s9-regression/corpus.json"
+          ]
+        }
+      },
+      "trees": {
+        "baseline": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        },
+        "candidate": {
+          "AGENTS.md": "# Fixture governance\n\nEvery change in this repository must be registered in the Unitera Registry.\n"
+        }
+      }
+    }
+  ],
+  "rollback_cases": [
+    {
+      "case_id": "rbk_happy_path",
+      "expectation": {
+        "verdict": "ROLLBACK_PLANNED",
+        "refusal_code": null,
+        "construction": "The candidate 1.2.0 is not qualified; the last qualified revision is 1.1.0 with its own evidence. The plan restores 1.1.0, the materiality of the restored state against the qualification is NON_MATERIAL, and the evidence inventory still hashes to the digest that was taken before the rollback. The verdict is ROLLBACK_PLANNED: the plan is admissible, and this call executed no restore."
+      },
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "current": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "versions": [
+        {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122",
+          "qualification_id": "qual_s9_candidate",
+          "qualification_state": "NOT_QUALIFIED",
+          "qualification_evidence_refs": []
+        },
+        {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "qualification_evidence_refs": [
+            "evidence/s9-regression-rollback-2026-10-22/qualification.json"
+          ],
+          "qualified_fingerprint": "fingerprint_qualified",
+          "restored_fingerprint": "fingerprint_qualified"
+        }
+      ],
+      "history": {
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          },
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/comparison.json",
+            "digest": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          }
+        ],
+        "digest_before": "sha256:182f05d13b2fdd1953e031040282a98660b942a54dbf384b1408fbe579f5f635"
+      }
+    },
+    {
+      "case_id": "rbk_no_qualified_revision",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "refusal_code": "ROLLBACK_TARGET_NOT_QUALIFIED",
+        "construction": "No revision carries a QUALIFIED qualification with its own evidence. There is nothing to restore, so the rollback refuses instead of restoring something arbitrary."
+      },
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "current": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "versions": [
+        {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122",
+          "qualification_id": "qual_s9_candidate",
+          "qualification_state": "NOT_QUALIFIED",
+          "qualification_evidence_refs": []
+        },
+        {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_superseded",
+          "qualification_state": "REVOKED",
+          "qualification_evidence_refs": [
+            "evidence/s9-regression-rollback-2026-10-22/qualification.json"
+          ]
+        }
+      ],
+      "history": {
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7"
+      }
+    },
+    {
+      "case_id": "rbk_requested_target_is_not_the_last_qualified",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "refusal_code": "ROLLBACK_TARGET_NOT_LAST_QUALIFIED",
+        "construction": "Two revisions are qualified. The caller asks for the older one. The controlled target is the newest qualified revision, and the request for an arbitrary older revision is refused."
+      },
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "current": {
+        "version": "1.3.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "requested_target_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.3.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122",
+          "qualification_id": "qual_s9_candidate",
+          "qualification_state": "NOT_QUALIFIED",
+          "qualification_evidence_refs": []
+        },
+        {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "qualification_evidence_refs": [
+            "evidence/s9-regression-rollback-2026-10-22/qualification.json"
+          ],
+          "qualified_fingerprint": "fingerprint_qualified",
+          "restored_fingerprint": "fingerprint_qualified"
+        },
+        {
+          "version": "1.0.0",
+          "digest": "sha256:0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+          "qualification_id": "qual_s9_older",
+          "qualification_state": "QUALIFIED",
+          "qualification_evidence_refs": [
+            "evidence/s9-regression-rollback-2026-10-22/qualification-older.json"
+          ]
+        }
+      ],
+      "history": {
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7"
+      }
+    },
+    {
+      "case_id": "rbk_not_a_rollback",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "refusal_code": "ROLLBACK_NOT_A_ROLLBACK",
+        "construction": "The current version is the version that would be restored. Nothing goes back, so the rollback refuses: it is not a rollback of a failed improvement."
+      },
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "current": {
+        "version": "1.1.0",
+        "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899"
+      },
+      "versions": [
+        {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "qualification_evidence_refs": [
+            "evidence/s9-regression-rollback-2026-10-22/qualification.json"
+          ],
+          "qualified_fingerprint": "fingerprint_qualified",
+          "restored_fingerprint": "fingerprint_qualified"
+        }
+      ],
+      "history": {
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7"
+      }
+    },
+    {
+      "case_id": "rbk_history_changed",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "refusal_code": "HISTORY_NOT_PRESERVED",
+        "construction": "The evidence inventory no longer hashes to the digest it had before the rollback. A rollback that eats the evidence of what went wrong is refused."
+      },
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "current": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "history": {
+        "digest_before": "sha256:99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa",
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ]
+      },
+      "versions": [
+        {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122",
+          "qualification_id": "qual_s9_candidate",
+          "qualification_state": "NOT_QUALIFIED",
+          "qualification_evidence_refs": []
+        },
+        {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "qualification_evidence_refs": [
+            "evidence/s9-regression-rollback-2026-10-22/qualification.json"
+          ],
+          "qualified_fingerprint": "fingerprint_qualified",
+          "restored_fingerprint": "fingerprint_qualified"
+        }
+      ]
+    },
+    {
+      "case_id": "rbk_restored_state_is_not_the_qualified_state",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "refusal_code": "MATERIALITY_NOT_NON_MATERIAL",
+        "construction": "The restored revision's effective instruction digest differs from the digest the qualification was earned under. The restore does not restore the qualified state, so the qualification may not be inherited and the rollback fails closed."
+      },
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "current": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "versions": [
+        {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122",
+          "qualification_id": "qual_s9_candidate",
+          "qualification_state": "NOT_QUALIFIED",
+          "qualification_evidence_refs": []
+        },
+        {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "qualification_evidence_refs": [
+            "evidence/s9-regression-rollback-2026-10-22/qualification.json"
+          ],
+          "qualified_fingerprint": "fingerprint_qualified",
+          "restored_fingerprint": "fingerprint_drifted"
+        }
+      ],
+      "history": {
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ],
+        "digest_before": "sha256:93159b7cf5fe9e02188027e55337efd78a49d5e59c0e49f65d1f2cc91ae03bf7"
+      }
+    },
+    {
+      "case_id": "rbk_history_digest_missing",
+      "expectation": {
+        "verdict": "BLOCKED",
+        "refusal_code": "HISTORY_DIGEST_MISSING",
+        "construction": "The caller supplies no digest of the evidence inventory as it stood before the rollback. Without it there is nothing to compare the current inventory against, so the history of the failed improvement cannot be proven intact. A missing digest is a refusal, never a default: a digest derived from the state under examination would make the check tautological."
+      },
+      "subject": {
+        "kind": "skill",
+        "ref": "s9-demo-skill"
+      },
+      "current": {
+        "version": "1.2.0",
+        "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122"
+      },
+      "versions": [
+        {
+          "version": "1.2.0",
+          "digest": "sha256:1122334455667788990011223344556677889900112233445566778899001122",
+          "qualification_id": "qual_s9_candidate",
+          "qualification_state": "NOT_QUALIFIED",
+          "qualification_evidence_refs": []
+        },
+        {
+          "version": "1.1.0",
+          "digest": "sha256:aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
+          "qualification_id": "qual_s9_qualified",
+          "qualification_state": "QUALIFIED",
+          "qualification_evidence_refs": [
+            "evidence/s9-regression-rollback-2026-10-22/qualification.json"
+          ],
+          "qualified_fingerprint": "fingerprint_qualified",
+          "restored_fingerprint": "fingerprint_qualified"
+        }
+      ],
+      "history": {
+        "entries": [
+          {
+            "ref": "evidence/s9-regression-rollback-2026-10-22/run-record.json",
+            "digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+          }
+        ]
+      }
+    }
+  ],
+  "fingerprints": {
+    "fingerprint_qualified": {
+      "fingerprint_id": "fp_s9_qualified",
+      "executor_id": "exec_recorded_replay",
+      "capability_id": "cap_s9_routing",
+      "execution_profile_ref": "profile_s9_default",
+      "components": {
+        "model_id": "recorded-replay",
+        "provider_id": "none",
+        "runtime_harness": "maws-local-replay",
+        "tool_contract_refs": [
+          "tool_read_local"
+        ],
+        "api_surface_version": "1.0.0",
+        "qualification_profile_ref": "profile_s9_default",
+        "effective_instruction_digest": "sha256:deadbeefcafef00d0123456789abcdefdeadbeefcafef00d0123456789abcdef"
+      },
+      "digest": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+    },
+    "fingerprint_drifted": {
+      "fingerprint_id": "fp_s9_drifted",
+      "executor_id": "exec_recorded_replay",
+      "capability_id": "cap_s9_routing",
+      "execution_profile_ref": "profile_s9_default",
+      "components": {
+        "model_id": "recorded-replay",
+        "provider_id": "none",
+        "runtime_harness": "maws-local-replay",
+        "tool_contract_refs": [
+          "tool_read_local"
+        ],
+        "api_surface_version": "1.0.0",
+        "qualification_profile_ref": "profile_s9_default",
+        "effective_instruction_digest": "sha256:feedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedface"
+      },
+      "digest": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
+    }
+  }
+}
