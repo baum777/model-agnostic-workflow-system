@@ -1,0 +1,62 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "Evidence and reconciliation boundary closure of 2026-10-22, followed by the activation of the platform protection. SCOPE: exactly the three remaining evidence/reconciliation boundaries of the merge-path enforcement plus the platform protection; the merge executor scripts/tools/merge-executor.mjs is functionally FROZEN in this run and is not expanded. BOUNDARY 1 - THE DIRECT-PUSH CLASS: scripts/tools/verify-merge-attestations.mjs now walks every commit on the first-parent line of the audited branch, not only the merge commits. A commit with one parent that landed on a tree already carrying the lifecycle-aware contract is the finding DIRECT_PUSH_UNCOVERED - no lane authorization can ever cover a landing that carries no merge; before the contract it is a historical observation; a squash or rebase merge has one parent too and lands in the same class by design. The governance-act exemption is NOT extended to direct pushes: a governance act is a MERGE confined to core/authority/, and a direct push is a finding even when it changes nothing but the lane surface (a test binds that). RUNNING THE EXTENDED AUDIT AGAINST THE PUBLISHED DEFAULT BRANCH PRODUCED ONE REAL FINDING: the merge b902130701bc5d784506a4044cb2880e0a86320a - pull request 90, the S9 disposition rebind, head 5813a26fab045fad0325dc184ceae00ea8cd58ce, base 10de67a0bd5d2deb6abe510d2f53ec2d92025f5e, merged 2026-10-22T15:16:54Z - landed without a lane authorization that bound its head: the base tree carried the lane s9-regression-rollback-20261022, but that lane binds the closure head fff00e20fc2619ab411d28042e4cfa4f303eec15 and was already consumed by the merge of pull request 78, so it could not cover the rebind, which was executed under the first generation practice of one lane with several merges of the same branch. The finding is real, stands in the history, and is NOT silently accepted: a retroactive lane cannot cover it, so the run adds the audit DISPOSITION SURFACE core/authority/merge-audit-baseline.json, landed as a governance act. A baseline entry names a finding (code and commit), carries a reason, a disposition and a date; a matching finding stays visible in the report (disposed_findings) and only loses its gate-failing force; a baseline entry that matches no current finding is STALE and fails the gate, so the disposition surface can never rot into an amnesty list. The entry for b902130 records the facts and marks the disposition RECORDED_AS_REAL_FINDING; the formal acceptance of that landing belongs to the owner of the S9 lane. BOUNDARY 2 - THE AUTHORITY MATRIX AND THE INSTRUCTION-DIGEST RE-PIN: docs/authority-matrix.md gains three rows (scan-source-security.mjs validator-backed, merge-pr-executor.mjs runnable, verify-merge-attestations.mjs validator-backed). The edit moves the effective instruction digest; the drift was measured (npm run test:vnext dropped to 17 failures with NO_ELIGIBLE_EXECUTOR) and the deliberate re-pin chain was executed end to end: requalify-run-spec re-bound 12 qualification fingerprint digests of runtime/cli/specs/reference-audit-v1.json to the derived digest sha256:5bd3d8cd, the six model-adaptive profiles under runtime/harness-context/profiles/model-adaptive/profiles/ re-pinned to the re-derived digest sha256:95dd981a together with the committed PINNED_DIGEST constant of tests/vnext/executor-model-profile.test.mjs, the fixture evals/fixtures/maws-vnext/executor-model-profile.contracts.json updated 29 pinned digest strings and recomputed 7 fingerprint digests through the canonical computeFingerprint, the frozen input digest of the reference spec in evals/experiments/ho01-local-optimization/experiment.json re-frozen, and the HO-01 comparison evidence under evidence/local-optimization-comparison-2026-10-21/ re-executed and re-frozen (the runner refuses silent reuse; the old bundles were removed and regenerated; validate-experiment-comparison PASS; the verdict is unchanged, IMPROVEMENT_REJECTED with output_assertion_pass_delta -0.1875). After the re-pin the suite is 825 of 825. The hand-maintained artifacts RUN.md and registry-disposition.json of the HO-01 evidence were accidentally removed by the regeneration and restored from the published history before anything was committed. BOUNDARY 3 - THE REGISTRY SWEEP: three Registry records (MAWS_HO01_LOCAL_OPTIMIZATION_COMPARISON_2026_10_21_001, MAWS_SKILL_IMPROVEMENT_PROPOSAL_2026_10_21_001 and UNITERA_SYSTEMS_RUNTIME_QUALIFICATION_2026_10_20_001) carried the sentence 'The REST merge endpoint answers 404 on this repository, so the GraphQL mutation is the working path', which the incident evidence of 2026-10-21 disproved. The correction is published as a Registry change in its own right together with the registration of this run: each record keeps its own mechanism claim (its merge WAS executed through the GraphQL mutation as recorded) and gains a dated correction of the general statement about the REST endpoint. PLATFORM PROTECTION: a separate pull request after this one activates a repository ruleset on main (pull requests required, force pushes and deletions blocked) with a live negative probe (a direct push must be refused); the platform protection is the preventive counterpart of the audit's detective verdicts. VERIFICATION (all LOCAL): test:vnext 825 of 825 (17 failures before the re-pin - the drift this boundary is about); test:merge-attestation 23 of 23 (15 of the first generation plus 8 new tests: the direct-push class, the governance-act refusal for direct pushes, the baseline disposal, the stale and malformed baseline, the exact-match rule); test:merge-executor 89 of 89 (the executor is untouched); test:merge-lane-contract 21 of 21; validate, validate-neutral, validate-maws-vnext, validate:assurance-run -- --all, eval:maws-vnext, eval:secret-boundary, eval:provider-export-alignment, validate-experiment-comparison, validate-executor-model-profile and baum:ci-gate all PASS with zero issues; scan:source-security PASS with 245 files analysed and required coverage 4 of 4; 3 reverted mutation probes, 3 of 3 BOUND (the direct-push finding, the baseline disposal and the stale-baseline rule), with the source verified byte-identical after the run. TRANSITION LANE: the lane of this pull request demands eight local gates and deliberately NOT merge:audit, because the audit of the published default branch is red with the real S9 finding until the baseline lands with this very merge; the next lane can demand merge:audit again. SCOPE BOUNDARY: this run grants no permission, publishes no owner key, changes no authority, promotes no skill, activates no runtime and adopts no specification; the canonical owner trust anchor is unchanged and still publishes no key; the hosted CI job could NOT execute (account billing lock) and is NOT presented as a gate - every verification result is a LOCAL result under Node v24.19.0; the external deep scan produced no complete conclusion for these pushes (scanner_enobufs) and no security claim is derived from it; the disposition of the S9 finding is RECORDED, not accepted - its formal acceptance belongs to the owner of the S9 lane.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/merge-lane-authorization.schema.json",
+      "PROVENANCE:evidence/boundary-closure-2026-10-22/RUN.md"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/authority-matrix.md",
+      "evidence/boundary-closure-2026-10-22/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/verify-merge-attestations.mjs",
+      "tests/tools/merge-attestation-audit.test.mjs",
+      "core/authority/merge-audit-baseline.json",
+      "docs/authority-matrix.md",
+      "runtime/cli/specs/reference-audit-v1.json",
+      "runtime/harness-context/profiles/model-adaptive/profiles",
+      "tests/vnext/executor-model-profile.test.mjs",
+      "evals/fixtures/maws-vnext/executor-model-profile.contracts.json",
+      "evals/experiments/ho01-local-optimization/experiment.json",
+      "evidence/local-optimization-comparison-2026-10-21",
+      "evidence/boundary-closure-2026-10-22/RUN.md",
+      "evidence/boundary-closure-2026-10-22/registry-disposition.json",
+      "CHANGELOG.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/boundary-closure-2026-10-22/RUN.md",
+      "evidence/boundary-closure-2026-10-22/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "npm run test:vnext answers 825 of 825 pass after the re-pin; before the re-pin the same suite answered 17 failures with NO_ELIGIBLE_EXECUTOR, which is the measured instruction-digest drift this boundary is about",
+      "npm run test:merge-attestation answers 23 of 23 pass, including the 8 new tests of the direct-push class and the disposition baseline; npm run test:merge-executor answers 89 of 89 pass unchanged, because the merge executor is functionally frozen in this run",
+      "npm run validate, validate-neutral, validate-maws-vnext, validate:assurance-run -- --all, eval:maws-vnext, eval:secret-boundary, eval:provider-export-alignment, validate-experiment-comparison, validate-executor-model-profile and baum:ci-gate all answer PASS with zero issues; node scripts/tools/scan-source-security.mjs answers PASS with 245 files analysed and required coverage 4 of 4",
+      "3 reverted mutation probes, 3 of 3 BOUND: the direct-push finding, the baseline disposal and the stale-baseline rule each break their designed test when neutered; the audit source was verified byte-identical after the probe run",
+      "the real finding, read back from the repository: the merge b902130701bc5d784506a4044cb2880e0a86320a of pull request 90 (head 5813a26fab045fad0325dc184ceae00ea8cd58ce, base 10de67a0bd5d2deb6abe510d2f53ec2d92025f5e) is uncovered - the lane s9-regression-rollback-20261022 in its base tree binds the closure head fff00e20fc2619ab411d28042e4cfa4f303eec15 and was already consumed by the merge of pull request 78; the published main was already red under the first-generation audit for the same merge",
+      "the re-pin chain: requalify-run-spec re-bound 12 fingerprint digests of the reference spec to sha256:5bd3d8cd; the six model-adaptive profiles and the committed PINNED_DIGEST constant re-pinned to sha256:95dd981a; the fixture updated 29 digest strings and recomputed 7 fingerprint digests through the canonical computeFingerprint; the HO-01 frozen input re-frozen and the comparison evidence regenerated (validate-experiment-comparison PASS, verdict unchanged: IMPROVEMENT_REJECTED, output_assertion_pass_delta -0.1875)",
+      "the Registry sweep found exactly three remaining records with the false REST-404 sentence: MAWS_HO01_LOCAL_OPTIMIZATION_COMPARISON_2026_10_21_001, MAWS_SKILL_IMPROVEMENT_PROPOSAL_2026_10_21_001 and UNITERA_SYSTEMS_RUNTIME_QUALIFICATION_2026_10_20_001; the correction pattern is the dated annotation of the already-corrected MAWS_SOURCE_SECURITY_SCAN_2026_10_21_001",
+      "the platform state was read, not assumed: the authenticated account is baum777 (admin, the only collaborator) and the repository has no ruleset, so the platform protection is created by this run's follow-up and verified by a live negative probe",
+      "the hosted CI job could NOT execute: the account is locked due to a billing issue; the CI steps are published and have not run there, and no hosted result is claimed",
+      "the external deep scan produced no complete conclusion for these pushes (scanner_enobufs); the incompleteness is recorded and no security claim is derived from it"
+    ],
+    "implementation_commit_sha": "PENDING-HEAD",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/boundary-closure-2026-10-22/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (a changed canonical contract-adjacent governance surface and the run record are CONTRACT_RECORD and PROVENANCE relevance)"
+    ],
+    "registry_baseline_sha": "6e91b88bcce4b44e6dd39e6843a6a17e0624fa89"
+  }
+}

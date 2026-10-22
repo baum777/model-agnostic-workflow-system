@@ -88,10 +88,21 @@ function commitOnBranch(dir, branch, message) {
   return head;
 }
 
+let governanceActCounter = 0;
+
+// A governance act: the change lands on the default branch through a MERGE
+// whose diff is confined to the governance surface, exactly as a lane
+// binding or a baseline lands in the real repository. Landing it as a plain
+// commit would itself be a direct-push finding under the audit.
 function commitOnMain(dir, relative, content, message) {
+  governanceActCounter += 1;
+  const branch = `gov/act-${governanceActCounter}`;
+  git(dir, ['checkout', '-q', '-b', branch]);
   write(dir, relative, content);
   git(dir, ['add', '-A']);
   git(dir, ['commit', '-q', '-m', message]);
+  git(dir, ['checkout', '-q', 'main']);
+  git(dir, ['merge', '--no-ff', '-q', '-m', `merge: ${message}`, branch]);
   return git(dir, ['rev-parse', 'HEAD']);
 }
 
@@ -312,4 +323,144 @@ test('a clean repository without merges passes', () => {
   assert.equal(report.status, 'PASS');
   assert.equal(report.merges_total, 0);
   assert.equal(report.findings.length, 0);
+});
+
+// --- the direct-push bypass class ---------------------------------------------
+
+test('a direct push after the enforcement is a finding', () => {
+  // The commit landed on the default branch with one parent: no pull
+  // request, no merge commit, no second parent — no lane can ever cover it.
+  const dir = makeRepo();
+  write(dir, 'direct.txt', 'landed without a pull request\n');
+  git(dir, ['add', '-A']);
+  git(dir, ['commit', '-q', '-m', 'a direct push']);
+  const report = audit(dir);
+  assert.equal(report.status, 'FAIL');
+  const findings = report.findings.filter((finding) => finding.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED);
+  assert.equal(findings.length, 1);
+  assert.equal(report.counts.DIRECT_PUSH_UNCOVERED, 1);
+  assert.equal(report.merges_total, 0);
+  assert.equal(report.landings_total, 2);
+});
+
+test('a direct push before the enforcement is a historical observation', () => {
+  const dir = makeRepo({ lifecycleAware: false });
+  write(dir, 'direct.txt', 'landed before the enforcement\n');
+  git(dir, ['add', '-A']);
+  git(dir, ['commit', '-q', '-m', 'a direct push']);
+  const report = audit(dir);
+  assert.equal(report.status, 'PASS');
+  assert.equal(report.findings.length, 0);
+  assert.equal(report.counts.HISTORICAL_OBSERVATION, 1);
+  assert.equal(report.counts.ROOT, 1);
+});
+
+test('a governance act cannot be landed by a direct push', () => {
+  // The governance-act exemption exists for MERGES confined to the
+  // governance surface; a direct push has no pull request at all and is a
+  // finding even when it changes nothing but the lane surface.
+  const dir = makeRepo();
+  write(dir, `${LANE_DIRECTORY}/lane-direct-20261022.json`, lane({ laneId: 'lane-direct-20261022', head: 'a'.repeat(40) }));
+  git(dir, ['add', '-A']);
+  git(dir, ['commit', '-q', '-m', 'a lane record pushed directly']);
+  const report = audit(dir);
+  assert.equal(report.status, 'FAIL');
+  assert.equal(
+    report.findings.filter((finding) => finding.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED).length,
+    1
+  );
+});
+
+// --- the disposition baseline --------------------------------------------------
+
+function commitBaseline(dir, entries) {
+  return commitOnMain(dir, 'core/authority/merge-audit-baseline.json', `${JSON.stringify({
+    schema_version: '1.0.0',
+    known_findings: entries
+  }, null, 2)}\n`, 'the merge audit baseline');
+}
+
+test('a recorded finding is reported and does not fail the gate', () => {
+  const dir = makeRepo();
+  write(dir, 'direct.txt', 'landed without a pull request\n');
+  git(dir, ['add', '-A']);
+  git(dir, ['commit', '-q', '-m', 'a direct push']);
+  const commit = git(dir, ['rev-parse', 'HEAD']);
+  commitBaseline(dir, [{
+    code: 'DIRECT_PUSH_UNCOVERED',
+    commit,
+    reason: 'the landing is recorded: it predates the activation of the platform protection and is disposed here as a governance act',
+    disposition: 'RECORDED_AS_REAL_FINDING',
+    recorded_at: '2026-10-22T16:30:00Z'
+  }]);
+  const report = audit(dir);
+  assert.equal(report.status, 'PASS');
+  assert.equal(report.baseline_present, true);
+  assert.equal(report.disposed_findings.length, 1);
+  assert.equal(report.findings.length, 1);
+  assert.equal(report.findings[0].code, AUDIT_CODES.DIRECT_PUSH_UNCOVERED);
+});
+
+test('a baseline entry that matches no finding is stale and fails the gate', () => {
+  const dir = makeRepo();
+  commitBaseline(dir, [{
+    code: 'DIRECT_PUSH_UNCOVERED',
+    commit: 'a'.repeat(40),
+    reason: 'a disposition of history that is no longer observed',
+    disposition: 'RECORDED_AS_REAL_FINDING',
+    recorded_at: '2026-10-22T16:30:00Z'
+  }]);
+  const report = audit(dir);
+  assert.equal(report.status, 'FAIL');
+  assert.equal(
+    report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_STALE).length,
+    1
+  );
+});
+
+test('a malformed baseline fails the gate', () => {
+  const dir = makeRepo();
+  write(dir, 'direct.txt', 'x\n');
+  git(dir, ['add', '-A']);
+  git(dir, ['commit', '-q', '-m', 'a landing']);
+  write(dir, 'core/authority/merge-audit-baseline.json', '{not json\n');
+  git(dir, ['add', '-A']);
+  git(dir, ['commit', '-q', '-m', 'a malformed baseline']);
+  const report = audit(dir);
+  assert.equal(report.status, 'FAIL');
+  assert.equal(
+    report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_INVALID).length,
+    1
+  );
+});
+
+test('a baseline entry with a malformed shape fails the gate', () => {
+  const dir = makeRepo();
+  commitBaseline(dir, [{ code: 'DIRECT_PUSH_UNCOVERED', commit: 'nope', reason: '', disposition: '', recorded_at: '' }]);
+  const report = audit(dir);
+  assert.equal(report.status, 'FAIL');
+  assert.equal(
+    report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_INVALID).length,
+    1
+  );
+});
+
+test('a baseline entry does not dispose a finding it does not name exactly', () => {
+  const dir = makeRepo();
+  write(dir, 'direct.txt', 'landed without a pull request\n');
+  git(dir, ['add', '-A']);
+  git(dir, ['commit', '-q', '-m', 'a direct push']);
+  const commit = git(dir, ['rev-parse', 'HEAD']);
+  // A different code on the same commit does not match.
+  commitBaseline(dir, [{
+    code: 'MERGE_NOT_COVERED',
+    commit,
+    reason: 'a disposition of a different finding class',
+    disposition: 'RECORDED_AS_REAL_FINDING',
+    recorded_at: '2026-10-22T16:30:00Z'
+  }]);
+  const report = audit(dir);
+  assert.equal(report.status, 'FAIL');
+  assert.equal(report.findings.filter((finding) => finding.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED).length, 1);
+  assert.equal(report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_STALE).length, 1);
 });

@@ -53,8 +53,18 @@ export const AUDIT_CODES = Object.freeze({
   MERGE_NOT_COVERED: 'MERGE_NOT_COVERED',
   MERGE_LANE_AMBIGUOUS: 'MERGE_LANE_AMBIGUOUS',
   MERGE_LANE_REUSED: 'MERGE_LANE_REUSED',
-  MERGE_LANE_RECORD_MALFORMED: 'MERGE_LANE_RECORD_MALFORMED'
+  MERGE_LANE_RECORD_MALFORMED: 'MERGE_LANE_RECORD_MALFORMED',
+  DIRECT_PUSH_UNCOVERED: 'DIRECT_PUSH_UNCOVERED',
+  BASELINE_STALE: 'BASELINE_STALE',
+  BASELINE_INVALID: 'BASELINE_INVALID'
 });
+
+// The disposition surface of the audit: findings of the published history
+// that a governance act has explicitly recorded. A baseline entry that
+// matches no current finding is STALE and fails the gate, so the baseline
+// can never rot into an amnesty list; a disposed finding stays visible in
+// the report and only loses its gate-failing force.
+export const MERGE_AUDIT_BASELINE_PATH = 'core/authority/merge-audit-baseline.json';
 
 const LANE_CONTRACT_PATH = 'core/contracts/merge-lane-authorization.schema.json';
 const GOVERNANCE_SURFACE = 'core/authority/';
@@ -140,10 +150,10 @@ export function readLanes(root, commit) {
   return { records, malformed };
 }
 
-function mergeParents(root, mergeCommit) {
-  const line = git(root, ['rev-list', '--parents', '-n', '1', mergeCommit]).trim();
+function parentsOf(root, commit) {
+  const line = git(root, ['rev-list', '--parents', '-n', '1', commit]).trim();
   const parts = line.split(/\s+/);
-  return { base: parts[1] ?? null, head: parts[2] ?? null };
+  return parts.slice(1);
 }
 
 // The paths a merge changed: the three-dot diff of the base and the head,
@@ -168,6 +178,37 @@ function coveringLanes({ lanes, head, baseRef, root }) {
   });
 }
 
+function readBaseline(root, commit) {
+  const result = { entries: [], present: false, error: null, malformedEntries: [] };
+  const text = git(root, ['show', `${commit}:${MERGE_AUDIT_BASELINE_PATH}`], { allowFailure: true });
+  if (!text.trim()) return result;
+  result.present = true;
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (error) {
+    result.error = error.message;
+    return result;
+  }
+  const entries = Array.isArray(parsed?.known_findings) ? parsed.known_findings : [];
+  for (const entry of entries) {
+    const keys = Object.keys(entry ?? {});
+    const valid = keys.every((key) => ['code', 'commit', 'reason', 'disposition', 'recorded_at'].includes(key))
+      && typeof entry.code === 'string' && entry.code.length > 0
+      && typeof entry.commit === 'string' && /^[0-9a-f]{40}$/.test(entry.commit)
+      && typeof entry.reason === 'string' && entry.reason.trim().length > 0
+      && typeof entry.disposition === 'string' && entry.disposition.trim().length > 0
+      && typeof entry.recorded_at === 'string' && entry.recorded_at.trim().length > 0;
+    if (!valid) result.malformedEntries.push(entry);
+  }
+  result.entries = entries.filter((entry) => !result.malformedEntries.includes(entry));
+  return result;
+}
+
+function baselineKey(finding) {
+  return `${finding.code}:${finding.commit ?? finding.merge_commit ?? ''}`;
+}
+
 // auditMergeAttestations() -> the report. It reads the published history
 // and never writes, never merges and never grants.
 export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
@@ -177,22 +218,50 @@ export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
   }
   const findings = [];
   const merges = [];
+  const landings = [];
   const laneUsage = new Map();
 
-  const mergeCommits = gitLines(root, ['rev-list', '--first-parent', '--merges', resolved.commit]).reverse();
-  for (const mergeCommit of mergeCommits) {
-    const { base, head } = mergeParents(root, mergeCommit);
-    if (!base || !head) {
-      merges.push({ merge_commit: mergeCommit, classification: 'NOT_A_MERGE' });
+  // The walk covers EVERY commit on the first-parent line of the audited
+  // branch, not only the merge commits. A landing with one parent reached
+  // the default branch without a pull request: no merge commit, no second
+  // parent, so no lane authorization can ever cover it — that is the
+  // direct-push bypass class, and it is judged exactly like an uncovered
+  // merge. A landing made by a squash or a rebase merge has one parent too
+  // and lands in the same class by design: the audit's model of an
+  // attestable landing is a merge commit that carries the reviewed head
+  // among its parents.
+  const commits = gitLines(root, ['rev-list', '--first-parent', resolved.commit]).reverse();
+  for (const commit of commits) {
+    const parents = parentsOf(root, commit);
+    if (parents.length === 0) {
+      landings.push({ commit, classification: 'ROOT' });
       continue;
     }
+    if (parents.length === 1) {
+      if (!contractCarriesLifecycle(root, parents[0])) {
+        landings.push({ commit, classification: 'HISTORICAL_OBSERVATION' });
+        continue;
+      }
+      findings.push({
+        code: AUDIT_CODES.DIRECT_PUSH_UNCOVERED,
+        commit,
+        detail: `the commit ${commit} landed on ${baseRef} without a pull request; no lane authorization can cover a landing that carries no merge`
+      });
+      landings.push({ commit, classification: 'DIRECT_PUSH_UNCOVERED', parent: parents[0] });
+      continue;
+    }
+    const mergeCommit = commit;
+    const base = parents[0];
+    const head = parents[1];
     if (!contractCarriesLifecycle(root, base)) {
       merges.push({ merge_commit: mergeCommit, classification: 'HISTORICAL_OBSERVATION' });
+      landings.push({ commit: mergeCommit, classification: 'HISTORICAL_OBSERVATION' });
       continue;
     }
     const paths = changedPaths(root, base, head);
     if (paths.length > 0 && paths.every((entry) => entry.startsWith(GOVERNANCE_SURFACE))) {
       merges.push({ merge_commit: mergeCommit, classification: 'GOVERNANCE_ACT', paths });
+      landings.push({ commit: mergeCommit, classification: 'GOVERNANCE_ACT' });
       continue;
     }
     const { records, malformed } = readLanes(root, base);
@@ -211,6 +280,7 @@ export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
         detail: `the merge ${mergeCommit} landed the head ${head} without a lane authorization that bound it on the base branch ${base}`
       });
       merges.push({ merge_commit: mergeCommit, classification: 'UNCOVERED', head, base, paths });
+      landings.push({ commit: mergeCommit, classification: 'UNCOVERED' });
       continue;
     }
     if (covering.length > 1) {
@@ -234,6 +304,7 @@ export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
       lanes: covering.map((entry) => entry.authorization.lane_id),
       paths
     });
+    landings.push({ commit: mergeCommit, classification: 'COVERED' });
   }
 
   for (const [laneId, uses] of laneUsage.entries()) {
@@ -267,21 +338,61 @@ export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
     };
   });
 
-  const counts = merges.reduce((accumulator, entry) => {
+  // The disposition surface: a governance act may record a finding of the
+  // published history explicitly. A recorded finding is REPORTED and does
+  // not fail the gate; a record that matches nothing is STALE and does.
+  const baseline = readBaseline(root, resolved.commit);
+  if (baseline.error) {
+    findings.push({
+      code: AUDIT_CODES.BASELINE_INVALID,
+      detail: `the merge audit baseline is malformed: ${baseline.error}`
+    });
+  }
+  for (const entry of baseline.malformedEntries) {
+    findings.push({
+      code: AUDIT_CODES.BASELINE_INVALID,
+      detail: `the merge audit baseline carries a malformed entry: ${JSON.stringify(entry)}`
+    });
+  }
+  const recordedKeys = new Set(baseline.entries.map((entry) => `${entry.code}:${entry.commit}`));
+  const disposed = [];
+  const gateFindings = [];
+  for (const finding of findings) {
+    if (recordedKeys.has(baselineKey(finding))) {
+      disposed.push(finding);
+    } else {
+      gateFindings.push(finding);
+    }
+  }
+  for (const entry of baseline.entries) {
+    const live = findings.some((finding) => baselineKey(finding) === `${entry.code}:${entry.commit}`);
+    if (!live) {
+      gateFindings.push({
+        code: AUDIT_CODES.BASELINE_STALE,
+        detail: `the baseline entry for ${entry.code} at ${entry.commit} matches no current finding; the disposition surface cannot keep records of history that is no longer observed`
+      });
+    }
+  }
+
+  const counts = landings.reduce((accumulator, entry) => {
     accumulator[entry.classification] = (accumulator[entry.classification] ?? 0) + 1;
     return accumulator;
   }, {});
 
   return {
-    status: findings.length === 0 ? 'PASS' : 'FAIL',
+    status: gateFindings.length === 0 ? 'PASS' : 'FAIL',
     base_ref: baseRef,
     base_commit: resolved.commit,
     base_commit_source: resolved.source,
+    baseline_present: baseline.present,
     merges_total: merges.length,
+    landings_total: landings.length,
     counts,
-    findings,
+    findings: [...gateFindings, ...disposed],
+    disposed_findings: disposed,
     lanes,
-    merges
+    merges,
+    landings
   };
 }
 
