@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.1.0",
+  "lane_id": "merge-executor-hardening-rebind-20261021",
+  "authority": "canonical_owner",
+  "base_ref": "main",
+  "head_ref": "docs/merge-executor-hardening-rebind-20261021",
+  "head_repository": "baum777",
+  "required_checks": [],
+  "required_local_gates": [
+    "validate",
+    "test:vnext",
+    "test:merge-executor",
+    "test:merge-attestation",
+    "test:merge-lane-contract",
+    "merge:audit"
+  ],
+  "authorized_commit": "b912981146bd17c10aa9803b9252c78a5e1291b7",
+  "authorized_head_sha": "8e262d921008dcec0b667870dc575aeba15738a6",
+  "supersedes": "merge-executor-hardening-20261021",
+  "state": "active"
+}
