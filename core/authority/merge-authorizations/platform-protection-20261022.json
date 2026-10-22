@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.1.0",
+  "lane_id": "platform-protection-20261022",
+  "authority": "canonical_owner",
+  "base_ref": "main",
+  "head_ref": "evidence/platform-protection-20261022",
+  "head_repository": "baum777",
+  "required_checks": [],
+  "required_local_gates": [
+    "validate",
+    "validate-registry-disposition",
+    "merge:audit",
+    "test:vnext",
+    "test:merge-executor",
+    "test:merge-attestation"
+  ],
+  "authorized_commit": "0fd89d99fac3cf027880dfe2b13b0140a2a0b4fd",
+  "authorized_head_sha": "bc26e27ee365cd04615259e051fce22dbe38e53a",
+  "state": "active"
+}
