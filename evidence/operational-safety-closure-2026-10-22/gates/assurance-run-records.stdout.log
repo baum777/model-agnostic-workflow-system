@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "records": 1,
+  "results": [
+    {
+      "record": "evidence/assurance-closure-2026-10-21/run-record.json",
+      "passed": true,
+      "issues": []
+    }
+  ]
+}

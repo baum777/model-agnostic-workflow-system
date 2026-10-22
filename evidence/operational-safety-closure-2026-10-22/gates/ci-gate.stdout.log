@@ -1,0 +1,43 @@
+=== Baum-OS CI Gate ===
+Core root: /tmp/ops/maws
+Target:    /tmp/ops/maws
+
+$ node scripts/tools/baum-loop-repo.mjs command/ loop repo /tmp/ops/maws
+Result: pass
+Evidence Path: evidence/loop-runs/2026-10-22-maws-pass
+Validator Command:
+node scripts/validate-loop-run.mjs evidence/loop-runs/2026-10-22-maws-pass
+
+Evidence run: /tmp/ops/maws/evidence/loop-runs/2026-10-22-maws-pass
+
+$ node scripts/tools/validate-loop-run.mjs /tmp/ops/maws/evidence/loop-runs/2026-10-22-maws-pass
+PASS loop-run validation
+
+Checks:
+- required files: pass
+- workblock sections: pass
+- step count: pass
+- forbidden terms: pass
+- read-only invariant: pass
+- closure format: pass
+- result value: pass
+
+$ node scripts/tools/validate-loop-run.mjs --quality /tmp/ops/maws/evidence/loop-runs/2026-10-22-maws-pass
+PASS loop-run validation + quality gate
+
+Checks:
+- required files: pass
+- workblock sections: pass
+- step count: pass
+- forbidden terms: pass
+- read-only invariant: pass
+- closure format: pass
+- result value: pass
+- qg: scope-treue: pass
+- qg: stop-regel-abdeckung: pass
+- qg: task-class-plausibilitaet: pass
+- qg: repo-state-plausibilitaet: pass
+- qg: risks-gaps-pflicht: pass
+- qg: evidence-konsistenz: pass
+
+PASS CI Gate

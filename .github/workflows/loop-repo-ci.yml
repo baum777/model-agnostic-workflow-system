@@ -48,7 +48,9 @@ jobs:
         run: npm run validate:assurance-run -- --all
 
       - name: Persisted evidence content check (what the evidence must say)
-        run: npm run validate:evidence-content -- --root . evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json
+        run: |
+          npm run validate:evidence-content -- --root . evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json
+          npm run validate:evidence-content -- --root . evidence/operational-safety-closure-2026-10-22/self-evidence-content.json
 
       - name: Merge executor lane binding (the cross-lane merge guard)
         run: |
