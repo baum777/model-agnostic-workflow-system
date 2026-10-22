@@ -46,7 +46,7 @@
       "the hosted CI job could NOT execute: the account is locked due to a billing issue; the CI steps are published and have not run there, and no hosted result is claimed",
       "the external deep scan produced no complete conclusion for these pushes (scanner_enobufs); the incompleteness is recorded and no security claim is derived from it"
     ],
-    "implementation_commit_sha": "PENDING-HEAD",
+    "implementation_commit_sha": "4b57ff3e04190241e91c63d5db50ca327c5457dc",
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/boundary-closure-2026-10-22/registry-disposition.json"
