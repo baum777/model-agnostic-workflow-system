@@ -175,6 +175,13 @@ export const ASSURANCE_GATES = Object.freeze([
     timeoutMs: 300000
   },
   {
+    id: 'regression-rollback-gates',
+    description: 'the S9 regression and rollback gates: the contract validation and the independent case corpus evaluation',
+    command: 'npm run --silent validate-regression-comparison && npm run --silent eval:regression',
+    kind: 'tool',
+    timeoutMs: 600000
+  },
+  {
     id: 'ci-gate',
     description: 'the loop repo CI gate',
     command: 'npm run --silent baum:ci-gate',
@@ -209,7 +216,18 @@ export const ASSURANCE_ARTIFACTS = Object.freeze([
   'tests/tools/safe-remove.test.mjs',
   'tests/tools/evidence-content-validation.test.mjs',
   'evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json',
-  'evidence/operational-safety-closure-2026-10-22/mutation-probes.json'
+  'evidence/operational-safety-closure-2026-10-22/mutation-probes.json',
+  'core/contracts/regression-comparison.schema.json',
+  'core/contracts/rollback-record.schema.json',
+  'runtime/regression/regression-gate.mjs',
+  'runtime/regression/signal-evaluation.mjs',
+  'runtime/regression/rollback.mjs',
+  'scripts/tools/validate-regression-comparison.mjs',
+  'scripts/tools/run-regression-eval.mjs',
+  'evals/s9-regression/corpus.json',
+  'evals/fixtures/maws-vnext/regression-comparison.contracts.json',
+  'evals/fixtures/maws-vnext/rollback-record.contracts.json',
+  'tests/vnext/regression-eval.test.mjs'
 ]);
 
 function sha256(buffer) {
