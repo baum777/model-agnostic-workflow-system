@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.1.0",
+  "lane_id": "s9-regression-rollback-20261022",
+  "authority": "canonical_owner",
+  "base_ref": "main",
+  "head_ref": "feature/s9-regression-rollback-20261022",
+  "head_repository": "baum777",
+  "authorized_head_sha": "fff00e267a4ea94ea37a82824b39f1ee1a4bee26",
+  "state": "active",
+  "required_checks": [],
+  "required_local_gates": [
+    "validate",
+    "test:vnext",
+    "validate-regression-comparison",
+    "eval:regression"
+  ]
+}
