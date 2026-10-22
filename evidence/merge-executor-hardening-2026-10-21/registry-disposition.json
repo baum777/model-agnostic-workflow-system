@@ -1,0 +1,61 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "Merge executor hardening and enforcement closure of 2026-10-21/22. SCOPE: exactly the four open items of the cross-lane merge incident closure of 2026-10-21 - two technical defects of the first generation of the lane-bound merge path, the lifecycle of the lane authorization, and the enforcement of the merge path; no other MAWS function is touched. DEFECT 1 - THE REVIEWED HEAD WAS OPERATOR-DECLARED: the first generation could only pin an ANCESTRY commit (authorized_commit), because a commit cannot contain its own digest, so the head that was merged was a number the operator typed - the same shape the incident of 2026-10-21 had. The lane authorization contract core/contracts/merge-lane-authorization.schema.json moves from 1.0.0 to 1.1.0 and binds the EXACT reviewed head it authorizes (authorized_head_sha). A lane without that binding authorizes nothing (MERGE_HEAD_NOT_BOUND), a lane of the first generation authorizes nothing at all (MERGE_LANE_AUTHORIZATION_OBSOLETE - the published record merge-incident-closure-20261021 stays valid as history and is not rewritten), and a lane whose binding is not the live head of the pull request is refused with MERGE_HEAD_SHA_MISMATCH. The binding is a separate explicit act on the default branch, because a lane can only be bound after its head exists and before the merge. DEFECT 2 - A LOCAL GATE COULD ATTEST TO CONTENT THAT WAS NOT THE MERGED CONTENT: the first generation checked only that HEAD was the reviewed head, so a dirty working tree passed and the gate measured something else - the published claim that a local gate verifies the content about to be merged was stronger than the implementation. runLocalGates now refuses a working tree with an uncommitted change before it runs a gate (MERGE_WORKTREE_DIRTY), and the receipt carries the attestation. LIFECYCLE: contract 1.1.0 adds state (active/closed), supersedes and closed_by. A closed lane authorizes no further merge (MERGE_LANE_CLOSED), a superseded lane authorizes no further merge (MERGE_LANE_SUPERSEDED), a closed lane without its consumption record is a malformed record, and the surface of lane authorizations is read from the BASE COMMIT's tree (readLaneSurface), so a pull request cannot introduce the lane that supersedes it. A first-generation record may not carry a lifecycle field at all, so a record of two generations cannot exist. ENFORCEMENT: scripts/tools/verify-merge-attestations.mjs (npm merge:audit, CI step 'Merge path attestation audit') is the detective counterpart of the executor's preventive path: it reads the default branch's own merge history and fails closed on a merge that no lane authorization covered - a merge that no lane bound is the exact shape of the incident. Its scope rule needs no epoch file and no baseline list: a merge is in scope when the tree of its BASE commit already carries the lifecycle-aware contract (a merge whose base branch did not yet know the contract is a historical observation), a merge whose changed paths are confined to core/authority/ is a governance act that lands a lane authorization and nothing else and is therefore exempt, and every other merge must be covered by an active lane that binds exactly the merge's second parent and existed on the base branch before the merge. Findings: MERGE_NOT_COVERED, MERGE_LANE_AMBIGUOUS, MERGE_LANE_REUSED, MERGE_LANE_RECORD_MALFORMED. VERIFICATION (all LOCAL): npm run test:merge-executor 89 of 89; npm run test:merge-attestation 15 of 15; npm run test:merge-lane-contract 21 of 21; npm run test:vnext 787 of 787; node scripts/tools/scan-source-security.mjs PASS with 244 files analysed, required coverage 4 of 4, zero unbaselined and zero stale; npm run validate, validate-neutral, validate-maws-vnext, validate:assurance-run -- --all, eval:maws-vnext, eval:secret-boundary, eval:provider-export-alignment and baum:ci-gate report zero issues; npm run merge:audit PASS on the merged default branch with 75 merges examined and all of them historical observations; 15 reverted mutation probes, 15 of 15 BOUND, each neutering exactly one guard and caught by the designed test, with the source files verified byte-identical after the run. REVIEW FINDING OF THIS RUN: two probes of the first attempt were NOT bound - the audit's version check on a lane record was enforced one layer earlier by the state rule and was therefore redundant, and the executor accepted a first-generation lane that carried a head binding while the audit counted only lifecycle-aware lanes as covering a merge, so the two surfaces could have contradicted each other. The redundancy was removed and the executor now refuses the first generation outright; both surfaces apply the same rule. BOOTSTRAP: pull request 79 was merged as 37a9f75b0abc770afda63780d5f1d6b8205503e3 at 2026-10-22T03:56:08Z with the parents 381bc44f83e428aead915d55bb56d24d00a90694 and b912981146bd17c10aa9803b9252c78a5e1291b7, and that merge was an OWNER ACT: the enforcement cannot cover its own introduction, because the first lifecycle-aware lane cannot be landed by the tool it introduces and the merge that introduces the contract has a base tree that does not know the contract. Every merge after that one is expected to be lane-covered and the audit is expected to say so. REGISTRY: this disposition is published as REQUIRED_BUT_BLOCKED; the Registry write (the run change registration and the contract record for the 1.1.0 contract) follows the merge of this pull request and rebinds this disposition to UPDATED with the Registry commit sha in the rebind pull request. SCOPE BOUNDARY: this run grants no permission, publishes no owner key, changes no authority, promotes no skill, activates no runtime and adopts no specification; the canonical owner trust anchor is unchanged and still publishes no key, so the merge authority is the base-branch-committed lane authorization and not a signature; the executor remains a merge PATH and not an enforced gate, because the repository carries no branch protection (GitHub reports 'Branch not protected' for main and the repository has no ruleset), so the enforcement this run adds is detective and not preventive, and a platform ruleset cannot express a work lane either; a direct push to the default branch is outside the audit's mandate and is named as an open item; the hosted CI job could NOT execute (account billing lock) and is NOT presented as a gate - every verification result is a LOCAL result under Node v24.19.0; the external deep scan produced no complete conclusion for these pushes (scanner_enobufs) and no security claim is derived from it; the authority matrix is deliberately not updated, because docs/authority-matrix.md is a canonical instruction source whose change would invalidate the effective instruction digest and force a re-pin of the executor profile chain, the run spec and the HO-01 comparison artifacts; F4 (the unkeyed freshness seal of the S5 lane) remains open with its owner and is not touched.",
+    "affected_records": [
+      "CONTRACT_RECORD:core/contracts/merge-lane-authorization.schema.json",
+      "PROVENANCE:evidence/merge-executor-hardening-2026-10-21/RUN.md"
+    ],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "core/contracts/merge-lane-authorization.schema.json",
+      "core/authority/merge-authorizations/merge-incident-closure-20261021.json",
+      "evidence/merge-executor-hardening-2026-10-21/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/merge-pr-executor.mjs",
+      "scripts/tools/verify-merge-attestations.mjs",
+      "core/contracts/merge-lane-authorization.schema.json",
+      "tests/tools/merge-pr-executor.test.mjs",
+      "tests/tools/merge-attestation-audit.test.mjs",
+      "tests/tools/merge_lane_authorization_schema_test.py",
+      "package.json",
+      ".github/workflows/loop-repo-ci.yml",
+      "CHANGELOG.md"
+    ],
+    "supersession_refs": [
+      "core/contracts/merge-lane-authorization.schema.json"
+    ],
+    "provenance_refs": [
+      "evidence/merge-executor-hardening-2026-10-21/RUN.md",
+      "evidence/merge-executor-hardening-2026-10-21/registry-disposition.json"
+    ],
+    "evidence_refs": [
+      "npm run test:merge-executor 89 of 89 pass on the published head; npm run test:merge-attestation 15 of 15 pass; npm run test:merge-lane-contract 21 of 21 pass; npm run test:vnext 787 of 787 pass",
+      "node scripts/tools/scan-source-security.mjs answers PASS with 244 files analysed, required coverage 4 of 4, zero unbaselined and zero stale; npm run validate, validate-neutral, validate-maws-vnext, validate:assurance-run -- --all, eval:maws-vnext, eval:secret-boundary, eval:provider-export-alignment and baum:ci-gate report zero issues",
+      "npm run merge:audit answers PASS on the merged default branch at 37a9f75b0abc770afda63780d5f1d6b8205503e3: 75 merges examined, all of them historical observations, because the enforcement entered the default branch with that merge",
+      "15 reverted mutation probes, 15 of 15 BOUND: each neuters exactly one guard and is caught by the designed test; the executor and the audit source were verified byte-identical after the probe run",
+      "the negative test that binds the incident class still holds: a foreign pull request that exists, is open, is mergeable and carries a valid head sha is refused with MERGE_PR_IDENTITY_MISMATCH - in the pure decision, in the CLI and in the merge path with every external access injected",
+      "the new negative tests: a legacy lane without a head binding is refused with MERGE_LANE_AUTHORIZATION_OBSOLETE, a legacy lane WITH a head binding is refused the same way, a closed lane is refused with MERGE_LANE_CLOSED, a superseded lane is refused with MERGE_LANE_SUPERSEDED, a dirty working tree is refused with MERGE_WORKTREE_DIRTY, and the audit refuses a merge that no lane covered, a lane that was committed AFTER the merge, a lane that binds another head, a lane of the first generation, a closed lane, a malformed lane record in the base tree and a lane that covers two merges",
+      "the platform state was read, not assumed: GitHub reports 'Branch not protected' for main and the repository's ruleset list is empty, so the enforcement of this run is detective and not preventive, and a platform ruleset cannot express a work lane",
+      "the hosted CI job could NOT execute: the account is locked due to a billing issue; the CI steps are published and have not run there, and no hosted result is claimed",
+      "the external deep scan produced no complete conclusion for these pushes (scanner_enobufs); the incompleteness is recorded and no security claim is derived from it",
+      "the bootstrap is an owner act and is recorded as such: pull request 79 was merged as 37a9f75b0abc770afda63780d5f1d6b8205503e3 at 2026-10-22T03:56:08Z with the parents 381bc44f83e428aead915d55bb56d24d00a90694 and b912981146bd17c10aa9803b9252c78a5e1291b7"
+    ],
+    "implementation_commit_sha": "b912981146bd17c10aa9803b9252c78a5e1291b7",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/merge-executor-hardening-2026-10-21/registry-disposition.json"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "AGENTS.md (Registry Disposition Consumer Binding - CONTRACT_RECORD, PROVENANCE)",
+      "core/contracts/registry-disposition.schema.json (closed relevance taxonomy and affectedRecord pattern)",
+      "docs/governance/registry-disposition.md (a changed canonical contract surface is CONTRACT_RECORD relevance; the run record is PROVENANCE relevance)"
+    ],
+    "registry_baseline_sha": "ca3ad76fb27fc1ebb3b8a85ebab02b8aa2e2baa6"
+  }
+}
