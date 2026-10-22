@@ -6,7 +6,6 @@
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -18,6 +17,7 @@ import { createOpenRouterExecutor } from '../../runtime/executors/openrouter-exe
 import { loadExecutorRegistry } from '../../runtime/executors/manifest-loader.mjs';
 import { createExecutorRegistry } from '../../runtime/executors/registry.mjs';
 import { runLocalProcess } from '../../runtime/transports/local-process.mjs';
+import { safeRemove, createScratchRoot, removeScratchRoot } from '../../scripts/tools/safe-remove.mjs';
 import { createPermissionEngine } from '../../runtime/permissions/permission-engine.mjs';
 import { FailClosedError } from '../../runtime/vnext/util.mjs';
 import { validateInstanceAgainstContract } from '../../scripts/tools/validate-maws-vnext-contracts.mjs';
@@ -270,7 +270,9 @@ test('default executor registry loads and is schema-valid against the registry c
 });
 
 test('loadExecutorRegistry rejects duplicate executor ids and schema-invalid manifests fail closed', () => {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'maws-vnext-registry-'));
+  const { root: scratchRoot, marker } = createScratchRoot({ prefix: 'maws-vnext-registry-' });
+  const tmpDir = path.join(scratchRoot, 'registry');
+  fs.mkdirSync(tmpDir);
   try {
     const validManifest = {
       executor_id: 'exec_dup_probe',
@@ -302,7 +304,8 @@ test('loadExecutorRegistry rejects duplicate executor ids and schema-invalid man
 
     assert.throws(() => loadExecutorRegistry(path.join(tmpDir, 'missing.json'), repoRoot), isFailClosedWithCode('EXECUTOR_REGISTRY_UNREADABLE'));
   } finally {
-    fs.rmSync(tmpDir, { recursive: true, force: true });
+    safeRemove({ target: tmpDir, boundary: scratchRoot, recursive: true });
+    removeScratchRoot({ root: scratchRoot, marker });
   }
 });
 

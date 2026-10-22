@@ -39,13 +39,18 @@ jobs:
         run: |
           npm run validate-secrets
           npm run scan-secrets
-          node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs
+          node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs tests/tools/safe-remove.test.mjs tests/tools/evidence-content-validation.test.mjs
 
       - name: Source security scan (the .mjs-capable static gate)
         run: npm run scan:source-security
 
       - name: Assurance run records (the durable evidence check)
         run: npm run validate:assurance-run -- --all
+
+      - name: Persisted evidence content check (what the evidence must say)
+        run: |
+          npm run validate:evidence-content -- --root . evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json
+          npm run validate:evidence-content -- --root . evidence/operational-safety-closure-2026-10-22/self-evidence-content.json
 
       - name: Merge executor lane binding (the cross-lane merge guard)
         run: |

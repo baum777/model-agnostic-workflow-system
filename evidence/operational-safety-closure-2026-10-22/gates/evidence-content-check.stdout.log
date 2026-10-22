@@ -1,0 +1,783 @@
+{
+  "passed": true,
+  "issues": [],
+  "checks": [
+    {
+      "file": "run-record.json",
+      "checks": [
+        {
+          "kind": "parses_as_json",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_present",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/vnext-unit-suite.stdout.log",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/source-security-scan.stdout.log",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/ci-gate.stdout.log",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/ci-gate.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/eval-maws-vnext.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/eval-provider-export-alignment.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/eval-secret-boundary.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/provider-adapter-import.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/provider-neutral.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/scan-secrets.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/security-regression-tests.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/skill-frontdoor-regression.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/source-security-scan.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/syntax-core.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/syntax-sweep.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/validate-maws-vnext.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/validate-secrets.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/vnext-unit-suite.stdout.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/ci-gate.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/eval-maws-vnext.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/eval-provider-export-alignment.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/eval-secret-boundary.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/provider-adapter-import.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/provider-neutral.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/scan-secrets.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/security-regression-tests.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/skill-frontdoor-regression.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/source-security-scan.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/syntax-core.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/syntax-sweep.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/validate-maws-vnext.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/validate-secrets.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/vnext-unit-suite.stderr.log",
+      "checks": [
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/ci-gate.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/eval-maws-vnext.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/eval-provider-export-alignment.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/eval-secret-boundary.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/provider-adapter-import.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/provider-neutral.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/scan-secrets.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/security-regression-tests.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/skill-frontdoor-regression.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/source-security-scan.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/syntax-core.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/syntax-sweep.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/validate-maws-vnext.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/validate-secrets.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "gates/vnext-unit-suite.exit",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "matches",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "residual-matrix.json",
+      "checks": [
+        {
+          "kind": "parses_as_json",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "mutation-probes.json",
+      "checks": [
+        {
+          "kind": "parses_as_json",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_array_items_match",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "registry-disposition.json",
+      "checks": [
+        {
+          "kind": "parses_as_json",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_equals",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "json_field_present",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "RUN.md",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    },
+    {
+      "file": "baseline-qualification.md",
+      "checks": [
+        {
+          "kind": "non_empty",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "min_bytes",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        },
+        {
+          "kind": "contains",
+          "passed": true,
+          "detail": null
+        }
+      ]
+    }
+  ],
+  "files_present": 51,
+  "files_declared": 51
+}

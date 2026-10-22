@@ -72,7 +72,7 @@ export const ASSURANCE_GATES = Object.freeze([
   {
     id: 'security-regression-tests',
     description: 'the security boundary regression tests the workflow runs in its security step',
-    command: 'node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs',
+    command: 'node --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs tests/tools/safe-remove.test.mjs tests/tools/evidence-content-validation.test.mjs',
     kind: 'test',
     timeoutMs: 600000
   },
@@ -81,6 +81,27 @@ export const ASSURANCE_GATES = Object.freeze([
     description: 'the repository-owned .mjs static security gate',
     command: 'npm run --silent scan:source-security',
     kind: 'tool',
+    timeoutMs: 600000
+  },
+  {
+    id: 'assurance-run-records',
+    description: 'every committed assurance run record is re-derived from its material',
+    command: 'npm run --silent validate:assurance-run -- --all',
+    kind: 'tool',
+    timeoutMs: 600000
+  },
+  {
+    id: 'evidence-content-check',
+    description: 'the persisted evidence must say what the content manifest requires',
+    command: 'npm run --silent validate:evidence-content -- --root . evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json',
+    kind: 'tool',
+    timeoutMs: 600000
+  },
+  {
+    id: 'merge-executor-lane',
+    description: 'the cross-lane merge guard the workflow runs',
+    command: 'npm run --silent test:merge-executor && python3 -m unittest tests/tools/merge_lane_authorization_schema_test.py',
+    kind: 'test',
     timeoutMs: 600000
   },
   {
@@ -140,6 +161,20 @@ export const ASSURANCE_GATES = Object.freeze([
     timeoutMs: 600000
   },
   {
+    id: 'registry-disposition-repair',
+    description: 'the repair registry disposition the workflow validates',
+    command: 'node scripts/tools/validate-registry-disposition.mjs evidence/maws-security-repair-2026-10-20/registry-disposition.json',
+    kind: 'tool',
+    timeoutMs: 300000
+  },
+  {
+    id: 'registry-disposition-merge-incident',
+    description: 'the merge incident closure registry disposition the workflow validates',
+    command: 'node scripts/tools/validate-registry-disposition.mjs evidence/merge-pr-incident-closure-2026-10-21/registry-disposition.json',
+    kind: 'tool',
+    timeoutMs: 300000
+  },
+  {
     id: 'ci-gate',
     description: 'the loop repo CI gate',
     command: 'npm run --silent baum:ci-gate',
@@ -168,7 +203,13 @@ export const ASSURANCE_ARTIFACTS = Object.freeze([
   'tests/tools/assurance-residual-matrix.test.mjs',
   'evidence/assurance-closure-2026-10-21/residual-matrix.json',
   'evidence/assurance-closure-2026-10-21/mutation-probes.json',
-  'evidence/assurance-closure-2026-10-21/baseline-qualification.md'
+  'evidence/assurance-closure-2026-10-21/baseline-qualification.md',
+  'scripts/tools/safe-remove.mjs',
+  'scripts/tools/validate-evidence-content.mjs',
+  'tests/tools/safe-remove.test.mjs',
+  'tests/tools/evidence-content-validation.test.mjs',
+  'evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json',
+  'evidence/operational-safety-closure-2026-10-22/mutation-probes.json'
 ]);
 
 function sha256(buffer) {

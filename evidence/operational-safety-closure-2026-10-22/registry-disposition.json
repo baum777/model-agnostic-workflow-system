@@ -1,0 +1,64 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "The change adds two tool surfaces, a documentation record, tests and evidence, and aligns the assurance capture's gate list with the hosted workflow. No adopted registered binding moves: no SOURCE_RECORD, CONTRACT_RECORD, AUTHORITY_MAPPING, DEPENDENCY_BINDING, LIFECYCLE_BINDING, SUPERSESSION, PROVENANCE or REGISTERED_IMPLEMENTATION_BINDING of any registered object changes. The removal primitive and the evidence content check are repository-local tool surfaces with no registered identity, ownership, capability, contract, version, lifecycle state, authority, qualification, dependency, interface, runtime status, governance status, evidence binding, source reference or SHA binding. The change registration in the Unitera Registry and the representation in the Unitera Atlas are required for every change by the project routing layer and are made outside this repository; this artifact is the owner-side classification that accompanies them. The run grants no permission, promotes no skill, activates no runtime and creates no authority.",
+    "registry_baseline_sha": "f6d4d68e022c4fd72fba2df2ee0d4bba2d0c2d8f",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "docs/harness/cleanup-boundary-and-the-tmp-incident.md",
+      "evidence/operational-safety-closure-2026-10-22/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/safe-remove.mjs",
+      "scripts/tools/validate-evidence-content.mjs",
+      "scripts/tools/capture-assurance-run.mjs",
+      "docs/harness/cleanup-boundary-and-the-tmp-incident.md",
+      "tests/tools/safe-remove.test.mjs",
+      "tests/tools/evidence-content-validation.test.mjs",
+      "tests/tools/assurance-run-record.test.mjs",
+      "tests/tools/security-repair-regressions.test.mjs",
+      "tests/tools/source-security-scan.test.mjs",
+      "tests/tools/loop-repo-command-injection.test.mjs",
+      "tests/vnext/executors.test.mjs",
+      "tests/vnext/jev-engine.test.mjs",
+      "tests/vnext/e2e-reference-run.test.mjs",
+      "evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json",
+      "evidence/operational-safety-closure-2026-10-22/mutation-probes.json",
+      "evidence/operational-safety-closure-2026-10-22/run-record.json",
+      ".github/workflows/loop-repo-ci.yml",
+      "package.json"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/operational-safety-closure-2026-10-22/RUN.md",
+      "docs/harness/cleanup-boundary-and-the-tmp-incident.md"
+    ],
+    "evidence_refs": [
+      "evidence/operational-safety-closure-2026-10-22/RUN.md",
+      "evidence/operational-safety-closure-2026-10-22/run-record.json",
+      "evidence/operational-safety-closure-2026-10-22/gates/",
+      "evidence/operational-safety-closure-2026-10-22/mutation-probes.json",
+      "evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json",
+      "docs/harness/cleanup-boundary-and-the-tmp-incident.md"
+    ],
+    "implementation_commit_sha": "dde7db268472e3feae72864690bb309ffdbbe3a0",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/operational-safety-closure-2026-10-22/registry-disposition.json (PASS)",
+      "node scripts/tools/validate-assurance-run-record.mjs evidence/operational-safety-closure-2026-10-22/run-record.json --current (passed, no issue)",
+      "node scripts/tools/validate-evidence-content.mjs --root . evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json (passed, 51 files present and declared)",
+      "node --test tests/vnext/*.test.mjs (787 pass / 0 fail)",
+      "node --test tests/tools/*.test.mjs (147 pass / 0 fail)",
+      "node --test tests/tools/safe-remove.test.mjs (13 pass / 0 fail)",
+      "node --test tests/tools/evidence-content-validation.test.mjs (12 pass / 0 fail)",
+      "9 reverted mutation probes, all load-bearing (evidence/operational-safety-closure-2026-10-22/mutation-probes.json)",
+      "the run record: 20 of 20 gates passed, 910 tests passed, 0 failed, under Node v24.19.0 as a LOCAL_REPLICATION"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}

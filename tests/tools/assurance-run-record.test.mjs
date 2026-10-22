@@ -10,18 +10,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import { captureRun, parseTapCounts } from '../../scripts/tools/capture-assurance-run.mjs';
 import { validateRunRecord } from '../../scripts/tools/validate-assurance-run-record.mjs';
+import { createScratchRoot, removeScratchRoot, safeRemove } from '../../scripts/tools/safe-remove.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 function buildRepo() {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'assurance-repo-'));
+  // The scratch state is a MARKED root with the working tree inside it, and
+  // it is removed through the safe primitive. This file is where the /tmp
+  // incident of 2026-10-21 happened: a cleanup that removed the parent of
+  // a temporary directory. The parent of a temporary directory is the
+  // system temporary directory, which holds every other run's state.
+  const { root: scratch, marker } = createScratchRoot({ prefix: 'assurance-repo-' });
+  const root = path.join(scratch, 'repo');
+  fs.mkdirSync(root, { recursive: true });
   fs.mkdirSync(path.join(root, 'material'), { recursive: true });
   fs.writeFileSync(path.join(root, 'material', 'subject.txt'), 'the subject of the claim\n');
   const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' });
@@ -31,7 +38,7 @@ function buildRepo() {
   git('add', '.');
   git('commit', '--quiet', '-m', 'subject');
   const commit = git('rev-parse', 'HEAD').trim();
-  return { root, commit };
+  return { root, commit, scratch, marker };
 }
 
 const GATES = [
@@ -61,8 +68,9 @@ const GATES = [
 // The fixture owns two temporary directories; both are removed by their
 // OWN path. Nothing here may ever name a parent of a temporary directory.
 function captureFixture() {
-  const { root, commit } = buildRepo();
-  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'assurance-out-'));
+  const { root, commit, scratch, marker } = buildRepo();
+  const { root: outScratch, marker: outMarker } = createScratchRoot({ prefix: 'assurance-out-' });
+  const outDir = path.join(outScratch, 'out');
   const record = captureRun({
     root,
     outDir,
@@ -73,6 +81,7 @@ function captureFixture() {
     createdAt: '2026-10-21T00:00:00.000Z',
     limits: ['a local replication is not a hosted run']
   });
+  fs.mkdirSync(outDir, { recursive: true });
   const recordPath = path.join(outDir, 'run-record.json');
   fs.writeFileSync(recordPath, `${JSON.stringify(record, null, 2)}\n`);
   return {
@@ -82,8 +91,10 @@ function captureFixture() {
     record,
     recordPath,
     cleanup() {
-      fs.rmSync(root, { recursive: true, force: true });
-      fs.rmSync(outDir, { recursive: true, force: true });
+      safeRemove({ target: outDir, boundary: outScratch, recursive: true });
+      removeScratchRoot({ root: outScratch, marker: outMarker });
+      safeRemove({ target: root, boundary: scratch, recursive: true });
+      removeScratchRoot({ root: scratch, marker });
     }
   };
 }

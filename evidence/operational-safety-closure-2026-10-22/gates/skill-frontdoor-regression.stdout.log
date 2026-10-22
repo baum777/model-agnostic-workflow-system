@@ -1,0 +1,14 @@
+✔ clean dual-analyzer evidence is eligible without granting authority (2.974119ms)
+✔ high SkillSpector severity blocks even if a caller claims CLEAN (0.613268ms)
+✔ incomplete analyzer evidence dominates known risk and cannot be owner-exceptioned (0.162628ms)
+✔ unknown SkillSpector severity remains incomplete and cannot be owner-exceptioned (0.123825ms)
+✔ known fully-analyzed risk can use a bounded owner exception without becoming clean (0.392093ms)
+✔ expired owner exception is fail-closed (0.143138ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 62.674849

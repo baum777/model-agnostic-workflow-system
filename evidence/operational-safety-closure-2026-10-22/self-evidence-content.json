@@ -1,0 +1,133 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_id": "maws-operational-safety-closure-evidence-content-2026-10-22",
+  "created_at": "2026-10-22T00:00:00Z",
+  "purpose": "What the persisted evidence of the operational safety closure run of 2026-10-22 must SAY, checked against the committed files. The run record proves that the evidence has not changed; this manifest states what the evidence claims, and the check compares the claim with the bytes.",
+  "evidence_dir": "evidence/operational-safety-closure-2026-10-22",
+  "files": [
+    {
+      "path": "run-record.json",
+      "checks": [
+        { "kind": "parses_as_json" },
+        { "kind": "min_bytes", "bytes": 3000 },
+        { "kind": "json_field_equals", "path": "assurance_run_record.totals.gates", "value": 20 },
+        { "kind": "json_field_equals", "path": "assurance_run_record.totals.gates_passed", "value": 20 },
+        { "kind": "json_field_equals", "path": "assurance_run_record.totals.gates_failed", "value": 0 },
+        { "kind": "json_field_equals", "path": "assurance_run_record.totals.tests_passed", "value": 910 },
+        { "kind": "json_field_equals", "path": "assurance_run_record.totals.tests_failed", "value": 0 },
+        { "kind": "json_field_equals", "path": "assurance_run_record.environment.ci_parity", "value": "LOCAL_REPLICATION" },
+        { "kind": "json_field_equals", "path": "assurance_run_record.environment.hosted_ci_executed", "value": false },
+        { "kind": "json_field_equals", "path": "assurance_run_record.implementation_commit_sha", "value": "dde7db268472e3feae72864690bb309ffdbbe3a0" },
+        { "kind": "json_field_present", "path": "assurance_run_record.limits" }
+      ]
+    },
+    {
+      "path": "gates/vnext-unit-suite.stdout.log",
+      "checks": [
+        { "kind": "non_empty" },
+        { "kind": "contains", "text": "pass 787" },
+        { "kind": "contains", "text": "fail 0" }
+      ]
+    },
+    {
+      "path": "gates/security-regression-tests.stdout.log",
+      "checks": [
+        { "kind": "non_empty" },
+        { "kind": "contains", "text": "pass 52" },
+        { "kind": "contains", "text": "fail 0" }
+      ]
+    },
+    {
+      "path": "gates/source-security-scan.stdout.log",
+      "checks": [
+        { "kind": "non_empty" },
+        { "kind": "contains", "text": "source security scan: PASS" }
+      ]
+    },
+    {
+      "path": "gates/ci-gate.stdout.log",
+      "checks": [
+        { "kind": "non_empty" },
+        { "kind": "contains", "text": "PASS CI Gate" }
+      ]
+    },
+    {
+      "path": "gates/evidence-content-check.stdout.log",
+      "checks": [
+        { "kind": "non_empty" },
+        { "kind": "contains", "text": "\"passed\": true" }
+      ]
+    },
+    {
+      "path": "gates/assurance-run-records.stdout.log",
+      "checks": [
+        { "kind": "non_empty" },
+        { "kind": "contains", "text": "\"passed\": true" }
+      ]
+    },
+    {
+      "path_pattern": "gates/*.stdout.log",
+      "checks": [
+        { "kind": "min_bytes", "bytes": 0 }
+      ],
+      "note": "A gate that succeeds silently has an empty stdout. The verdict of such a gate is its exit code, and the gates whose OUTPUT carries the verdict are declared individually above with the content they must contain."
+    },
+    {
+      "path_pattern": "gates/*.stderr.log",
+      "checks": [
+        { "kind": "min_bytes", "bytes": 0 }
+      ]
+    },
+    {
+      "path_pattern": "gates/*.exit",
+      "checks": [
+        { "kind": "non_empty" },
+        { "kind": "matches", "pattern": "^0$", "flags": "m" }
+      ]
+    },
+    {
+      "path": "mutation-probes.json",
+      "checks": [
+        { "kind": "parses_as_json" },
+        { "kind": "json_array_items_match", "path": "", "field": "status", "pattern": "^LOAD_BEARING" }
+      ]
+    },
+    {
+      "path": "registry-disposition.json",
+      "checks": [
+        { "kind": "parses_as_json" },
+        { "kind": "json_field_equals", "path": "registry_disposition.status", "value": "NO_CHANGE" },
+        { "kind": "json_field_equals", "path": "registry_disposition.registry_relevant_change", "value": false },
+        { "kind": "json_field_equals", "path": "registry_disposition.contract_version", "value": "registry-disposition.v1" },
+        { "kind": "json_field_present", "path": "registry_disposition.evidence_refs" }
+      ]
+    },
+    {
+      "path": "assurance-evidence-content.json",
+      "checks": [
+        { "kind": "parses_as_json" },
+        { "kind": "json_field_equals", "path": "evidence_dir", "value": "evidence/assurance-closure-2026-10-21" }
+      ]
+    },
+    {
+      "path": "self-evidence-content.json",
+      "checks": [
+        { "kind": "parses_as_json" },
+        { "kind": "json_field_equals", "path": "evidence_dir", "value": "evidence/operational-safety-closure-2026-10-22" },
+        { "kind": "json_field_present", "path": "files" }
+      ],
+      "note": "The manifest declares itself: the completeness rule requires every file in the evidence directory to be declared, and a manifest that is not declared is a file nobody looked at."
+    },
+    {
+      "path": "RUN.md",
+      "checks": [
+        { "kind": "non_empty" },
+        { "kind": "min_bytes", "bytes": 4000 },
+        { "kind": "contains", "text": "20 / 20 passed" },
+        { "kind": "contains", "text": "910 passed, 0 failed" },
+        { "kind": "contains", "text": "LOCAL_REPLICATION" },
+        { "kind": "contains", "text": "No hosted CI result" }
+      ]
+    }
+  ]
+}

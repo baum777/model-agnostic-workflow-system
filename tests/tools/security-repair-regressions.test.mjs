@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,9 +9,22 @@ import { assertRunId, resolveRuntimeRunDir } from '../../runtime/observability/r
 import { resolveRunDir, replayRuntimeRun } from '../../runtime/observability/runtime-replay.mjs';
 import { validateRuntimeRun } from '../../runtime/observability/validation-receipt.mjs';
 import { runRuntimeRun } from '../../runtime/cli/runtime-run.mjs';
+import { createScratchRoot, removeScratchRoot } from '../../scripts/tools/safe-remove.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const temp = (prefix) => fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+// The scratch state is a MARKED root with the working directory inside it,
+// so that every removal is checked against a boundary. The working
+// directory itself stays free of markers: a test that asserts an empty
+// directory must see an empty directory.
+const temp = (prefix) => {
+  const { root: scratch } = createScratchRoot({ prefix });
+  const dir = path.join(scratch, 'work');
+  fs.mkdirSync(dir);
+  return dir;
+};
+// The scratch root is the PARENT of the working directory, and only a
+// marked root is removable.
+const dispose = (...dirs) => dirs.forEach((dir) => removeScratchRoot({ root: path.dirname(dir) }));
 
 function nvidiaReport(complete = true) {
   // Schema and exception pattern sourced from the pinned 2.12.0 audit evidence.
@@ -72,8 +84,7 @@ test('F02 out-of-root runDir and reportPath block with no writes', () => {
     assert.equal(fs.existsSync(legal), false);
     assert.equal(invoked, false);
   } finally {
-    fs.rmSync(repo, { recursive: true, force: true });
-    fs.rmSync(outside, { recursive: true, force: true });
+    dispose(repo, outside);
   }
 });
 
@@ -85,8 +96,7 @@ test('F02 sandbox symlinks are not safe evidence destinations', () => {
     assert.equal(runPreinstallSkillRiskCheck({ repoRoot: repo, target: '.', type: 'skill' }).blocked, true);
     assert.equal(fs.readdirSync(outside).length, 0);
   } finally {
-    fs.rmSync(repo, { recursive: true, force: true });
-    fs.rmSync(outside, { recursive: true, force: true });
+    dispose(repo, outside);
   }
 });
 
@@ -100,7 +110,7 @@ test('F04 runtime IDs cannot traverse and all readers fail closed', () => {
       assert.equal(replayRuntimeRun({ repoRoot: repo, runId: id }).ok, false);
     }
     assert.equal(path.basename(resolveRuntimeRunDir(repo, 'run_valid-123')), 'run_valid-123');
-  } finally { fs.rmSync(repo, { recursive: true, force: true }); }
+  } finally { dispose(repo); }
 });
 
 test('F04 symlinked runtime path blocks reads and writes', () => {
@@ -112,8 +122,7 @@ test('F04 symlinked runtime path blocks reads and writes', () => {
     assert.equal(validateRuntimeRun({ repoRoot: repo, runId: 'run_escape' }).ok, false);
     assert.equal(replayRuntimeRun({ repoRoot: repo, runId: 'run_escape' }).ok, false);
   } finally {
-    fs.rmSync(repo, { recursive: true, force: true });
-    fs.rmSync(outside, { recursive: true, force: true });
+    dispose(repo, outside);
   }
 });
 
@@ -125,7 +134,7 @@ test('F04 run CLI rejects malicious spec run_id before writing', async () => {
     const specPath = path.join(dir, 'spec.json');
     fs.writeFileSync(specPath, JSON.stringify(spec));
     await assert.rejects(runRuntimeRun({ repoRoot: root, specPath }), (e) => e.code === 'RUN_ID_INVALID');
-  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  } finally { dispose(dir); }
 });
 
 test('F05 MiniMax adapter works as a pure transformation after import repair', async () => {
