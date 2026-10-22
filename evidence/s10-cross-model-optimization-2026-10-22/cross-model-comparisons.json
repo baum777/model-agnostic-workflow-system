@@ -1,0 +1,467 @@
+{
+  "summary": {
+    "corpus_id": "s10-cross-model-comparison-r1",
+    "kind": "s10-cross-model-comparison",
+    "engine_schema_version": "1.0.0",
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "deterministic": true,
+    "case_classes": {
+      "ordered-1-same-quality-different-cost": 1,
+      "ordered-2-lower-cost-worse-quality": 1,
+      "ordered-3-security-regression-despite-gain": 1,
+      "ordered-4-incompatible-capability": 1,
+      "ordered-5-missing-qualification": 1,
+      "ordered-6-corpus-or-contract-mismatch": 3,
+      "ordered-7-unstable-repeated-results": 1,
+      "ordered-8-provider-executor-failure": 1,
+      "ordered-9-missing-token-or-latency-evidence": 1,
+      "ordered-10-s9-regression-failed": 1,
+      "supplementary-full-dominance": 1,
+      "supplementary-unqualified-never-wins": 1,
+      "supplementary-adapter-boundary": 1,
+      "supplementary-quality-dominance": 1,
+      "supplementary-regression-evidence-missing": 1
+    },
+    "verdict_counts": {
+      "CANDIDATE_PREFERRED": 4,
+      "INCOMPARABLE": 8,
+      "BLOCKED": 5
+    },
+    "limits": [
+      "Labels and expectations are constructed, not owner-reviewed; they fix what the engine must do, not what any real executor did.",
+      "All measurements are synthetic offline replay/fixture evidence; no provider was called, no credentials exist in this corpus, and the live_provider class is never exercised.",
+      "The corpus uses synthetic executor, provider and model identities; no statement about any real model or provider is derivable from it.",
+      "Instruction overhead numbers are constructed to exercise the derived-ratio invariant, not measured tokenizations.",
+      "A CANDIDATE_PREFERRED verdict in this corpus adopts nothing: it is a measured statement over synthetic material."
+    ]
+  },
+  "results": [
+    {
+      "case_id": "xmc_case01_same_quality_different_cost",
+      "case_class": "ordered-1-same-quality-different-cost",
+      "expected": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "COST_DOMINANCE",
+        "preferred_candidate_id": "cand_b",
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "COST_DOMINANCE",
+        "preferred_candidate_id": "cand_b",
+        "excluded_candidates": [],
+        "comparison_id": "xmc_3410568d2c26c9de"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case02_cheaper_but_worse",
+      "case_class": "ordered-2-lower-cost-worse-quality",
+      "expected": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "PARETO_NONDOMINANCE",
+        "preferred_candidate_id": null,
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "PARETO_NONDOMINANCE",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [],
+        "comparison_id": "xmc_bae58105885d3c95"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case03_security_regression_despite_gain",
+      "case_class": "ordered-3-security-regression-despite-gain",
+      "expected": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "NO_WINNER_CAPABLE_CANDIDATE",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "SECURITY_REGRESSION"
+          }
+        ]
+      },
+      "actual": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "NO_WINNER_CAPABLE_CANDIDATE",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "SECURITY_REGRESSION",
+            "detail": "security regression count 2 — absolute; no quality, cost or latency gain compensates it"
+          }
+        ],
+        "comparison_id": "xmc_3e5129c7ff3b7b45"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case04_incompatible_capability",
+      "case_class": "ordered-4-incompatible-capability",
+      "expected": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "CAPABILITY_INCOMPATIBLE",
+        "preferred_candidate_id": null,
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "CAPABILITY_INCOMPATIBLE",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [],
+        "comparison_id": "xmc_9b598ff52d0fcf32"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case05_qualification_evidence_missing",
+      "case_class": "ordered-5-missing-qualification",
+      "expected": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "QUALIFICATION_EVIDENCE_MISSING",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING"
+          }
+        ]
+      },
+      "actual": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "QUALIFICATION_EVIDENCE_MISSING",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING",
+            "detail": "qualification state UNKNOWN with no carried qualification evidence"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "QUALIFICATION_EVIDENCE_MISSING",
+            "detail": "qualification state UNKNOWN with no carried qualification evidence"
+          }
+        ],
+        "comparison_id": "xmc_e8fb1610182effba"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case06_corpus_mismatch",
+      "case_class": "ordered-6-corpus-or-contract-mismatch",
+      "expected": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "CORPUS_MISMATCH",
+        "preferred_candidate_id": null,
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "CORPUS_MISMATCH",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [],
+        "comparison_id": "xmc_5a4a665548e85a4c"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case06b_success_contract_mismatch",
+      "case_class": "ordered-6-corpus-or-contract-mismatch",
+      "expected": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "SUCCESS_CONTRACT_MISMATCH",
+        "preferred_candidate_id": null,
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "SUCCESS_CONTRACT_MISMATCH",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [],
+        "comparison_id": "xmc_1fc66e6563be9dab"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case06c_evidence_class_mismatch",
+      "case_class": "ordered-6-corpus-or-contract-mismatch",
+      "expected": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "EVIDENCE_CLASS_MISMATCH",
+        "preferred_candidate_id": null,
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "EVIDENCE_CLASS_MISMATCH",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [],
+        "comparison_id": "xmc_4d28862ae1eef367"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case07_unstable_repetitions",
+      "case_class": "ordered-7-unstable-repeated-results",
+      "expected": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "UNSTABLE_RESULTS",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "UNSTABLE"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "UNSTABLE"
+          }
+        ]
+      },
+      "actual": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "UNSTABLE_RESULTS",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "UNSTABLE",
+            "detail": "repeated runs disagreed (task_success_rate 0.62..0.94 across 3 runs over 3 runs)"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "UNSTABLE",
+            "detail": "repeated runs disagreed (task_success_rate 0.58..0.90 across 3 runs over 3 runs)"
+          }
+        ],
+        "comparison_id": "xmc_7fd52464198aae81"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case08_provider_failure",
+      "case_class": "ordered-8-provider-executor-failure",
+      "expected": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "PROVIDER_EXECUTION_FAILURE",
+        "preferred_candidate_id": null,
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "PROVIDER_EXECUTION_FAILURE",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [],
+        "comparison_id": "xmc_2edb75c0d19e4604"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case09_missing_token_evidence",
+      "case_class": "ordered-9-missing-token-or-latency-evidence",
+      "expected": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "TOKEN_EVIDENCE_MISSING",
+        "preferred_candidate_id": null,
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "TOKEN_EVIDENCE_MISSING",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [],
+        "comparison_id": "xmc_a837cd8dd435b2c4"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case10_s9_regression_failed",
+      "case_class": "ordered-10-s9-regression-failed",
+      "expected": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "COST_DOMINANCE",
+        "preferred_candidate_id": "cand_c",
+        "excluded": [
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "REGRESSION_DETECTED"
+          }
+        ]
+      },
+      "actual": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "COST_DOMINANCE",
+        "preferred_candidate_id": "cand_c",
+        "excluded_candidates": [
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "REGRESSION_DETECTED",
+            "detail": "the S9 comparison rgr_s10_cand_b detected a regression"
+          }
+        ],
+        "comparison_id": "xmc_3697652770239a1c"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case11_full_dominance",
+      "case_class": "supplementary-full-dominance",
+      "expected": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "FULL_DOMINANCE",
+        "preferred_candidate_id": "cand_a",
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "FULL_DOMINANCE",
+        "preferred_candidate_id": "cand_a",
+        "excluded_candidates": [],
+        "comparison_id": "xmc_76b309ad3cc84a5a"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case12_unqualified_states_only",
+      "case_class": "supplementary-unqualified-never-wins",
+      "expected": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "NO_WINNER_CAPABLE_CANDIDATE",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "NOT_QUALIFIED"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "NOT_QUALIFIED"
+          }
+        ]
+      },
+      "actual": {
+        "verdict": "INCOMPARABLE",
+        "outcome_reason": "NO_WINNER_CAPABLE_CANDIDATE",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "NOT_QUALIFIED",
+            "detail": "qualification state DISQUALIFIED — an unqualified executor never receives winner status"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "NOT_QUALIFIED",
+            "detail": "qualification state QUALIFICATION_PENDING — an unqualified executor never receives winner status"
+          }
+        ],
+        "comparison_id": "xmc_170433e769632ba5"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case13_adapter_boundary_violation",
+      "case_class": "supplementary-adapter-boundary",
+      "expected": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "OPTIMIZATION_BOUNDARY_VIOLATION",
+        "preferred_candidate_id": null,
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "OPTIMIZATION_BOUNDARY_VIOLATION",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [],
+        "comparison_id": "xmc_b7f26dd5806adcfa"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case14_quality_dominance",
+      "case_class": "supplementary-quality-dominance",
+      "expected": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "QUALITY_DOMINANCE",
+        "preferred_candidate_id": "cand_a",
+        "excluded": []
+      },
+      "actual": {
+        "verdict": "CANDIDATE_PREFERRED",
+        "outcome_reason": "QUALITY_DOMINANCE",
+        "preferred_candidate_id": "cand_a",
+        "excluded_candidates": [],
+        "comparison_id": "xmc_543415b2c69187d7"
+      },
+      "pass": true,
+      "mismatches": []
+    },
+    {
+      "case_id": "xmc_case15_missing_regression_evidence",
+      "case_class": "supplementary-regression-evidence-missing",
+      "expected": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "REGRESSION_EVIDENCE_MISSING",
+        "preferred_candidate_id": null,
+        "excluded": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "REGRESSION_EVIDENCE_MISSING"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "REGRESSION_EVIDENCE_MISSING"
+          }
+        ]
+      },
+      "actual": {
+        "verdict": "BLOCKED",
+        "outcome_reason": "REGRESSION_EVIDENCE_MISSING",
+        "preferred_candidate_id": null,
+        "excluded_candidates": [
+          {
+            "candidate_id": "cand_a",
+            "exclusion_reason": "REGRESSION_EVIDENCE_MISSING",
+            "detail": "no usable S9 regression verdict (verdict: ABSENT); absence of a regression record is not cleanliness"
+          },
+          {
+            "candidate_id": "cand_b",
+            "exclusion_reason": "REGRESSION_EVIDENCE_MISSING",
+            "detail": "no usable S9 regression verdict (verdict: ABSENT); absence of a regression record is not cleanliness"
+          }
+        ],
+        "comparison_id": "xmc_4735482350d181e3"
+      },
+      "pass": true,
+      "mismatches": []
+    }
+  ]
+}

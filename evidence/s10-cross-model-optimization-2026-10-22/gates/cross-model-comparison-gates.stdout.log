@@ -1,0 +1,3 @@
+cross-model comparison fixtures: 10 cases checked, 10 as expected
+cross-model corpus s10-cross-model-comparison-r1: 17/17 cases as expected, deterministic
+verdict coverage: BLOCKED, CANDIDATE_PREFERRED, INCOMPARABLE
