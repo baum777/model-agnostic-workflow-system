@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.1.0",
+  "lane_id": "governance-policy-followup-20261023",
+  "authority": "canonical_owner",
+  "base_ref": "main",
+  "head_ref": "evidence/governance-policy-followup-2026-10-23",
+  "head_repository": "baum777",
+  "authorized_commit": "584733fa48af2841ee7c94d07334616dfbf494be",
+  "authorized_head_sha": "584733fa48af2841ee7c94d07334616dfbf494be",
+  "state": "active",
+  "required_checks": [],
+  "required_local_gates": [
+    "validate",
+    "test:vnext",
+    "test:merge-executor",
+    "test:merge-attestation",
+    "test:merge-lane-contract"
+  ]
+}
