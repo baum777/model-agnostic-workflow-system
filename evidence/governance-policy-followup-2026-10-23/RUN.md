@@ -62,7 +62,7 @@ with exact evidence, and register the whole change across the triad.
 The live baseline `core/authority/merge-audit-baseline.json` is UNTOUCHED
 — no anchor is set by this change.
 
-## 4. Anti-laundering controls (9 new tests, 31/31 green)
+## 4. Anti-laundering controls (12 new tests, 34/34 green)
 
 `tests/tools/merge-attestation-audit.test.mjs`:
 
@@ -73,8 +73,11 @@ The live baseline `core/authority/merge-audit-baseline.json` is UNTOUCHED
 | post-anchor is never disposable | `a finding that postdates the adopted anchor is never disposable` |
 | unresolvable anchor | `an anchor that resolves to no commit invalidates the baseline` |
 | anchor must lie on the audited line | `an anchor that does not lie on the audited line is not adoptable` |
+| **structural cap (review hardening)** | `an anchor may not postdate the disposition surface itself` |
+| **cap positive control** | `the disposition surface introduction commit is itself a legal anchor` |
 | anchor is immovable | `a moved anchor is a mutation finding and loses all force` |
 | removal returns to pending | `a removed anchor returns the baseline to a state without force` |
+| removal visibility | `a removed and readopted anchor is reported` (`adoption_removals`) |
 | malformed anchor value | `a malformed adoption_anchor value fails the gate` |
 | lane-level findings not disposable | `a lane-reuse finding carries no commit and is never disposable` |
 
@@ -83,6 +86,40 @@ gate`) was updated to carry an adopted anchor: under the policy this run
 implements, its old fixture (a force-bearing unadopted baseline) is
 exactly the laundering shape the policy forbids. All other foreign tests
 pass unchanged.
+
+### 4.1 Independent review round (before the merge)
+
+An independent reviewer examined the full diff, re-ran the suite and the
+live audit, and probed the anchor state machine in scratch repositories.
+Findings and dispositions:
+
+* **P2 — anchor latitude (REPAIRED in this change).** The first adoption
+  could originally have named an anchor that postdates a pending-window
+  violation (on the published main: an anchor at `9d009cc` would have made
+  the S10 finding `71655312` retroactively eligible, because `9d009cc` is
+  not an ancestor of it). The mechanism now caps the anchor at the
+  disposition surface's own introduction commit — an anchor that postdates
+  it is `BASELINE_ANCHOR_INVALID`, bound by two tests (negative + the
+  introduction-commit-is-legal positive control). The eligibility window
+  is structurally capped at the mechanism in every state.
+* **P2 — evidence asserted this run's lane as closed before it existed
+  (CORRECTED).** The lane record is created by a separate governance act
+  after these evidence commits; the wording now says planned, not done.
+* **P3 — `isAncestor` fail-open edge in the eligibility check (REPAIRED).**
+  Eligibility now runs through `anchorPredates`, which verifies both
+  commits resolve before granting force; an unresolvable input is
+  ineligible, never disposed.
+* **P3 — anchor removal not sticky (SURFACED).** Remove + re-add of the
+  same value restores the same eligibility boundary and extends nothing;
+  the removal is now visible in the report (`adoption_removals`), bound by
+  a test.
+* **P3 accepted (documented, not changed).** Matched findings in
+  invalid/mutated/removed baselines all carry the label
+  `pending_adoption`; the `baseline_adoption` field carries the precise
+  state. The pre-existing foreign baseline entry states PR #107's merge
+  time one second off (16:55:54Z vs the committer date 16:55:53Z) — the
+  foreign file is untouched, and this run's classification table states
+  the correct value.
 
 ## 5. Regression: PR #90 and PR #107, separately classified
 
@@ -126,7 +163,8 @@ it. That is by design — the laundering vector is closed fail-closed, and
 the only way back to a green gate is the owner's own adoption act (plus
 the owner's separate decision on the S10 finding, which stays live under
 Option B). No lane of this run demands `merge:audit` as a local gate; the
-reason is recorded in the lane authorization commit.
+reason is recorded in the lane authorization that authorizes this merge
+(created by a separate governance act after these evidence commits).
 
 ## 7. Invariants held
 

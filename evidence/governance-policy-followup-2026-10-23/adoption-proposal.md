@@ -28,12 +28,24 @@ That one field activates the policy this change implements:
   the finding's commit. A finding that postdates the anchor is
   `ineligible` and blocks the gate forever. A violation that lands after
   the policy exists can never be recorded away.
+* **The structural cap.** The anchor may not postdate the disposition
+  surface's own introduction commit: an adoption naming a later anchor is
+  refused with `BASELINE_ANCHOR_INVALID` ("postdates the disposition
+  surface"). The eligibility window is therefore capped at the mechanism
+  itself in ALL cases — no anchor value, and no first-adoption choice, can
+  ever extend disposability past the moment the policy's instrument came
+  into existence. (This cap was added by this run's independent review
+  round: without it, a first adoption could have named a later anchor and
+  made the S10 finding retroactively eligible inside the mechanism.)
 * **Immovability.** The anchor is adopted once. The audit walks the
   baseline file's own version history: any later change of the value is
   the finding `BASELINE_ANCHOR_MUTATED`; an anchor that resolves nowhere,
   or that postdates the adoption act (is not an ancestor of the first
   commit carrying an anchor), is `BASELINE_ANCHOR_INVALID`. Removing the
-  anchor returns every record to the pending, force-less state.
+  anchor returns every record to the pending, force-less state, and a
+  later re-adoption of the SAME value restores exactly the same
+  eligibility boundary — it extends nothing, and the removal stays
+  visible in the report (`adoption_removals`).
 * **Fail-closed pending.** Without an adopted anchor — and for every
   ineligible, stale, malformed or mutated record — every recorded finding
   keeps its full gate-failing force and is reported as `pending_adoption`.
@@ -79,7 +91,13 @@ Two properties hold in EVERY row and are bound by the test suite:
    into a compliant merge.
 2. Admission can only go green through the owner's own acts (adoption plus,
    for the S10 finding, an explicit future exception decision or its
-   remediation). No lane, no governance act and no baseline edit can do it.
+   remediation). Within the mechanism the eligibility window is
+   structurally capped at the disposition surface's introduction commit
+   (`0fd89d9…` on the published main): the tool refuses any adoption whose
+   anchor postdates it, so no lane, no governance act and no baseline edit
+   can make the post-mechanism finding `71655312` eligible — its live
+   blocking after adoption is enforced by the tool, not by this document's
+   choice of anchor value.
 
 ## 4. What adoption does NOT do
 
@@ -91,7 +109,10 @@ Two properties hold in EVERY row and are bound by the test suite:
   exact-head lane binding, the direct-push class and the fail-closed
   refusal guards are untouched by the proposal (the refusal probes of this
   run re-prove them at this head).
-* It does not create an exception path for post-anchor findings. B′ would
+* It does not create an exception path for post-anchor findings, and the
+  structural cap closes the indirect one: an anchor value that postdates
+  the mechanism is refused by the tool itself, so a late adoption cannot
+  smuggle a post-mechanism violation into eligibility. B′ would still
   require a separate, named, owner-signed exception contract and is
   explicitly NOT part of this proposal.
 

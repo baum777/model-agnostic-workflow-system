@@ -38,15 +38,18 @@
 // history may be RECORDED in core/authority/merge-audit-baseline.json by a
 // governance act, but a record is only ever a PENDING PROPOSAL until the
 // baseline carries an ADOPTION ANCHOR: a commit that already lies on the
-// audited line when the adoption act lands. The anchor is adopted once and
-// never moves — the audit reads the baseline file's own version history and
-// fails on every later change of its value. Only findings whose landing
-// PREDATES the anchor (the anchor is not their ancestor) are eligible, so a
-// violation that lands after the policy exists can never be recorded away:
-// post-anchor findings stay gate-blocking, permanently. Until adoption —
-// and for every ineligible, stale or malformed record — the recorded
-// finding keeps its gate-failing force. Pending approval is not granted
-// authority.
+// audited line when the adoption act lands, and that does not postdate the
+// disposition surface's own introduction — the eligibility window is
+// structurally capped at the mechanism, so no anchor value can ever extend
+// it past the moment the policy's instrument came into existence. The
+// anchor is adopted once and never moves — the audit reads the baseline
+// file's own version history and fails on every later change of its value.
+// Only findings whose landing PREDATES the anchor (the anchor is not their
+// ancestor) are eligible, so a violation that lands after the policy
+// exists can never be recorded away: post-anchor findings stay
+// gate-blocking, permanently. Until adoption — and for every ineligible,
+// stale or malformed record — the recorded finding keeps its gate-failing
+// force. Pending approval is not granted authority.
 //
 // The report separates two verdicts that must never collapse into one
 // another. HISTORICAL COMPLIANCE is immutable: it says FAIL as long as any
@@ -247,17 +250,22 @@ function baselineKey(finding) {
 // The adoption history of the disposition surface, read from the baseline
 // file's own version history along the audited line. The FIRST commit whose
 // baseline carries an anchor is the adoption act; every LATER change of the
-// anchor's value is a mutation. The walk is what makes the anchor
-// immovable: the value cannot be rewritten after the fact without leaving
-// a mutation in the file's history.
+// anchor's value is a mutation, and every LATER version without an anchor is
+// a removal. The walk is what makes the anchor immovable: the value cannot
+// be rewritten after the fact without leaving a mutation in the file's
+// history.
 function baselineAnchorHistory(root, tip) {
   const history = gitLines(root, ['log', '--reverse', '--format=%H', '--first-parent', tip, '--', MERGE_AUDIT_BASELINE_PATH]);
   let firstAdoption = null;
   let firstAnchor = null;
   const mutations = [];
+  const removals = [];
   for (const commit of history) {
     const text = git(root, ['show', `${commit}:${MERGE_AUDIT_BASELINE_PATH}`], { allowFailure: true });
-    if (!text.trim()) continue;
+    if (!text.trim()) {
+      if (firstAdoption !== null) removals.push({ commit, kind: 'file_absent' });
+      continue;
+    }
     let parsed;
     try {
       parsed = JSON.parse(text);
@@ -267,7 +275,10 @@ function baselineAnchorHistory(root, tip) {
     const anchor = typeof parsed?.adoption_anchor === 'string' && /^[0-9a-f]{40}$/.test(parsed.adoption_anchor)
       ? parsed.adoption_anchor
       : null;
-    if (!anchor) continue;
+    if (!anchor) {
+      if (firstAdoption !== null) removals.push({ commit, kind: 'anchor_absent' });
+      continue;
+    }
     if (firstAdoption === null) {
       firstAdoption = commit;
       firstAnchor = anchor;
@@ -277,7 +288,17 @@ function baselineAnchorHistory(root, tip) {
       mutations.push({ commit, from: firstAnchor, to: anchor });
     }
   }
-  return { firstAdoption, firstAnchor, mutations };
+  return { introduction: history[0] ?? null, firstAdoption, firstAnchor, mutations, removals };
+}
+
+// Eligibility, fail-closed: a finding predates the anchor only when BOTH
+// commits resolve and the anchor is not the finding's ancestor. Anything
+// that cannot be verified grants no force.
+function anchorPredates(root, anchor, subject) {
+  const resolvedAnchor = git(root, ['rev-parse', '--verify', `${anchor}^{commit}`], { allowFailure: true }).trim();
+  const resolvedSubject = git(root, ['rev-parse', '--verify', `${subject}^{commit}`], { allowFailure: true }).trim();
+  if (!/^[0-9a-f]{40}$/.test(resolvedAnchor) || !/^[0-9a-f]{40}$/.test(resolvedSubject)) return false;
+  return !isAncestor(root, resolvedAnchor, resolvedSubject);
 }
 
 // auditMergeAttestations() -> the report. It reads the published history
@@ -446,6 +467,12 @@ export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
             code: AUDIT_CODES.BASELINE_ANCHOR_INVALID,
             detail: `the adoption anchor ${resolvedAnchor} is not an ancestor of the first adoption commit ${anchorHistory.firstAdoption ?? 'none'}; an anchor must already lie on the audited line when the adoption act lands`
           });
+        } else if (anchorHistory.introduction && !isAncestor(root, resolvedAnchor, anchorHistory.introduction)) {
+          adoption.state = 'invalid';
+          baselineFindings.push({
+            code: AUDIT_CODES.BASELINE_ANCHOR_INVALID,
+            detail: `the adoption anchor ${resolvedAnchor} postdates the disposition surface's own introduction ${anchorHistory.introduction}; the eligibility window is capped at the mechanism and can never be moved past it`
+          });
         } else if (anchorHistory.mutations.length > 0) {
           adoption.state = 'mutated';
         } else {
@@ -478,7 +505,7 @@ export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
       const subject = finding.commit ?? finding.merge_commit ?? null;
       if (!anchorHasForce) {
         state = 'pending_adoption';
-      } else if (subject !== null && !isAncestor(root, adoption.resolvedAnchor, subject)) {
+      } else if (subject !== null && anchorPredates(root, adoption.resolvedAnchor, subject)) {
         state = 'disposed';
       } else {
         state = 'ineligible';
@@ -521,6 +548,8 @@ export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
     baseline_adoption: adoption.state,
     adoption_anchor: adoption.anchor,
     adoption_first_commit: adoption.firstAdoption,
+    adoption_introduction_commit: anchorHistory.introduction,
+    adoption_removals: anchorHistory.removals.length,
     historical_compliance: historicalCompliance,
     admission: {
       status,

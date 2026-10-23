@@ -37,7 +37,7 @@
     "registry_commit_sha": null,
     "validation": [
       "node scripts/tools/validate-registry-disposition.mjs evidence/governance-policy-followup-2026-10-23/registry-disposition.json (PASS)",
-      "npm run validate (0 issues), npm run test:vnext (844/844), npm run test:merge-attestation (31/31, 9 new anchor controls), npm run test:merge-executor (89/89), python3 -m unittest tests/tools/merge_lane_authorization_schema_test.py (OK) — all LOCAL_REPLICATION",
+      "npm run validate (0 issues), npm run test:vnext (844/844), npm run test:merge-attestation (34/34, 12 new anchor controls including the structural cap), npm run test:merge-executor (89/89), python3 -m unittest tests/tools/merge_lane_authorization_schema_test.py (OK) — all LOCAL_REPLICATION",
       "merge:audit at main bcfcdce under this change: baseline adoption pending, 2 findings pending_adoption, admission FAIL (exit 1) — the designed pre-adoption state",
       "2 live executor dry-run refusals reproduced: MERGE_LANE_AUTHORIZATION_ABSENT and MERGE_PR_IDENTITY_MISMATCH (pull request 107 under the S10 lane), nothing merged",
       "anchor facts verified by ancestry: 0fd89d99fac3cf027880dfe2b13b0140a2a0b4fd is the PR 98 merge; b9021307 pre-anchor (anchor not ancestor), 71655312a post-anchor (anchor is ancestor)"

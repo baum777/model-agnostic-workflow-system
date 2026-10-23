@@ -32,5 +32,7 @@ reports them; it modifies neither. Closing a lane is its owner's act.
    fate is semantically tied to the S10 finding `71655312` the adoption
    leaves live.
 
-This run's own lane (`governance-policy-followup-20261023`) is closed by
-its binding merge, as every lane of this session's runs has been.
+This run's own lane (`governance-policy-followup-20261023`) is authorized
+by a separate governance act after this evidence commit, demands its five
+local gates and is closed by its binding merge; this paragraph is a plan,
+not a claim about a lane record that already exists.

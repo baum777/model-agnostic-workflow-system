@@ -509,6 +509,66 @@ test('an anchor that does not lie on the audited line is not adoptable', () => {
   );
 });
 
+test('an anchor may not postdate the disposition surface itself', () => {
+  // The structural cap: the first adoption could otherwise name a LATER
+  // anchor and make a violation that landed while the policy was pending
+  // (or, on the published main, after the mechanism existed) retroactively
+  // eligible. The anchor must not postdate the introduction of the
+  // disposition surface — the eligibility window can never be moved past
+  // the mechanism.
+  const dir = makeRepo();
+  const commit = directPush(dir);
+  const surfaceIntroduction = commitBaseline(dir, [entry(commit)]);
+  const laterAnchor = commitAnchorCandidate(dir, 'later');
+  commitBaseline(dir, [entry(commit)], laterAnchor);
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'invalid');
+  assert.equal(report.adoption_introduction_commit, surfaceIntroduction);
+  assert.equal(report.status, 'FAIL');
+  const invalid = report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_ANCHOR_INVALID);
+  assert.equal(invalid.length, 1);
+  assert.match(invalid[0].detail, /postdates the disposition surface/);
+  const finding = report.findings.find((item) => item.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED);
+  assert.equal(finding.disposition_state, 'pending_adoption');
+});
+
+test('the disposition surface introduction commit is itself a legal anchor', () => {
+  // The real shape of the proposed adoption: the anchor IS the commit that
+  // introduced the mechanism (on the published main, the merge of pull
+  // request 98). Everything that predates it stays disposable; everything
+  // after it is structurally ineligible.
+  const dir = makeRepo();
+  const commit = directPush(dir);
+  const surfaceIntroduction = commitBaseline(dir, [entry(commit)]);
+  commitBaseline(dir, [entry(commit)], surfaceIntroduction);
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'adopted');
+  assert.equal(report.status, 'PASS');
+  assert.equal(report.disposed_findings.length, 1);
+  assert.equal(report.historical_compliance.status, 'FAIL');
+});
+
+test('a removed and readopted anchor is reported', () => {
+  // Removing the anchor takes the force away (fail-closed); re-adopting
+  // the SAME value restores the exact same eligibility boundary — no force
+  // is extended — and the removal stays visible in the report.
+  const dir = makeRepo();
+  const commit = directPush(dir);
+  const anchor = commitAnchorCandidate(dir);
+  commitBaseline(dir, [entry(commit)], anchor);
+  assert.equal(audit(dir).status, 'PASS');
+  commitBaseline(dir, [entry(commit)]);
+  const pending = audit(dir);
+  assert.equal(pending.baseline_adoption, 'removed');
+  assert.equal(pending.status, 'FAIL');
+  commitBaseline(dir, [entry(commit)], anchor);
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'adopted');
+  assert.equal(report.adoption_removals, 1);
+  assert.equal(report.status, 'PASS');
+  assert.equal(report.disposed_findings.length, 1);
+});
+
 test('a moved anchor is a mutation finding and loses all force', () => {
   // The anchor is adopted once and never moves. Rewriting its value — even
   // to an earlier commit — is read from the baseline file's own history and
