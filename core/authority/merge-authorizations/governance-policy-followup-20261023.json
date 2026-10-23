@@ -7,7 +7,13 @@
   "head_repository": "baum777",
   "authorized_commit": "584733fa48af2841ee7c94d07334616dfbf494be",
   "authorized_head_sha": "584733fa48af2841ee7c94d07334616dfbf494be",
-  "state": "active",
+  "state": "closed",
+  "closed_by": {
+    "pull_request": 112,
+    "merge_commit": "9bbd99f02850bdfd631918e97c4acf01d46acfd9",
+    "head_sha": "584733fa48af2841ee7c94d07334616dfbf494be",
+    "closed_at": "2026-10-23T04:34:16+02:00"
+  },
   "required_checks": [],
   "required_local_gates": [
     "validate",
