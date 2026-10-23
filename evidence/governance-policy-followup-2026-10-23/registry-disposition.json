@@ -1,0 +1,48 @@
+{
+  "registry_disposition": {
+    "status": "NO_CHANGE",
+    "material_change": true,
+    "registry_relevant_change": false,
+    "reason": "The change implements the adoption-anchor policy for the merge-audit disposition baseline: fail-closed pending (no record carries force without an adopted anchor), pre-anchor-only eligibility (a post-anchor finding is ineligible forever), anchor immutability (mutation and invalid-anchor findings read from the baseline file's own version history) and the dual verdict (immutable historical compliance separated from the admission gate). The live baseline core/authority/merge-audit-baseline.json is untouched — no anchor is set, no entry is added or removed; the two existing foreign records lose their force (pending) the moment this change lands, which is the run's purpose. No adopted registered binding moves: the audit tool, the baseline file and the tests appear in no structured Registry catalog (SOURCE_CATALOG, AUTHORITY_MAP, CONSUMER_MAP, SOURCE_PROVENANCE, MATERIALIZATION_LEDGER), only in historical run-change records, whose statements describe their own commits and remain true of them. The change registration in the Unitera Registry and the representation in the Unitera Atlas are made outside this repository; this artifact is the owner-side classification that accompanies them. The run grants no permission, activates no policy, rewrote no history and created no authority; the policy activation (the anchor adoption) belongs to the owner and is prepared in evidence/governance-policy-followup-2026-10-23/adoption-proposal.md.",
+    "registry_baseline_sha": "bcfcdce34a61a937f28b1a06620025fb67a4bd47",
+    "affected_records": [],
+    "authority_refs": [
+      "AGENTS.md",
+      "docs/governance/registry-disposition.md",
+      "evidence/governance-policy-followup-2026-10-23/RUN.md"
+    ],
+    "source_refs": [
+      "scripts/tools/verify-merge-attestations.mjs",
+      "tests/tools/merge-attestation-audit.test.mjs",
+      "evidence/governance-policy-followup-2026-10-23/RUN.md",
+      "evidence/governance-policy-followup-2026-10-23/adoption-proposal.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "evidence/governance-policy-followup-2026-10-23/RUN.md",
+      "evidence/governance-policy-followup-2026-10-23/adoption-proposal.md",
+      "evidence/governance-policy-followup-2026-10-23/baseline-verification.json"
+    ],
+    "evidence_refs": [
+      "evidence/governance-policy-followup-2026-10-23/RUN.md",
+      "evidence/governance-policy-followup-2026-10-23/adoption-proposal.md",
+      "evidence/governance-policy-followup-2026-10-23/baseline-verification.json",
+      "evidence/governance-policy-followup-2026-10-23/classification-pr90-pr107.md",
+      "evidence/governance-policy-followup-2026-10-23/dangling-lane-examination.md",
+      "evidence/governance-policy-followup-2026-10-23/merge-audit-at-baseline.log",
+      "evidence/governance-policy-followup-2026-10-23/probe-absent.receipt.json",
+      "evidence/governance-policy-followup-2026-10-23/probe-identity.receipt.json"
+    ],
+    "implementation_commit_sha": "9813c5819ae774241d8caab31ca9bf4d3c28cae2",
+    "registry_commit_sha": null,
+    "validation": [
+      "node scripts/tools/validate-registry-disposition.mjs evidence/governance-policy-followup-2026-10-23/registry-disposition.json (PASS)",
+      "npm run validate (0 issues), npm run test:vnext (844/844), npm run test:merge-attestation (31/31, 9 new anchor controls), npm run test:merge-executor (89/89), python3 -m unittest tests/tools/merge_lane_authorization_schema_test.py (OK) — all LOCAL_REPLICATION",
+      "merge:audit at main bcfcdce under this change: baseline adoption pending, 2 findings pending_adoption, admission FAIL (exit 1) — the designed pre-adoption state",
+      "2 live executor dry-run refusals reproduced: MERGE_LANE_AUTHORIZATION_ABSENT and MERGE_PR_IDENTITY_MISMATCH (pull request 107 under the S10 lane), nothing merged",
+      "anchor facts verified by ancestry: 0fd89d99fac3cf027880dfe2b13b0140a2a0b4fd is the PR 98 merge; b9021307 pre-anchor (anchor not ancestor), 71655312a post-anchor (anchor is ancestor)"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": []
+  }
+}

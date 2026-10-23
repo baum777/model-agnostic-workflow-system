@@ -1,0 +1,32 @@
+{
+  "probe": {
+    "command": "node scripts/tools/merge-pr-executor.mjs --lane no-such-lane-20261023 --repo baum777/model-agnostic-workflow-system --pr 99 --root /home/baum/tmp-govpol/maws",
+    "executed_at": "2026-10-23T01:57:56Z",
+    "mode": "dry-run (no --apply)",
+    "exit_code": 1,
+    "executor_report": {
+      "ok": false,
+      "decision": "REFUSE",
+      "code": "MERGE_LANE_AUTHORIZATION_ABSENT",
+      "message": "the base commit bcfcdce34a61a937f28b1a06620025fb67a4bd47 carries no lane authorization at core/authority/merge-authorizations/no-such-lane-20261023.json: Command failed: git show bcfcdce34a61a937f28b1a06620025fb67a4bd47:core/authority/merge-authorizations/no-such-lane-20261023.json\nfatal: Pfad 'core/authority/merge-authorizations/no-such-lane-20261023.json' existiert nicht in 'bcfcdce34a61a937f28b1a06620025fb67a4bd47'\n",
+      "lane": "no-such-lane-20261023",
+      "repository": "baum777/model-agnostic-workflow-system",
+      "base_ref": null,
+      "base_commit": null,
+      "base_commit_source": null,
+      "pull_request": null,
+      "head_sha": null,
+      "merge_commit": null,
+      "merged": false,
+      "checks": [],
+      "local_gates": [],
+      "lane_schema_version": null,
+      "lane_state": null,
+      "authorized_head_sha": null,
+      "lane_surface": [],
+      "lane_surface_malformed": 0,
+      "worktree_clean": false,
+      "warnings": []
+    }
+  }
+}

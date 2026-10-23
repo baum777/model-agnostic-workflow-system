@@ -1,0 +1,53 @@
+{
+  "probe": {
+    "command": "node scripts/tools/merge-pr-executor.mjs --lane s10-cross-model-optimization-20261022 --repo baum777/model-agnostic-workflow-system --pr 107 --root /home/baum/tmp-govpol/maws",
+    "executed_at": "2026-10-23T01:57:56Z",
+    "mode": "dry-run (no --apply)",
+    "exit_code": 1,
+    "executor_report": {
+      "ok": false,
+      "decision": "REFUSE",
+      "code": "MERGE_PR_IDENTITY_MISMATCH",
+      "message": "the merge target is pull request 107 but the lane \"s10-cross-model-optimization-20261022\" owns pull request 100",
+      "lane": "s10-cross-model-optimization-20261022",
+      "repository": "baum777/model-agnostic-workflow-system",
+      "base_ref": "main",
+      "base_commit": "bcfcdce34a61a937f28b1a06620025fb67a4bd47",
+      "base_commit_source": "github",
+      "pull_request": null,
+      "head_sha": null,
+      "merge_commit": null,
+      "merged": false,
+      "checks": [],
+      "local_gates": [],
+      "lane_schema_version": "1.1.0",
+      "lane_state": "active",
+      "authorized_head_sha": "61609ccfe5a46dd5e30163c7b27c3f2cb485a4c4",
+      "lane_surface": [
+        "assurance-reconciliation-20261022",
+        "assurance-reconciliation-maintenance-20261022",
+        "boundary-closure-20261022",
+        "governance-integrity-20261022",
+        "governance-integrity-closure-20261022",
+        "merge-executor-hardening-20261021",
+        "merge-executor-hardening-rebind-20261021",
+        "merge-incident-closure-20261021",
+        "platform-protection-20261022",
+        "s10-cross-model-optimization-20261022",
+        "s9-regression-rollback-20261022"
+      ],
+      "lane_surface_malformed": 0,
+      "worktree_clean": false,
+      "warnings": [],
+      "authority": "canonical_owner",
+      "lane_head_ref": "feature/s10-cross-model-optimization-20261022",
+      "required_checks": [],
+      "required_local_gates": [
+        "validate",
+        "test:vnext",
+        "validate-cross-model-comparison",
+        "eval:cross-model"
+      ]
+    }
+  }
+}
