@@ -1,0 +1,116 @@
+{
+  "baseline_verification": {
+    "verified_at": "2026-10-23T01:57:56Z",
+    "verification_mode": "LOCAL_REPLICATION",
+    "surfaces": {
+      "maws": {
+        "repository": "baum777/model-agnostic-workflow-system",
+        "main_head": "bcfcdce34a61a937f28b1a06620025fb67a4bd47",
+        "open_pull_requests": 0,
+        "foreign_activity_since_governance_integrity_closure": false
+      },
+      "registry": {
+        "repository": "baum777/unitera-registry",
+        "main_head": "2c61256d01f4f2736592fdf557ca13cf96cd6d7a",
+        "open_pull_requests": 0
+      },
+      "atlas": {
+        "repository": "baum777/unitera_atlas",
+        "main_head": "fae54ea5938f7f96fdc078525dc251c7b88b783c",
+        "open_pull_requests": 0
+      }
+    },
+    "audit_at_baseline": {
+      "base_commit": "bcfcdce34a61a937f28b1a06620025fb67a4bd47",
+      "previous_semantics": {
+        "status": "PASS",
+        "source": "evidence/governance-integrity-closure-2026-10-22/merge-audit-full-report.json (Run C final readback; both findings visible and disposed)"
+      },
+      "this_change_semantics": {
+        "baseline_adoption": "pending",
+        "status": "FAIL",
+        "admission": {
+          "status": "FAIL",
+          "blocking_findings": 2
+        },
+        "historical_compliance": {
+          "status": "FAIL",
+          "violations_recorded": 2,
+          "violations_disposed": 0,
+          "violations_live": 2
+        },
+        "findings_pending_adoption": [
+          {
+            "code": "MERGE_NOT_COVERED",
+            "merge_commit": "b902130701bc5d784506a4044cb2880e0a86320a",
+            "disposition_state": "pending_adoption"
+          },
+          {
+            "code": "MERGE_NOT_COVERED",
+            "merge_commit": "71655312a21901972a569406997389293304e4ed",
+            "disposition_state": "pending_adoption"
+          }
+        ],
+        "raw_log": "merge-audit-at-baseline.log"
+      }
+    },
+    "anchor_facts": {
+      "proposed_anchor": "0fd89d99fac3cf027880dfe2b13b0140a2a0b4fd",
+      "anchor_identity": "Merge pull request #98 from baum777/evidence/boundary-closure-20261022",
+      "anchor_committer_date": "2026-10-22T18:18:15+02:00",
+      "ancestry_checks": {
+        "b902130701bc5d784506a4044cb2880e0a86320a": {
+          "anchor_is_ancestor": false,
+          "classification": "pre-anchor (ELIGIBLE for disposition under an adopted anchor)"
+        },
+        "71655312a21901972a569406997389293304e4ed": {
+          "anchor_is_ancestor": true,
+          "classification": "post-anchor (INELIGIBLE forever)"
+        }
+      }
+    },
+    "lane_lifecycles": {
+      "records_total": 11,
+      "closed_and_consumed": [
+        "assurance-reconciliation-20261022",
+        "assurance-reconciliation-maintenance-20261022",
+        "governance-integrity-20261022",
+        "governance-integrity-closure-20261022",
+        "merge-executor-hardening-20261021",
+        "merge-executor-hardening-rebind-20261021",
+        "platform-protection-20261022",
+        "s9-regression-rollback-20261022"
+      ],
+      "dangling_active_consumed": [
+        {
+          "lane_id": "boundary-closure-20261022",
+          "bound_head": "f39739a14787aa940b146897304e74d7ef10a64a",
+          "owner": "foreign lane (pull request 98/101 chain)",
+          "touched_by_this_run": false
+        },
+        {
+          "lane_id": "s10-cross-model-optimization-20261022",
+          "bound_head": "61609ccfe5a46dd5e30163c7b27c3f2cb485a4c4",
+          "owner": "foreign lane (pull request 100/105/106/107 chain)",
+          "touched_by_this_run": false
+        }
+      ],
+      "first_generation_no_lifecycle": [
+        "merge-incident-closure-20261021"
+      ]
+    },
+    "executor_refusal_probes": [
+      {
+        "receipt": "probe-absent.receipt.json",
+        "code": "MERGE_LANE_AUTHORIZATION_ABSENT",
+        "exit_code": 1
+      },
+      {
+        "receipt": "probe-identity.receipt.json",
+        "code": "MERGE_PR_IDENTITY_MISMATCH",
+        "exit_code": 1,
+        "message_excerpt": "the merge target is pull request 107 but the lane \"s10-cross-model-optimization-20261022\" owns pull request 100"
+      }
+    ]
+  }
+}

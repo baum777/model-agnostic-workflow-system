@@ -9,8 +9,7 @@
 // merge that landed on the default branch carry a lane authorization that
 // existed on the base branch BEFORE the merge?
 //
-// The audit is derived from the repository's own history. It has no epoch
-// file, no baseline list and no hidden exemption table:
+// The audit is derived from the repository's own history:
 //
 //   * A merge is IN SCOPE when the tree of its BASE commit already carries
 //     the lifecycle-aware lane authorization contract (schema_version
@@ -35,6 +34,31 @@
 // lane that covers more than one merge is a FINDING too: one lane
 // authorizes one merge.
 //
+// DISPOSITIONS — the adoption anchor policy. A finding of the published
+// history may be RECORDED in core/authority/merge-audit-baseline.json by a
+// governance act, but a record is only ever a PENDING PROPOSAL until the
+// baseline carries an ADOPTION ANCHOR: a commit that already lies on the
+// audited line when the adoption act lands, and that does not postdate the
+// disposition surface's own introduction — the eligibility window is
+// structurally capped at the mechanism, so no anchor value can ever extend
+// it past the moment the policy's instrument came into existence. The
+// anchor is adopted once and never moves — the audit reads the baseline
+// file's own version history and fails on every later change of its value.
+// Only findings whose landing PREDATES the anchor (the anchor is not their
+// ancestor) are eligible, so a violation that lands after the policy
+// exists can never be recorded away: post-anchor findings stay
+// gate-blocking, permanently. Until adoption — and for every ineligible,
+// stale or malformed record — the recorded finding keeps its gate-failing
+// force. Pending approval is not granted authority.
+//
+// The report separates two verdicts that must never collapse into one
+// another. HISTORICAL COMPLIANCE is immutable: it says FAIL as long as any
+// violation is recorded in the audited history, because a disposition
+// ADMITS a violation — it never converts the landing into a compliant
+// merge. CURRENT ADMISSION is the gate: it says PASS only when no live
+// finding blocks the default branch. The exit code follows the admission
+// verdict alone.
+//
 // This audit binds nothing and grants nothing. It reads the published
 // history and reports what it finds.
 import fs from 'node:fs';
@@ -56,14 +80,20 @@ export const AUDIT_CODES = Object.freeze({
   MERGE_LANE_RECORD_MALFORMED: 'MERGE_LANE_RECORD_MALFORMED',
   DIRECT_PUSH_UNCOVERED: 'DIRECT_PUSH_UNCOVERED',
   BASELINE_STALE: 'BASELINE_STALE',
-  BASELINE_INVALID: 'BASELINE_INVALID'
+  BASELINE_INVALID: 'BASELINE_INVALID',
+  BASELINE_ANCHOR_INVALID: 'BASELINE_ANCHOR_INVALID',
+  BASELINE_ANCHOR_MUTATED: 'BASELINE_ANCHOR_MUTATED'
 });
 
 // The disposition surface of the audit: findings of the published history
-// that a governance act has explicitly recorded. A baseline entry that
-// matches no current finding is STALE and fails the gate, so the baseline
-// can never rot into an amnesty list; a disposed finding stays visible in
-// the report and only loses its gate-failing force.
+// that a governance act has explicitly recorded. A record is a PENDING
+// PROPOSAL until the baseline carries an ADOPTION ANCHOR — a commit that
+// already lies on the audited line when the adoption act lands. Only
+// findings whose landing predates the anchor are eligible; a disposed
+// finding stays visible in the report, the historical verdict records it as
+// a violation forever, and only its gate-failing force is suspended. An
+// entry that matches no current finding is STALE and fails the gate, so the
+// baseline can never rot into an amnesty list.
 export const MERGE_AUDIT_BASELINE_PATH = 'core/authority/merge-audit-baseline.json';
 
 const LANE_CONTRACT_PATH = 'core/contracts/merge-lane-authorization.schema.json';
@@ -179,7 +209,7 @@ function coveringLanes({ lanes, head, baseRef, root }) {
 }
 
 function readBaseline(root, commit) {
-  const result = { entries: [], present: false, error: null, malformedEntries: [] };
+  const result = { entries: [], present: false, error: null, malformedEntries: [], adoptionAnchor: null };
   const text = git(root, ['show', `${commit}:${MERGE_AUDIT_BASELINE_PATH}`], { allowFailure: true });
   if (!text.trim()) return result;
   result.present = true;
@@ -189,6 +219,14 @@ function readBaseline(root, commit) {
   } catch (error) {
     result.error = error.message;
     return result;
+  }
+  const anchor = parsed?.adoption_anchor ?? null;
+  if (anchor !== null) {
+    if (typeof anchor !== 'string' || !/^[0-9a-f]{40}$/.test(anchor)) {
+      result.error = `the adoption_anchor field must be a 40-hex commit id, got ${JSON.stringify(anchor)}`;
+      return result;
+    }
+    result.adoptionAnchor = anchor;
   }
   const entries = Array.isArray(parsed?.known_findings) ? parsed.known_findings : [];
   for (const entry of entries) {
@@ -207,6 +245,60 @@ function readBaseline(root, commit) {
 
 function baselineKey(finding) {
   return `${finding.code}:${finding.commit ?? finding.merge_commit ?? ''}`;
+}
+
+// The adoption history of the disposition surface, read from the baseline
+// file's own version history along the audited line. The FIRST commit whose
+// baseline carries an anchor is the adoption act; every LATER change of the
+// anchor's value is a mutation, and every LATER version without an anchor is
+// a removal. The walk is what makes the anchor immovable: the value cannot
+// be rewritten after the fact without leaving a mutation in the file's
+// history.
+function baselineAnchorHistory(root, tip) {
+  const history = gitLines(root, ['log', '--reverse', '--format=%H', '--first-parent', tip, '--', MERGE_AUDIT_BASELINE_PATH]);
+  let firstAdoption = null;
+  let firstAnchor = null;
+  const mutations = [];
+  const removals = [];
+  for (const commit of history) {
+    const text = git(root, ['show', `${commit}:${MERGE_AUDIT_BASELINE_PATH}`], { allowFailure: true });
+    if (!text.trim()) {
+      if (firstAdoption !== null) removals.push({ commit, kind: 'file_absent' });
+      continue;
+    }
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      continue;
+    }
+    const anchor = typeof parsed?.adoption_anchor === 'string' && /^[0-9a-f]{40}$/.test(parsed.adoption_anchor)
+      ? parsed.adoption_anchor
+      : null;
+    if (!anchor) {
+      if (firstAdoption !== null) removals.push({ commit, kind: 'anchor_absent' });
+      continue;
+    }
+    if (firstAdoption === null) {
+      firstAdoption = commit;
+      firstAnchor = anchor;
+      continue;
+    }
+    if (anchor !== firstAnchor) {
+      mutations.push({ commit, from: firstAnchor, to: anchor });
+    }
+  }
+  return { introduction: history[0] ?? null, firstAdoption, firstAnchor, mutations, removals };
+}
+
+// Eligibility, fail-closed: a finding predates the anchor only when BOTH
+// commits resolve and the anchor is not the finding's ancestor. Anything
+// that cannot be verified grants no force.
+function anchorPredates(root, anchor, subject) {
+  const resolvedAnchor = git(root, ['rev-parse', '--verify', `${anchor}^{commit}`], { allowFailure: true }).trim();
+  const resolvedSubject = git(root, ['rev-parse', '--verify', `${subject}^{commit}`], { allowFailure: true }).trim();
+  if (!/^[0-9a-f]{40}$/.test(resolvedAnchor) || !/^[0-9a-f]{40}$/.test(resolvedSubject)) return false;
+  return !isAncestor(root, resolvedAnchor, resolvedSubject);
 }
 
 // auditMergeAttestations() -> the report. It reads the published history
@@ -338,41 +430,109 @@ export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
     };
   });
 
-  // The disposition surface: a governance act may record a finding of the
-  // published history explicitly. A recorded finding is REPORTED and does
-  // not fail the gate; a record that matches nothing is STALE and does.
+  // The disposition surface under the adoption anchor policy. A recorded
+  // finding carries force against the gate ONLY when the baseline policy is
+  // ADOPTED (the anchor resolves, lies on the audited line before the
+  // adoption act, and was never moved) AND the finding's landing predates
+  // the anchor. In every other state — pending, invalid, mutated, removed —
+  // and for every ineligible record the finding stays gate-blocking:
+  // pending approval is not granted authority.
   const baseline = readBaseline(root, resolved.commit);
-  if (baseline.error) {
-    findings.push({
-      code: AUDIT_CODES.BASELINE_INVALID,
-      detail: `the merge audit baseline is malformed: ${baseline.error}`
-    });
+  const baselineFindings = [];
+  const anchorHistory = baselineAnchorHistory(root, resolved.commit);
+  const adoption = { state: 'absent', anchor: null, resolvedAnchor: null, firstAdoption: anchorHistory.firstAdoption };
+  if (baseline.present) {
+    adoption.anchor = baseline.adoptionAnchor;
+    if (baseline.error) {
+      adoption.state = 'invalid';
+      baselineFindings.push({
+        code: AUDIT_CODES.BASELINE_INVALID,
+        detail: `the merge audit baseline is malformed: ${baseline.error}`
+      });
+    } else if (!baseline.adoptionAnchor) {
+      adoption.state = anchorHistory.firstAdoption ? 'removed' : 'pending';
+    } else {
+      const resolvedAnchor = git(root, ['rev-parse', '--verify', `${baseline.adoptionAnchor}^{commit}`], { allowFailure: true }).trim();
+      if (!/^[0-9a-f]{40}$/.test(resolvedAnchor)) {
+        adoption.state = 'invalid';
+        baselineFindings.push({
+          code: AUDIT_CODES.BASELINE_ANCHOR_INVALID,
+          detail: `the adoption anchor ${baseline.adoptionAnchor} does not resolve to a commit in this repository; an unadoptable anchor leaves every recorded finding live`
+        });
+      } else {
+        adoption.resolvedAnchor = resolvedAnchor;
+        if (!anchorHistory.firstAdoption || !isAncestor(root, resolvedAnchor, anchorHistory.firstAdoption)) {
+          adoption.state = 'invalid';
+          baselineFindings.push({
+            code: AUDIT_CODES.BASELINE_ANCHOR_INVALID,
+            detail: `the adoption anchor ${resolvedAnchor} is not an ancestor of the first adoption commit ${anchorHistory.firstAdoption ?? 'none'}; an anchor must already lie on the audited line when the adoption act lands`
+          });
+        } else if (anchorHistory.introduction && !isAncestor(root, resolvedAnchor, anchorHistory.introduction)) {
+          adoption.state = 'invalid';
+          baselineFindings.push({
+            code: AUDIT_CODES.BASELINE_ANCHOR_INVALID,
+            detail: `the adoption anchor ${resolvedAnchor} postdates the disposition surface's own introduction ${anchorHistory.introduction}; the eligibility window is capped at the mechanism and can never be moved past it`
+          });
+        } else if (anchorHistory.mutations.length > 0) {
+          adoption.state = 'mutated';
+        } else {
+          adoption.state = 'adopted';
+        }
+      }
+      for (const mutation of anchorHistory.mutations) {
+        baselineFindings.push({
+          code: AUDIT_CODES.BASELINE_ANCHOR_MUTATED,
+          detail: `the adoption anchor changed at ${mutation.commit} from ${mutation.from} to ${mutation.to}; the anchor is adopted once and never moves`
+        });
+      }
+    }
   }
   for (const entry of baseline.malformedEntries) {
-    findings.push({
+    baselineFindings.push({
       code: AUDIT_CODES.BASELINE_INVALID,
       detail: `the merge audit baseline carries a malformed entry: ${JSON.stringify(entry)}`
     });
   }
-  const recordedKeys = new Set(baseline.entries.map((entry) => `${entry.code}:${entry.commit}`));
+
+  const anchorHasForce = adoption.state === 'adopted';
+  const entriesByKey = new Map(baseline.entries.map((entry) => [`${entry.code}:${entry.commit}`, entry]));
   const disposed = [];
-  const gateFindings = [];
+  const historyGate = [];
   for (const finding of findings) {
-    if (recordedKeys.has(baselineKey(finding))) {
-      disposed.push(finding);
-    } else {
-      gateFindings.push(finding);
+    const entry = entriesByKey.get(baselineKey(finding));
+    let state = 'live';
+    if (entry) {
+      const subject = finding.commit ?? finding.merge_commit ?? null;
+      if (!anchorHasForce) {
+        state = 'pending_adoption';
+      } else if (subject !== null && anchorPredates(root, adoption.resolvedAnchor, subject)) {
+        state = 'disposed';
+      } else {
+        state = 'ineligible';
+      }
     }
+    finding.disposition_state = state;
+    if (state === 'disposed') disposed.push(finding);
+    else historyGate.push(finding);
   }
   for (const entry of baseline.entries) {
     const live = findings.some((finding) => baselineKey(finding) === `${entry.code}:${entry.commit}`);
     if (!live) {
-      gateFindings.push({
+      baselineFindings.push({
         code: AUDIT_CODES.BASELINE_STALE,
         detail: `the baseline entry for ${entry.code} at ${entry.commit} matches no current finding; the disposition surface cannot keep records of history that is no longer observed`
       });
     }
   }
+
+  const gateFindings = [...historyGate, ...baselineFindings];
+  const historicalCompliance = {
+    status: findings.length > 0 ? 'FAIL' : 'PASS',
+    violations_recorded: findings.length,
+    violations_disposed: disposed.length,
+    violations_live: historyGate.length
+  };
+  const status = gateFindings.length === 0 ? 'PASS' : 'FAIL';
 
   const counts = landings.reduce((accumulator, entry) => {
     accumulator[entry.classification] = (accumulator[entry.classification] ?? 0) + 1;
@@ -380,11 +540,21 @@ export function auditMergeAttestations({ root, baseRef = 'main' } = {}) {
   }, {});
 
   return {
-    status: gateFindings.length === 0 ? 'PASS' : 'FAIL',
+    status,
     base_ref: baseRef,
     base_commit: resolved.commit,
     base_commit_source: resolved.source,
     baseline_present: baseline.present,
+    baseline_adoption: adoption.state,
+    adoption_anchor: adoption.anchor,
+    adoption_first_commit: adoption.firstAdoption,
+    adoption_introduction_commit: anchorHistory.introduction,
+    adoption_removals: anchorHistory.removals.length,
+    historical_compliance: historicalCompliance,
+    admission: {
+      status,
+      blocking_findings: gateFindings.length
+    },
     merges_total: merges.length,
     landings_total: landings.length,
     counts,
@@ -434,12 +604,16 @@ function main() {
     for (const lane of report.lanes) {
       console.log(`  lane ${lane.lane_id}: state=${lane.state ?? 'none'} bound_head=${lane.bound_head ?? 'none'} consumed=${lane.consumed}`);
     }
+    console.log(`baseline adoption: ${report.baseline_adoption}${report.adoption_anchor ? ` (anchor ${report.adoption_anchor})` : ''}`);
     if (report.findings.length > 0) {
       console.log(`findings: ${report.findings.length}`);
       for (const finding of report.findings) {
-        console.log(`  ${finding.code}: ${finding.detail}`);
+        console.log(`  ${finding.code}${finding.disposition_state ? ` [${finding.disposition_state}]` : ''}: ${finding.detail}`);
       }
     }
+    const history = report.historical_compliance;
+    console.log(`historical compliance: ${history.status} — ${history.violations_recorded} violation(s) recorded, ${history.violations_disposed} disposed, ${history.violations_live} live`);
+    console.log(`admission: ${report.admission.status} — ${report.admission.blocking_findings} blocking finding(s)`);
     console.log(`status: ${report.status}`);
   }
   process.exit(report.status === 'PASS' ? 0 : 1);
