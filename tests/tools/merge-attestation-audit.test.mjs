@@ -5,7 +5,11 @@
 // landed was covered by a lane authorization that existed on the base branch
 // before the merge. The test that matters most is the negative one: a merge
 // that no lane covered must be a FINDING, not a quiet pass — that is exactly
-// the shape of the cross-lane merge incident of 2026-10-21.
+// the shape of the cross-lane merge incident of 2026-10-21. The disposition
+// tests carry the same discipline: a baseline record is a pending proposal
+// until an ADOPTED ANCHOR makes it policy, and only findings that predate
+// the anchor are ever eligible — the anchor itself is adopted once, must
+// already lie on the audited line, and never moves.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -373,32 +377,172 @@ test('a governance act cannot be landed by a direct push', () => {
 
 // --- the disposition baseline --------------------------------------------------
 
-function commitBaseline(dir, entries) {
+function commitBaseline(dir, entries, adoptionAnchor = null) {
   return commitOnMain(dir, 'core/authority/merge-audit-baseline.json', `${JSON.stringify({
     schema_version: '1.0.0',
+    ...(adoptionAnchor ? { adoption_anchor: adoptionAnchor } : {}),
     known_findings: entries
   }, null, 2)}\n`, 'the merge audit baseline');
 }
 
-test('a recorded finding is reported and does not fail the gate', () => {
-  const dir = makeRepo();
-  write(dir, 'direct.txt', 'landed without a pull request\n');
+// An anchor candidate: a commit on the audited line that lands as a
+// governance act, so introducing it is not itself a finding. The candidate
+// that the adoption act will name as the anchor must already lie on the
+// line when the adoption lands.
+function commitAnchorCandidate(dir, label = 'one') {
+  return commitOnMain(
+    dir,
+    'core/authority/adoption-anchor-marker.txt',
+    `the adoption anchor candidate ${label}\n`,
+    `the adoption anchor candidate ${label}`
+  );
+}
+
+function directPush(dir, name = 'direct.txt') {
+  write(dir, name, 'landed without a pull request\n');
   git(dir, ['add', '-A']);
   git(dir, ['commit', '-q', '-m', 'a direct push']);
-  const commit = git(dir, ['rev-parse', 'HEAD']);
-  commitBaseline(dir, [{
+  return git(dir, ['rev-parse', 'HEAD']);
+}
+
+function entry(commit) {
+  return {
     code: 'DIRECT_PUSH_UNCOVERED',
     commit,
-    reason: 'the landing is recorded: it predates the activation of the platform protection and is disposed here as a governance act',
+    reason: 'the landing is recorded under the adopted anchor policy',
     disposition: 'RECORDED_AS_REAL_FINDING',
     recorded_at: '2026-10-22T16:30:00Z'
-  }]);
+  };
+}
+
+test('a recorded finding blocks the gate while the baseline has no adopted anchor', () => {
+  // The pending state is the core of the policy: a baseline without an
+  // adoption anchor is a PROPOSAL, and a proposal cannot suspend a
+  // finding's force. Pending approval is not granted authority.
+  const dir = makeRepo();
+  const commit = directPush(dir);
+  commitBaseline(dir, [entry(commit)]);
   const report = audit(dir);
+  assert.equal(report.status, 'FAIL');
+  assert.equal(report.baseline_adoption, 'pending');
+  assert.equal(report.disposed_findings.length, 0);
+  const finding = report.findings.find((item) => item.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED);
+  assert.equal(finding.disposition_state, 'pending_adoption');
+  assert.equal(report.historical_compliance.status, 'FAIL');
+  assert.equal(report.historical_compliance.violations_live, 1);
+});
+
+test('an adopted anchor disposes a finding that predates it, and the historical verdict still fails', () => {
+  // The dual verdict: the finding landed BEFORE the anchor, so the adopted
+  // policy may record it — the admission gate passes — but the historical
+  // verdict keeps recording the violation forever. A disposition admits a
+  // violation; it never converts the landing into a compliant merge.
+  const dir = makeRepo();
+  const commit = directPush(dir);
+  const anchor = commitAnchorCandidate(dir);
+  commitBaseline(dir, [entry(commit)], anchor);
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'adopted');
+  assert.equal(report.adoption_anchor, anchor);
   assert.equal(report.status, 'PASS');
   assert.equal(report.baseline_present, true);
   assert.equal(report.disposed_findings.length, 1);
   assert.equal(report.findings.length, 1);
   assert.equal(report.findings[0].code, AUDIT_CODES.DIRECT_PUSH_UNCOVERED);
+  assert.equal(report.findings[0].disposition_state, 'disposed');
+  assert.equal(report.admission.status, 'PASS');
+  assert.equal(report.admission.blocking_findings, 0);
+  assert.equal(report.historical_compliance.status, 'FAIL');
+  assert.equal(report.historical_compliance.violations_recorded, 1);
+  assert.equal(report.historical_compliance.violations_disposed, 1);
+  assert.equal(report.historical_compliance.violations_live, 0);
+});
+
+test('a finding that postdates the adopted anchor is never disposable', () => {
+  // The anti-laundering control: the anchor landed FIRST, the violation
+  // landed after the policy existed. The record is ineligible and the
+  // finding stays gate-blocking no matter what the baseline says.
+  const dir = makeRepo();
+  const anchor = commitAnchorCandidate(dir);
+  const commit = directPush(dir);
+  commitBaseline(dir, [entry(commit)], anchor);
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'adopted');
+  assert.equal(report.status, 'FAIL');
+  assert.equal(report.disposed_findings.length, 0);
+  const finding = report.findings.find((item) => item.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED);
+  assert.equal(finding.disposition_state, 'ineligible');
+  assert.equal(report.historical_compliance.violations_live, 1);
+  assert.equal(report.admission.status, 'FAIL');
+});
+
+test('an anchor that resolves to no commit invalidates the baseline', () => {
+  const dir = makeRepo();
+  const commit = directPush(dir);
+  commitBaseline(dir, [entry(commit)], 'c'.repeat(40));
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'invalid');
+  assert.equal(report.status, 'FAIL');
+  assert.equal(
+    report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_ANCHOR_INVALID).length,
+    1
+  );
+  const finding = report.findings.find((item) => item.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED);
+  assert.equal(finding.disposition_state, 'pending_adoption');
+});
+
+test('an anchor that does not lie on the audited line is not adoptable', () => {
+  // The anchor names a commit that exists in the repository but never
+  // landed on the audited line before the adoption act. Adopting it would
+  // let a future violation hide behind a date the audited history never
+  // had, so the adoption is refused.
+  const dir = makeRepo();
+  const offLine = git(dir, ['rev-parse', commitOnBranch(dir, 'feature/off-line-anchor', 'a commit that never lands')]);
+  const commit = directPush(dir);
+  commitBaseline(dir, [entry(commit)], offLine);
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'invalid');
+  assert.equal(report.status, 'FAIL');
+  assert.equal(
+    report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_ANCHOR_INVALID).length,
+    1
+  );
+});
+
+test('a moved anchor is a mutation finding and loses all force', () => {
+  // The anchor is adopted once and never moves. Rewriting its value — even
+  // to an earlier commit — is read from the baseline file's own history and
+  // fails the gate; every recorded finding goes back to blocking.
+  const dir = makeRepo();
+  const commit = directPush(dir);
+  const anchor = commitAnchorCandidate(dir);
+  commitBaseline(dir, [entry(commit)], anchor);
+  const before = audit(dir);
+  assert.equal(before.status, 'PASS');
+  const root = git(dir, ['rev-list', '--max-parents=0', 'HEAD']);
+  commitBaseline(dir, [entry(commit)], root);
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'mutated');
+  assert.equal(report.status, 'FAIL');
+  assert.equal(
+    report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_ANCHOR_MUTATED).length,
+    1
+  );
+  const finding = report.findings.find((item) => item.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED);
+  assert.equal(finding.disposition_state, 'pending_adoption');
+});
+
+test('a removed anchor returns the baseline to a state without force', () => {
+  const dir = makeRepo();
+  const commit = directPush(dir);
+  const anchor = commitAnchorCandidate(dir);
+  commitBaseline(dir, [entry(commit)], anchor);
+  commitBaseline(dir, [entry(commit)]);
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'removed');
+  assert.equal(report.status, 'FAIL');
+  const finding = report.findings.find((item) => item.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED);
+  assert.equal(finding.disposition_state, 'pending_adoption');
 });
 
 test('a baseline entry that matches no finding is stale and fails the gate', () => {
@@ -445,12 +589,26 @@ test('a baseline entry with a malformed shape fails the gate', () => {
   );
 });
 
+test('a malformed adoption_anchor value fails the gate', () => {
+  const dir = makeRepo();
+  const commit = directPush(dir);
+  commitOnMain(dir, 'core/authority/merge-audit-baseline.json', `${JSON.stringify({
+    schema_version: '1.0.0',
+    adoption_anchor: 'not-a-commit',
+    known_findings: [entry(commit)]
+  }, null, 2)}\n`, 'a baseline with a malformed anchor');
+  const report = audit(dir);
+  assert.equal(report.baseline_adoption, 'invalid');
+  assert.equal(report.status, 'FAIL');
+  assert.equal(
+    report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_INVALID).length,
+    1
+  );
+});
+
 test('a baseline entry does not dispose a finding it does not name exactly', () => {
   const dir = makeRepo();
-  write(dir, 'direct.txt', 'landed without a pull request\n');
-  git(dir, ['add', '-A']);
-  git(dir, ['commit', '-q', '-m', 'a direct push']);
-  const commit = git(dir, ['rev-parse', 'HEAD']);
+  const commit = directPush(dir);
   // A different code on the same commit does not match.
   commitBaseline(dir, [{
     code: 'MERGE_NOT_COVERED',
@@ -462,5 +620,33 @@ test('a baseline entry does not dispose a finding it does not name exactly', () 
   const report = audit(dir);
   assert.equal(report.status, 'FAIL');
   assert.equal(report.findings.filter((finding) => finding.code === AUDIT_CODES.DIRECT_PUSH_UNCOVERED).length, 1);
+  assert.equal(report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_STALE).length, 1);
+});
+
+test('a lane-reuse finding carries no commit and is never disposable', () => {
+  // The reuse finding names a lane, not a commit, so no exact-match record
+  // can ever cover it: the entry goes stale and the finding stays live.
+  const dir = makeRepo();
+  const branch = 'feature/reused-nodispose';
+  const head = commitOnBranch(dir, branch, 'content');
+  commitOnMain(dir, `${LANE_DIRECTORY}/lane-reused-nodispose-20261023.json`, lane({ laneId: 'lane-reused-nodispose-20261023', head }), 'authorize the lane');
+  const boundBase = git(dir, ['rev-parse', 'main']);
+  const tree = git(dir, ['rev-parse', `${boundBase}^{tree}`]);
+  const first = git(dir, ['commit-tree', tree, '-p', boundBase, '-p', head, '-m', 'the first merge of the same head']);
+  git(dir, ['update-ref', 'refs/heads/main', first]);
+  const second = git(dir, ['commit-tree', tree, '-p', first, '-p', head, '-m', 'the second merge of the same head']);
+  git(dir, ['update-ref', 'refs/heads/main', second]);
+  commitBaseline(dir, [{
+    code: 'MERGE_LANE_REUSED',
+    commit: 'd'.repeat(40),
+    reason: 'an attempt to dispose a lane-level finding',
+    disposition: 'RECORDED_AS_REAL_FINDING',
+    recorded_at: '2026-10-22T16:30:00Z'
+  }]);
+  const report = audit(dir);
+  assert.equal(report.status, 'FAIL');
+  assert.equal(report.findings.filter((finding) => finding.code === AUDIT_CODES.MERGE_LANE_REUSED).length, 1);
+  const reused = report.findings.find((finding) => finding.code === AUDIT_CODES.MERGE_LANE_REUSED);
+  assert.equal(reused.disposition_state, 'live');
   assert.equal(report.findings.filter((finding) => finding.code === AUDIT_CODES.BASELINE_STALE).length, 1);
 });
