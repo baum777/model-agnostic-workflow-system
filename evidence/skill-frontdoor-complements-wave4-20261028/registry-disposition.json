@@ -1,0 +1,50 @@
+{
+  "registry_disposition": {
+    "status": "UPDATED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "Wave 4 adds one core skill (search-discoverability-review) and binds it into the registry surfaces: portable-skill-manifest (+1 skill entry, discovery override, activation expectation 23->24), output contracts (+1), regenerated core-registry/provider exports (43 snapshot skills). No workflow-routing-map change (nearest sibling ui-ux-composition is likewise not wired into a class; same rationale as wave 3). All registry updates completed inside the implementation commit; MAWS is the canonical owner of core skill records.",
+    "registry_baseline_sha": "6df7163",
+    "affected_records": [
+      "REGISTERED_IMPLEMENTATION_BINDING:core.search-discoverability-review",
+      "CONTRACT_RECORD:search-discoverability-review-report-v1",
+      "CONTRACT_RECORD:portable-skill-manifest",
+      "CONTRACT_RECORD:core-registry"
+    ],
+    "authority_refs": [
+      "skill-frontdoor-admission:sfa_214663af6c38_20261028T171056.315Z",
+      "baum-os:skill-complement-priorities-20261028:wave4"
+    ],
+    "source_refs": [
+      "evidence/skill-frontdoor-complements-wave4-20261028/admission-summary.json",
+      "core/skills/search-discoverability-review/SKILL.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "git:d8584c8",
+      "git:6df7163"
+    ],
+    "evidence_refs": [
+      "evidence/skill-frontdoor-complements-wave4-20261028/RUN.md",
+      "evidence/skill-frontdoor-complements-20261028/behavior/results.json"
+    ],
+    "implementation_commit_sha": "d8584c8",
+    "registry_commit_sha": "d8584c8",
+    "validation": [
+      "npm run validate:PASS:0-issues",
+      "npm run validate-neutral:PASS:0-issues",
+      "npm run validate-maws-vnext:PASS:0-issues",
+      "npm run test:vnext:PASS:844-of-844",
+      "npm run validate-skill-selection:PASS:26-cases-0-unexpected",
+      "npm run detect-skill-overlap:PASS:0-findings",
+      "npm run lint-skill-contracts:PASS:0-errors",
+      "npm run eval:maws-vnext:PASS:27-of-27",
+      "npm run baum:ci-gate:PASS"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "taxonomy:REGISTERED_IMPLEMENTATION_BINDING",
+      "taxonomy:CONTRACT_RECORD"
+    ]
+  }
+}
