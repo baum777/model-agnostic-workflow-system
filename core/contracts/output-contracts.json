@@ -897,6 +897,28 @@
         "Autonomous or background execution must be sandboxed and approval-gated by default; default bypass is a finding."
       ],
       "failure_or_partial_completion_behavior": "If the paper, artifact inventory, or research question is missing, return BLOCKED and enumerate the unreproducible claims."
+    },
+    {
+      "contract_id": "search-discoverability-review-report-v1",
+      "skill": "search-discoverability-review",
+      "required_sections": [
+        "EVIDENCE",
+        "INDEXABILITY",
+        "CONTENT",
+        "ACTIONS",
+        "LIMITS"
+      ],
+      "optional_sections": [
+        "DUPLICATION",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Every discoverability statement cites dated crawl or content evidence; evidence-free assessment is a blocker.",
+        "Actions are crawl-verifiable changes; rankings, traffic, or AI-answer placement are never promised.",
+        "No publishing or bulk-apply; the output is a review, not a rollout.",
+        "Observed evidence, inferred intent mapping, and recommended actions stay visibly distinct."
+      ],
+      "failure_or_partial_completion_behavior": "If owned URLs or crawl evidence is missing, return BLOCKED and enumerate the unassessed surfaces."
     }
   ]
 }

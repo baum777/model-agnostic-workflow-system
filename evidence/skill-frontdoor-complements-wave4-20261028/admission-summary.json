@@ -1,0 +1,29 @@
+{
+  "record_class": "sanitized-admission-summary",
+  "generated": "2026-10-28",
+  "wave": 4,
+  "candidates": [
+    {
+      "skill_id": "search-discoverability-review",
+      "admission_id": "sfa_214663af6c38_20261028T171056.315Z",
+      "source_revision": "sha256:214663af6c38102b8dfad5af06e99a85b07b44205ef5031909b58ca33d5d94f9",
+      "content_digest": "sha256:16f7fc3f73e30fde32c950a709b3975ba071d783a159eb7be55069acd8e787e0",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    }
+  ]
+}
