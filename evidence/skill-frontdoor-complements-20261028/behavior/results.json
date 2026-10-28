@@ -1,8 +1,14 @@
 {
-  "checked_at": "2026-10-28T07:08:13.253Z",
+  "checked_at": "2026-10-28T11:21:26.868Z",
   "cases": 10,
   "passed": 10,
   "failed": 0,
+  "coverage": {
+    "inputs": 10,
+    "outputs": 10,
+    "declared": 10,
+    "one_to_one": true
+  },
   "contract_source": "core/contracts/output-contracts.json",
   "results": [
     {

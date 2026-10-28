@@ -1,0 +1,23 @@
+{
+  "record": "Mimosa sealed deep scan — mandatory-check completion for PR #115",
+  "scan_id": "scan-2026-10-28T11-20-35.724Z-4fb8aac38047",
+  "scan_dir": "~/.mimosa/security-scans/project-86cddc53f0f37cbb73b7936a/scan-2026-10-28T11-20-35.724Z-4fb8aac38047",
+  "seal": "sha256:18e0c6e829e9e84be6bc03125d49fe7157eca73adc0416eee1159d1a3bf9a091",
+  "target": "session worktree at commit 639688a (+ behavior coverage-closure follow-up)",
+  "depth": "deep",
+  "run_status": "inconclusive",
+  "completeness": "partial",
+  "findings": {
+    "concrete_findings_in_reviewed_scope": 0,
+    "business_logic_candidates": 0,
+    "dependency_summary": { "completion": "completed", "packages_scanned": 201, "offline_advisory": { "status": "available", "matched_packages": 3, "matched_advisories": 3, "unknown": 0 } }
+  },
+  "technical_limits_separated_from_findings": [
+    "Source selection covered 35 of 25,168 files (0 read failures, 0 parse failures) — the deep pipeline analyzes a bounded selection, not every file; the selection list is not exposed in the sealed artifacts, so delta coverage cannot be independently confirmed.",
+    "Declared coverage gap: call graph partially incomplete (dynamic dispatch / analysis-scale limits); cross-file reachability may be incomplete.",
+    "runStatus is 'inconclusive' by the scanner's own contract — this record does NOT claim a full-coverage clean bill; it records zero findings in the reviewed scope under a sealed identity."
+  ],
+  "relation_to_prior_hook_blocks": "The earlier commit/push hook failures cited 'library_source unavailable' as a scanner-internal technical failure (compat-passed). This MCP run had no analyzer errors — different failure class, documented separately here.",
+  "verdict_effect": "none",
+  "evidence_boundary": "static_only_no_runtime_execution"
+}

@@ -114,3 +114,27 @@ language and fabricated analyzer output. Mutation-probed: injected acceptance
 language flips exactly the targeted case to FAIL; restore returns 10/10. This is
 reviewer-executed verification, not an S5 behavioral-eval record and not Tier 3 —
 see `behavior/README.md`.
+
+**Case-count reconciliation.** A transient planning note in the authoring session
+said "9 cases"; every committed layer (case inputs, outputs, checker `CASES`,
+README, RUN.md, results) carries exactly **10** (3 positive, 7 negative — the
+authorization group received three negative fixtures: DR-019, DR-020, and the
+default-deny inversion). The checker now enforces the 1:1 enumeration
+(inputs ↔ outputs ↔ declared cases) structurally: any drift exits 2 with a
+mismatch report; `results.json` records `coverage.one_to_one: true`.
+
+**Mimosa sealed deep scan (mandatory-check completion).**
+Scan `scan-2026-10-28T11-20-35.724Z-4fb8aac38047`, seal
+`sha256:18e0c6e8…`, depth deep, run over this worktree: **0 findings and 0
+business-logic candidates in the reviewed scope**; dependencies: 201 packages
+scanned, offline advisory matched 3 packages / 3 advisories. Separately recorded
+technical limits (not findings): the pipeline reviewed 35 of 25,168 files with 0
+read/parse failures (selection list not exposed, so delta coverage is not
+independently confirmable), a declared call-graph completeness gap, and
+`runStatus: inconclusive` by the scanner's own contract — no full-coverage clean
+bill is claimed. Record: `mimosa-scan-record.json`.
+
+**CI note.** `loop-repo-ci` fails identically on `main` and every branch since
+2026-10-23 (job never starts: empty runner, no steps, no logs) — a pre-existing
+environmental failure (documented account-level Actions suspension), not caused by
+this PR; GitHub reports the PR `MERGEABLE`.

@@ -106,6 +106,37 @@ const CASES = [
 const requiredSections = (skill) =>
   (CONTRACTS.contracts.find((c) => c.contract_id === SKILL_FOR[skill]) || {}).required_sections || [];
 
+// Coverage closure: inputs, outputs and checker cases must enumerate the same
+// case set 1:1. Guards against count drift between the three layers (the
+// session that authored these fixtures briefly carried a planning note saying
+// "9 cases" while every committed layer has exactly 10).
+const declaredIds = new Set(CASES.map((c) => c.id));
+const inputIds = new Set(
+  fs.readdirSync(path.join(HERE, 'cases')).flatMap((skill) =>
+    fs.readdirSync(path.join(HERE, 'cases', skill))
+      .filter((kase) => fs.statSync(path.join(HERE, 'cases', skill, kase)).isDirectory())
+      .map((kase) => `${skill}.${kase}`)
+  )
+);
+const outputIds = new Set(
+  fs.readdirSync(path.join(HERE, 'outputs'))
+    .filter((name) => name.endsWith('.md'))
+    .map((name) => name.replace(/\.md$/, ''))
+);
+const coverage = {
+  declared: [...declaredIds].sort(),
+  inputs_missing: [...declaredIds].filter((id) => !inputIds.has(id)),
+  inputs_orphan: [...inputIds].filter((id) => !declaredIds.has(id)),
+  outputs_missing: [...declaredIds].filter((id) => !outputIds.has(id)),
+  outputs_orphan: [...outputIds].filter((id) => !declaredIds.has(id))
+};
+const coverageOk = coverage.inputs_missing.length === 0 && coverage.inputs_orphan.length === 0 &&
+  coverage.outputs_missing.length === 0 && coverage.outputs_orphan.length === 0;
+if (!coverageOk) {
+  console.error(`coverage mismatch: ${JSON.stringify(coverage)}`);
+  process.exit(2);
+}
+
 const results = [];
 let failed = 0;
 for (const c of CASES) {
@@ -131,6 +162,7 @@ const summary = {
   cases: results.length,
   passed: results.length - failed,
   failed,
+  coverage: { inputs: inputIds.size, outputs: outputIds.size, declared: declaredIds.size, one_to_one: coverageOk },
   contract_source: 'core/contracts/output-contracts.json',
   results
 };
