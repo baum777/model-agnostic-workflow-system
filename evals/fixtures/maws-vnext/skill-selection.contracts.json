@@ -12,19 +12,21 @@
       "valid": true,
       "instance": {
         "schema_version": "1.0.0",
-        "selection_id": "sel_8ddf607fc0f2c776",
+        "selection_id": "sel_bc59b38d53ebff5a",
         "created_at": "2026-10-20T12:00:00Z",
         "request": {
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
           "snapshot_ref": "skill_registry_snapshot@1.0.0",
-          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
-          "skill_count": 36
+          "snapshot_digest": "e6c514b21863c8c5db96c81c4db82fda71f43b20916510a0afccd840e9ca8b50",
+          "skill_count": 39
         },
         "candidates": [
           {
@@ -39,8 +41,16 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
-          { "skill_id": "core.source-conflict-resolver", "verdict": "INELIGIBLE", "reason": "REQUIRED_CAPABILITY_NOT_PROVIDED" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          },
+          {
+            "skill_id": "core.source-conflict-resolver",
+            "verdict": "INELIGIBLE",
+            "reason": "REQUIRED_CAPABILITY_NOT_PROVIDED"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -52,10 +62,12 @@
         "refusal": null,
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
-        "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
+        "evidence_digest": "d761c79996c2dce40f155c67467c35e3b836b89874ff595c410f0d6c444dbe4d",
         "authority_granted": false
       }
     },
@@ -65,7 +77,7 @@
       "valid": true,
       "instance": {
         "schema_version": "1.0.0",
-        "selection_id": "sel_61409436a0d3ca1e",
+        "selection_id": "sel_d47d1fdda567a5a7",
         "created_at": "2026-10-20T12:05:00Z",
         "request": {
           "request_id": "req_impl_tie_001",
@@ -76,8 +88,8 @@
         },
         "registry_snapshot": {
           "snapshot_ref": "skill_registry_snapshot@1.0.0",
-          "snapshot_digest": "e7bed984823f0e9d026ec4edb461e6299a02c86711a47fb801d39b278bc6785b",
-          "skill_count": 36
+          "snapshot_digest": "e6c514b21863c8c5db96c81c4db82fda71f43b20916510a0afccd840e9ca8b50",
+          "skill_count": 39
         },
         "candidates": [
           {
@@ -97,9 +109,21 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.architecture-depth-review", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
-          { "skill_id": "core.behavior-first-tdd", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
-          { "skill_id": "core.diagnostic-feedback-loop", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.architecture-depth-review",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          },
+          {
+            "skill_id": "core.behavior-first-tdd",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          },
+          {
+            "skill_id": "core.diagnostic-feedback-loop",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -118,7 +142,7 @@
           ],
           "key": "c01ea6e4437993744aab414aeb36a1cca1b878de2ebd935d0bfa9ffc9b9b4dfb"
         },
-        "evidence_digest": "4c75a647550616630aada0efece495de4a30e44ae0065e2a76716a7bd6999e34",
+        "evidence_digest": "43117157c48009b7093407e6b5c7d84d13c0af21299c0633cb98cd71ba3974b7",
         "authority_granted": false
       }
     },
@@ -134,7 +158,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -155,8 +181,16 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
-          { "skill_id": "core.source-conflict-resolver", "verdict": "INELIGIBLE", "reason": "REQUIRED_CAPABILITY_NOT_PROVIDED" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          },
+          {
+            "skill_id": "core.source-conflict-resolver",
+            "verdict": "INELIGIBLE",
+            "reason": "REQUIRED_CAPABILITY_NOT_PROVIDED"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -168,7 +202,9 @@
         "refusal": null,
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
@@ -234,7 +270,11 @@
         },
         "candidates": [],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "SKILL_STATE_NOT_ALLOWED" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "INELIGIBLE",
+            "reason": "SKILL_STATE_NOT_ALLOWED"
+          }
         ],
         "outcome": "REFUSED",
         "selection": null,
@@ -273,7 +313,11 @@
         },
         "candidates": [],
         "eligibility": [
-          { "skill_id": "core.does-not-exist", "verdict": "INELIGIBLE", "reason": "SKILL_NOT_FOUND" }
+          {
+            "skill_id": "core.does-not-exist",
+            "verdict": "INELIGIBLE",
+            "reason": "SKILL_NOT_FOUND"
+          }
         ],
         "outcome": "REFUSED",
         "selection": null,
@@ -302,7 +346,9 @@
           "request_id": "req_digest_001",
           "intent_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "af89c58929fcbd1bb147592ee8416f0bd2bb5275a9e1c139bdf103bbd7c372d5"
         },
         "registry_snapshot": {
@@ -312,7 +358,11 @@
         },
         "candidates": [],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "SKILL_DIGEST_MISMATCH" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "INELIGIBLE",
+            "reason": "SKILL_DIGEST_MISMATCH"
+          }
         ],
         "outcome": "REFUSED",
         "selection": null,
@@ -351,7 +401,11 @@
         },
         "candidates": [],
         "eligibility": [
-          { "skill_id": "compat.test-matrix-builder", "verdict": "INELIGIBLE", "reason": "SKILL_STATE_NOT_ALLOWED" }
+          {
+            "skill_id": "compat.test-matrix-builder",
+            "verdict": "INELIGIBLE",
+            "reason": "SKILL_STATE_NOT_ALLOWED"
+          }
         ],
         "outcome": "REFUSED",
         "selection": null,
@@ -380,7 +434,9 @@
           "request_id": "req_capmissing_001",
           "intent_fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "b191e57bb4ccc05feb60f2d4490060f0aa53544540f824cb457fe8bafb9d4f9f"
         },
         "registry_snapshot": {
@@ -390,8 +446,16 @@
         },
         "candidates": [],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "SKILL_CAPABILITY_MISSING" },
-          { "skill_id": "core.source-conflict-resolver", "verdict": "INELIGIBLE", "reason": "SKILL_CAPABILITY_MISSING" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "INELIGIBLE",
+            "reason": "SKILL_CAPABILITY_MISSING"
+          },
+          {
+            "skill_id": "core.source-conflict-resolver",
+            "verdict": "INELIGIBLE",
+            "reason": "SKILL_CAPABILITY_MISSING"
+          }
         ],
         "outcome": "REFUSED",
         "selection": null,
@@ -420,7 +484,9 @@
           "request_id": "req_capnotprovided_001",
           "intent_fingerprint": "2222222222222222222222222222222222222222222222222222222222222222",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "3c0440c69ffadcd65a6add1a746167cec4d4dfe7d174ca9930ffefb32faac021"
         },
         "registry_snapshot": {
@@ -436,7 +502,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.source-conflict-resolver", "verdict": "INELIGIBLE", "reason": "REQUIRED_CAPABILITY_NOT_PROVIDED" }
+          {
+            "skill_id": "core.source-conflict-resolver",
+            "verdict": "INELIGIBLE",
+            "reason": "REQUIRED_CAPABILITY_NOT_PROVIDED"
+          }
         ],
         "outcome": "REFUSED",
         "selection": null,
@@ -491,9 +561,21 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.architecture-depth-review", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
-          { "skill_id": "core.behavior-first-tdd", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" },
-          { "skill_id": "core.diagnostic-feedback-loop", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.architecture-depth-review",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          },
+          {
+            "skill_id": "core.behavior-first-tdd",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          },
+          {
+            "skill_id": "core.diagnostic-feedback-loop",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -528,7 +610,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -544,7 +628,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -556,7 +644,9 @@
         "refusal": null,
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
@@ -575,7 +665,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -591,14 +683,20 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": null,
         "refusal": null,
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
@@ -693,7 +791,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -709,7 +809,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -724,7 +828,9 @@
         },
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
@@ -743,7 +849,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "product-support",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -759,7 +867,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -771,7 +883,9 @@
         "refusal": null,
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
@@ -790,7 +904,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -806,7 +922,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "PROBABLY_FINE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "INELIGIBLE",
+            "reason": "PROBABLY_FINE"
+          }
         ],
         "outcome": "REFUSED",
         "selection": null,
@@ -835,7 +955,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -851,7 +973,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "INELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "INELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "REFUSED",
         "selection": null,
@@ -880,7 +1006,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -896,7 +1024,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -908,7 +1040,9 @@
         "refusal": null,
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "authority_granted": false
@@ -985,7 +1119,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "REFUSED",
         "selection": null,
@@ -995,7 +1133,9 @@
         },
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "evidence_digest": "9dbe9896975b62a6e61920d9da264c948b1a4e293ad7ac8e47a0d95e4eedcfdd",
@@ -1014,7 +1154,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -1030,7 +1172,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -1042,7 +1188,9 @@
         "refusal": null,
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
@@ -1061,7 +1209,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -1077,7 +1227,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -1089,7 +1243,9 @@
         "refusal": null,
         "ordering_key": {
           "rule": "MOST_RECENTLY_USED",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
@@ -1145,7 +1301,9 @@
           "request_id": "req_intake_001",
           "intent_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           "scope": "intake-and-truth-mapping",
-          "required_capabilities": ["cap_repo_audit"],
+          "required_capabilities": [
+            "cap_repo_audit"
+          ],
           "request_digest": "7d387d0499c2e458d682117b5595d2faade82b9ba21b48b8c74def5c709d2e79"
         },
         "registry_snapshot": {
@@ -1161,7 +1319,11 @@
           }
         ],
         "eligibility": [
-          { "skill_id": "core.repo-audit", "verdict": "ELIGIBLE", "reason": "ELIGIBLE" }
+          {
+            "skill_id": "core.repo-audit",
+            "verdict": "ELIGIBLE",
+            "reason": "ELIGIBLE"
+          }
         ],
         "outcome": "SELECTED",
         "selection": {
@@ -1173,7 +1335,9 @@
         "refusal": null,
         "ordering_key": {
           "rule": "CONTEXT_FOOTPRINT_ASC_THEN_SKILL_ID_ASC",
-          "ordered_candidate_ids": ["core.repo-audit"],
+          "ordered_candidate_ids": [
+            "core.repo-audit"
+          ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
         "evidence_digest": "ffacc714348cafda5af0566c1959bd71d98521eec10a3bce78d6522ad6dbb892",
