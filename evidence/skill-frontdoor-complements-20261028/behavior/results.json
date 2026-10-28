@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-28T11:21:26.868Z",
-  "cases": 10,
-  "passed": 10,
+  "checked_at": "2026-10-28T11:48:36.803Z",
+  "cases": 16,
+  "passed": 16,
   "failed": 0,
   "coverage": {
-    "inputs": 10,
-    "outputs": 10,
-    "declared": 10,
+    "inputs": 16,
+    "outputs": 16,
+    "declared": 16,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -77,6 +77,48 @@
     {
       "case": "data-access-performance-review.neg-side-effecting-function",
       "skill": "data-access-performance-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "frontend-performance-review.pos-standard",
+      "skill": "frontend-performance-review",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "frontend-performance-review.neg-no-profiling-evidence",
+      "skill": "frontend-performance-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "frontend-performance-review.neg-claimed-lighthouse",
+      "skill": "frontend-performance-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "state-consistency-review.pos-standard",
+      "skill": "state-consistency-review",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "state-consistency-review.neg-optimistic-without-rollback",
+      "skill": "state-consistency-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "state-consistency-review.neg-ambiguous-ownership",
+      "skill": "state-consistency-review",
       "kind": "negative",
       "pass": true,
       "failed": []

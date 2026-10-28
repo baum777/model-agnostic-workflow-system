@@ -833,6 +833,48 @@
         "Read-only queries and side-effecting functions stay visibly separate."
       ],
       "failure_or_partial_completion_behavior": "If schema or query snapshots are missing, return BLOCKED and enumerate the unreviewed access paths."
+    },
+    {
+      "contract_id": "frontend-performance-review-report-v1",
+      "skill": "frontend-performance-review",
+      "required_sections": [
+        "WATERFALLS AND BUNDLES",
+        "CACHE SCOPE",
+        "RENDER AND STATE BEHAVIOR",
+        "MEASUREMENT PLAN",
+        "GAPS"
+      ],
+      "optional_sections": [
+        "TRACEABILITY",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Every claim cites exact file paths and artifact revisions.",
+        "Profiling, trace, or Lighthouse numbers that were not executed never appear as results.",
+        "Measured evidence and inferred hypotheses stay visibly separate."
+      ],
+      "failure_or_partial_completion_behavior": "If build/bundle or trace evidence is missing, return BLOCKED and enumerate the unmeasured surfaces."
+    },
+    {
+      "contract_id": "state-consistency-review-report-v1",
+      "skill": "state-consistency-review",
+      "required_sections": [
+        "OWNERSHIP MAP",
+        "MUTATION FLOWS",
+        "RECOVERY PATHS",
+        "NEGATIVE TESTS",
+        "GAPS"
+      ],
+      "optional_sections": [
+        "TRACEABILITY",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Every ownership and flow claim cites an exact file path.",
+        "An optimistic update without a rollback or reconciliation path is a finding, not a style note.",
+        "Cached projections stay distinct from sources of truth; unresolved behavior goes to GAPS."
+      ],
+      "failure_or_partial_completion_behavior": "If state-management evidence is missing, return BLOCKED and enumerate the unreviewed flows."
     }
   ]
 }

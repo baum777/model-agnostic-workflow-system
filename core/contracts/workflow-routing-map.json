@@ -241,7 +241,9 @@
         "architecture-depth-review",
         "behavior-first-tdd",
         "api-contract-review",
-        "authorization-boundary-review"
+        "authorization-boundary-review",
+        "frontend-performance-review",
+        "state-consistency-review"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"

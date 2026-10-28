@@ -25,6 +25,8 @@ Portable skill slice.
 - `api-contract-review`
 - `authorization-boundary-review`
 - `data-access-performance-review`
+- `frontend-performance-review`
+- `state-consistency-review`
 
 ## Safe Extension Flow
 
