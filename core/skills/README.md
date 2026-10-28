@@ -27,6 +27,7 @@ Portable skill slice.
 - `data-access-performance-review`
 - `frontend-performance-review`
 - `state-consistency-review`
+- `research-reproduction-review`
 
 ## Safe Extension Flow
 

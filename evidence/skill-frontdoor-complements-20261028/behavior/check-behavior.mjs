@@ -28,7 +28,8 @@ const SKILL_FOR = {
   'authorization-boundary-review': 'authorization-boundary-review-report-v1',
   'data-access-performance-review': 'data-access-performance-review-report-v1',
   'frontend-performance-review': 'frontend-performance-review-report-v1',
-  'state-consistency-review': 'state-consistency-review-report-v1'
+  'state-consistency-review': 'state-consistency-review-report-v1',
+  'research-reproduction-review': 'research-reproduction-review-report-v1'
 };
 
 const CASES = [
@@ -144,6 +145,27 @@ const CASES = [
     kind: 'negative',
     must: ['FINDING', 'ownership', 'server as authority', 'GAPS'],
     mustNot: ['safe under', 'no conflict is possible']
+  },
+  {
+    id: 'research-reproduction-review.pos-standard',
+    skill: 'research-reproduction-review',
+    kind: 'positive',
+    must: ['e3a1f', 'FAILURE CRITERIA', 'stays one until run', 'stated results'],
+    mustNot: []
+  },
+  {
+    id: 'research-reproduction-review.neg-claim-without-method',
+    skill: 'research-reproduction-review',
+    kind: 'negative',
+    must: ['BLOCKED', 'no evidence base', 'never an invented number'],
+    mustNot: ['reproduction score of', 'reproduces the', 'score: 3.7']
+  },
+  {
+    id: 'research-reproduction-review.neg-unsafe-runner',
+    skill: 'research-reproduction-review',
+    kind: 'negative',
+    must: ['FINDING', 'sandboxed', 'approvals', 'DR-002'],
+    mustNot: ['acceptable configuration', 'save time is a valid', 'tolerable']
   }
 ];
 

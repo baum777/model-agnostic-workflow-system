@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added (wave 3)
+
+- `core/skills/research-reproduction-review`: third complement slice, frontdoor-admitted CLEAN/ELIGIBLE on the first pass (`sfa_c159de88094d`). Converts DR-002 into an execution-governance rule (autonomous research runners must be sandboxed and approval-gated by default). Behavior case set 16 -> 19 with coverage closure. Instruction-digest re-pin chain not triggered this slice (digest unchanged, verified by derivation); skill-selection fixture regenerated (42 snapshot skills); activation expectation 22 -> 23.
+
 ### Added (wave 2)
 
 - `core/skills/frontend-performance-review` and `core/skills/state-consistency-review`: second complement slice, both frontdoor-admitted CLEAN/ELIGIBLE on the first pass (records in `evidence/skill-frontdoor-complements-wave2-20261028/`). Behavior case set extended 10 -> 16 with coverage closure; instruction-digest re-pin chain re-executed (41ab86fd -> f850a6e5); activation expectation 20 -> 22.
