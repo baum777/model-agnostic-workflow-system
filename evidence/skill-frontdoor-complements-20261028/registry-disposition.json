@@ -1,0 +1,57 @@
+{
+  "registry_disposition": {
+    "status": "UPDATED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "The run adds three core skills (api-contract-review, authorization-boundary-review, data-access-performance-review) and binds them into the registry surfaces: core/contracts/portable-skill-manifest.json (+3 skill entries, discovery overrides, activation expectation 17->20), core/contracts/output-contracts.json (+3 output contracts), core/contracts/workflow-routing-map.json (verification-and-review and migration-and-compatibility classes), and the regenerated core-registry/provider exports. All registry updates were completed inside the implementation commit; no external registry approval was required because MAWS is the canonical owner of core skill records.",
+    "registry_baseline_sha": "5a7f66035d6c33e6318875f1c31a4081dd5eaf5b",
+    "affected_records": [
+      "REGISTERED_IMPLEMENTATION_BINDING:core.api-contract-review",
+      "REGISTERED_IMPLEMENTATION_BINDING:core.authorization-boundary-review",
+      "REGISTERED_IMPLEMENTATION_BINDING:core.data-access-performance-review",
+      "CONTRACT_RECORD:api-contract-review-report-v1",
+      "CONTRACT_RECORD:authorization-boundary-review-report-v1",
+      "CONTRACT_RECORD:data-access-performance-review-report-v1",
+      "CONTRACT_RECORD:portable-skill-manifest",
+      "CONTRACT_RECORD:workflow-routing-map",
+      "CONTRACT_RECORD:core-registry"
+    ],
+    "authority_refs": [
+      "skill-frontdoor-admission:sfa_0f8c29bd6096_20261028T063003.208Z",
+      "skill-frontdoor-admission:sfa_2739ccb38ec8_20261028T063010.434Z",
+      "skill-frontdoor-admission:sfa_f1fcf8f9a7a5_20261028T063018.049Z",
+      "baum-os#79:exact-next-gate"
+    ],
+    "source_refs": [
+      "evidence/skill-frontdoor-complements-20261028/admission-summary.json",
+      "core/skills/api-contract-review/SKILL.md",
+      "core/skills/authorization-boundary-review/SKILL.md",
+      "core/skills/data-access-performance-review/SKILL.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "git:d0a5f44",
+      "git:5a7f660"
+    ],
+    "evidence_refs": [
+      "evidence/skill-frontdoor-complements-20261028/RUN.md",
+      "evidence/skill-frontdoor-complements-20261028/behavior/results.json"
+    ],
+    "implementation_commit_sha": "d0a5f44",
+    "registry_commit_sha": "d0a5f44",
+    "validation": [
+      "npm run validate:PASS:0-issues",
+      "npm run validate-neutral:PASS:0-issues",
+      "npm run test:vnext:PASS:844-of-844",
+      "npm run detect-skill-overlap:PASS:0-findings",
+      "npm run lint-skill-contracts:PASS:0-errors",
+      "npm run baum:ci-gate:PASS"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "taxonomy:REGISTERED_IMPLEMENTATION_BINDING",
+      "taxonomy:CONTRACT_RECORD",
+      "codex-review:PR115:P1-registry-disposition"
+    ]
+  }
+}

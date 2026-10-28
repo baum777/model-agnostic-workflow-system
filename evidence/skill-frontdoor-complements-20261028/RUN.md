@@ -134,6 +134,14 @@ independently confirmable), a declared call-graph completeness gap, and
 `runStatus: inconclusive` by the scanner's own contract — no full-coverage clean
 bill is claimed. Record: `mimosa-scan-record.json`.
 
+**Registry disposition (Codex P1 resolution).** The run's registry-relevant change
+is classified and validated in `registry-disposition.json`: status `UPDATED`, bound to
+implementation/registry commit `d0a5f44` against baseline `5a7f660`; affected records
+carry the closed relevance classes (`REGISTERED_IMPLEMENTATION_BINDING` for the three
+skills, `CONTRACT_RECORD` for the manifest, routing map, output contracts and regenerated
+core-registry); validation references the green battery. Record passes
+`scripts/tools/validate-registry-disposition.mjs` (passed: true, 0 issues).
+
 **CI note.** `loop-repo-ci` fails identically on `main` and every branch since
 2026-10-23 (job never starts: empty runner, no steps, no logs) — a pre-existing
 environmental failure (documented account-level Actions suspension), not caused by
