@@ -1,0 +1,79 @@
+{
+  "checked_at": "2026-10-28T07:08:13.253Z",
+  "cases": 10,
+  "passed": 10,
+  "failed": 0,
+  "contract_source": "core/contracts/output-contracts.json",
+  "results": [
+    {
+      "case": "api-contract-review.pos-standard",
+      "skill": "api-contract-review",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "api-contract-review.neg-undocumented-write",
+      "skill": "api-contract-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "api-contract-review.neg-missing-auth-failures",
+      "skill": "api-contract-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "authorization-boundary-review.pos-standard",
+      "skill": "authorization-boundary-review",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "authorization-boundary-review.neg-token-in-url",
+      "skill": "authorization-boundary-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "authorization-boundary-review.neg-unprojected-user",
+      "skill": "authorization-boundary-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "authorization-boundary-review.neg-unknown-principal",
+      "skill": "authorization-boundary-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "data-access-performance-review.pos-standard",
+      "skill": "data-access-performance-review",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "data-access-performance-review.neg-missing-explain",
+      "skill": "data-access-performance-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "data-access-performance-review.neg-side-effecting-function",
+      "skill": "data-access-performance-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    }
+  ]
+}

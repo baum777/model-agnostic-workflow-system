@@ -67,3 +67,50 @@ Executed end to end following the precedent of commit `4b57ff3`
 - No adoption, activation, runtime authority, publication, or submodule pin change.
 - Tier 2 semantic-overlap and Tier 3 live evaluation remain downstream evidence.
 - The three skills are prose workflow skills; no executable surface was added.
+
+## Independent review round (2026-10-28, second pass)
+
+**Admission vs. promotion terminology.** `CLEAN/ELIGIBLE` is a *frontdoor admission*
+result (gate term; `admission_id`): the candidate is eligible to continue and nothing
+more — `authority_granted` is false by construction and re-derivation confirmed
+declared == derived for all three records. *Adoption* is the owner merge of this PR.
+The formalized S8 promotion chain (`promote-skill-candidate`, append-only adoption
+ledger, owner-approval anchor) is a PROPOSED, unchecked slice of
+MAWS-SII-TARGET-SPEC-001 v0.2.0; no adoption ledger exists in the repository and the
+18 pre-existing core skills were all added through regular reviewed commits (e.g.
+`4ac387e`, `e292cb3`). This PR follows that same de-facto path plus the PR-#79 gate
+sequence. If/when S8 becomes binding, these three skills belong in its grandfather
+class or need a retroactive ledger formalization — recorded here so the distinction
+survives the merge.
+
+**Re-verification performed (independent of the implementing session):**
+
+- Admission records: schema-valid (0 issues), dispositions re-derived from evidence
+  (CLEAN/ELIGIBLE, identical), `authority_granted: false`; committed `SKILL.md`
+  content digests re-hashed and equal to the admission `content_digest`.
+- Raw analyzer reports: SkillSpector 2.12.0 `execution_successful: true`,
+  `is_complete: true`, risk LOW score 0, recommendation SAFE, **0 issues** each;
+  SkillEvaluator 0.3.0 `overall_status: passed`, `overall_passed: true`, 0 errors
+  (7–10 non-blocking warnings each).
+- Delta review vs `5a7f660`: core registry purely additive (3 skills added, none
+  dropped, tool set unchanged); all provider exports carry the new skills; routing-map
+  diff is exactly the four intended entries; all re-pin surfaces are digest-only
+  substitutions; HO-01 hand-maintained `RUN.md` and `registry-disposition.json`
+  byte-identical to their pre-regeneration state (only regenerated bundles replaced).
+- `skill-selection.contracts.json` now intentionally mixes two fixture classes:
+  2 runtime-reproduction cases regenerated against the current 39-skill snapshot
+  (digest `e6c514b2…`), 24 cases frozen at the historical snapshot (digest
+  `e7bed984…`) whose derived `selection_id`/`evidence_digest` values remain internally
+  consistent with that snapshot — rewriting them would turn valid records into
+  hand-written variants, and the invalid cases are crafted schema violations by
+  design. Tests remain 844/844.
+
+**Behavior checks.** Ten targeted cases (3 positive, 7 negative, including the
+DR-019 and DR-020 classes as dedicated negative fixtures) executed by the reviewing
+agent over committed inputs; outputs verified by a committed checker
+(`behavior/check-behavior.mjs`, exit 0, `results.json`) for required output-contract
+sections, case-specific findings/verdicts, and the *absence* of normalization
+language and fabricated analyzer output. Mutation-probed: injected acceptance
+language flips exactly the targeted case to FAIL; restore returns 10/10. This is
+reviewer-executed verification, not an S5 behavioral-eval record and not Tier 3 —
+see `behavior/README.md`.
