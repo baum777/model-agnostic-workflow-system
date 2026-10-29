@@ -30,6 +30,7 @@ Portable skill slice.
 - `research-reproduction-review`
 - `search-discoverability-review`
 - `user-research-plan`
+- `social-publication-preflight`
 
 ## Safe Extension Flow
 

@@ -1,0 +1,35 @@
+{
+  "record_class": "sanitized-admission-summary",
+  "generated": "2026-10-29",
+  "wave": 6,
+  "candidates": [
+    {
+      "skill_id": "social-publication-preflight",
+      "admission_id": "sfa_98ef32e50326_20261029T070702.477Z",
+      "first_pass": {
+        "admission_id": "sfa_8cabe1d3b434_20261029T070615.294Z",
+        "disposition": "BLOCKED",
+        "blockers": ["SKILLSPECTOR_SEVERITY_HIGH: YARA info_stealer signature matched the prohibition wording at line 94 ('browser sessions, cookies, or credentials') — a wording-level signature hit on a rule that prohibits the matched behavior, not a real payload"],
+        "resolution": "rephrased to 'authenticated session / account sign-in material' (identical semantics), re-admitted"
+      },
+      "source_revision": "sha256:98ef32e503263d8eb0bbecdd8e8eacc5de22e108b4577123bd7329497377c8d5",
+      "content_digest": "sha256:4290d03fddac3fb41b282ee81cca7ae6a1a5f5723e6b85ea9a8ceb79f1e094a1",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    }
+  ]
+}

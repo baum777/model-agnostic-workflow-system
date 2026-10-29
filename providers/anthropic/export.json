@@ -2899,6 +2899,78 @@
       }
     },
     {
+      "skillId": "core.social-publication-preflight",
+      "name": "social-publication-preflight",
+      "sourcePath": "core/skills/social-publication-preflight/SKILL.md",
+      "skillPath": "core/skills/social-publication-preflight/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
+      "classification": "shared-with-local-inputs",
+      "category": "social-publication-preflight",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "advisory-external",
+      "toolUsagePosture": "required-tools-declared",
+      "exportMode": "adapter",
+      "outputHeadings": [
+        "DRAFT ID",
+        "ACCOUNT SCOPE",
+        "APPROVAL",
+        "READBACK",
+        "FAILURE PLAN"
+      ],
+      "requiresRepoInputs": true,
+      "safeToAutoRun": true,
+      "approvalMode": "read-only",
+      "activationMode": "modelagnostic-autonomous",
+      "subagentPolicy": "forbid",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "optionalTools": [],
+      "outputContractId": "social-publication-preflight-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
+      },
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      }
+    },
+    {
       "skillId": "core.source-conflict-resolver",
       "name": "source-conflict-resolver",
       "sourcePath": "core/skills/source-conflict-resolver/SKILL.md",

@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-29T13:05:51.896Z",
-  "cases": 27,
-  "passed": 27,
+  "checked_at": "2026-10-29T07:10:56.958Z",
+  "cases": 28,
+  "passed": 28,
   "failed": 0,
   "coverage": {
-    "inputs": 27,
-    "outputs": 27,
-    "declared": 27,
+    "inputs": 28,
+    "outputs": 28,
+    "declared": 28,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -138,20 +138,6 @@
       "failed": []
     },
     {
-      "case": "research-reproduction-review.neg-sandbox-bypass",
-      "skill": "research-reproduction-review",
-      "kind": "negative",
-      "pass": true,
-      "failed": []
-    },
-    {
-      "case": "research-reproduction-review.neg-approval-bypass",
-      "skill": "research-reproduction-review",
-      "kind": "negative",
-      "pass": true,
-      "failed": []
-    },
-    {
       "case": "research-reproduction-review.neg-unsafe-runner",
       "skill": "research-reproduction-review",
       "kind": "negative",
@@ -196,6 +182,27 @@
     {
       "case": "user-research-plan.neg-inferred-consent-pii",
       "skill": "user-research-plan",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "social-publication-preflight.pos-standard",
+      "skill": "social-publication-preflight",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "social-publication-preflight.neg-unknown-outcome-repost",
+      "skill": "social-publication-preflight",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "social-publication-preflight.neg-session-share-send",
+      "skill": "social-publication-preflight",
       "kind": "negative",
       "pass": true,
       "failed": []
