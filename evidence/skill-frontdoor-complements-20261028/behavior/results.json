@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-29T12:54:14.908Z",
-  "cases": 24,
-  "passed": 24,
+  "checked_at": "2026-10-29T06:58:32.718Z",
+  "cases": 25,
+  "passed": 25,
   "failed": 0,
   "coverage": {
-    "inputs": 24,
-    "outputs": 24,
-    "declared": 24,
+    "inputs": 25,
+    "outputs": 25,
+    "declared": 25,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -138,20 +138,6 @@
       "failed": []
     },
     {
-      "case": "research-reproduction-review.neg-sandbox-bypass",
-      "skill": "research-reproduction-review",
-      "kind": "negative",
-      "pass": true,
-      "failed": []
-    },
-    {
-      "case": "research-reproduction-review.neg-approval-bypass",
-      "skill": "research-reproduction-review",
-      "kind": "negative",
-      "pass": true,
-      "failed": []
-    },
-    {
       "case": "research-reproduction-review.neg-unsafe-runner",
       "skill": "research-reproduction-review",
       "kind": "negative",
@@ -175,6 +161,27 @@
     {
       "case": "search-discoverability-review.neg-bulk-publish-paid-api",
       "skill": "search-discoverability-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "user-research-plan.pos-standard",
+      "skill": "user-research-plan",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "user-research-plan.neg-fabricated-findings",
+      "skill": "user-research-plan",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "user-research-plan.neg-inferred-consent-pii",
+      "skill": "user-research-plan",
       "kind": "negative",
       "pass": true,
       "failed": []

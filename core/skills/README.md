@@ -29,6 +29,7 @@ Portable skill slice.
 - `state-consistency-review`
 - `research-reproduction-review`
 - `search-discoverability-review`
+- `user-research-plan`
 
 ## Safe Extension Flow
 
