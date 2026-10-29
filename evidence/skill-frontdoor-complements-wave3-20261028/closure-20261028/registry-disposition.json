@@ -1,9 +1,9 @@
 {
   "registry_disposition": {
-    "status": "REQUIRED_BUT_BLOCKED",
+    "status": "UPDATED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "Uncommitted local closure repair changes the existing review routing contract and regenerated projections plus instruction/experiment provenance. No implementation commit or owner publication authorization exists for this new candidate. Empty implementation_commit_sha is an explicit missing binding, not a fabricated SHA; resolve and revalidate after an authorized implementation commit. Original wave dispositions remain unchanged and valid for their original implementation commits.",
+    "reason": "Owner explicitly authorized local commits for reviewed tree 60e3d870cb5b080e05877c5de1a493817225c56c and subsequent actual-SHA Registry binding. Signed implementation commit 57ba7eaa75826aa8de15d96dc84e194582010aab materializes that exact tree and contains the routing contract, both core registry projections, provider exports and provenance updates. This follow-up binds that completed MAWS-owned Registry write; publication, merge and final hosted CI remain outside the local authorization.",
     "registry_baseline_sha": "6df7163ca7e2f70d490ce8f349e8130540232eb2",
     "affected_records": [
       "CONTRACT_RECORD:workflow-routing-map",
@@ -25,12 +25,12 @@
     "evidence_refs": [
       "evidence/skill-frontdoor-complements-wave3-20261028/closure-20261028/validation-summary.json"
     ],
-    "implementation_commit_sha": "",
-    "registry_commit_sha": null,
+    "implementation_commit_sha": "57ba7eaa75826aa8de15d96dc84e194582010aab",
+    "registry_commit_sha": "57ba7eaa75826aa8de15d96dc84e194582010aab",
     "validation": [
-      "JavaScript disposition validator: PASS, zero issues",
-      "Draft2020-12 schema: PASS",
-      "implementation SHA binding: BLOCKED, no authorized implementation commit exists"
+      "JavaScript disposition validator and Draft2020-12 schema revalidated for this actual-SHA binding",
+      "Implementation commit tree equals independently reviewed and owner-authorized tree 60e3d870cb5b080e05877c5de1a493817225c56c",
+      "Named Registry/contract writes verified in actual implementation commit; local only, not published"
     ],
     "contract_version": "registry-disposition.v1",
     "classification_evidence_refs": [
