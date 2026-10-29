@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added (wave 2)
+
+- `core/skills/frontend-performance-review` and `core/skills/state-consistency-review`: second complement slice, both frontdoor-admitted CLEAN/ELIGIBLE on the first pass (records in `evidence/skill-frontdoor-complements-wave2-20261028/`). Behavior case set extended 10 -> 16 with coverage closure; instruction-digest re-pin chain re-executed (41ab86fd -> f850a6e5); activation expectation 20 -> 22.
+
 ### Added
 
 - `core/skills/api-contract-review`, `core/skills/authorization-boundary-review`, `core/skills/data-access-performance-review`: three native review skills admitted through the skill frontdoor (SkillSpector 2.12.0 + SkillEvaluator 0.3.0, `CLEAN`/`ELIGIBLE`, no blockers). Contract bindings added to the portable skill manifest, output contracts, and workflow routing map; registry and provider exports regenerated; activation distribution expectation updated 17 -> 20.

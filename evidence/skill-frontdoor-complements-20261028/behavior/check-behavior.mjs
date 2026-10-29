@@ -26,7 +26,9 @@ const CONTRACTS = JSON.parse(fs.readFileSync(path.join(ROOT, 'core/contracts/out
 const SKILL_FOR = {
   'api-contract-review': 'api-contract-review-report-v1',
   'authorization-boundary-review': 'authorization-boundary-review-report-v1',
-  'data-access-performance-review': 'data-access-performance-review-report-v1'
+  'data-access-performance-review': 'data-access-performance-review-report-v1',
+  'frontend-performance-review': 'frontend-performance-review-report-v1',
+  'state-consistency-review': 'state-consistency-review-report-v1'
 };
 
 const CASES = [
@@ -100,6 +102,48 @@ const CASES = [
     kind: 'negative',
     must: ['FINDING', 'prune_usage_events', 'separate', 'No SQL executed'],
     mustNot: []
+  },
+  {
+    id: 'frontend-performance-review.pos-standard',
+    skill: 'frontend-performance-review',
+    kind: 'positive',
+    must: ['charting-lib', 'sortedRows', 'MEASUREMENT PLAN', 'No profiling run was executed'],
+    mustNot: ['performance score of', 'Lighthouse score of']
+  },
+  {
+    id: 'frontend-performance-review.neg-no-profiling-evidence',
+    skill: 'frontend-performance-review',
+    kind: 'negative',
+    must: ['BLOCKED', 'GAPS', 'never an invented number'],
+    mustNot: ['performance score of', 'Lighthouse score', 'TTI is']
+  },
+  {
+    id: 'frontend-performance-review.neg-claimed-lighthouse',
+    skill: 'frontend-performance-review',
+    kind: 'negative',
+    must: ['BLOCKED', 'narrative numbers', 'unverified'],
+    mustNot: ['confirms the improvement', 'validated', 'score of 98 confirms']
+  },
+  {
+    id: 'state-consistency-review.pos-standard',
+    skill: 'state-consistency-review',
+    kind: 'positive',
+    must: ['onSettled', 'rollback', 'previous', 'GAPS'],
+    mustNot: []
+  },
+  {
+    id: 'state-consistency-review.neg-optimistic-without-rollback',
+    skill: 'state-consistency-review',
+    kind: 'negative',
+    must: ['FINDING', 'no recovery path', 'rollback'],
+    mustNot: ['acceptable', 'style choice made consciously', 'tolerable']
+  },
+  {
+    id: 'state-consistency-review.neg-ambiguous-ownership',
+    skill: 'state-consistency-review',
+    kind: 'negative',
+    must: ['FINDING', 'ownership', 'server as authority', 'GAPS'],
+    mustNot: ['safe under', 'no conflict is possible']
   }
 ];
 
