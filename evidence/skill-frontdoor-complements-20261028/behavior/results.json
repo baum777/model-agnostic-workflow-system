@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-29T13:14:50.248Z",
-  "cases": 36,
-  "passed": 36,
+  "checked_at": "2026-10-29T13:24:47.343Z",
+  "cases": 39,
+  "passed": 39,
   "failed": 0,
   "coverage": {
-    "inputs": 36,
-    "outputs": 36,
-    "declared": 36,
+    "inputs": 39,
+    "outputs": 39,
+    "declared": 39,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -259,6 +259,27 @@
     {
       "case": "media-production-brief.neg-brief-as-render",
       "skill": "media-production-brief",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "content-evidence-editor.pos-standard",
+      "skill": "content-evidence-editor",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "content-evidence-editor.neg-fabricated-quote",
+      "skill": "content-evidence-editor",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "content-evidence-editor.neg-approval-as-publication",
+      "skill": "content-evidence-editor",
       "kind": "negative",
       "pass": true,
       "failed": []

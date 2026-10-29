@@ -1,0 +1,3 @@
+fa8c44400f67bfb070009be4e3b123857980f933e235c052ee60d0bf9bd359e7  outputs/content-evidence-editor.pos-standard.md
+d4dd79b4f0d6f2bcbfe4147ee65aff5699189fe4e8f61eea61fb4733f6b97daa  outputs/content-evidence-editor.neg-fabricated-quote.md
+bb374c64dbc6bce31d871b0ef8ccaa03197d429c87f15a353a0428020fe1a5a7  outputs/content-evidence-editor.neg-approval-as-publication.md

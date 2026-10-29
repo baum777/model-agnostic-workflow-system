@@ -33,6 +33,7 @@ Portable skill slice.
 - `social-publication-preflight`
 - `brand-asset-brief`
 - `media-production-brief`
+- `content-evidence-editor`
 
 ## Safe Extension Flow
 
