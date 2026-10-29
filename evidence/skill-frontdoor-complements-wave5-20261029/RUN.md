@@ -43,3 +43,9 @@ Mimosa commit/push gates fired `scanner_enobufs` compat events in waves 4–5 (l
 ## Not claimed
 
 No adoption, activation, runtime authority, or Tier 2/3 evidence; no sessions conducted, participants contacted, or personal data processed anywhere in this slice. This PR is stacked: merge **after** PRs #115, #116, #117, and #118.
+
+## Consolidation — 2026-10-29 (round 9)
+
+Rebased onto the consolidated wave-4 head `b65983a` (which carries the owner-advanced wave-3 head `aa43f09`); impl commit is now `ed0e4d1` (was `ae8e3c5`); disposition re-bound. Owner work preserved: both wave-3 owner commits and the wave-4 consolidation remain intact in ancestry. Derived surfaces regenerated (fixture snapshot `3faba369…`, 44 skills; runtime records re-derived at the contractual 12:00Z/12:05Z), checker union 27/24+3 = **27/27**, coverage 1:1. README count 27 (8 positive, 19 negative) and the provenance section now also states the checker semantics (green run = fulfilled assertions) and the recording criterion for VERBATIM claims. `execution-record.json` extended: recording basis per output (single-version git history), independence bounds, re-execution recording. Battery re-run on the consolidated head: `test:vnext` 847/847, validators 0, selection 26/0.
+
+Merge order after consolidation: #115 → #116 → #117 (`aa43f09`) → #118 → #119 (this PR) → #120 → #121 → #122.

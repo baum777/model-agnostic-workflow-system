@@ -3,7 +3,7 @@
   "generated": "2026-10-29",
   "revised": "2026-10-29 (provenance correction: edited outputs labeled, missing originals documented, hashes reframed as integrity-only, fresh re-executions added)",
   "wave": 5,
-  "hash_semantics": "All sha256 values in this record prove the integrity of specific committed bytes. They are NOT by themselves evidence that a model produced those bytes — the execution claim rests solely on the invocation metadata recorded here (model, date, skill digest, input binding) together with the session transcript. Nothing in this record is an S5 behavioral-eval result or a Tier 3 evaluation.",
+  "hash_semantics": "All sha256 values in this record prove the integrity of specific committed bytes. They are NOT by themselves evidence that a model produced those bytes — the execution claim rests solely on the invocation metadata recorded here (model, date, skill digest, input binding) together with the session transcript. Nothing in this record is an S5 behavioral-eval result or a Tier 3 evaluation. A green check-behavior.mjs run likewise proves only that the assertions encoded in the checker are fulfilled by the stored bytes — structural conformance evidence, not a model-behavior result.",
   "provenance_split": {
     "hand_authored": [
       "Skill artifact: core/skills/user-research-plan/SKILL.md (authored, then frontdoor-admitted; admission sfa_5333c91a65f3_20261029T065305.067Z; content digest sha256:a2c000f9dd038f2ea537353f02f6086558584765fa6eba1b70f45bb91856e13e)",
@@ -23,7 +23,8 @@
     "not_claims": [
       "Not an S5 behavioral-eval record (no BASELINE/CANDIDATE model-run comparison, no improvement metrics) and not SkillEvaluator Tier 3 multi-model evaluation.",
       "Single model, small case set; marker verification (check-behavior.mjs) is structural, not a quality judgment of the model.",
-      "The earlier revision of this record claimed output_unchanged: true alongside disclosed edits and framed hashes as execution evidence; that framing was wrong and is superseded by this file."
+      "The earlier revision of this record claimed output_unchanged: true alongside disclosed edits and framed hashes as execution evidence; that framing was wrong and is superseded by this file.",
+      "VERBATIM claims are recording-bounded: verbatim status requires single-version git history or a verbatim-committed re-execution; every claim remains bounded by executing-agent attestation plus transcript corroboration and none is independently witnessed."
     ]
   },
   "executor": {
@@ -42,7 +43,7 @@
       "final_output": "evidence/skill-frontdoor-complements-20261028/behavior/outputs/user-research-plan.pos-standard.md",
       "final_output_status": "EDITED_AFTER_EXECUTION (original first-pass bytes not preserved)",
       "reexecution_output": "evidence/skill-frontdoor-complements-20261028/behavior/reexec/wave5/user-research-plan.pos-standard.md",
-      "reexecution_status": "VERBATIM_NEVER_EDITED",
+      "reexecution_status": "VERBATIM_NEVER_EDITED (committed verbatim at creation)",
       "executed_at": "2026-10-29"
     },
     {
@@ -52,7 +53,7 @@
       "final_output": "evidence/skill-frontdoor-complements-20261028/behavior/outputs/user-research-plan.neg-fabricated-findings.md",
       "final_output_status": "EDITED_AFTER_EXECUTION (original first-pass bytes not preserved)",
       "reexecution_output": "evidence/skill-frontdoor-complements-20261028/behavior/reexec/wave5/user-research-plan.neg-fabricated-findings.md",
-      "reexecution_status": "VERBATIM_NEVER_EDITED",
+      "reexecution_status": "VERBATIM_NEVER_EDITED (committed verbatim at creation)",
       "executed_at": "2026-10-29"
     },
     {
@@ -60,7 +61,7 @@
       "kind": "negative",
       "input": "evidence/skill-frontdoor-complements-20261028/behavior/cases/user-research-plan/neg-inferred-consent-pii/request.md",
       "final_output": "evidence/skill-frontdoor-complements-20261028/behavior/outputs/user-research-plan.neg-inferred-consent-pii.md",
-      "final_output_status": "VERBATIM_NEVER_EDITED (first-pass bytes are the committed bytes)",
+      "final_output_status": "VERBATIM_NEVER_EDITED (recording: single-version git history from the wave-5 implementation commit — first-pass bytes are the committed bytes; attested by the executing agent and corroborated by the session transcript, not independently witnessed)",
       "reexecution_output": null,
       "reexecution_status": "not needed — output was never edited",
       "executed_at": "2026-10-29"

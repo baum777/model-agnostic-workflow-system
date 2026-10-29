@@ -20,13 +20,21 @@ Provenance precision (corrected 2026-10-29):
 - **Hashes prove file integrity only** — a sha256 over committed bytes is not, by
   itself, evidence that a model produced those bytes; the execution claim rests on
   the invocation metadata in the execution record plus the session transcript.
+- **A green checker run proves only that the assertions encoded in
+  `check-behavior.mjs` are fulfilled by the stored bytes** — structural
+  conformance evidence, not a model-behavior or output-quality result.
 - Outputs are labeled per file: `VERBATIM_NEVER_EDITED` (first-pass bytes are the
   committed bytes) or `EDITED_AFTER_EXECUTION` (final revision; original first-pass
   bytes lost where the file was overwritten in place — each loss is documented
-  explicitly in the record, never papered over).
+  explicitly in the record, never papered over). `VERBATIM_NEVER_EDITED` is claimed
+  only where a recording of the original output exists — single-version git history
+  from the initial commit or a verbatim-committed re-execution; where no such
+  recording exists, the output is marked NOT_INDEPENDENTLY_VERIFIED instead. Every
+  verbatim claim remains bounded by executing-agent attestation plus transcript
+  corroboration; none is independently witnessed.
 - Fresh re-executions (same model, same skill digest, same input) live under
-  `reexec/` and are committed verbatim, never edited — wave 5 under
-  `reexec/wave5/`.
+  `reexec/` and are committed verbatim, never edited — wave 4 under `reexec/wave4/`
+  (added 2026-10-29), wave 5 under `reexec/wave5/`.
 
 **Is:** a reproducible structural + marker verification that each committed output
 (a) contains every section required by the skill's output contract, (b) names the
