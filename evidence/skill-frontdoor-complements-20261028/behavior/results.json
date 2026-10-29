@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-29T13:24:47.343Z",
-  "cases": 39,
-  "passed": 39,
+  "checked_at": "2026-10-29T13:34:33.347Z",
+  "cases": 42,
+  "passed": 42,
   "failed": 0,
   "coverage": {
-    "inputs": 39,
-    "outputs": 39,
-    "declared": 39,
+    "inputs": 42,
+    "outputs": 42,
+    "declared": 42,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -280,6 +280,27 @@
     {
       "case": "content-evidence-editor.neg-approval-as-publication",
       "skill": "content-evidence-editor",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "marketing-strategy-plan.pos-standard",
+      "skill": "marketing-strategy-plan",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "marketing-strategy-plan.neg-invented-market-data",
+      "skill": "marketing-strategy-plan",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "marketing-strategy-plan.neg-channel-action-without-mandate",
+      "skill": "marketing-strategy-plan",
       "kind": "negative",
       "pass": true,
       "failed": []

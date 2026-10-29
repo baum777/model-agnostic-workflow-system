@@ -1,0 +1,29 @@
+{
+  "record_class": "sanitized-admission-summary",
+  "generated": "2026-10-29",
+  "wave": 10,
+  "candidates": [
+    {
+      "skill_id": "marketing-strategy-plan",
+      "admission_id": "sfa_6f48186165f8_20261029T133103.652Z",
+      "source_revision": "sha256:6f48186165f87f92c2ebf0da56b7cf4474e8b02854fe25df53430062ed253ae3",
+      "content_digest": "sha256:28973dc22d28bddb4288290176c0bd1c725658d5f2eed438d4c4e05ae0ad1c65",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    }
+  ]
+}
