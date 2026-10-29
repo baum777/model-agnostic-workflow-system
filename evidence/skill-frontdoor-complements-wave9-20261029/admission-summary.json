@@ -1,0 +1,29 @@
+{
+  "record_class": "sanitized-admission-summary",
+  "generated": "2026-10-29",
+  "wave": 9,
+  "candidates": [
+    {
+      "skill_id": "content-evidence-editor",
+      "admission_id": "sfa_16ac96d67721_20261029T132011.026Z",
+      "source_revision": "sha256:16ac96d67721926c6bbb5364b9c92dd4da0359810046edb901c6177ecec15272",
+      "content_digest": "sha256:ef669bf7db47bea1ca8cbeea15fc54fae9b07db03244af47945f663df62484cd",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    }
+  ]
+}

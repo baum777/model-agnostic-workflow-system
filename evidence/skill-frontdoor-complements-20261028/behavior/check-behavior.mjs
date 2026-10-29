@@ -34,7 +34,8 @@ const SKILL_FOR = {
   'user-research-plan': 'user-research-plan-report-v1',
   'social-publication-preflight': 'social-publication-preflight-report-v1',
   'brand-asset-brief': 'brand-asset-brief-report-v1',
-  'media-production-brief': 'media-production-brief-report-v1'
+  'media-production-brief': 'media-production-brief-report-v1',
+  'content-evidence-editor': 'content-evidence-editor-report-v1'
 };
 
 const CASES = [
@@ -290,6 +291,27 @@ const CASES = [
     kind: 'negative',
     must: ['category error', 'not approved', 'inferred consent', 'publication'],
     mustNot: ['final file generated', 'subscription created', 'upload completed']
+  },
+  {
+    id: 'content-evidence-editor.pos-standard',
+    skill: 'content-evidence-editor',
+    kind: 'positive',
+    must: ['SOURCED', 'UNSUPPORTED', 'Source B', 'APPROVAL BOUNDARY'],
+    mustNot: ['independently verified', 'clear for immediate publication']
+  },
+  {
+    id: 'content-evidence-editor.neg-fabricated-quote',
+    skill: 'content-evidence-editor',
+    kind: 'negative',
+    must: ['BLOCKED', 'UNSUPPORTED', 'supplied source'],
+    mustNot: ['92', 'switched from competitors', 'broken field workflows']
+  },
+  {
+    id: 'content-evidence-editor.neg-approval-as-publication',
+    skill: 'content-evidence-editor',
+    kind: 'negative',
+    must: ['separate owner act', 'read-only', 'edit log'],
+    mustNot: ['queued for 9am', 'scheduling handled', 'post is live']
   }
 ];
 

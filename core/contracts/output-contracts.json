@@ -1006,6 +1006,27 @@
         "No paid generation or tool invocation; production requires a named, separately authorized mandate; QA criteria are human-verifiable."
       ],
       "failure_or_partial_completion_behavior": "If the edit intent or the source asset inventory is missing, return BLOCKED and name what the brief cannot be built without."
+    },
+    {
+      "contract_id": "content-evidence-editor-report-v1",
+      "skill": "content-evidence-editor",
+      "required_sections": [
+        "CLAIMS",
+        "ATTRIBUTION",
+        "EDITS",
+        "APPROVAL BOUNDARY",
+        "LIMITS"
+      ],
+      "optional_sections": [
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Every claim is classified SOURCED (with locator), INFERENCE, or UNSUPPORTED (flagged); unsupported claims stay visible, never smoothed.",
+        "Quotes are verbatim against supplied source text; a quote that cannot be located is removed or flagged, never reconstructed.",
+        "Attribution points at the source that actually states the claim; paraphrase may not state more than its source.",
+        "Editorial approval is recorded as content readiness only; publication is named as a separate owner act and no publication step appears in the output."
+      ],
+      "failure_or_partial_completion_behavior": "If the draft or the supplied source basis is missing, return BLOCKED and name what the edit cannot proceed without."
     }
   ]
 }

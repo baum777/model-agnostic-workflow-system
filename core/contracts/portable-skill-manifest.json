@@ -81,7 +81,7 @@
       "approvalMode=approval-required and safeToAutoRun=true"
     ],
     "expectedDistribution": {
-      "modelagnostic-autonomous": 28,
+      "modelagnostic-autonomous": 29,
       "explicit-user-call-required": 1
     }
   },
@@ -200,6 +200,10 @@
     },
     "media-production-brief": {
       "category": "media-production-brief",
+      "mcpPosture": "advisory-external"
+    },
+    "content-evidence-editor": {
+      "category": "content-evidence-editor",
       "mcpPosture": "advisory-external"
     }
   },
@@ -1049,6 +1053,35 @@
         "validate-repo-surface"
       ],
       "outputContractId": "media-production-brief-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "content-evidence-editor",
+      "portableIdentity": "core.content-evidence-editor",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "outputContractId": "content-evidence-editor-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerProjection": {
