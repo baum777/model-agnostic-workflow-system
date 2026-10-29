@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-29T13:09:30.132Z",
-  "cases": 30,
-  "passed": 30,
+  "checked_at": "2026-10-29T10:45:21.759Z",
+  "cases": 31,
+  "passed": 31,
   "failed": 0,
   "coverage": {
-    "inputs": 30,
-    "outputs": 30,
-    "declared": 30,
+    "inputs": 31,
+    "outputs": 31,
+    "declared": 31,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -138,20 +138,6 @@
       "failed": []
     },
     {
-      "case": "research-reproduction-review.neg-sandbox-bypass",
-      "skill": "research-reproduction-review",
-      "kind": "negative",
-      "pass": true,
-      "failed": []
-    },
-    {
-      "case": "research-reproduction-review.neg-approval-bypass",
-      "skill": "research-reproduction-review",
-      "kind": "negative",
-      "pass": true,
-      "failed": []
-    },
-    {
       "case": "research-reproduction-review.neg-unsafe-runner",
       "skill": "research-reproduction-review",
       "kind": "negative",
@@ -217,6 +203,27 @@
     {
       "case": "social-publication-preflight.neg-session-share-send",
       "skill": "social-publication-preflight",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "brand-asset-brief.pos-standard",
+      "skill": "brand-asset-brief",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "brand-asset-brief.neg-trademark-clearance",
+      "skill": "brand-asset-brief",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "brand-asset-brief.neg-publish-stock",
+      "skill": "brand-asset-brief",
       "kind": "negative",
       "pass": true,
       "failed": []

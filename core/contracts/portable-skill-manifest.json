@@ -81,7 +81,7 @@
       "approvalMode=approval-required and safeToAutoRun=true"
     ],
     "expectedDistribution": {
-      "modelagnostic-autonomous": 26,
+      "modelagnostic-autonomous": 27,
       "explicit-user-call-required": 1
     }
   },
@@ -192,6 +192,10 @@
     },
     "social-publication-preflight": {
       "category": "social-publication-preflight",
+      "mcpPosture": "advisory-external"
+    },
+    "brand-asset-brief": {
+      "category": "brand-asset-brief",
       "mcpPosture": "advisory-external"
     }
   },
@@ -983,6 +987,35 @@
         "validate-repo-surface"
       ],
       "outputContractId": "social-publication-preflight-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "brand-asset-brief",
+      "portableIdentity": "core.brand-asset-brief",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "outputContractId": "brand-asset-brief-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerProjection": {

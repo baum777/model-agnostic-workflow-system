@@ -963,6 +963,27 @@
         "An unknown outcome blocks automatic repost; retry requires a human decision on a verified first-send state."
       ],
       "failure_or_partial_completion_behavior": "If the approved draft, platform/account specification, or action scope is missing, return BLOCKED and name the unbound elements."
+    },
+    {
+      "contract_id": "brand-asset-brief-report-v1",
+      "skill": "brand-asset-brief",
+      "required_sections": [
+        "BRIEF",
+        "ASSETS",
+        "RIGHTS",
+        "ACCEPTANCE"
+      ],
+      "optional_sections": [
+        "CONSTRAINTS",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Every constraint traces to supplied brand intent or is marked as a proposal; invented brand facts are a defect.",
+        "Trademark clearance is never claimed; rights status stays open until a qualified human or registry states otherwise.",
+        "No tool installation or paid generation is invoked; production requires a named, separately authorized mandate.",
+        "Acceptance criteria are human-verifiable (legibility, contrast, variants), not tool-scored numbers."
+      ],
+      "failure_or_partial_completion_behavior": "If brand intent or delivery format requirements are missing, return BLOCKED and name what the brief cannot be built without."
     }
   ]
 }
