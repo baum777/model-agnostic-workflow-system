@@ -2908,6 +2908,86 @@
       }
     },
     {
+      "skillId": "core.search-discoverability-review",
+      "name": "search-discoverability-review",
+      "portableIdentity": "core.search-discoverability-review",
+      "sourcePath": "core/skills/search-discoverability-review/SKILL.md",
+      "skillPath": "core/skills/search-discoverability-review/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
+      "classification": "shared-with-local-inputs",
+      "category": "search-discoverability-review",
+      "requiresRepoInputs": true,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "advisory-external",
+      "toolUsagePosture": "required-tools-declared",
+      "approvalMode": "read-only",
+      "activationMode": "modelagnostic-autonomous",
+      "subagentPolicy": "forbid",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "optionalTools": [],
+      "outputHeadings": [
+        "EVIDENCE",
+        "INDEXABILITY",
+        "CONTENT",
+        "ACTIONS",
+        "LIMITS"
+      ],
+      "outputContractId": "search-discoverability-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "standalone",
+        "workflowClasses": [],
+        "requiredValidationGates": [],
+        "expectedOutputContracts": [],
+        "requiredEvidenceArtifacts": [],
+        "recommendedTemplates": [],
+        "exampleArtifacts": [],
+        "workflowCoverage": []
+      },
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      },
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
+      }
+    },
+    {
       "skillId": "core.secret-boundary-audit",
       "name": "secret-boundary-audit",
       "portableIdentity": "core.secret-boundary-audit",

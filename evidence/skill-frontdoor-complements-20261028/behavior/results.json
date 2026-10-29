@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-28T17:18:17.972Z",
-  "cases": 21,
-  "passed": 21,
+  "checked_at": "2026-10-29T12:54:14.908Z",
+  "cases": 24,
+  "passed": 24,
   "failed": 0,
   "coverage": {
-    "inputs": 21,
-    "outputs": 21,
-    "declared": 21,
+    "inputs": 24,
+    "outputs": 24,
+    "declared": 24,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -154,6 +154,27 @@
     {
       "case": "research-reproduction-review.neg-unsafe-runner",
       "skill": "research-reproduction-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "search-discoverability-review.pos-standard",
+      "skill": "search-discoverability-review",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "search-discoverability-review.neg-guarantee-request",
+      "skill": "search-discoverability-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "search-discoverability-review.neg-bulk-publish-paid-api",
+      "skill": "search-discoverability-review",
       "kind": "negative",
       "pass": true,
       "failed": []

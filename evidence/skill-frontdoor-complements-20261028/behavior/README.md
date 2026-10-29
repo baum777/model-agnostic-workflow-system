@@ -1,7 +1,8 @@
 # Behavior Checks — What This Is and Is Not
 
-Ten targeted cases (3 positive, 7 negative) executed by the reviewing agent against
-committed fixture inputs, one per rule the three new skills are supposed to enforce.
+Twenty-four targeted cases (7 positive, 17 negative) executed by the reviewing agent against
+committed fixture inputs, one per rule the seven complement skills (waves 1–4) are
+supposed to enforce.
 
 **Is:** a reproducible structural + marker verification that each committed output
 (a) contains every section required by the skill's output contract, (b) names the
@@ -14,6 +15,25 @@ expects a BASELINE/CANDIDATE comparison with model-run metrics — not fabricabl
 and not claimed), not SkillEvaluator Tier 3 live evaluation, and not authority of any
 kind. The reviewer-executed outputs are evidence of workflow conformance, nothing more.
 
+## Hand-authored vs. agent-executed (provenance)
+
+- **Hand-authored:** the skill artifacts themselves and every case *input* under
+  `cases/` — planning fixtures, labeled as such in their file headers.
+- **Agent-executed:** every case *output* under `outputs/` — produced by the session
+  agent applying the skill to the input in a single execution pass. Wave-4 outputs
+  carry the execution header inline; their per-case record, recording basis, and
+  fresh verbatim re-executions live in
+  `evidence/skill-frontdoor-complements-wave4-20261028/execution-record.json`.
+
+Semantics, stated precisely: hash equality proves identical stored bytes — nothing
+more. A green checker run proves only that the assertions encoded in it are
+fulfilled by the stored bytes. Neither is evidence that a model produced the bytes;
+the execution claim rests on the recorded invocation metadata plus the session
+transcript. `VERBATIM_NEVER_EDITED` is claimed only where a recording of the
+original output exists (single-version git history or a verbatim-committed
+re-execution); where no such recording exists, the output is marked
+EDITED_AFTER_EXECUTION or NOT_INDEPENDENTLY_VERIFIED instead.
+
 ## Re-run
 
 ```bash
@@ -21,8 +41,10 @@ node evidence/skill-frontdoor-complements-20261028/behavior/check-behavior.mjs
 ```
 
 Exit 0 expected; `results.json` is the machine-readable record. The checker was
-mutation-probed during review: appending acceptance language to a negative-case output
-flips exactly that case to FAIL (`must-not-contain`), restore returns to 10/10.
+mutation-probed during review (wave 1, at 10 cases): appending acceptance language to a
+negative-case output flips exactly that case to FAIL (`must-not-contain`); restore returns
+to all-pass. The coverage-closure block (added during the wave-1 review) exits 2 on any drift
+between declared cases, input dirs, and outputs — the count above is enforced, not narrated.
 
 ## Case map
 
@@ -38,6 +60,18 @@ flips exactly that case to FAIL (`must-not-contain`), restore returns to 10/10.
 | data-access-performance-review.pos-standard | positive | supplied plan interpreted (filter after index scan); read-only posture explicit |
 | data-access-performance-review.neg-missing-explain | negative | missing evidence → BLOCKED + measurement plan; no invented plan text (must-not markers assert absence of EXPLAIN-shaped output) |
 | data-access-performance-review.neg-side-effecting-function | negative | side-effecting calls separated and priced; destructive prune identified as the real risk |
+| frontend-performance-review.pos-standard | positive | waterfall/bundle evidence read without profiling runs; measurement plan instead of scores |
+| frontend-performance-review.neg-no-profiling-evidence | negative | missing profiling evidence → BLOCKED; no invented performance numbers |
+| frontend-performance-review.neg-claimed-lighthouse | negative | unverified vendor Lighthouse narrative → BLOCKED as narrative numbers |
+| state-consistency-review.pos-standard | positive | ownership map with explicit server authority; onSettled rollback path verified |
+| state-consistency-review.neg-optimistic-without-rollback | negative | optimistic update without recovery is a FINDING, not a style choice |
+| state-consistency-review.neg-ambiguous-ownership | negative | ambiguous cache ownership flagged; server as authority required before GAPS close |
+| research-reproduction-review.pos-standard | positive | stated results vs. reproducible evidence separated; bounded protocol with pre-agreed failure criteria |
+| research-reproduction-review.neg-claim-without-method | negative | claim without method → BLOCKED; no invented reproduction score |
+| research-reproduction-review.neg-unsafe-runner | negative | runner bypassing sandbox/approvals by default → governance FINDING citing DR-002 |
+| search-discoverability-review.pos-standard | positive | dated crawl evidence drives indexability/content findings; actions are crawl-verifiable, never outcome promises |
+| search-discoverability-review.neg-guarantee-request | negative | ranking/traffic/AI-answer guarantees refused; no projection table without evidence |
+| search-discoverability-review.neg-bulk-publish-paid-api | negative | unscoped paid-API use and bulk auto-publish refused; read-only review posture enforced |
 
 ## Closure follow-up — 2026-10-28
 
