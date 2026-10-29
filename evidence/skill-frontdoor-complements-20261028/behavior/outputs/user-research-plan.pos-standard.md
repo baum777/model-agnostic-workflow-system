@@ -2,7 +2,7 @@
 
 Executed by: agent (reviewer run, 2026-10-29) ·
 Model: zai-individual-coding-plan/GLM-5.3 (ZCode session agent) ·
-Invocation: `core/skills/user-research-plan` applied to `cases/user-research-plan/pos-standard/research-brief.md` (output executed once, committed verbatim; sha256 recorded in the execution record) ·
+Invocation: `core/skills/user-research-plan` applied to `cases/user-research-plan/pos-standard/research-brief.md` (**edited after first execution** — two marker-precision edits; the original first-pass bytes were not preserved; a fresh verbatim re-execution lives at `reexec/wave5/user-research-plan.pos-standard.md`; provenance in the execution record) ·
 Skill content digest: `sha256:a2c000f9dd038f2ea537353f02f6086558584765fa6eba1b70f45bb91856e13e` ·
 No sessions were conducted, no participants contacted, and no personal data processed in producing this plan.
 

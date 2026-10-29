@@ -1,0 +1,5 @@
+ddfb16d75f49274039b6a8eeaf2ad5e96a354ad52940be668863786270d3d3e2  outputs/user-research-plan.pos-standard.md
+c0606ed98e6afd4dbee154aaf923293a3cf1b23229c4d20b367b191afd654322  outputs/user-research-plan.neg-fabricated-findings.md
+127c4d1a9a5c73fffdd14587e96930123f910af9656e3d9e28f9583be16e92fa  outputs/user-research-plan.neg-inferred-consent-pii.md
+92a974e1abbd1091eba9f9bbaf99909c6119299d7b891c36b81f77b3e22d8506  reexec/wave5/user-research-plan.pos-standard.md
+03b27ab5da97c5f7b55577637e52c7f43b7bdc9017998b6afa0e3a4410ff2265  reexec/wave5/user-research-plan.neg-fabricated-findings.md

@@ -11,11 +11,22 @@ Two artifact classes must not be conflated:
 - **Hand-authored:** the skill artifacts themselves and every case *input* under
   `cases/` — planning fixtures, labeled as such in their file headers.
 - **Agent-executed:** every case *output* under `outputs/` — produced by the session
-  agent applying the skill to the input in a single execution pass, written once,
-  committed verbatim. From wave 5 on, model, invocation, skill digest, input/output
-  paths and output sha256 are recorded per case in
-  `evidence/skill-frontdoor-complements-wave5-20261029/execution-record.json`
-  (wave-5 cases) — earlier waves' outputs carry the execution header inline.
+  agent applying the skill to the input. From wave 5 on, model, invocation, skill
+  digest, input/output paths and per-file status are recorded in the wave's
+  `execution-record.json`.
+
+Provenance precision (corrected 2026-10-29):
+
+- **Hashes prove file integrity only** — a sha256 over committed bytes is not, by
+  itself, evidence that a model produced those bytes; the execution claim rests on
+  the invocation metadata in the execution record plus the session transcript.
+- Outputs are labeled per file: `VERBATIM_NEVER_EDITED` (first-pass bytes are the
+  committed bytes) or `EDITED_AFTER_EXECUTION` (final revision; original first-pass
+  bytes lost where the file was overwritten in place — each loss is documented
+  explicitly in the record, never papered over).
+- Fresh re-executions (same model, same skill digest, same input) live under
+  `reexec/` and are committed verbatim, never edited — wave 5 under
+  `reexec/wave5/`.
 
 **Is:** a reproducible structural + marker verification that each committed output
 (a) contains every section required by the skill's output contract, (b) names the
