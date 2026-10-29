@@ -161,6 +161,20 @@ const CASES = [
     mustNot: ['reproduction score of', 'reproduces the', 'score: 3.7']
   },
   {
+    id: 'research-reproduction-review.neg-sandbox-bypass',
+    skill: 'research-reproduction-review',
+    kind: 'negative',
+    must: ['FINDING DR-002', 'sandbox bypass', 'approvals: required', 'not a technical sandbox enforcement test'],
+    mustNot: ['acceptable configuration', 'reproduction score of']
+  },
+  {
+    id: 'research-reproduction-review.neg-approval-bypass',
+    skill: 'research-reproduction-review',
+    kind: 'negative',
+    must: ['FINDING DR-002', 'approval bypass', 'sandbox: enabled', 'not a technical approval-enforcement test'],
+    mustNot: ['acceptable configuration', 'reproduction score of']
+  },
+  {
     id: 'research-reproduction-review.neg-unsafe-runner',
     skill: 'research-reproduction-review',
     kind: 'negative',

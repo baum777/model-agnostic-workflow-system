@@ -1,0 +1,41 @@
+{
+  "registry_disposition": {
+    "status": "REQUIRED_BUT_BLOCKED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "Uncommitted local closure repair changes the existing review routing contract and regenerated projections plus instruction/experiment provenance. No implementation commit or owner publication authorization exists for this new candidate. Empty implementation_commit_sha is an explicit missing binding, not a fabricated SHA; resolve and revalidate after an authorized implementation commit. Original wave dispositions remain unchanged and valid for their original implementation commits.",
+    "registry_baseline_sha": "6df7163ca7e2f70d490ce8f349e8130540232eb2",
+    "affected_records": [
+      "CONTRACT_RECORD:workflow-routing-map",
+      "CONTRACT_RECORD:core-registry",
+      "PROVENANCE:research-selection-and-DR002-closure",
+      "PROVENANCE:instruction-and-experiment-bindings"
+    ],
+    "authority_refs": [
+      "AGENTS.md:Registry-Disposition-Consumer-Binding"
+    ],
+    "source_refs": [
+      "core/contracts/workflow-routing-map.json",
+      "tests/vnext/research-reproduction-selection.test.mjs"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "git:6df7163ca7e2f70d490ce8f349e8130540232eb2"
+    ],
+    "evidence_refs": [
+      "evidence/skill-frontdoor-complements-wave3-20261028/closure-20261028/validation-summary.json"
+    ],
+    "implementation_commit_sha": "",
+    "registry_commit_sha": null,
+    "validation": [
+      "JavaScript disposition validator: PASS, zero issues",
+      "Draft2020-12 schema: PASS",
+      "implementation SHA binding: BLOCKED, no authorized implementation commit exists"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/workflow-routing-map.json",
+      "evidence/skill-frontdoor-complements-wave3-20261028/RUN.md"
+    ]
+  }
+}

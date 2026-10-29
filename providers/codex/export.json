@@ -2261,14 +2261,37 @@
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "workflowSupport": {
-        "status": "standalone",
-        "workflowClasses": [],
-        "requiredValidationGates": [],
-        "expectedOutputContracts": [],
-        "requiredEvidenceArtifacts": [],
-        "recommendedTemplates": [],
-        "exampleArtifacts": [],
-        "workflowCoverage": []
+        "status": "mapped",
+        "workflowClasses": [
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "workflow-certification-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
       },
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -2332,14 +2355,37 @@
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "workflowSupport": {
-        "status": "standalone",
-        "workflowClasses": [],
-        "requiredValidationGates": [],
-        "expectedOutputContracts": [],
-        "requiredEvidenceArtifacts": [],
-        "recommendedTemplates": [],
-        "exampleArtifacts": [],
-        "workflowCoverage": []
+        "status": "mapped",
+        "workflowClasses": [
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "workflow-certification-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
       },
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -6636,7 +6682,9 @@
         "api-contract-review",
         "authorization-boundary-review",
         "frontend-performance-review",
-        "state-consistency-review"
+        "state-consistency-review",
+        "research-reproduction-review",
+        "research-synthesis"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"

@@ -1,6 +1,6 @@
 [
   {
-    "eligibility_id": "elig_7523fd913b4c",
+    "eligibility_id": "elig_3d1a3b1bb3c8",
     "work_unit_id": "wu_run_ho01_cfg_baseline_root",
     "executor_id": "exec_openrouter_glm",
     "capability_id": "cap_repository_analysis",
@@ -14,10 +14,10 @@
       "authority_compatible": true,
       "context_compatible": true
     },
-    "decided_at": "2026-10-28T11:44:42.482Z"
+    "decided_at": "2026-10-28T17:05:16.487Z"
   },
   {
-    "eligibility_id": "elig_32d31cc48ec7",
+    "eligibility_id": "elig_b1ef2e922f31",
     "work_unit_id": "wu_run_ho01_cfg_baseline_root",
     "executor_id": "exec_local_tests",
     "capability_id": "cap_deterministic_verification",
@@ -31,10 +31,10 @@
       "authority_compatible": true,
       "context_compatible": true
     },
-    "decided_at": "2026-10-28T11:44:42.483Z"
+    "decided_at": "2026-10-28T17:05:16.488Z"
   },
   {
-    "eligibility_id": "elig_84e8dfa5befd",
+    "eligibility_id": "elig_e2fc0f270790",
     "work_unit_id": "wu_run_ho01_cfg_baseline_root",
     "executor_id": "exec_unitera_execution_control_fixture",
     "capability_id": "cap_external_execution_control",
@@ -48,6 +48,6 @@
       "authority_compatible": true,
       "context_compatible": true
     },
-    "decided_at": "2026-10-28T11:44:42.483Z"
+    "decided_at": "2026-10-28T17:05:16.488Z"
   }
 ]

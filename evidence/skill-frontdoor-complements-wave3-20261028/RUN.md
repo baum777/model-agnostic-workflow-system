@@ -28,3 +28,31 @@ Case set extended 16 -> **19** (1 positive, 2 negative): paper-with-artifacts ->
 ## Not claimed
 
 No adoption, activation, runtime authority, or Tier 2/3 evidence; no paper code or artifact executed anywhere in this slice. This PR is stacked: merge **after** PRs #115 and #116.
+
+## Closure candidate follow-up — 2026-10-28 (not published)
+
+The original 6df7163 state remains historical evidence. Its unchanged run-spec,
+model-adaptive profile pins, experiment definition and comparison bindings were
+read back against d4e5f9f. The original no-op is valid for those original inputs.
+
+A real canonical-selector probe then exposed missing scope assignment: both
+research review and synthesis were registered but had no ACTIVE scope. The local
+closure candidate adds both to the existing verification-and-review class, without
+adding a workflow class or changing admitted SKILL.md bytes. Three selector tests
+cover reproduction selection, synthesis separation and missing-tool refusal.
+Two independent DR-002 negatives retain approvals with sandbox disabled, and retain
+sandbox with approval bypass. Together with the original combined bypass this
+raises the structural reviewer-output set from 19 to 21. These are behavior-rule
+checks, not technical enforcement, live agent evaluation or paper execution.
+
+The new routing input invalidates the old no-op claim for this candidate. The
+run-spec instruction digest is re-derived to 82c1c938…; the distinct model-adaptive
+bundle digest is 0c70ac1e… (previously f850a6e5…). Exports, six profile pins,
+fixtures and frozen experiment bindings are regenerated. The actual deterministic
+HO-01 fixture comparison again reports IMPROVEMENT_REJECTED, not a research
+reproduction or measured model improvement. Original hand-maintained HO-01 RUN.md
+and Registry disposition remain unchanged; original generated bundles remain in
+Git at 6df7163 and in the isolated historical archive.
+
+Source review/CI/owner admission must bind a later published exact head; the local
+closure candidate and green local checks are not independent PR acceptance.

@@ -243,7 +243,9 @@
         "api-contract-review",
         "authorization-boundary-review",
         "frontend-performance-review",
-        "state-consistency-review"
+        "state-consistency-review",
+        "research-reproduction-review",
+        "research-synthesis"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"
