@@ -37,3 +37,9 @@ Mimosa `scanner_enobufs` compat events on commit/push (library_source unavailabl
 ## Not claimed
 
 No adoption, activation, runtime authority, or Tier 2/3 evidence; no assets generated, no tool invoked, nothing purchased or published in this slice. This PR is stacked: merge **after** #115 → #116 → #117 (at `aa43f09`) → #118 → #119 → #120.
+
+## Consolidation — 2026-10-29 (round 9)
+
+Rebased onto the consolidated wave-6 head `58402b6` (which carries owner-advanced `aa43f09` via the stack); impl commit is now `19bbb98` (was `eab858c`); disposition re-bound. Derived surfaces regenerated (fixture snapshot `f958f626…`, 46 skills; runtime records re-derived at the contractual 12:00Z/12:05Z), checker union 30+3 = **33/33**, coverage 1:1, README count 33 (10 positive, 23 negative). `execution-record.json` extended with per-output recording basis and independence bounds. Battery re-run on the consolidated head.
+
+Merge order after consolidation: #115 → #116 → #117 (`aa43f09`) → #118 → #119 → #120 → #121 (this PR) → #122.

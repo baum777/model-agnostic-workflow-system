@@ -2,7 +2,7 @@
   "record_class": "agent-execution-record",
   "generated": "2026-10-29",
   "wave": 7,
-  "hash_semantics": "All sha256 values in this record prove the integrity of specific committed bytes. They are NOT by themselves evidence that a model produced those bytes — the execution claim rests solely on the invocation metadata recorded here (model, date, skill digest, input binding) together with the session transcript. Nothing in this record is an S5 behavioral-eval result or a Tier 3 evaluation.",
+  "hash_semantics": "All sha256 values in this record prove the integrity of specific committed bytes. They are NOT by themselves evidence that a model produced those bytes — the execution claim rests solely on the invocation metadata recorded here (model, date, skill digest, input binding) together with the session transcript. Nothing in this record is an S5 behavioral-eval result or a Tier 3 evaluation. A green check-behavior.mjs run likewise proves only that the assertions encoded in the checker are fulfilled by the stored bytes — structural conformance evidence, not a model-behavior result.",
   "provenance_split": {
     "hand_authored": [
       "Skill artifact: core/skills/brand-asset-brief/SKILL.md (authored, frontdoor-admitted first pass; admission sfa_fe7c62b7f719_20261029T104035.399Z; content digest sha256:ee095d179cd4e8a7de652aded55bd94cafa96cf1efe8a2f3a8e0790e29782af8)",
@@ -13,7 +13,8 @@
     ],
     "not_claims": [
       "Not an S5 behavioral-eval record and not SkillEvaluator Tier 3.",
-      "Single model, single pass per case; marker verification is structural, not a quality judgment."
+      "Single model, single pass per case; marker verification is structural, not a quality judgment.",
+      "VERBATIM claims are recording-bounded: verbatim status requires single-version git history or a verbatim-committed re-execution; every claim remains bounded by executing-agent attestation plus transcript corroboration and none is independently witnessed."
     ]
   },
   "executor": {
