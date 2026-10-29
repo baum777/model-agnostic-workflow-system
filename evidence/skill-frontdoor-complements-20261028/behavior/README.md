@@ -11,9 +11,10 @@ Two artifact classes must not be conflated:
 - **Hand-authored:** the skill artifacts themselves and every case *input* under
   `cases/` — planning fixtures, labeled as such in their file headers.
 - **Agent-executed:** every case *output* under `outputs/` — produced by the session
-  agent applying the skill to the input. From wave 5 on, model, invocation, skill
-  digest, input/output paths and per-file status are recorded in the wave's
-  `execution-record.json`.
+  agent applying the skill to the input. Model, invocation, skill digest,
+  input/output paths and per-file status are recorded per wave: wave 4
+  retroactively in `evidence/skill-frontdoor-complements-wave4-20261028/execution-record.json`,
+  wave 5 onward in each wave’s `execution-record.json`.
 
 Provenance precision (corrected 2026-10-29):
 
@@ -46,25 +47,6 @@ output such as plan text for a query that was never explained).
 expects a BASELINE/CANDIDATE comparison with model-run metrics — not fabricable here
 and not claimed), not SkillEvaluator Tier 3 live evaluation, and not authority of any
 kind. The reviewer-executed outputs are evidence of workflow conformance, nothing more.
-
-## Hand-authored vs. agent-executed (provenance)
-
-- **Hand-authored:** the skill artifacts themselves and every case *input* under
-  `cases/` — planning fixtures, labeled as such in their file headers.
-- **Agent-executed:** every case *output* under `outputs/` — produced by the session
-  agent applying the skill to the input in a single execution pass. Wave-4 outputs
-  carry the execution header inline; their per-case record, recording basis, and
-  fresh verbatim re-executions live in
-  `evidence/skill-frontdoor-complements-wave4-20261028/execution-record.json`.
-
-Semantics, stated precisely: hash equality proves identical stored bytes — nothing
-more. A green checker run proves only that the assertions encoded in it are
-fulfilled by the stored bytes. Neither is evidence that a model produced the bytes;
-the execution claim rests on the recorded invocation metadata plus the session
-transcript. `VERBATIM_NEVER_EDITED` is claimed only where a recording of the
-original output exists (single-version git history or a verbatim-committed
-re-execution); where no such recording exists, the output is marked
-EDITED_AFTER_EXECUTION or NOT_INDEPENDENTLY_VERIFIED instead.
 
 ## Re-run
 
