@@ -12,7 +12,7 @@
       "valid": true,
       "instance": {
         "schema_version": "1.0.0",
-        "selection_id": "sel_181f2e3c787abe4b",
+        "selection_id": "sel_d398eae8369a4565",
         "created_at": "2026-10-20T12:00:00Z",
         "request": {
           "request_id": "req_intake_001",
@@ -25,7 +25,7 @@
         },
         "registry_snapshot": {
           "snapshot_ref": "skill_registry_snapshot@1.0.0",
-          "snapshot_digest": "5e3e3d0a26b754869416230dad5ef910851cc3e488a25d46745ab213b41e711a",
+          "snapshot_digest": "7f2a952e47853f7a56ffebe084a2443a42a548fe57acc4bd0c40e8a6aaa6ba1c",
           "skill_count": 43
         },
         "candidates": [
@@ -67,7 +67,7 @@
           ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
-        "evidence_digest": "b98cd3c47e3937d2e3bb20114790823d3fd88fcfae25b29211b2a30615354bbb",
+        "evidence_digest": "f73d10c8a2c72ef3483255f46f7bb8ced523bdba496b9278dd3cf53840038d69",
         "authority_granted": false
       }
     },
@@ -77,7 +77,7 @@
       "valid": true,
       "instance": {
         "schema_version": "1.0.0",
-        "selection_id": "sel_9fb3be836a76ee9f",
+        "selection_id": "sel_e6557d415b91a208",
         "created_at": "2026-10-20T12:05:00Z",
         "request": {
           "request_id": "req_impl_tie_001",
@@ -88,7 +88,7 @@
         },
         "registry_snapshot": {
           "snapshot_ref": "skill_registry_snapshot@1.0.0",
-          "snapshot_digest": "5e3e3d0a26b754869416230dad5ef910851cc3e488a25d46745ab213b41e711a",
+          "snapshot_digest": "7f2a952e47853f7a56ffebe084a2443a42a548fe57acc4bd0c40e8a6aaa6ba1c",
           "skill_count": 43
         },
         "candidates": [
@@ -142,7 +142,7 @@
           ],
           "key": "c01ea6e4437993744aab414aeb36a1cca1b878de2ebd935d0bfa9ffc9b9b4dfb"
         },
-        "evidence_digest": "ff90e7a4e5cc8c2dc4f27bd72cf50a735e93b0683abacd00671179664c2821c3",
+        "evidence_digest": "aa4645bdb896d4f98930a62ae86da85456f85f807d4f2980223cddf9964d79bd",
         "authority_granted": false
       }
     },

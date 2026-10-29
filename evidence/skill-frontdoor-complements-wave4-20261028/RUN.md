@@ -33,3 +33,16 @@ Checker 22/22, coverage closure 1:1 (22 declared = 22 input dirs = 22 outputs).
 ## Not claimed
 
 No adoption, activation, runtime authority, or Tier 2/3 evidence; no crawler, paid API, or publishing executed anywhere in this slice; no ranking or traffic outcome is promised or predicted. This PR is stacked: merge **after** PRs #115, #116, and #117.
+
+## Consolidation — 2026-10-29 (round 9)
+
+The owner advanced the wave-3 PR head from `6df7163` to `aa43f09` (57ba7ea research routing qualification + aa43f09 registry binding) after this branch was pushed. This branch was rebased onto `aa43f09` and consolidated without overwriting owner work:
+
+- Rebased: implementation commit is now `9a3417b` (was `d8584c8`); disposition re-bound accordingly (`registry-disposition.json`). Base provenance now `aa43f09` (was `6df7163`).
+- Derived surfaces regenerated and re-verified: skill-selection fixture (snapshot `7f2a952e…`, 43 skills; the two runtime-reproduced records re-derived at the contractual `now` values 12:00Z/12:05Z), core-registry/provider exports (regen no-op — merge already consistent), `check-behavior.mjs` union-merged (owner's two DR-002 cases + this wave's three = 24 cases, checker 24/24, coverage closure 1:1).
+- Re-pin chain re-verified no-op against the owner's re-pinned spec: requalify-run-spec dry-run 6/6 digests identical, `written: false`.
+- Behavior README updated to 24 cases and extended with the precise provenance semantics (hash equality = identical stored bytes; green checker = fulfilled assertions; VERBATIM claims require a recording).
+- Test provenance retrofitted to the wave-5 standard: `execution-record.json` added for wave 4 (recording basis and independence bounds stated per output) and fresh verbatim re-executions added under `behavior/reexec/wave4/` (integrity-hashes.txt covers originals + re-executions).
+- Battery re-run on the consolidated head: `test:vnext` **847/847** (844 + 3 owner research tests), frontdoor 6/6, validators 0 issues, skill-selection 26/0, overlap 0, lint 0 errors, evals 27/27, ci-gate PASS.
+
+Merge order after consolidation: #115 → #116 → #117 (`aa43f09`) → #118 (this PR) → #119 → #120 → #121 → #122.

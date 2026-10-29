@@ -3,8 +3,8 @@
     "status": "UPDATED",
     "material_change": true,
     "registry_relevant_change": true,
-    "reason": "Wave 4 adds one core skill (search-discoverability-review) and binds it into the registry surfaces: portable-skill-manifest (+1 skill entry, discovery override, activation expectation 23->24), output contracts (+1), regenerated core-registry/provider exports (43 snapshot skills). No workflow-routing-map change (nearest sibling ui-ux-composition is likewise not wired into a class; same rationale as wave 3). All registry updates completed inside the implementation commit; MAWS is the canonical owner of core skill records.",
-    "registry_baseline_sha": "6df7163",
+    "reason": "Wave 4 adds one core skill (search-discoverability-review) and binds it into the registry surfaces: portable-skill-manifest (+1 skill entry, discovery override, activation expectation 23->24), output contracts (+1), regenerated core-registry/provider exports (43 snapshot skills). No workflow-routing-map change (nearest sibling ui-ux-composition is likewise not wired into a class; same rationale as wave 3). All registry updates completed inside the implementation commit; MAWS is the canonical owner of core skill records. Consolidation 2026-10-29: rebased onto owner-advanced wave-3 head aa43f09 (was 6df7163); impl commit d8584c8 -> 9a3417b; derived surfaces regenerated (fixture 7f2a952e, 43 skills), checker union 24/24, requalify 6/6 no-op, battery re-run (test:vnext 847/847) — see RUN.md consolidation section.",
+    "registry_baseline_sha": "aa43f09",
     "affected_records": [
       "REGISTERED_IMPLEMENTATION_BINDING:core.search-discoverability-review",
       "CONTRACT_RECORD:search-discoverability-review-report-v1",
@@ -21,20 +21,20 @@
     ],
     "supersession_refs": [],
     "provenance_refs": [
-      "git:d8584c8",
-      "git:6df7163"
+      "git:9a3417b",
+      "git:aa43f09"
     ],
     "evidence_refs": [
       "evidence/skill-frontdoor-complements-wave4-20261028/RUN.md",
       "evidence/skill-frontdoor-complements-20261028/behavior/results.json"
     ],
-    "implementation_commit_sha": "d8584c8",
-    "registry_commit_sha": "d8584c8",
+    "implementation_commit_sha": "9a3417b",
+    "registry_commit_sha": "9a3417b",
     "validation": [
       "npm run validate:PASS:0-issues",
       "npm run validate-neutral:PASS:0-issues",
       "npm run validate-maws-vnext:PASS:0-issues",
-      "npm run test:vnext:PASS:844-of-844",
+      "npm run test:vnext:PASS:847-of-847 (consolidated base)",
       "npm run validate-skill-selection:PASS:26-cases-0-unexpected",
       "npm run detect-skill-overlap:PASS:0-findings",
       "npm run lint-skill-contracts:PASS:0-errors",

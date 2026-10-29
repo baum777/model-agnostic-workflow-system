@@ -1,0 +1,6 @@
+a46ff2be6cc80e8ecab9e04c9ba1a23ec870279790def4e138afeed55547c531  outputs/search-discoverability-review.pos-standard.md
+76674cd2a4670df8e9ac1d7558e904803b395ad78ef3b58f5d128ab32734639a  outputs/search-discoverability-review.neg-guarantee-request.md
+99610c830e898244d81325d8dc6820a021ab974137eaae8222fc6a9ec6502a84  outputs/search-discoverability-review.neg-bulk-publish-paid-api.md
+8b86a78b6bb908655b112774b37a3ce43d1dd230125846e4a7a5e380428a0844  reexec/wave4/search-discoverability-review.pos-standard.md
+2ab48d1b4dab16886417d2280ecea50ee5e7e008544b61425b0b98a9efc68843  reexec/wave4/search-discoverability-review.neg-guarantee-request.md
+4ec6f87228ff7630b1ddf06ee1d588e298671751e74391e5414191450414eb33  reexec/wave4/search-discoverability-review.neg-bulk-publish-paid-api.md
