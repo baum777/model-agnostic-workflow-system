@@ -2216,6 +2216,101 @@
       "providerProjections": null
     },
     {
+      "skillId": "core.research-reproduction-review",
+      "name": "research-reproduction-review",
+      "sourcePath": "core/skills/research-reproduction-review/SKILL.md",
+      "skillPath": "core/skills/research-reproduction-review/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
+      "classification": "shared-with-local-inputs",
+      "category": "research-reproduction-review",
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "advisory-external",
+      "toolUsagePosture": "required-tools-declared",
+      "exportMode": "adapter",
+      "outputHeadings": [
+        "METHOD",
+        "ARTIFACTS",
+        "REPRODUCTION PLAN",
+        "FAILURE CRITERIA",
+        "GAPS"
+      ],
+      "requiresRepoInputs": true,
+      "safeToAutoRun": true,
+      "approvalMode": "read-only",
+      "activationMode": "modelagnostic-autonomous",
+      "subagentPolicy": "forbid",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "optionalTools": [],
+      "outputContractId": "research-reproduction-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "workflow-certification-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
+      },
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
+      },
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      }
+    },
+    {
       "skillId": "core.research-synthesis",
       "name": "research-synthesis",
       "sourcePath": "core/skills/research-synthesis/SKILL.md",
@@ -2250,14 +2345,37 @@
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "workflowSupport": {
-        "status": "standalone",
-        "workflowClasses": [],
-        "requiredValidationGates": [],
-        "expectedOutputContracts": [],
-        "requiredEvidenceArtifacts": [],
-        "recommendedTemplates": [],
-        "exampleArtifacts": [],
-        "workflowCoverage": []
+        "status": "mapped",
+        "workflowClasses": [
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "workflow-certification-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
       },
       "providerCompatibility": {
         "openai-codex": "adapter",
@@ -6554,7 +6672,9 @@
         "api-contract-review",
         "authorization-boundary-review",
         "frontend-performance-review",
-        "state-consistency-review"
+        "state-consistency-review",
+        "research-reproduction-review",
+        "research-synthesis"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"

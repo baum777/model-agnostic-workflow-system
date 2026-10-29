@@ -875,6 +875,28 @@
         "Cached projections stay distinct from sources of truth; unresolved behavior goes to GAPS."
       ],
       "failure_or_partial_completion_behavior": "If state-management evidence is missing, return BLOCKED and enumerate the unreviewed flows."
+    },
+    {
+      "contract_id": "research-reproduction-review-report-v1",
+      "skill": "research-reproduction-review",
+      "required_sections": [
+        "METHOD",
+        "ARTIFACTS",
+        "REPRODUCTION PLAN",
+        "FAILURE CRITERIA",
+        "GAPS"
+      ],
+      "optional_sections": [
+        "TRACEABILITY",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Stated results, reproducible evidence, and reviewer inference stay visibly distinct.",
+        "No fabricated experiments, measurements, or statistics; missing artifacts are blockers.",
+        "A designed protocol is never presented as an executed reproduction.",
+        "Autonomous or background execution must be sandboxed and approval-gated by default; default bypass is a finding."
+      ],
+      "failure_or_partial_completion_behavior": "If the paper, artifact inventory, or research question is missing, return BLOCKED and enumerate the unreproducible claims."
     }
   ]
 }

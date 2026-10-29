@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1.0",
   "eval_id": "bev_ho01_local_optimization_candidate",
-  "created_at": "2026-10-28T11:44:42.506Z",
+  "created_at": "2026-10-28T17:05:16.507Z",
   "variant": "CANDIDATE",
   "subject": {
     "kind": "harness",

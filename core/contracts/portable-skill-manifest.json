@@ -81,7 +81,7 @@
       "approvalMode=approval-required and safeToAutoRun=true"
     ],
     "expectedDistribution": {
-      "modelagnostic-autonomous": 22,
+      "modelagnostic-autonomous": 23,
       "explicit-user-call-required": 1
     }
   },
@@ -176,6 +176,10 @@
     },
     "state-consistency-review": {
       "category": "state-consistency-review",
+      "mcpPosture": "advisory-external"
+    },
+    "research-reproduction-review": {
+      "category": "research-reproduction-review",
       "mcpPosture": "advisory-external"
     }
   },
@@ -851,6 +855,35 @@
         "validate-repo-surface"
       ],
       "outputContractId": "state-consistency-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "research-reproduction-review",
+      "portableIdentity": "core.research-reproduction-review",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "outputContractId": "research-reproduction-review-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerProjection": {

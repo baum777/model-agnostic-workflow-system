@@ -1,0 +1,41 @@
+{
+  "registry_disposition": {
+    "status": "UPDATED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "Owner explicitly authorized local commits for reviewed tree 60e3d870cb5b080e05877c5de1a493817225c56c and subsequent actual-SHA Registry binding. Signed implementation commit 57ba7eaa75826aa8de15d96dc84e194582010aab materializes that exact tree and contains the routing contract, both core registry projections, provider exports and provenance updates. This follow-up binds that completed MAWS-owned Registry write; publication, merge and final hosted CI remain outside the local authorization.",
+    "registry_baseline_sha": "6df7163ca7e2f70d490ce8f349e8130540232eb2",
+    "affected_records": [
+      "CONTRACT_RECORD:workflow-routing-map",
+      "CONTRACT_RECORD:core-registry",
+      "PROVENANCE:research-selection-and-DR002-closure",
+      "PROVENANCE:instruction-and-experiment-bindings"
+    ],
+    "authority_refs": [
+      "AGENTS.md:Registry-Disposition-Consumer-Binding"
+    ],
+    "source_refs": [
+      "core/contracts/workflow-routing-map.json",
+      "tests/vnext/research-reproduction-selection.test.mjs"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "git:6df7163ca7e2f70d490ce8f349e8130540232eb2"
+    ],
+    "evidence_refs": [
+      "evidence/skill-frontdoor-complements-wave3-20261028/closure-20261028/validation-summary.json"
+    ],
+    "implementation_commit_sha": "57ba7eaa75826aa8de15d96dc84e194582010aab",
+    "registry_commit_sha": "57ba7eaa75826aa8de15d96dc84e194582010aab",
+    "validation": [
+      "JavaScript disposition validator and Draft2020-12 schema revalidated for this actual-SHA binding",
+      "Implementation commit tree equals independently reviewed and owner-authorized tree 60e3d870cb5b080e05877c5de1a493817225c56c",
+      "Named Registry/contract writes verified in actual implementation commit; local only, not published"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "core/contracts/workflow-routing-map.json",
+      "evidence/skill-frontdoor-complements-wave3-20261028/RUN.md"
+    ]
+  }
+}

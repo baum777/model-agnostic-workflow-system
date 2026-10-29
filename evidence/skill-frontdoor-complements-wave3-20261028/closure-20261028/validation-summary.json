@@ -1,0 +1,47 @@
+{
+  "record_class": "local-closure-validation-not-independent-approval",
+  "date": "2026-10-28",
+  "base_pr_head": "6df7163ca7e2f70d490ce8f349e8130540232eb2",
+  "current_pr_heads": {
+    "115": "f5c5fbf1d49aeab8ce2af9bffd8d726b072721ea",
+    "116": "d4e5f9f1cf08f89f095044045899bca8d3583da4",
+    "117": "6df7163ca7e2f70d490ce8f349e8130540232eb2"
+  },
+  "published": false,
+  "merge_authorized": false,
+  "independent_review": "NOT_OBTAINED",
+  "hosted_ci": "FAILURE_WITH_EMPTY_RUNNER_AND_NO_STEPS",
+  "results": {
+    "test:vnext": {
+      "passed": 847,
+      "failed": 0
+    },
+    "reproduction_selection_cases": 3,
+    "reviewer_behavior_cases": 21,
+    "behavior_scope": "structural reviewer outputs, not live-agent or technical enforcement",
+    "validate": true,
+    "validate-neutral": true,
+    "validate-maws-vnext": true,
+    "eval": true,
+    "eval:maws-vnext": true,
+    "eval:secret-boundary": true,
+    "eval:provider-export-alignment": true,
+    "validate-experiment-comparison": true,
+    "baum:ci-gate": true
+  },
+  "environment": {
+    "node": "v24.19.0",
+    "test_process_spawning": "outside restricted sandbox; identical test commands/assertions",
+    "dependencies": "existing versions matching package.json, read-only reused; no install",
+    "render_browser": "existing /usr/bin/google-chrome via supported RENDER_A11Y_CHROME_PATH"
+  },
+  "not_claimed": [
+    "paper execution",
+    "experiments on research artifacts",
+    "technical sandbox enforcement",
+    "independent review acceptance",
+    "published closure",
+    "main adoption",
+    "wave4 readiness"
+  ]
+}

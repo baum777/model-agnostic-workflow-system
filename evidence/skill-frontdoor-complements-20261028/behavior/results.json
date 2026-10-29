@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-28T11:48:36.803Z",
-  "cases": 16,
-  "passed": 16,
+  "checked_at": "2026-10-28T17:18:17.972Z",
+  "cases": 21,
+  "passed": 21,
   "failed": 0,
   "coverage": {
-    "inputs": 16,
-    "outputs": 16,
-    "declared": 16,
+    "inputs": 21,
+    "outputs": 21,
+    "declared": 21,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -119,6 +119,41 @@
     {
       "case": "state-consistency-review.neg-ambiguous-ownership",
       "skill": "state-consistency-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "research-reproduction-review.pos-standard",
+      "skill": "research-reproduction-review",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "research-reproduction-review.neg-claim-without-method",
+      "skill": "research-reproduction-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "research-reproduction-review.neg-sandbox-bypass",
+      "skill": "research-reproduction-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "research-reproduction-review.neg-approval-bypass",
+      "skill": "research-reproduction-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "research-reproduction-review.neg-unsafe-runner",
+      "skill": "research-reproduction-review",
       "kind": "negative",
       "pass": true,
       "failed": []

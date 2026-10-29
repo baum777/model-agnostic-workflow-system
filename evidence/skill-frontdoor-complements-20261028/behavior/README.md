@@ -38,3 +38,17 @@ flips exactly that case to FAIL (`must-not-contain`), restore returns to 10/10.
 | data-access-performance-review.pos-standard | positive | supplied plan interpreted (filter after index scan); read-only posture explicit |
 | data-access-performance-review.neg-missing-explain | negative | missing evidence → BLOCKED + measurement plan; no invented plan text (must-not markers assert absence of EXPLAIN-shaped output) |
 | data-access-performance-review.neg-side-effecting-function | negative | side-effecting calls separated and priced; destructive prune identified as the real risk |
+
+## Closure follow-up — 2026-10-28
+
+Current closure candidate: 21 cases, with 1:1 declared/input/output coverage.
+The original wave-1 ten-case table above is retained as history. Wave-2 and wave-3
+fixtures remain present. Added independent DR-002 cases:
+
+- neg-sandbox-bypass: sandbox disabled, approvals required → blocking sandbox finding.
+- neg-approval-bypass: sandbox enabled, approvals bypass → blocking approval finding.
+
+The combined unsafe-runner case is retained. These are reviewer-output/skill-rule
+checks; no runner, paper code or artifact is executed and no technical enforcement
+claim follows. Canonical selection is checked separately in
+`tests/vnext/research-reproduction-selection.test.mjs`.

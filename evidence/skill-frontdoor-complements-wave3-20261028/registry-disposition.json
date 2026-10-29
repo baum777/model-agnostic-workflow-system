@@ -1,0 +1,47 @@
+{
+  "registry_disposition": {
+    "status": "UPDATED",
+    "material_change": true,
+    "registry_relevant_change": true,
+    "reason": "Wave 3 adds one core skill (research-reproduction-review) and binds it into the registry surfaces: portable-skill-manifest (+1 skill entry, discovery override, activation expectation 22->23), output contracts (+1), regenerated core-registry/provider exports (42 snapshot skills). No workflow-routing-map change (nearest sibling research-synthesis is likewise not wired into a class). All registry updates completed inside the implementation commit; MAWS is the canonical owner of core skill records.",
+    "registry_baseline_sha": "d4e5f9f",
+    "affected_records": [
+      "REGISTERED_IMPLEMENTATION_BINDING:core.research-reproduction-review",
+      "CONTRACT_RECORD:research-reproduction-review-report-v1",
+      "CONTRACT_RECORD:portable-skill-manifest",
+      "CONTRACT_RECORD:core-registry"
+    ],
+    "authority_refs": [
+      "skill-frontdoor-admission:sfa_c159de88094d_20261028T115929.582Z",
+      "baum-os:skill-complement-priorities-20261028:wave3"
+    ],
+    "source_refs": [
+      "evidence/skill-frontdoor-complements-wave3-20261028/admission-summary.json",
+      "core/skills/research-reproduction-review/SKILL.md"
+    ],
+    "supersession_refs": [],
+    "provenance_refs": [
+      "git:83e668b",
+      "git:d4e5f9f"
+    ],
+    "evidence_refs": [
+      "evidence/skill-frontdoor-complements-wave3-20261028/RUN.md",
+      "evidence/skill-frontdoor-complements-20261028/behavior/results.json"
+    ],
+    "implementation_commit_sha": "83e668b",
+    "registry_commit_sha": "83e668b",
+    "validation": [
+      "npm run validate:PASS:0-issues",
+      "npm run validate-neutral:PASS:0-issues",
+      "npm run test:vnext:PASS:844-of-844",
+      "npm run detect-skill-overlap:PASS:0-findings",
+      "npm run lint-skill-contracts:PASS:0-errors",
+      "npm run baum:ci-gate:PASS"
+    ],
+    "contract_version": "registry-disposition.v1",
+    "classification_evidence_refs": [
+      "taxonomy:REGISTERED_IMPLEMENTATION_BINDING",
+      "taxonomy:CONTRACT_RECORD"
+    ]
+  }
+}

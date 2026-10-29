@@ -1,0 +1,29 @@
+{
+  "record_class": "sanitized-admission-summary",
+  "generated": "2026-10-28",
+  "wave": 3,
+  "candidates": [
+    {
+      "skill_id": "research-reproduction-review",
+      "admission_id": "sfa_c159de88094d_20261028T115929.582Z",
+      "source_revision": "sha256:c159de88094d7f95493db271d85d5027f63efcd77e811343209dbc1575071d44",
+      "content_digest": "sha256:021a8b9c53b8e794cd1d6314293cd1ff106bff3f5d580f691694694522954fe3",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    }
+  ]
+}
