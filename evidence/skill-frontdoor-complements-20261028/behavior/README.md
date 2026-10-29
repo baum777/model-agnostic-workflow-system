@@ -1,8 +1,41 @@
 # Behavior Checks — What This Is and Is Not
 
-Twenty-four targeted cases (7 positive, 17 negative) executed by the reviewing agent against
-committed fixture inputs, one per rule the seven complement skills (waves 1–4) are
+Twenty-seven targeted cases (8 positive, 19 negative) executed by the reviewing agent against
+committed fixture inputs, one per rule the eight complement skills (waves 1–5) are
 supposed to enforce.
+
+## Hand-authored vs. agent-executed (provenance, wave 5 onward)
+
+Two artifact classes must not be conflated:
+
+- **Hand-authored:** the skill artifacts themselves and every case *input* under
+  `cases/` — planning fixtures, labeled as such in their file headers.
+- **Agent-executed:** every case *output* under `outputs/` — produced by the session
+  agent applying the skill to the input. Model, invocation, skill digest,
+  input/output paths and per-file status are recorded per wave: wave 4
+  retroactively in `evidence/skill-frontdoor-complements-wave4-20261028/execution-record.json`,
+  wave 5 onward in each wave’s `execution-record.json`.
+
+Provenance precision (corrected 2026-10-29):
+
+- **Hashes prove file integrity only** — a sha256 over committed bytes is not, by
+  itself, evidence that a model produced those bytes; the execution claim rests on
+  the invocation metadata in the execution record plus the session transcript.
+- **A green checker run proves only that the assertions encoded in
+  `check-behavior.mjs` are fulfilled by the stored bytes** — structural
+  conformance evidence, not a model-behavior or output-quality result.
+- Outputs are labeled per file: `VERBATIM_NEVER_EDITED` (first-pass bytes are the
+  committed bytes) or `EDITED_AFTER_EXECUTION` (final revision; original first-pass
+  bytes lost where the file was overwritten in place — each loss is documented
+  explicitly in the record, never papered over). `VERBATIM_NEVER_EDITED` is claimed
+  only where a recording of the original output exists — single-version git history
+  from the initial commit or a verbatim-committed re-execution; where no such
+  recording exists, the output is marked NOT_INDEPENDENTLY_VERIFIED instead. Every
+  verbatim claim remains bounded by executing-agent attestation plus transcript
+  corroboration; none is independently witnessed.
+- Fresh re-executions (same model, same skill digest, same input) live under
+  `reexec/` and are committed verbatim, never edited — wave 4 under `reexec/wave4/`
+  (added 2026-10-29), wave 5 under `reexec/wave5/`.
 
 **Is:** a reproducible structural + marker verification that each committed output
 (a) contains every section required by the skill's output contract, (b) names the
@@ -14,25 +47,6 @@ output such as plan text for a query that was never explained).
 expects a BASELINE/CANDIDATE comparison with model-run metrics — not fabricable here
 and not claimed), not SkillEvaluator Tier 3 live evaluation, and not authority of any
 kind. The reviewer-executed outputs are evidence of workflow conformance, nothing more.
-
-## Hand-authored vs. agent-executed (provenance)
-
-- **Hand-authored:** the skill artifacts themselves and every case *input* under
-  `cases/` — planning fixtures, labeled as such in their file headers.
-- **Agent-executed:** every case *output* under `outputs/` — produced by the session
-  agent applying the skill to the input in a single execution pass. Wave-4 outputs
-  carry the execution header inline; their per-case record, recording basis, and
-  fresh verbatim re-executions live in
-  `evidence/skill-frontdoor-complements-wave4-20261028/execution-record.json`.
-
-Semantics, stated precisely: hash equality proves identical stored bytes — nothing
-more. A green checker run proves only that the assertions encoded in it are
-fulfilled by the stored bytes. Neither is evidence that a model produced the bytes;
-the execution claim rests on the recorded invocation metadata plus the session
-transcript. `VERBATIM_NEVER_EDITED` is claimed only where a recording of the
-original output exists (single-version git history or a verbatim-committed
-re-execution); where no such recording exists, the output is marked
-EDITED_AFTER_EXECUTION or NOT_INDEPENDENTLY_VERIFIED instead.
 
 ## Re-run
 
@@ -72,6 +86,9 @@ between declared cases, input dirs, and outputs — the count above is enforced,
 | search-discoverability-review.pos-standard | positive | dated crawl evidence drives indexability/content findings; actions are crawl-verifiable, never outcome promises |
 | search-discoverability-review.neg-guarantee-request | negative | ranking/traffic/AI-answer guarantees refused; no projection table without evidence |
 | search-discoverability-review.neg-bulk-publish-paid-api | negative | unscoped paid-API use and bulk auto-publish refused; read-only review posture enforced |
+| user-research-plan.pos-standard | positive | observed evidence (with sources) kept distinct from hypotheses H1–H3; neutral questions, recorded consent, P01–P0n pseudonyms, no direct identifiers, decision rules fixed in advance |
+| user-research-plan.neg-fabricated-findings | negative | request to draft personas/quotes/'pilot study' findings → BLOCKED; hypotheses never restated as findings; honest deck alternative offered |
+| user-research-plan.neg-inferred-consent-pii | negative | inferred consent ('they're our customers'), CRM/per-user-data upload, and LinkedIn enrichment all refused; consent requires explicit recorded opt-in |
 
 ## Closure follow-up — 2026-10-28
 

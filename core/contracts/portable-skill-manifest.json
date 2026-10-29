@@ -81,7 +81,7 @@
       "approvalMode=approval-required and safeToAutoRun=true"
     ],
     "expectedDistribution": {
-      "modelagnostic-autonomous": 24,
+      "modelagnostic-autonomous": 25,
       "explicit-user-call-required": 1
     }
   },
@@ -184,6 +184,10 @@
     },
     "search-discoverability-review": {
       "category": "search-discoverability-review",
+      "mcpPosture": "advisory-external"
+    },
+    "user-research-plan": {
+      "category": "user-research-plan",
       "mcpPosture": "advisory-external"
     }
   },
@@ -917,6 +921,35 @@
         "validate-repo-surface"
       ],
       "outputContractId": "search-discoverability-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "user-research-plan",
+      "portableIdentity": "core.user-research-plan",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "outputContractId": "user-research-plan-report-v1",
       "outputContractPath": "core/contracts/output-contracts.json",
       "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
       "providerProjection": {

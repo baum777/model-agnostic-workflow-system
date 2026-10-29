@@ -1,0 +1,29 @@
+{
+  "record_class": "sanitized-admission-summary",
+  "generated": "2026-10-29",
+  "wave": 5,
+  "candidates": [
+    {
+      "skill_id": "user-research-plan",
+      "admission_id": "sfa_5333c91a65f3_20261029T065305.067Z",
+      "source_revision": "sha256:5333c91a65f31507124c7e22f2c2d033063b2578b822c3c15ccd83089adf817f",
+      "content_digest": "sha256:a2c000f9dd038f2ea537353f02f6086558584765fa6eba1b70f45bb91856e13e",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    }
+  ]
+}

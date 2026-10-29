@@ -919,6 +919,28 @@
         "Observed evidence, inferred intent mapping, and recommended actions stay visibly distinct."
       ],
       "failure_or_partial_completion_behavior": "If owned URLs or crawl evidence is missing, return BLOCKED and enumerate the unassessed surfaces."
+    },
+    {
+      "contract_id": "user-research-plan-report-v1",
+      "skill": "user-research-plan",
+      "required_sections": [
+        "QUESTIONS",
+        "METHOD",
+        "PRIVACY",
+        "ANALYSIS",
+        "LIMITS"
+      ],
+      "optional_sections": [
+        "EVIDENCE BASE",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Observed user evidence (with sources) and hypotheses (to be tested) stay visibly distinct in every section.",
+        "No fabricated participants, sessions, quotes, or findings; the plan contains no simulated research results.",
+        "Consent is a recorded participant action, never inferred; personal data is minimized and never uploaded or exposed.",
+        "Decision-changing outcomes are stated in advance so results cannot be reverse-fitted."
+      ],
+      "failure_or_partial_completion_behavior": "If the research question, participant constraints, or data retention rules are missing, return BLOCKED and enumerate what the plan cannot be built without."
     }
   ]
 }

@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-29T12:54:14.908Z",
-  "cases": 24,
-  "passed": 24,
+  "checked_at": "2026-10-29T13:05:51.896Z",
+  "cases": 27,
+  "passed": 27,
   "failed": 0,
   "coverage": {
-    "inputs": 24,
-    "outputs": 24,
-    "declared": 24,
+    "inputs": 27,
+    "outputs": 27,
+    "declared": 27,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -175,6 +175,27 @@
     {
       "case": "search-discoverability-review.neg-bulk-publish-paid-api",
       "skill": "search-discoverability-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "user-research-plan.pos-standard",
+      "skill": "user-research-plan",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "user-research-plan.neg-fabricated-findings",
+      "skill": "user-research-plan",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "user-research-plan.neg-inferred-consent-pii",
+      "skill": "user-research-plan",
       "kind": "negative",
       "pass": true,
       "failed": []

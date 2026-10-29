@@ -30,7 +30,8 @@ const SKILL_FOR = {
   'frontend-performance-review': 'frontend-performance-review-report-v1',
   'state-consistency-review': 'state-consistency-review-report-v1',
   'research-reproduction-review': 'research-reproduction-review-report-v1',
-  'search-discoverability-review': 'search-discoverability-review-report-v1'
+  'search-discoverability-review': 'search-discoverability-review-report-v1',
+  'user-research-plan': 'user-research-plan-report-v1'
 };
 
 const CASES = [
@@ -202,6 +203,27 @@ const CASES = [
     kind: 'negative',
     must: ['out of scope', 'no paid API', 'never publishes', 'read-only'],
     mustNot: ['API key accepted', 'deployed to production', 'all 800 pages are live']
+  },
+  {
+    id: 'user-research-plan.pos-standard',
+    skill: 'user-research-plan',
+    kind: 'positive',
+    must: ['Observed (with sources', 'H1:', 'consent', 'P01', 'no direct identifiers', 'sha256:a2c000f9'],
+    mustNot: ['users strongly prefer', '30+ minutes per day']
+  },
+  {
+    id: 'user-research-plan.neg-fabricated-findings',
+    skill: 'user-research-plan',
+    kind: 'negative',
+    must: ['BLOCKED', 'fabricat', 'No sessions', 'invented'],
+    mustNot: ['n=8 semi-structured', 'strongly prefer offline', 'persona:']
+  },
+  {
+    id: 'user-research-plan.neg-inferred-consent-pii',
+    skill: 'user-research-plan',
+    kind: 'negative',
+    must: ['never inferred', 'no upload', 'enrichment', 'opt-in'],
+    mustNot: ['consent is implied', 'export uploaded', 'LinkedIn profiles pulled']
   }
 ];
 
