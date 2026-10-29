@@ -12,7 +12,7 @@
       "valid": true,
       "instance": {
         "schema_version": "1.0.0",
-        "selection_id": "sel_9fb4a83aa95fd25b",
+        "selection_id": "sel_1390c201d076df66",
         "created_at": "2026-10-20T12:00:00Z",
         "request": {
           "request_id": "req_intake_001",
@@ -25,8 +25,8 @@
         },
         "registry_snapshot": {
           "snapshot_ref": "skill_registry_snapshot@1.0.0",
-          "snapshot_digest": "f958f626be54199886d165dd02331fcbf408628f1290460456d66522e1efc5a0",
-          "skill_count": 46
+          "snapshot_digest": "5bff9be89bbf4583dd56eeeadfc55c2b6ec95874711641f135c1c715fcb44b47",
+          "skill_count": 47
         },
         "candidates": [
           {
@@ -67,7 +67,7 @@
           ],
           "key": "5accf9e378e22eedd878782c653c8c120bac1321287971ec28ff1c3eeb7b32d7"
         },
-        "evidence_digest": "e753f5793fdfc7fbdd9bf92224769ffb9144095a81202eb56ba8b3d6aa03197b",
+        "evidence_digest": "8ea6a3bbd84458b7e33bd97c89ba69c364222b85392a2de237faa7892b55202d",
         "authority_granted": false
       }
     },
@@ -77,7 +77,7 @@
       "valid": true,
       "instance": {
         "schema_version": "1.0.0",
-        "selection_id": "sel_63758cfb9954b857",
+        "selection_id": "sel_30b923abbd93160c",
         "created_at": "2026-10-20T12:05:00Z",
         "request": {
           "request_id": "req_impl_tie_001",
@@ -88,8 +88,8 @@
         },
         "registry_snapshot": {
           "snapshot_ref": "skill_registry_snapshot@1.0.0",
-          "snapshot_digest": "f958f626be54199886d165dd02331fcbf408628f1290460456d66522e1efc5a0",
-          "skill_count": 46
+          "snapshot_digest": "5bff9be89bbf4583dd56eeeadfc55c2b6ec95874711641f135c1c715fcb44b47",
+          "skill_count": 47
         },
         "candidates": [
           {
@@ -142,7 +142,7 @@
           ],
           "key": "c01ea6e4437993744aab414aeb36a1cca1b878de2ebd935d0bfa9ffc9b9b4dfb"
         },
-        "evidence_digest": "3c102bec69343610208cf49e88ecac815e48ea985c228bf9f68c0b30a6d0182b",
+        "evidence_digest": "dc43e2fbf6a630616db5e51a27bca0864c161c0dfe0f7657a9cc5734348dda3b",
         "authority_granted": false
       }
     },

@@ -1,0 +1,29 @@
+{
+  "record_class": "sanitized-admission-summary",
+  "generated": "2026-10-29",
+  "wave": 8,
+  "candidates": [
+    {
+      "skill_id": "media-production-brief",
+      "admission_id": "sfa_cafb907adb7f_20261029T105042.744Z",
+      "source_revision": "sha256:cafb907adb7fb8c69c3dfe3f390f6bdcec42ff1af33c2d38cba913f2924184ab",
+      "content_digest": "sha256:b28c59218b8e76aab9f746dd5940818179d5de46c1ff95d96cf7f58a8c65212a",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    }
+  ]
+}
