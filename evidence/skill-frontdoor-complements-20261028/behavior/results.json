@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-29T10:55:47.005Z",
-  "cases": 34,
-  "passed": 34,
+  "checked_at": "2026-10-29T13:14:50.248Z",
+  "cases": 36,
+  "passed": 36,
   "failed": 0,
   "coverage": {
-    "inputs": 34,
-    "outputs": 34,
-    "declared": 34,
+    "inputs": 36,
+    "outputs": 36,
+    "declared": 36,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -132,6 +132,20 @@
     },
     {
       "case": "research-reproduction-review.neg-claim-without-method",
+      "skill": "research-reproduction-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "research-reproduction-review.neg-sandbox-bypass",
+      "skill": "research-reproduction-review",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "research-reproduction-review.neg-approval-bypass",
       "skill": "research-reproduction-review",
       "kind": "negative",
       "pass": true,

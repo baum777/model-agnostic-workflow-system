@@ -37,3 +37,9 @@ Mimosa `scanner_enobufs` compat events on commit/push — technical scanner fail
 No adoption, activation, runtime authority, or Tier 2/3 evidence; nothing rendered, downloaded, uploaded, subscribed, or purchased in this slice. This PR is stacked: merge **after** #115 → #116 → #117 (`aa43f09`) → #118 → #119 → #120 → #121.
 
 With this wave, the ten-rank complement list is exhausted except ranks 9–10 (marketing-strategy-plan, content-evidence-editor), whose placement is addressed by a dedicated recommendation in the baum-os workspace (see PR #121/#122 summaries and the baum-os session worktree).
+
+## Consolidation — 2026-10-29 (round 9)
+
+Rebased onto the consolidated wave-7 head `a8a7a63` (which carries owner-advanced `aa43f09` via the stack); impl commit is now `c4c7fa6` (was `4bbf6df`); disposition re-bound. Derived surfaces regenerated (fixture snapshot `bbc4d035…`, 47 skills; runtime records re-derived at the contractual 12:00Z/12:05Z), checker union 33+3 = **36/36**, coverage 1:1, README count 36 (11 positive, 25 negative). `execution-record.json` extended with per-output recording basis and independence bounds. Battery re-run on the consolidated head: `test:vnext` 847/847, validators 0, selection 26/0.
+
+Merge order after consolidation: #115 → #116 → #117 (`aa43f09`) → #118 → #119 → #120 → #121 → #122 (this PR).
