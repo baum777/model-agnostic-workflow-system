@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-29T13:13:48.074Z",
-  "cases": 33,
-  "passed": 33,
+  "checked_at": "2026-10-29T13:14:50.248Z",
+  "cases": 36,
+  "passed": 36,
   "failed": 0,
   "coverage": {
-    "inputs": 33,
-    "outputs": 33,
-    "declared": 33,
+    "inputs": 36,
+    "outputs": 36,
+    "declared": 36,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -238,6 +238,27 @@
     {
       "case": "brand-asset-brief.neg-publish-stock",
       "skill": "brand-asset-brief",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "media-production-brief.pos-standard",
+      "skill": "media-production-brief",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "media-production-brief.neg-private-media-scrape",
+      "skill": "media-production-brief",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "media-production-brief.neg-brief-as-render",
+      "skill": "media-production-brief",
       "kind": "negative",
       "pass": true,
       "failed": []

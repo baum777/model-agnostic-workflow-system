@@ -32,6 +32,7 @@ Portable skill slice.
 - `user-research-plan`
 - `social-publication-preflight`
 - `brand-asset-brief`
+- `media-production-brief`
 
 ## Safe Extension Flow
 

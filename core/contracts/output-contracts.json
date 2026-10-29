@@ -984,6 +984,28 @@
         "Acceptance criteria are human-verifiable (legibility, contrast, variants), not tool-scored numbers."
       ],
       "failure_or_partial_completion_behavior": "If brand intent or delivery format requirements are missing, return BLOCKED and name what the brief cannot be built without."
+    },
+    {
+      "contract_id": "media-production-brief-report-v1",
+      "skill": "media-production-brief",
+      "required_sections": [
+        "ASSETS",
+        "EDIT PLAN",
+        "RIGHTS",
+        "QA",
+        "DELIVERY"
+      ],
+      "optional_sections": [
+        "SENSITIVE MATERIAL",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Source assets carry provenance, license, and consent state; undocumented assets are blocked, never assumed usable.",
+        "The brief is never presented as a rendered asset; placeholders are labeled, never shipped.",
+        "No account-private media is downloaded or scraped; only owner-supplied sources with documented provenance enter the plan.",
+        "No paid generation or tool invocation; production requires a named, separately authorized mandate; QA criteria are human-verifiable."
+      ],
+      "failure_or_partial_completion_behavior": "If the edit intent or the source asset inventory is missing, return BLOCKED and name what the brief cannot be built without."
     }
   ]
 }
