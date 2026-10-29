@@ -1,0 +1,29 @@
+{
+  "record_class": "sanitized-admission-summary",
+  "generated": "2026-10-29",
+  "wave": 7,
+  "candidates": [
+    {
+      "skill_id": "brand-asset-brief",
+      "admission_id": "sfa_fe7c62b7f719_20261029T104035.399Z",
+      "source_revision": "sha256:fe7c62b7f719b75590ba095e3858618f8c35572bba07308ed45e35f050cb2247",
+      "content_digest": "sha256:ee095d179cd4e8a7de652aded55bd94cafa96cf1efe8a2f3a8e0790e29782af8",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    }
+  ]
+}
