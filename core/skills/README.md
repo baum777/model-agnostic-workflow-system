@@ -34,6 +34,7 @@ Portable skill slice.
 - `brand-asset-brief`
 - `media-production-brief`
 - `content-evidence-editor`
+- `marketing-strategy-plan`
 
 ## Safe Extension Flow
 

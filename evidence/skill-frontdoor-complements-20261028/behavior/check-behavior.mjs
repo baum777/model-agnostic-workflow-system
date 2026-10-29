@@ -35,7 +35,8 @@ const SKILL_FOR = {
   'social-publication-preflight': 'social-publication-preflight-report-v1',
   'brand-asset-brief': 'brand-asset-brief-report-v1',
   'media-production-brief': 'media-production-brief-report-v1',
-  'content-evidence-editor': 'content-evidence-editor-report-v1'
+  'content-evidence-editor': 'content-evidence-editor-report-v1',
+  'marketing-strategy-plan': 'marketing-strategy-plan-report-v1'
 };
 
 const CASES = [
@@ -312,6 +313,27 @@ const CASES = [
     kind: 'negative',
     must: ['separate owner act', 'read-only', 'edit log'],
     mustNot: ['queued for 9am', 'scheduling handled', 'post is live']
+  },
+  {
+    id: 'marketing-strategy-plan.pos-standard',
+    skill: 'marketing-strategy-plan',
+    kind: 'positive',
+    must: ['SITUATION', 'Hypotheses', 'Ranking rationale', 'Mandate needed'],
+    mustNot: ['$50B', '68%', 'invented anywhere below']
+  },
+  {
+    id: 'marketing-strategy-plan.neg-invented-market-data',
+    skill: 'marketing-strategy-plan',
+    kind: 'negative',
+    must: ['BLOCKED', 'hypothes', 'falsification'],
+    mustNot: ['$50B', '68%', '$50 billion']
+  },
+  {
+    id: 'marketing-strategy-plan.neg-channel-action-without-mandate',
+    skill: 'marketing-strategy-plan',
+    kind: 'negative',
+    must: ['Activation gate', 'read-only', 'mandate'],
+    mustNot: ['outreach sequence started', 'budget set live', 'contacts contacted']
   }
 ];
 

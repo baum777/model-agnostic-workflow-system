@@ -1027,6 +1027,27 @@
         "Editorial approval is recorded as content readiness only; publication is named as a separate owner act and no publication step appears in the output."
       ],
       "failure_or_partial_completion_behavior": "If the draft or the supplied source basis is missing, return BLOCKED and name what the edit cannot proceed without."
+    },
+    {
+      "contract_id": "marketing-strategy-plan-report-v1",
+      "skill": "marketing-strategy-plan",
+      "required_sections": [
+        "SITUATION",
+        "OPTIONS",
+        "PLAN",
+        "BOUNDARIES",
+        "LIMITS"
+      ],
+      "optional_sections": [
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Market, competitor, and audience claims carry a supplied source and date or are labeled hypotheses; no fact-shaped invention.",
+        "Observed evidence stays visibly distinct from hypotheses and recommendations throughout.",
+        "Actions carry an owner role, a concrete first step, and a measurable check; channel/spend/publication actions name their needed mandate and stop there.",
+        "Ranking rationale is shown so the owner can re-rank with different weights; no hidden weighting."
+      ],
+      "failure_or_partial_completion_behavior": "If goals, constraints, and at least a declared-hypothesis evidence basis are all missing, return BLOCKED and name what the plan cannot be built without."
     }
   ]
 }
