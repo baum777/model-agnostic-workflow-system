@@ -1,12 +1,12 @@
 {
-  "checked_at": "2026-10-29T13:05:51.896Z",
-  "cases": 27,
-  "passed": 27,
+  "checked_at": "2026-10-29T13:09:30.132Z",
+  "cases": 30,
+  "passed": 30,
   "failed": 0,
   "coverage": {
-    "inputs": 27,
-    "outputs": 27,
-    "declared": 27,
+    "inputs": 30,
+    "outputs": 30,
+    "declared": 30,
     "one_to_one": true
   },
   "contract_source": "core/contracts/output-contracts.json",
@@ -196,6 +196,27 @@
     {
       "case": "user-research-plan.neg-inferred-consent-pii",
       "skill": "user-research-plan",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "social-publication-preflight.pos-standard",
+      "skill": "social-publication-preflight",
+      "kind": "positive",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "social-publication-preflight.neg-unknown-outcome-repost",
+      "skill": "social-publication-preflight",
+      "kind": "negative",
+      "pass": true,
+      "failed": []
+    },
+    {
+      "case": "social-publication-preflight.neg-session-share-send",
+      "skill": "social-publication-preflight",
       "kind": "negative",
       "pass": true,
       "failed": []

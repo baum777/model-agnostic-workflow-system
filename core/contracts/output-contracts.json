@@ -941,6 +941,28 @@
         "Decision-changing outcomes are stated in advance so results cannot be reverse-fitted."
       ],
       "failure_or_partial_completion_behavior": "If the research question, participant constraints, or data retention rules are missing, return BLOCKED and enumerate what the plan cannot be built without."
+    },
+    {
+      "contract_id": "social-publication-preflight-report-v1",
+      "skill": "social-publication-preflight",
+      "required_sections": [
+        "DRAFT ID",
+        "ACCOUNT SCOPE",
+        "APPROVAL",
+        "READBACK",
+        "FAILURE PLAN"
+      ],
+      "optional_sections": [
+        "CLAIMS AND RIGHTS",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Draft, platform, account, and action type are bound exactly; ambiguity is a blocker, never a default.",
+        "Claims carry sources and media carry rights evidence; unverifiable items are flagged for rewrite.",
+        "The preflight record is not send authority; the send decision is named, human, and separate.",
+        "An unknown outcome blocks automatic repost; retry requires a human decision on a verified first-send state."
+      ],
+      "failure_or_partial_completion_behavior": "If the approved draft, platform/account specification, or action scope is missing, return BLOCKED and name the unbound elements."
     }
   ]
 }
