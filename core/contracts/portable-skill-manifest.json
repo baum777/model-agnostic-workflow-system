@@ -81,7 +81,7 @@
       "approvalMode=approval-required and safeToAutoRun=true"
     ],
     "expectedDistribution": {
-      "modelagnostic-autonomous": 17,
+      "modelagnostic-autonomous": 20,
       "explicit-user-call-required": 1
     }
   },
@@ -157,6 +157,18 @@
     "behavior-first-tdd": {
       "category": "implementation-testing",
       "mcpPosture": "read-only"
+    },
+    "api-contract-review": {
+      "category": "contract-review",
+      "mcpPosture": "advisory-external"
+    },
+    "authorization-boundary-review": {
+      "category": "security-boundary-review",
+      "mcpPosture": "advisory-external"
+    },
+    "data-access-performance-review": {
+      "category": "data-access-performance-review",
+      "mcpPosture": "advisory-external"
     }
   },
   "skills": [
@@ -698,6 +710,93 @@
         "schema": "evals/fixtures/core-schema.json",
         "toolSelection": "evals/fixtures/tool-selection.json",
         "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "api-contract-review",
+      "portableIdentity": "core.api-contract-review",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "outputContractId": "api-contract-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "authorization-boundary-review",
+      "portableIdentity": "core.authorization-boundary-review",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "outputContractId": "authorization-boundary-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      }
+    },
+    {
+      "name": "data-access-performance-review",
+      "portableIdentity": "core.data-access-performance-review",
+      "classification": "shared-with-local-inputs",
+      "requiresRepoInputs": true,
+      "approvalMode": "read-only",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "outputContractId": "data-access-performance-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "providerProjection": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
         "providerParity": "evals/fixtures/core-provider-parity.json",
         "failureModes": "evals/fixtures/core-failure-mode.json"
       }

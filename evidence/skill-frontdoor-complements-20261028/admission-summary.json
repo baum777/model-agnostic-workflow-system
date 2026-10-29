@@ -1,0 +1,75 @@
+{
+  "record_class": "sanitized-admission-summary",
+  "generated": "2026-10-28",
+  "candidates": [
+    {
+      "skill_id": "api-contract-review",
+      "admission_id": "sfa_0f8c29bd6096_20261028T063003.208Z",
+      "source_revision": "sha256:0f8c29bd6096e4f3295b793f06f964e1eafeaf352e4e2e888c03e4f63f8c397e",
+      "content_digest": "sha256:93aeaea6c4902e19e52af42c4d230a26cd60a812ac73bc983f77b3173ccf42f4",
+      "requested_action": "implement",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    },
+    {
+      "skill_id": "authorization-boundary-review",
+      "admission_id": "sfa_2739ccb38ec8_20261028T063010.434Z",
+      "source_revision": "sha256:2739ccb38ec8a812af1c0d76ea23ce27aaf11d49c4acb23fff0e40b2758139d9",
+      "content_digest": "sha256:be37214d784050e79c3a97583e29a3da1453fcfa067422619707a82ef99f236c",
+      "requested_action": "implement",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    },
+    {
+      "skill_id": "data-access-performance-review",
+      "admission_id": "sfa_f1fcf8f9a7a5_20261028T063018.049Z",
+      "source_revision": "sha256:f1fcf8f9a7a543db065e7f97c379523c5d7a4cf988a54a11613415b2aa336730",
+      "content_digest": "sha256:c238bbe99d3b04c225b4734fae5940062d4ed4101ea479d4a13b1dad4f4279e1",
+      "requested_action": "implement",
+      "analysis_disposition": "CLEAN",
+      "implementation_disposition": "ELIGIBLE",
+      "authority_granted": false,
+      "blockers": [],
+      "skillspector": {
+        "analyzer": "NVIDIA/SkillSpector",
+        "version": "SkillSpector v2.12.0",
+        "status": "PASS",
+        "severity": "none"
+      },
+      "skillevaluator_tier1": {
+        "analyzer": "NVIDIA/SkillEvaluator",
+        "version": "skillevaluator, version 0.3.0",
+        "status": "PASS",
+        "overall_status": "passed"
+      }
+    }
+  ]
+}

@@ -22,6 +22,9 @@ Portable skill slice.
 - `ui-ux-composition`
 - `static-vs-dynamic-rendering-advisor`
 - `secret-boundary-audit`
+- `api-contract-review`
+- `authorization-boundary-review`
+- `data-access-performance-review`
 
 ## Safe Extension Flow
 

@@ -770,6 +770,69 @@
         "Secrets must never appear in the decision."
       ],
       "failure_or_partial_completion_behavior": "If any required clause cannot be evaluated from present evidence, return NOT_COMPLETED with the clause listed as unsatisfied and a human-readable blocking reason."
+    },
+    {
+      "contract_id": "api-contract-review-report-v1",
+      "skill": "api-contract-review",
+      "required_sections": [
+        "BOUNDARY",
+        "OPERATIONS",
+        "COMPATIBILITY",
+        "NEGATIVE TESTS",
+        "GAPS"
+      ],
+      "optional_sections": [
+        "TRACEABILITY",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Cite exact file paths and specification revisions for every claim.",
+        "Undocumented writes in read operations are rejections, not normalizations.",
+        "A validation that was not executed is a gap, never a pass."
+      ],
+      "failure_or_partial_completion_behavior": "If the specification or consumer boundary evidence is missing, return BLOCKED and enumerate the unresolved operations."
+    },
+    {
+      "contract_id": "authorization-boundary-review-report-v1",
+      "skill": "authorization-boundary-review",
+      "required_sections": [
+        "PRINCIPALS",
+        "SCOPES",
+        "CONTROL POINTS",
+        "NEGATIVE TESTS",
+        "UNVERIFIED"
+      ],
+      "optional_sections": [
+        "TRACEABILITY",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Each control point must cite an exact file path and policy revision.",
+        "Unresolved branches belong in UNVERIFIED, never silently approved.",
+        "Tokens in redirect URL queries and unprojected persistence-object serialization are explicit findings."
+      ],
+      "failure_or_partial_completion_behavior": "If the principal matrix or session model is missing, return BLOCKED and enumerate the unmapped boundaries."
+    },
+    {
+      "contract_id": "data-access-performance-review-report-v1",
+      "skill": "data-access-performance-review",
+      "required_sections": [
+        "ACCESS PATHS",
+        "EVIDENCE",
+        "RISKS",
+        "MEASUREMENT PLAN",
+        "ROLLBACK"
+      ],
+      "optional_sections": [
+        "TRACEABILITY",
+        "BLOCKERS"
+      ],
+      "validation_notes": [
+        "Every access-path claim cites an exact file path and snapshot revision.",
+        "Missing EXPLAIN or workload evidence is a risk item, never an invented result.",
+        "Read-only queries and side-effecting functions stay visibly separate."
+      ],
+      "failure_or_partial_completion_behavior": "If schema or query snapshots are missing, return BLOCKED and enumerate the unreviewed access paths."
     }
   ]
 }

@@ -86,6 +86,109 @@
   },
   "skills": [
     {
+      "skillId": "core.api-contract-review",
+      "name": "api-contract-review",
+      "portableIdentity": "core.api-contract-review",
+      "sourcePath": "core/skills/api-contract-review/SKILL.md",
+      "skillPath": "core/skills/api-contract-review/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
+      "classification": "shared-with-local-inputs",
+      "category": "contract-review",
+      "requiresRepoInputs": true,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "advisory-external",
+      "toolUsagePosture": "required-tools-declared",
+      "approvalMode": "read-only",
+      "activationMode": "modelagnostic-autonomous",
+      "subagentPolicy": "forbid",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "optionalTools": [],
+      "outputHeadings": [
+        "BOUNDARY",
+        "OPERATIONS",
+        "COMPATIBILITY",
+        "NEGATIVE TESTS",
+        "GAPS"
+      ],
+      "outputContractId": "api-contract-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "workflow-certification-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
+      },
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      },
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
+      }
+    },
+    {
       "skillId": "core.architecture-depth-review",
       "name": "architecture-depth-review",
       "portableIdentity": "core.architecture-depth-review",
@@ -193,6 +296,109 @@
         "schema": "evals/fixtures/core-schema.json",
         "toolSelection": "evals/fixtures/tool-selection.json",
         "approvalBoundary": "evals/fixtures/approval-boundary.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      },
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
+      }
+    },
+    {
+      "skillId": "core.authorization-boundary-review",
+      "name": "authorization-boundary-review",
+      "portableIdentity": "core.authorization-boundary-review",
+      "sourcePath": "core/skills/authorization-boundary-review/SKILL.md",
+      "skillPath": "core/skills/authorization-boundary-review/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
+      "classification": "shared-with-local-inputs",
+      "category": "security-boundary-review",
+      "requiresRepoInputs": true,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "advisory-external",
+      "toolUsagePosture": "required-tools-declared",
+      "approvalMode": "read-only",
+      "activationMode": "modelagnostic-autonomous",
+      "subagentPolicy": "forbid",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "optionalTools": [],
+      "outputHeadings": [
+        "PRINCIPALS",
+        "SCOPES",
+        "CONTROL POINTS",
+        "NEGATIVE TESTS",
+        "UNVERIFIED"
+      ],
+      "outputContractId": "authorization-boundary-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "verification-and-review"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core",
+          "validate-repo-surface"
+        ],
+        "expectedOutputContracts": [
+          "readiness-check-verdict-v1",
+          "workflow-certification-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/review-summary-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "verification-and-review",
+            "coverage": "covered"
+          }
+        ]
+      },
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
         "providerParity": "evals/fixtures/core-provider-parity.json",
         "failureModes": "evals/fixtures/core-failure-mode.json"
       },
@@ -396,6 +602,115 @@
       },
       "providerProjections": null,
       "evalScaffold": null,
+      "providerCompatibility": {
+        "openai-codex": "adapter",
+        "openai": "compatibility-export",
+        "codex": "compatibility-export",
+        "gpt": "compatibility-export",
+        "anthropic-claude": "adapter",
+        "anthropic": "compatibility-export",
+        "claude": "compatibility-export",
+        "qwen-code": "adapter",
+        "qwen": "compatibility-export",
+        "qwen-agent": "compatibility-export",
+        "kimi-k2_5": "adapter",
+        "kimi": "compatibility-export",
+        "kimi-k2.5": "compatibility-export",
+        "moonshot": "compatibility-export",
+        "minimax": "adapter",
+        "minimax-text": "compatibility-export",
+        "abab": "compatibility-export",
+        "speech-01": "compatibility-export"
+      }
+    },
+    {
+      "skillId": "core.data-access-performance-review",
+      "name": "data-access-performance-review",
+      "portableIdentity": "core.data-access-performance-review",
+      "sourcePath": "core/skills/data-access-performance-review/SKILL.md",
+      "skillPath": "core/skills/data-access-performance-review/SKILL.md",
+      "manifestPath": "core/contracts/portable-skill-manifest.json",
+      "classification": "shared-with-local-inputs",
+      "category": "data-access-performance-review",
+      "requiresRepoInputs": true,
+      "producesStructuredOutput": true,
+      "safeToAutoRun": true,
+      "status": "extracted",
+      "maturityLabel": "contract-backed",
+      "mcpPosture": "advisory-external",
+      "toolUsagePosture": "required-tools-declared",
+      "approvalMode": "read-only",
+      "activationMode": "modelagnostic-autonomous",
+      "subagentPolicy": "forbid",
+      "requiredTools": [
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer",
+        "validate-repo-surface"
+      ],
+      "optionalTools": [],
+      "outputHeadings": [
+        "ACCESS PATHS",
+        "EVIDENCE",
+        "RISKS",
+        "MEASUREMENT PLAN",
+        "ROLLBACK"
+      ],
+      "outputContractId": "data-access-performance-review-report-v1",
+      "outputContractPath": "core/contracts/output-contracts.json",
+      "toolContractCatalogPath": "core/contracts/tool-contracts/catalog.json",
+      "workflowSupport": {
+        "status": "mapped",
+        "workflowClasses": [
+          "migration-and-compatibility"
+        ],
+        "requiredValidationGates": [
+          "run-certification-evals",
+          "validate-provider-neutral-core"
+        ],
+        "expectedOutputContracts": [
+          "migration-plan-v1",
+          "source-conflict-resolution-report-v1",
+          "workflow-certification-summary-v1",
+          "workflow-handoff-summary-v1",
+          "workflow-run-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "requiredEvidenceArtifacts": [
+          "migration-plan-v1",
+          "workflow-certification-summary-v1",
+          "workflow-validation-summary-v1"
+        ],
+        "recommendedTemplates": [
+          "templates/codex-workflow/handoff-summary-template.md",
+          "templates/codex-workflow/review-summary-template.md",
+          "templates/codex-workflow/task-packet-template.md"
+        ],
+        "exampleArtifacts": [
+          "examples/codex-workflow/handoff-summary-example.md",
+          "examples/codex-workflow/planning-slice-example.md",
+          "examples/codex-workflow/review-summary-example.md"
+        ],
+        "workflowCoverage": [
+          {
+            "workflowClass": "migration-and-compatibility",
+            "coverage": "covered"
+          }
+        ]
+      },
+      "providerProjections": {
+        "openai-codex": "native",
+        "anthropic-claude": "adapter",
+        "qwen-code": "adapter",
+        "kimi-k2_5": "adapter"
+      },
+      "evalScaffold": {
+        "routing": "evals/fixtures/core-routing.json",
+        "schema": "evals/fixtures/core-schema.json",
+        "toolSelection": "evals/fixtures/tool-selection.json",
+        "providerParity": "evals/fixtures/core-provider-parity.json",
+        "failureModes": "evals/fixtures/core-failure-mode.json"
+      },
       "providerCompatibility": {
         "openai-codex": "adapter",
         "openai": "compatibility-export",
@@ -3469,7 +3784,8 @@
       "supportingSkills": [
         "migration-planner",
         "source-conflict-resolver",
-        "patch-strategy-designer"
+        "patch-strategy-designer",
+        "data-access-performance-review"
       ],
       "controlPlaneSkills": [
         "workflow-core-router",
@@ -3483,7 +3799,10 @@
       "allowedTools": [
         "validate-provider-neutral-core",
         "validate-shared-core-scaffold",
-        "run-certification-evals"
+        "run-certification-evals",
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer"
       ],
       "mcpPosture": "advisory-external",
       "recommendedTemplates": [
@@ -3645,7 +3964,9 @@
         "failure-mode-enumerator",
         "diagnostic-feedback-loop",
         "architecture-depth-review",
-        "behavior-first-tdd"
+        "behavior-first-tdd",
+        "api-contract-review",
+        "authorization-boundary-review"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"
@@ -3660,7 +3981,10 @@
         "validate-repo-surface",
         "validate-provider-neutral-core",
         "validate-secret-boundaries",
-        "run-certification-evals"
+        "run-certification-evals",
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer"
       ],
       "mcpPosture": "read-only",
       "recommendedTemplates": [

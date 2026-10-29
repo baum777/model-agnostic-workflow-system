@@ -156,9 +156,9 @@
         ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:5bd3d8cdcf2495f3e505f579b972d266f0e8a002fe7130e3897a31e31090db67"
+        "effective_instruction_digest": "sha256:7b96d25b8296b0c6432ddb263f7cdebe55fc389376d1afa0d94d3a9cf2e4ac6f"
       },
-      "digest": "32447b58bb01683d6037bd27a417797dca6bb731f785f76255a3d7a683f14eed"
+      "digest": "e8c6bde0030b386edd95a2f6653ea90cc1a1a0e67250f45e073a8414ac7af588"
     },
     "exec_local_tests": {
       "fingerprint_id": "fp_local_tests_deterministic_verification",
@@ -174,9 +174,9 @@
         ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:5bd3d8cdcf2495f3e505f579b972d266f0e8a002fe7130e3897a31e31090db67"
+        "effective_instruction_digest": "sha256:7b96d25b8296b0c6432ddb263f7cdebe55fc389376d1afa0d94d3a9cf2e4ac6f"
       },
-      "digest": "88bc53d8850f62a29456688decf5e2e7cc5c8944397aa10d619c5e62a3b28b37"
+      "digest": "972089be8718261e9216f5148a3e2b8e3767c9062c695b8f7fde2346c7fadd51"
     },
     "exec_unitera_execution_control_fixture": {
       "fingerprint_id": "fp_unitera_execution_control_fixture",
@@ -192,9 +192,9 @@
         ],
         "api_surface_version": "2026-10",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:5bd3d8cdcf2495f3e505f579b972d266f0e8a002fe7130e3897a31e31090db67"
+        "effective_instruction_digest": "sha256:7b96d25b8296b0c6432ddb263f7cdebe55fc389376d1afa0d94d3a9cf2e4ac6f"
       },
-      "digest": "9bc63722cd7a768fc4e54d9de25a0075999be0c13d1ccb833a49e8b1bd6a5609"
+      "digest": "63904357c630bf85e7d06d44e0302b4502c72f5705e4d587705772e415d9e1f8"
     }
   },
   "subsumption_records": [],
@@ -213,9 +213,9 @@
         ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:5bd3d8cdcf2495f3e505f579b972d266f0e8a002fe7130e3897a31e31090db67"
+        "effective_instruction_digest": "sha256:7b96d25b8296b0c6432ddb263f7cdebe55fc389376d1afa0d94d3a9cf2e4ac6f"
       },
-      "digest": "32447b58bb01683d6037bd27a417797dca6bb731f785f76255a3d7a683f14eed"
+      "digest": "e8c6bde0030b386edd95a2f6653ea90cc1a1a0e67250f45e073a8414ac7af588"
     },
     "fp_local_tests_deterministic_verification": {
       "fingerprint_id": "fp_local_tests_deterministic_verification",
@@ -231,9 +231,9 @@
         ],
         "api_surface_version": "2026-09",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:5bd3d8cdcf2495f3e505f579b972d266f0e8a002fe7130e3897a31e31090db67"
+        "effective_instruction_digest": "sha256:7b96d25b8296b0c6432ddb263f7cdebe55fc389376d1afa0d94d3a9cf2e4ac6f"
       },
-      "digest": "88bc53d8850f62a29456688decf5e2e7cc5c8944397aa10d619c5e62a3b28b37"
+      "digest": "972089be8718261e9216f5148a3e2b8e3767c9062c695b8f7fde2346c7fadd51"
     },
     "fp_unitera_execution_control_fixture": {
       "fingerprint_id": "fp_unitera_execution_control_fixture",
@@ -249,9 +249,9 @@
         ],
         "api_surface_version": "2026-10",
         "qualification_profile_ref": "qualprofile_e2e_v1",
-        "effective_instruction_digest": "sha256:5bd3d8cdcf2495f3e505f579b972d266f0e8a002fe7130e3897a31e31090db67"
+        "effective_instruction_digest": "sha256:7b96d25b8296b0c6432ddb263f7cdebe55fc389376d1afa0d94d3a9cf2e4ac6f"
       },
-      "digest": "9bc63722cd7a768fc4e54d9de25a0075999be0c13d1ccb833a49e8b1bd6a5609"
+      "digest": "63904357c630bf85e7d06d44e0302b4502c72f5705e4d587705772e415d9e1f8"
     }
   },
   "availability": {

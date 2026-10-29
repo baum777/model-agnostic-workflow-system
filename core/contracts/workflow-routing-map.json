@@ -239,7 +239,9 @@
         "failure-mode-enumerator",
         "diagnostic-feedback-loop",
         "architecture-depth-review",
-        "behavior-first-tdd"
+        "behavior-first-tdd",
+        "api-contract-review",
+        "authorization-boundary-review"
       ],
       "controlPlaneSkills": [
         "workflow-core-router"
@@ -254,7 +256,10 @@
         "validate-repo-surface",
         "validate-provider-neutral-core",
         "validate-secret-boundaries",
-        "run-certification-evals"
+        "run-certification-evals",
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer"
       ],
       "mcpPosture": "read-only",
       "recommendedTemplates": [
@@ -296,7 +301,8 @@
       "supportingSkills": [
         "migration-planner",
         "source-conflict-resolver",
-        "patch-strategy-designer"
+        "patch-strategy-designer",
+        "data-access-performance-review"
       ],
       "controlPlaneSkills": [
         "workflow-core-router",
@@ -310,7 +316,10 @@
       "allowedTools": [
         "validate-provider-neutral-core",
         "validate-shared-core-scaffold",
-        "run-certification-evals"
+        "run-certification-evals",
+        "repo-structure-scanner",
+        "spec-compliance-checker",
+        "git-diff-explainer"
       ],
       "mcpPosture": "advisory-external",
       "recommendedTemplates": [
