@@ -1,0 +1,387 @@
+{
+  "schema": "maws.selfhosted-ci-parity-candidate.v1",
+  "classification": "draft-noncanonical",
+  "source_repository": "baum777/model-agnostic-workflow-system",
+  "source_baseline_commit": "db2368e8d3f4dad88552dab5f00fae5f01515964",
+  "legacy_workflow_path": ".github/workflows/loop-repo-ci.yml",
+  "legacy_workflow_git_blob_sha": "18f8256b787a5e46c3c49e4004877793ef69ff91",
+  "legacy_job": "loop-repo-ci",
+  "legacy_step_count": 23,
+  "legacy_steps": [
+    {
+      "id": "legacy-01",
+      "order": 1,
+      "name": "Checkout",
+      "type": "action",
+      "action": "actions/checkout@v4",
+      "with": {
+        "fetch-depth": "0"
+      },
+      "required": true,
+      "execution_boundary": "equivalent-source-custody-or-pinned-toolchain-in-vm"
+    },
+    {
+      "id": "legacy-02",
+      "order": 2,
+      "name": "Setup Node",
+      "type": "action",
+      "action": "actions/setup-node@v4",
+      "with": {
+        "node-version": "'24'"
+      },
+      "required": true,
+      "execution_boundary": "equivalent-source-custody-or-pinned-toolchain-in-vm"
+    },
+    {
+      "id": "legacy-03",
+      "order": 3,
+      "name": "Syntax check",
+      "type": "run",
+      "run": "node --check scripts/tools/baum-loop-repo.mjs\nnode --check scripts/tools/validate-loop-run.mjs\nnode --check scripts/tools/ci-gate.mjs\nnode --check scripts/tools/skill-frontdoor-check.mjs\nnode --check runtime/skills/frontdoor.mjs",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-04",
+      "order": 4,
+      "name": "Install pinned dependencies (no lifecycle scripts)",
+      "type": "run",
+      "run": "npm ci --ignore-scripts --no-audit --no-fund",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-05",
+      "order": 5,
+      "name": "Runtime and security source syntax",
+      "type": "run",
+      "run": "find runtime scripts/tools providers -type f -name '*.mjs' -print0 | xargs -0 -n1 node --check",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-06",
+      "order": 6,
+      "name": "Security boundary checks",
+      "type": "run",
+      "run": "npm run validate-secrets\nnpm run scan-secrets\nnode --test tests/tools/preinstall-skill-risk-check.test.mjs tests/tools/security-repair-regressions.test.mjs tests/tools/assurance-run-record.test.mjs tests/tools/safe-remove.test.mjs tests/tools/evidence-content-validation.test.mjs tests/tools/assurance-reconciliation.test.mjs tests/tools/assurance-residual-matrix.test.mjs tests/tools/contract-only-skill-directory.test.mjs tests/tools/loop-repo-command-injection.test.mjs tests/tools/registry-disposition.test.mjs tests/tools/source-security-scan.test.mjs",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-07",
+      "order": 7,
+      "name": "Source security scan (the .mjs-capable static gate)",
+      "type": "run",
+      "run": "npm run scan:source-security",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-08",
+      "order": 8,
+      "name": "Assurance run records (the durable evidence check)",
+      "type": "run",
+      "run": "npm run validate:assurance-run -- --all",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-09",
+      "order": 9,
+      "name": "Persisted evidence content check (what the evidence must say)",
+      "type": "run",
+      "run": "npm run validate:evidence-content -- --root . evidence/operational-safety-closure-2026-10-22/assurance-evidence-content.json\nnpm run validate:evidence-content -- --root . evidence/operational-safety-closure-2026-10-22/self-evidence-content.json",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-10",
+      "order": 10,
+      "name": "Merge executor lane binding (the cross-lane merge guard)",
+      "type": "run",
+      "run": "npm run test:merge-executor\nnpm run test:merge-attestation\npython3 -m unittest tests/tools/merge_lane_authorization_schema_test.py",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-11",
+      "order": 11,
+      "name": "Merge path attestation audit (the enforcement)",
+      "type": "run",
+      "run": "npm run merge:audit",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-12",
+      "order": 12,
+      "name": "Runtime vNext complete unit suite",
+      "type": "run",
+      "run": "npm run test:vnext",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-13",
+      "order": 13,
+      "name": "Provider neutral and MiniMax adapter import tests",
+      "type": "run",
+      "run": "npm run validate-neutral\nnode --test tests/tools/provider-adapter-import.test.mjs",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-14",
+      "order": 14,
+      "name": "Contract and security evals",
+      "type": "run",
+      "run": "npm run eval:maws-vnext\nnpm run eval:secret-boundary\nnpm run eval:provider-export-alignment",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-15",
+      "order": 15,
+      "name": "Validate MAWS vNext contracts",
+      "type": "run",
+      "run": "npm run validate-maws-vnext",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-16",
+      "order": 16,
+      "name": "Regression and rollback gates (S9)",
+      "type": "run",
+      "run": "npm run validate-regression-comparison\nnpm run eval:regression",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-17",
+      "order": 17,
+      "name": "Cross-model comparison gates (S10)",
+      "type": "run",
+      "run": "npm run validate-cross-model-comparison\nnpm run eval:cross-model",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-18",
+      "order": 18,
+      "name": "Skill frontdoor regression tests",
+      "type": "run",
+      "run": "npm run test:skill-frontdoor",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-19",
+      "order": 19,
+      "name": "Validate repair Registry disposition",
+      "type": "run",
+      "run": "node scripts/tools/validate-registry-disposition.mjs evidence/maws-security-repair-2026-10-20/registry-disposition.json",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-20",
+      "order": 20,
+      "name": "Validate the merge incident closure disposition",
+      "type": "run",
+      "run": "node scripts/tools/validate-registry-disposition.mjs evidence/merge-pr-incident-closure-2026-10-21/registry-disposition.json",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-21",
+      "order": 21,
+      "name": "Validate the merge executor hardening disposition",
+      "type": "run",
+      "run": "node scripts/tools/validate-registry-disposition.mjs evidence/merge-executor-hardening-2026-10-21/registry-disposition.json",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-22",
+      "order": 22,
+      "name": "Validate the boundary closure disposition",
+      "type": "run",
+      "run": "node scripts/tools/validate-registry-disposition.mjs evidence/boundary-closure-2026-10-22/registry-disposition.json",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    },
+    {
+      "id": "legacy-23",
+      "order": 23,
+      "name": "Loop repo CI gate",
+      "type": "run",
+      "run": "node scripts/tools/ci-gate.mjs",
+      "required": true,
+      "execution_boundary": "isolated-vm"
+    }
+  ],
+  "supplemental_policy_gates": [
+    {
+      "id": "supp-01",
+      "command": "npm run validate",
+      "condition": "always",
+      "reason": "Repo surface validation omitted from hosted workflow",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-02",
+      "command": "npm run eval:skill-routing",
+      "condition": "always",
+      "reason": "Skill selection/routing regression",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-03",
+      "command": "npm run eval:workflow-routing",
+      "condition": "always",
+      "reason": "Workflow class selection regression",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-04",
+      "command": "npm run eval:workflow-evidence",
+      "condition": "always",
+      "reason": "Workflow evidence regression",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-05",
+      "command": "npm run detect-skill-overlap",
+      "condition": "always",
+      "reason": "Sibling skill collision/overlap",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-06",
+      "command": "npm run lint-skill-contracts",
+      "condition": "always",
+      "reason": "Portable SKILL.md metadata and structure",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-07",
+      "command": "npm run analyze-skill-tree-coverage",
+      "condition": "always",
+      "reason": "Skill coverage accounting",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-08",
+      "command": "npm run validate-instruction-bundle",
+      "condition": "always",
+      "reason": "Instruction bundle schema",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-09",
+      "command": "npm run validate-instruction-integrity",
+      "condition": "always",
+      "reason": "Instruction integrity and pinning",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-10",
+      "command": "npm run validate-registry-disposition",
+      "condition": "always",
+      "reason": "Existing registry disposition fixture contract",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-11",
+      "command": "npm run test-registry-disposition-schema",
+      "condition": "always",
+      "reason": "Python registry schema regression",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-12",
+      "command": "npm run validate-skill-selection",
+      "condition": "always",
+      "reason": "Skill-selection contract",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-13",
+      "command": "npm run validate-behavioral-eval",
+      "condition": "always",
+      "reason": "Behavioral-eval contract",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-14",
+      "command": "npm run eval:skill-effectiveness",
+      "condition": "after-skill-admission-only",
+      "reason": "Tier 3-effectiveness: never execute unadmitted skill",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-15",
+      "command": "npm run skill:frontdoor -- --skill-id <candidate-id> --target <exact-staged-dir> --action implement --source-revision <immutable-source-revision>",
+      "condition": "when-skill-candidate-changes",
+      "reason": "G0/G1/G2/G3 exact-candidate mandatory admission; dynamic inputs resolved by approved manifest, not shell templating",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-16",
+      "command": "node scripts/tools/validate-registry-disposition.mjs <new-run-disposition-file>",
+      "condition": "when-registry-relevant-change",
+      "reason": "Validate actual change-specific disposition, not just static historical fixtures",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-17",
+      "command": "npm run eval:provider-export-alignment",
+      "condition": "when-provider-export-changes",
+      "reason": "Already in legacy CI but require post-generation exact-digest/manifest comparison",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-18",
+      "command": "npm run test:activation",
+      "condition": "when-runtime-activation-changes",
+      "reason": "Activation contract only, not permission to activate external runtime",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-19",
+      "command": "npm run eval:context-assembly",
+      "condition": "when-context-assembly-changes",
+      "reason": "Additional context assembly effectiveness regression",
+      "evidence_required": true
+    },
+    {
+      "id": "supp-20",
+      "command": "npm run test:merge-attestation",
+      "condition": "when-merge-authority-changes",
+      "reason": "Existing CI check plus exact change-specific receipt review",
+      "evidence_required": true
+    }
+  ],
+  "relay_repository": "t-wim/unitera-ci-relay",
+  "relay_profile_id": "maws-full-ci",
+  "relay_state": "NOT_IMPLEMENTED_NOT_QUALIFIED",
+  "cutover_state": "BLOCKED",
+  "evidence_requirements": [
+    "immutable-source-commit-and-tree-sha",
+    "exact-legacy-script-content-parity",
+    "full-git-history-for-merge-audit",
+    "pinned-node24-npm-and-lock-dependencies",
+    "isolated-execution-no-source-on-runner-host",
+    "independent-verifier-real-exit-code-and-timeout-evidence",
+    "new-skill-frontdoor-reports-per-candidate",
+    "provider-registry-and-digest-requalification",
+    "per-gate-completion-and-negative-tests",
+    "source-sha-bound-github-required-status",
+    "owner-and-t-wim-release-admission",
+    "canary-failure-timeout-cancel-recovery-and-rollback",
+    "no-legacy-workflow-delete-before-two-complete-reconciled-green-runs"
+  ],
+  "note": "Manifest is an exact legacy CI inventory plus explicit additional MAWS governance gates. It is not a qualified executable plan; templated conditional commands are instructions for an independently admitted controller, NEVER shell-evaluated or assumed satisfied."
+}
