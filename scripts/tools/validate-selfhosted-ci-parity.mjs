@@ -67,15 +67,20 @@ export function parseLegacyWorkflow(input) {
         }
       }
     } else {
-      if (block[runIndex] !== '        run: |') {
-        throw new Error('Only exact multiline run blocks are admitted: ' + match[1]);
+      if (block[runIndex] === '        run: |') {
+        const scriptLines = block.slice(runIndex + 1);
+        if (scriptLines.some((line) => line.trim() && !line.startsWith('          '))) {
+          throw new Error('Unexpected multiline run indentation: ' + match[1]);
+        }
+        step.run = scriptLines.filter((line) => line.startsWith('          '))
+          .map((line) => line.slice(10)).join('\n');
+      } else {
+        const inline = block[runIndex].slice('        run: '.length);
+        if (!inline || block.slice(runIndex + 1).some((line) => line.trim())) {
+          throw new Error('Unexpected inline run block: ' + match[1]);
+        }
+        step.run = inline;
       }
-      const scriptLines = block.slice(runIndex + 1);
-      if (scriptLines.some((line) => line.trim() && !line.startsWith('          '))) {
-        throw new Error('Unexpected run block indentation: ' + match[1]);
-      }
-      step.run = scriptLines.filter((line) => line.startsWith('          '))
-        .map((line) => line.slice(10)).join('\n');
       if (!step.run) throw new Error('Empty run block: ' + match[1]);
     }
     steps.push(step);
