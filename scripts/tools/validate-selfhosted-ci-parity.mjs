@@ -84,6 +84,14 @@ export function parseLegacyWorkflow(input) {
   return steps;
 }
 
+function stableValue(value) {
+  if (Array.isArray(value)) return value.map(stableValue);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stableValue(value[key])]));
+  }
+  return value;
+}
+
 export function validateParityInventory(manifest, sourceText, sourceBuffer) {
   const problems = [];
   if (manifest?.schema !== 'maws.selfhosted-ci-parity-candidate.v1') {
@@ -107,7 +115,7 @@ export function validateParityInventory(manifest, sourceText, sourceBuffer) {
     problems.push('legacy workflow step count or inventory mismatch');
   } else {
     for (let i = 0; i < steps.length; i += 1) {
-      if (JSON.stringify(manifest.legacy_steps[i]) !== JSON.stringify(steps[i])) {
+      if (JSON.stringify(stableValue(manifest.legacy_steps[i])) !== JSON.stringify(stableValue(steps[i]))) {
         problems.push('legacy step drift: ' + steps[i].id + ' ' + steps[i].name);
       }
     }
