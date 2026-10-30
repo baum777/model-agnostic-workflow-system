@@ -68,6 +68,14 @@ test('blanket admission removal is detected', () => {
   assert.equal(check(candidate).ok, false);
 });
 
+test('inline commands and multiline scripts retain exact command bytes', () => {
+  const steps = parseLegacyWorkflow(yaml);
+  assert.equal(steps[3].run, 'npm ci --ignore-scripts --no-audit --no-fund');
+  assert.match(steps[2].run, /node --check scripts\/tools\/baum-loop-repo\.mjs/);
+  assert.equal(steps[6].run, 'npm run scan:source-security');
+  assert.equal(steps[22].run, 'node scripts/tools/ci-gate.mjs');
+});
+
 test('checkout Git history and Node version are explicit source-custody requirements', () => {
   const steps = parseLegacyWorkflow(yaml);
   assert.equal(steps[0].action, 'actions/checkout@v4');
