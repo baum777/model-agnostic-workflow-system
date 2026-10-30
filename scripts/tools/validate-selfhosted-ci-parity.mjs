@@ -61,6 +61,7 @@ export function parseLegacyWorkflow(input) {
       if (withIndex >= 0) {
         for (let j = withIndex + 1; j < block.length && block[j].startsWith('          '); j += 1) {
           const param = block[j].trim().match(/^([\w-]+):\s*(.*)$/);
+          if (!param && /^#/.test(block[j].trim())) continue;
           if (!param) throw new Error('Unrecognized action parameter: ' + block[j]);
           step.with[param[1]] = param[2];
         }
